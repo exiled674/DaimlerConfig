@@ -1,0 +1,44 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    background: #f4f5f6;
+}
+
+* {
+    box-sizing: inherit;
+}
+
+.lineName {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.screen {
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - 80px); /* Platz für Header */
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.stations {
+    width: 200px;
+    background: gray;
+    border-radius: 8px;
+    height: 90%;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.table_area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
