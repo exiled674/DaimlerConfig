@@ -1,0 +1,71 @@
+# .NET Core
+bin/
+obj/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# User-specific files
+.vs/
+.idea/
+.vscode/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows Installer logs
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows Installer files
+Thumbs.db
+ehthumbs.db
+
+# Windows Installer logs
+*.log
+
+# User-specific files
+.vscode/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# User-specific files
+.vs/
+.vscode/
+
+# JetBrains Rider
+.idea/
+
+# ASP.NET files
+appsettings.Development.json
+appsettings.Local.json
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# macOS
+.DS_Store
+
+# npm and Yarn
+node_modules/
+
+# .NET Core specific files
+.vscode/
+
+# Log files
+*.log
