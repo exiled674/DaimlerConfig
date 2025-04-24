@@ -1,10 +1,12 @@
 ﻿
 <div class="my-grid-wrapper">
-    <QuickGrid Items="people" class="quickGrid">
+    <QuickGrid Items="tableHead" class="quickGrid">
         <Columns>
-            <PropertyColumn Property="@(p => p.Id)"           Title="ID"           Sortable="true" />
-            <PropertyColumn Property="@(p => p.Name)"         Title="Name"         Sortable="true" />
-            <PropertyColumn Property="@(p => p.Geburtsdatum)" Title="Geburtsdatum" Format="yyyy-MM-dd" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Tool)" Title="Tool" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Operation)" Title="Operation" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Classes)" Title="Classes" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Network)" Title="Network" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Status)" Title="Status" Sortable="true" />
         </Columns>
     </QuickGrid>
 </div>
@@ -15,20 +17,16 @@
 
 
     // Beispieldaten als IQueryable
-    private IQueryable<Person> people = new List<Person>
+    private IQueryable<TableHead> tableHead = new List<TableHead>
     {
-        new(1, "Max Mustermann", new DateOnly(1980, 5,  1)),
-        new(2, "Erika Musterfrau", new DateOnly(1990, 3, 15)),
-        new(3, "Hans Bauer", new DateOnly(1975, 8, 20)),
-        new(4, "Max Mustermann", new DateOnly(1980, 5,  1)),
-        new(5, "Erika Musterfrau", new DateOnly(1990, 3, 15)),
-        new(6, "Hans Bauer", new DateOnly(1975, 8, 20)),
-        new(7, "Max Mustermann", new DateOnly(1980, 5,  1)),
-        new(8, "Erika Musterfrau", new DateOnly(1990, 3, 15)),
-        new(9, "Hans Bauer", new DateOnly(1975, 8, 20)),
+        new("Tool1", "Operation1", "Class1", "Network1", "Status1"),
+        new("Tool2", "Operation2", "Class2", "Network2", "Status2"),
+        new("Tool3", "Operation3", "Class3", "Network3", "Status3"),
+        new("Tool4", "Operation4", "Class4", "Network4", "Status4"),
         // … weitere Datensätze …
     }.AsQueryable();
 
     // Einfache Record-Klasse
-    private record Person(int Id, string Name, DateOnly Geburtsdatum);
+    private record TableHead(string Tool, string Operation, string Classes, string Network, string Status);
+
 }
