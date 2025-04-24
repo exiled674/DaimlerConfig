@@ -1,0 +1,27 @@
+/* pierce Blazor CSS-Isolation */
+::deep table.quickGrid {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+::deep table.quickGrid th {
+    background: #ADB5BD;
+    color: #000;
+    border: 1px solid #000;
+    padding: 0.5em;
+    text-align: left;
+}
+
+/* Body-Zellen */
+::deep table.quickGrid td {
+    background: #D9D9D9; 
+    border: 1px solid #000;
+    padding: 0.5em;
+    position: relative;
+}
+
+::deep table.quickGrid td:hover {
+    cursor: pointer;
+    background: #ADB5BD;
+}
+

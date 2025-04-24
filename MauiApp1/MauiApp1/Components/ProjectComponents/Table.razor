@@ -1,11 +1,14 @@
 ﻿
-<QuickGrid Items="people">
-            <Columns>
-                <PropertyColumn Property="@(p => p.Id)"           Title="ID"               Sortable="true" />
-                <PropertyColumn Property="@(p => p.Name)"         Title="Name"             Sortable="true" />
-                <PropertyColumn Property="@(p => p.Geburtsdatum)" Title="Geburtsdatum"     Format="yyyy-MM-dd" Sortable="true" />
-            </Columns>
-</QuickGrid>
+<div class="my-grid-wrapper">
+    <QuickGrid Items="people" class="quickGrid">
+        <Columns>
+            <PropertyColumn Property="@(p => p.Id)"           Title="ID"           Sortable="true" />
+            <PropertyColumn Property="@(p => p.Name)"         Title="Name"         Sortable="true" />
+            <PropertyColumn Property="@(p => p.Geburtsdatum)" Title="Geburtsdatum" Format="yyyy-MM-dd" Sortable="true" />
+        </Columns>
+    </QuickGrid>
+</div>
+
 
 
 @code {
