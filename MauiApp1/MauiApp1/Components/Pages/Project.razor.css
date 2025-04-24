@@ -26,15 +26,6 @@ html, body {
     padding: 1rem;
 }
 
-.stations {
-    width: 200px;
-    background: gray;
-    border-radius: 8px;
-    height: 90%;
-    margin-top: auto;
-    margin-bottom: auto;
-}
-
 .table_area {
     flex: 1;
     display: flex;
