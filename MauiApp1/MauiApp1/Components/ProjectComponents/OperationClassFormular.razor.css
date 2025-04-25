@@ -1,0 +1,71 @@
+.operation-class-container {
+    background: #ADB5BD;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin: 1rem 0;
+}
+
+.operation-class-header {
+    background: #707070;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 0.75rem 1rem;
+}
+
+.operation-class-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 1rem;
+}
+
+.form-field label,
+.form-wide label {
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.input-with-help {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-with-help select,
+.input-with-help textarea {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    width: 100%;
+    resize: vertical;
+}
+
+.help-icon {
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    line-height: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.form-wide {
+    flex: 1 1 100%;
+}
