@@ -1,14 +1,25 @@
-﻿
-
-<div class="stations">
-    <button>
-        Station1
-    </button>
-    <button>
-        Station2
-    </button>
+﻿<div class="stations">
+    @if (stations != null)
+    {
+        foreach (var station in stations)
+        {
+            <button>@station</button>
+        }
+    }
+    <div class="fixed-footer">
+        <button>Create new Station</button>
+    </div>
 </div>
 
 @code {
+    List<string>? stations;
 
+    protected override void OnInitialized()
+    {
+        stations = new List<string>();
+        for (int i = 1; i < 25; i++)
+        {
+            stations.Add("Station: " + i.ToString());
+        }
+    }
 }
