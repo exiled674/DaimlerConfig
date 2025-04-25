@@ -28,19 +28,15 @@
     border-radius: 8px;
     position: sticky;
     bottom: 0;
-    background: #ADB5BD;
-    opacity: 0.5;
+    background: rgba(173, 181, 189, 0.5);
     padding: 10px;
     text-align: center;
-    z-index: 1;
+    z-index: 2;
     border: 1px solid #333;
     width: 100%;
     margin: 0px;
 }
 
-.fixed-footer button {
-    opacity: 1;
-}
 
 .stations::-webkit-scrollbar {
     width: 8px;
