@@ -20,13 +20,13 @@
         <Table SetFormular="SetFormular"></Table>
         @switch (formular)
         {
-            case 0:
+            case "toolFormular":
                 <ToolFormular></ToolFormular>
                 break;
-            case 1:
+            case "operationFormular":
                 <OperationFormular></OperationFormular>
                 break;
-            case 2: 
+            case "operationclassFormular": 
                 <OperationClassFormular></OperationClassFormular>
                 break;
         }
@@ -36,9 +36,9 @@
 
 @code {
 
-    private int formular = -1;
+    private string formular;
 
-    private void SetFormular(int value)
+    private void SetFormular(string value)
     {
         formular = value;
 
