@@ -2,21 +2,51 @@
 <div class="my-grid-wrapper">
     <QuickGrid Items="tableHead" class="quickGrid">
         <Columns>
-            <PropertyColumn Property="@(p => p.Tool)" Title="Tool"  />
-            <PropertyColumn Property="@(p => p.Operation)" Title="Operation"  />
-            <PropertyColumn Property="@(p => p.Classes)" Title="Classes"  />
-            <PropertyColumn Property="@(p => p.Network)" Title="Network"  />
-            <PropertyColumn Property="@(p => p.Status)" Title="Status"  />
+            <TemplateColumn Title="Tool">
+                <CellTemplate>
+                    <div @onclick="() => SetTool(context)">
+                        @context.Tool
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Operation">
+                <CellTemplate>
+                    <div @onclick="() => SetOperation(context)">
+                        @context.Operation
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Classes">
+                <CellTemplate>
+                    <div @onclick="() => SetClasses(context)">
+                        @context.Classes
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Network">
+                <CellTemplate>
+                    <div @onclick="() => SetNetwork(context)">
+                        @context.Network
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Status">
+                <CellTemplate>
+                    <div @onclick="() => SetStatus(context)">
+                        @context.Status
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
         </Columns>
     </QuickGrid>
 </div>
 
-
-
 @code {
 
+    [Parameter]
+    public EventCallback<int> SetFormular { get; set; }
 
-    // Beispieldaten als IQueryable
+
     private IQueryable<TableHead> tableHead = new List<TableHead>
     {
         new("Tool1", "Operation1", "Class1", "Network1", "Status1"),
@@ -26,7 +56,34 @@
         // … weitere Datensätze …
     }.AsQueryable();
 
-    // Einfache Record-Klasse
     private record TableHead(string Tool, string Operation, string Classes, string Network, string Status);
+
+
+    private void SetTool(TableHead item)
+    {
+        SetFormular.InvokeAsync(0);
+    }
+
+    private void SetOperation(TableHead item)
+    {
+        SetFormular.InvokeAsync(1);
+    }
+
+
+    private void SetClasses(TableHead item)
+    {
+        SetFormular.InvokeAsync(2);
+    }
+
+    private void SetNetwork(TableHead item)
+    {
+        SetFormular.InvokeAsync(3);
+    }
+    
+    private void SetStatus(TableHead item)
+    {
+        SetFormular.InvokeAsync(4);
+    }
+
 
 }
