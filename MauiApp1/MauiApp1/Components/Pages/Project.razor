@@ -18,7 +18,18 @@
     <Stations></Stations>
     <div class="table_area">
         <Table SetFormular="SetFormular"></Table>
-        <OperationClassFormular></OperationClassFormular>
+        @switch (formular)
+        {
+            case 0:
+                <ToolFormular></ToolFormular>
+                break;
+            case 1:
+                <OperationFormular></OperationFormular>
+                break;
+            case 2: 
+                <OperationClassFormular></OperationClassFormular>
+                break;
+        }
     </div>
 
 </div>
