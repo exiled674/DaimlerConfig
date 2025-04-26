@@ -1,7 +1,7 @@
 ﻿<!-- Component: Form Field -->
 <div class="form-field @Class">
     <label for="@Id">@Label:</label>
-    <div class="input-wrapper">
+    <div class="input-wrapper @(IsError ? "error" : "")">
         @if (InputType == "select")
         {
             <select id="@Id" @attributes="AdditionalAttributes">
@@ -47,5 +47,6 @@
     [Parameter] public RenderFragment Options { get; set; }
     [Parameter] public bool ShowDropdownIcon { get; set; }
     [Parameter] public string Class { get; set; }
+    [Parameter] public bool IsError { get; set; }
     [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object> AdditionalAttributes { get; set; }
 }

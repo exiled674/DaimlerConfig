@@ -1,13 +1,11 @@
-﻿
-/* Base styles */
-
+﻿/* Base styles */
 :root {
     --primary-bg: #B8BFC6;
     --header-bg: #707070;
     --header-color: #ffffff;
     --border-color: #cccccc;
     --error-color: #dc3545;
-    --help-bg: #e0e0e0;
+    --help-bg: #ADB5BD; /* Standardisierte Farbe für Help-Icon */
     --font-family: Arial, sans-serif;
 }
 
@@ -44,23 +42,23 @@ body {
     padding: 1rem;
 }
 
-.form-content.grid-layout {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-}
+    .form-content.grid-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
 
-.form-content.flex-layout {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
+    .form-content.flex-layout {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
 
-.form-content.three-column {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-}
+    .form-content.three-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+    }
 
 .full-width {
     grid-column: 1 / -1;
@@ -77,11 +75,11 @@ body {
     margin-bottom: 1rem;
 }
 
-.form-field label {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: #333;
-}
+    .form-field label {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
 
 .input-wrapper {
     display: flex;
@@ -89,43 +87,52 @@ body {
     position: relative;
 }
 
-.input-wrapper input,
-.input-wrapper select,
-.input-wrapper textarea {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    font-size: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: white;
-}
+    .input-wrapper input,
+    .input-wrapper select,
+    .input-wrapper textarea {
+        flex: 1;
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: white;
+    }
 
-.input-wrapper input[readonly] {
-    background-color: #f8f8f8;
-}
+        .input-wrapper input[readonly] {
+            background-color: #f8f8f8;
+        }
 
-.input-wrapper.error input,
-.input-wrapper.error select,
-.input-wrapper.error textarea {
-    border-color: var(--error-color);
-}
+    .input-wrapper.error input,
+    .input-wrapper.error select,
+    .input-wrapper.error textarea {
+        border-color: var(--error-color);
+    }
 
-/* Help icon */
+/* Standardisiertes Help-Icon für alle Komponenten */
 .help-icon {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 24px;
     height: 24px;
     border-radius: 50%;
     background-color: var(--help-bg);
-    color: #333;
+    color: black;
     font-weight: bold;
     margin-left: 0.5rem;
     cursor: pointer;
     user-select: none;
+    box-shadow: inset -1px -1px 1px rgba(0,0,0,0.25);
+    font-size: 16px;
 }
 
+/* Einheitlicher Dropdown-Icon */
+.dropdown-icon {
+    position: absolute;
+    right: 0.5rem;
+    pointer-events: none;
+    color: #333;
+}
 
 /* Character counter */
 .char-counter {
