@@ -24,7 +24,6 @@ html, body {
     height: calc(100vh - 80px); /* Platz für Header */
     gap: 1rem;
     padding: 1rem;
-    background:
 }
 
 .table_area {

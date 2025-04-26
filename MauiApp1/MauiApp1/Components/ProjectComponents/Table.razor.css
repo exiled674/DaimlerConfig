@@ -1,9 +1,13 @@
 
 .my-grid-wrapper {
-    height: 70%;
+    max-height: 70%;
+    min-height: 30%;
     overflow: scroll;
+    scrollbar-color: #ADB5BD #DEE2E6;
     font-size: 22px;
     background: #D9D9D9;
+    display: flex;
+    flex-direction: column;
 }
 
 
@@ -53,9 +57,9 @@
 #addRow {
     background: #D9D9D9;
     width: 100%;
-    height: 10%;
+    height: 40px;
     font-size: 24px;
-    padding: 5px 0px 5px 0;
+    border-width:1px; 
 }
 
 #addRow:hover {

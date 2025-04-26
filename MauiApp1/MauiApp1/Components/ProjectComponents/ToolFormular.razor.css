@@ -1,9 +1,7 @@
+
 .tool-container {
-    max-width: 100%;
-    background: #ADB5BD;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    width: 100%;
+    background-color: #B8BFC6;
 }
 
 .tool-header {
