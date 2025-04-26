@@ -1,57 +1,24 @@
-﻿<div class="tool-container">
-    <!-- header bar -->
-    <div class="tool-header">Operation</div>
+﻿@* Operation Component *@
+<FormContainer Title="Operation">
+    <div class="form-content grid-layout">
+        <FormField Id="op-id" Label="Operation ID" Value="23" AdditionalAttributes='new Dictionary<string, object> { { "readonly", "readonly" } }' />
 
-    <!-- form -->
-    <form class="tool-form">
-        <!-- Operation ID – full width -->
-        <div class="form-row">
-            <label for="op-id">Operation ID:</label>
-            <div class="input-group">
-                <input type="text" id="op-id" value="23" readonly>
-            </div>
-        </div>
+        <FormField Id="op-serial-parallel" Label="Serial/Parallel" InputType="select" ShowDropdownIcon="true">
+            <Options>
+                <option value="serial">Serial</option>
+                <option value="parallel">Parallel</option>
+            </Options>
+        </FormField>
 
-        <div class="form-row">
-            <label for="op-id">Serial/Parallel:</label>
-            <div class="input-group">
-                <select id="tool-type">
-                    <option value="">Serial</option>
-                    <option value="">Parallel</option>
-                </select>
-            </div>
-        </div>
+        <FormField Id="op-shortname" Label="Operation ShortName" Placeholder="Operation 1" MaxLength="16" />
 
-        <!-- Operation ShortName -->
-        <div class="form-row">
-            <label for="op-shortname">Operation ShortName:</label>
-            <div class="input-group">
-                <input type="text" id="op-shortname" placeholder="Operation 1" maxlength="16">
-            </div>
-        </div>
+        <FormField Id="op-sequenz" Label="Operation Sequenz" Placeholder="Fehler"
+                   AdditionalAttributes='new Dictionary<string, object> { { "class", "error" } }' />
 
-        <!-- Operation Sequenz (with error state) -->
-        <div class="form-row">
-            <label for="op-sequenz">Operation Sequenz:</label>
-            <div class="input-group error">
-                <input type="text" id="op-sequenz" placeholder="Fehler">
-            </div>
-        </div>
+        <FormField Id="op-description" Label="Operation Description" InputType="textarea"
+                   Rows="4" MaxLength="100" ShowCounter="true" />
 
-        <!-- add other rows here… -->
-        <div class="form-row">
-            <label for="op-sequenz">Operation Description:</label>
-            <div class="input-group error">
-                <textarea id="tool-description" rows="4" maxlength="100"></textarea>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <label for="op-sequenz">Operation Sequenz Group:</label>
-            <div class="input-group error">
-                <textarea id="tool-description" rows="4" maxlength="100"></textarea>
-            </div>
-        </div>
-
-    </form>
-</div>
+        <FormField Id="op-sequenz-group" Label="Operation Sequenz Group" InputType="textarea"
+                   Rows="4" MaxLength="100" ShowCounter="true" />
+    </div>
+</FormContainer>

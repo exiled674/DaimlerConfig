@@ -1,27 +1,15 @@
-﻿<div class="status-container">
-    <div class="status-header">
-        Status
-        <div class="arrow-down">↓</div>
-    </div>
+﻿@* Status Component *@
 
-    <div class="status-form">
-        <div class="form-group">
-            <label for="config-explorer">Config Explorer Status:</label>
-            <div class="input-container">
-                <textarea id="config-explorer" class="textarea-input"></textarea>
-                <div class="help-icon">?</div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="colour-status">Colour Status:</label>
-            <div class="input-container">
-                <select id="colour-status" class="select-input">
-                    <option value=""></option>
-                </select>
-                <span class="dropdown-arrow">⌵</span>
-                <div class="help-icon">?</div>
-            </div>
-        </div>
+<FormContainer Title="Status" Collapsible="false">
+    <div class="form-content flex-layout">
+        <FormField Id="config-explorer" Label="Config Explorer Status" InputType="textarea" 
+                   Rows="5" ShowHelp="true" />
+        
+        <FormField Id="colour-status" Label="Colour Status" InputType="select" 
+                   ShowHelp="true">
+            <Options>
+                <option value=""></option>
+            </Options>
+        </FormField>
     </div>
-</div>
+</FormContainer>

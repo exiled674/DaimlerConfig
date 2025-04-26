@@ -1,59 +1,26 @@
-﻿<div class="tool-container">
-    <!-- header bar -->
-    <div class="tool-header">Tool</div>
+﻿@* Tool Component *@
+<FormContainer Title="Tool">
+    <div class="form-content grid-layout">
+        <FormField Id="tool-id" Label="Tool ID" Value="64" ShowHelp="true"
+                   AdditionalAttributes='new Dictionary<string, object> { { "readonly", "readonly" } }'
+                   Class="full-width" />
 
-    <!-- form -->
-    <form class="tool-form">
+        <FormField Id="tool-shortname" Label="Tool ShortName" Placeholder="Tool 1"
+                   MaxLength="16" ShowHelp="true" />
 
-        <!-- Tool ID – volle Breite -->
-        <div class="form-row full">
-            <label for="tool-id">Tool ID:</label>
-            <div class="input-group">
-                <input type="text" id="tool-id" value="64" readonly>
-                <span class="help-icon">?</span>
-            </div>
-        </div>
+        <FormField Id="tool-class" Label="Tool Class" InputType="select" ShowHelp="true">
+            <Options>
+                <option value="">Select...</option>
+            </Options>
+        </FormField>
 
-        <!-- Tool ShortName -->
-        <div class="form-row">
-            <label for="tool-shortname">Tool ShortName:</label>
-            <div class="input-group">
-                <input type="text" id="tool-shortname" placeholder="Tool 1" maxlength="16">
-                <span class="help-icon">?</span>
-            </div>
-        </div>
+        <FormField Id="tool-description" Label="Tool Description" InputType="textarea"
+                   Rows="4" MaxLength="100" ShowHelp="true" ShowCounter="true" />
 
-        <!-- Tool Class -->
-        <div class="form-row">
-            <label for="tool-class">Tool Class:</label>
-            <div class="input-group">
-                <select id="tool-class">
-                    <option value="">Select…</option>
-                    <!-- … -->
-                </select>
-                <span class="help-icon">?</span>
-            </div>
-        </div>
-
-        <!-- Tool Description -->
-        <div class="form-row">
-            <label for="tool-description">Tool Description:</label>
-            <div class="input-group">
-                <textarea id="tool-description" rows="4" maxlength="100"></textarea>
-                <span class="help-icon">?</span>
-            </div>
-        </div>
-
-        <!-- Tool Type -->
-        <div class="form-row">
-            <label for="tool-type">Tool Type:</label>
-            <div class="input-group">
-                <select id="tool-type">
-                    <option value="">Select…</option>
-                </select>
-                <span class="help-icon">?</span>
-            </div>
-        </div>
-
-    </form>
-</div>
+        <FormField Id="tool-type" Label="Tool Type" InputType="select" ShowHelp="true" ShowDropdownIcon="true">
+            <Options>
+                <option value="">Select...</option>
+            </Options>
+        </FormField>
+    </div>
+</FormContainer>

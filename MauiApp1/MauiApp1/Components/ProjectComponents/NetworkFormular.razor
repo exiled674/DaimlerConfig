@@ -1,64 +1,17 @@
-﻿<div class="network-container">
-    <div class="network-header">Network</div>
+﻿@* Network Component *@
+<FormContainer Title="Network">
+    <div class="form-content three-column">
+        @* First row *@
+        <FormField Id="ip-address" Label="IP-Address Device" Value="172.168.10.59" ShowHelp="true" />
+        <FormField Id="dbno-send" Label="DBNo Send" ShowHelp="true" />
+        <FormField Id="address-send-db" Label="Address in Send-DB" ShowHelp="true" />
 
-    <div class="network-form">
-        <!-- First row -->
-        <div class="form-group">
-            <label for="ip-address">IP-Address Device:</label>
-            <div class="input-container">
-                <input type="text" id="ip-address" value="172.168.10.59">
-                <div class="help-icon">?</div>
-            </div>
-        </div>
+        @* Second row *@
+        <FormField Id="plc-name" Label="PLC Name" ShowHelp="true" />
+        <FormField Id="dbno-receive" Label="DBNo Receive" ShowHelp="true" />
+        <FormField Id="address-receive-db" Label="Address in Receive-DB" ShowHelp="true" />
 
-        <div class="form-group">
-            <label for="dbno-send">DBNo Send:</label>
-            <div class="input-container">
-                <input type="text" id="dbno-send">
-                <div class="help-icon">?</div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="address-send-db">Address in Send-DB:</label>
-            <div class="input-container">
-                <input type="text" id="address-send-db">
-                <div class="help-icon">?</div>
-            </div>
-        </div>
-
-        <!-- Second row -->
-        <div class="form-group">
-            <label for="plc-name">PLC Name:</label>
-            <div class="input-container">
-                <input type="text" id="plc-name">
-                <div class="help-icon">?</div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="dbno-receive">DBNo Receive:</label>
-            <div class="input-container">
-                <input type="text" id="dbno-receive">
-                <div class="help-icon">?</div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="address-receive-db">Address in Receive-DB:</label>
-            <div class="input-container">
-                <input type="text" id="address-receive-db">
-                <div class="help-icon">?</div>
-            </div>
-        </div>
-
-        <!-- Third row - centered -->
-        <div class="form-group byte-pre-check" style="grid-column: 2;">
-            <label for="byte-pre-check">Byte Pre Check:</label>
-            <div class="input-container">
-                <input type="text" id="byte-pre-check" style="width: 60px;">
-                <div class="help-icon">?</div>
-            </div>
-        </div>
+        @* Third row - centered *@
+        <FormField Id="byte-pre-check" Label="Byte Pre Check" Class="center-column" ShowHelp="true" />
     </div>
-</div>
+</FormContainer>

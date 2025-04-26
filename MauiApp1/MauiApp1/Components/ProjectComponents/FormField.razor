@@ -1,0 +1,51 @@
+﻿<!-- Component: Form Field -->
+<div class="form-field @Class">
+    <label for="@Id">@Label:</label>
+    <div class="input-wrapper">
+        @if (InputType == "select")
+        {
+            <select id="@Id" @attributes="AdditionalAttributes">
+                @Options
+            </select>
+            @if (ShowDropdownIcon)
+            {
+                <span class="dropdown-icon">⌵</span>
+            }
+        }
+        else if (InputType == "textarea")
+        {
+            <textarea id="@Id" rows="@Rows" maxlength="@MaxLength" placeholder="@Placeholder" @attributes="AdditionalAttributes"></textarea>
+        }
+        else
+        {
+            <input type="@InputType" id="@Id" value="@Value" placeholder="@Placeholder" maxlength="@MaxLength" @attributes="AdditionalAttributes" />
+        }
+
+        @if (ShowHelp)
+        {
+            <div class="help-icon" @onclick="OnHelpClick">?</div>
+        }
+
+        @if (MaxLength > 0 && ShowCounter)
+        {
+            <div class="char-counter">0/@MaxLength</div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string Label { get; set; }
+    [Parameter] public string InputType { get; set; } = "text";
+    [Parameter] public string Value { get; set; }
+    [Parameter] public string Placeholder { get; set; }
+    [Parameter] public int MaxLength { get; set; }
+    [Parameter] public bool ShowHelp { get; set; } = true;
+    [Parameter] public bool ShowCounter { get; set; }
+    [Parameter] public EventCallback OnHelpClick { get; set; }
+    [Parameter] public int Rows { get; set; } = 4;
+    [Parameter] public RenderFragment Options { get; set; }
+    [Parameter] public bool ShowDropdownIcon { get; set; }
+    [Parameter] public string Class { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object> AdditionalAttributes { get; set; }
+}

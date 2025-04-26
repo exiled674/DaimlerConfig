@@ -1,49 +1,31 @@
-﻿<div class="operation-class-container">
-    <div class="operation-class-header">Operation Classes</div>
+﻿@* Operation Classes Component *@
+<FormContainer Title="Operation Classes">
+    <div class="form-content grid-layout">
+        <FormField Id="decision-class" Label="Decision Class" InputType="select" ShowHelp="true" ShowDropdownIcon="true">
+            <Options>
+                <option value=""></option>
+            </Options>
+        </FormField>
 
-    <div class="operation-class-form">
-        <div class="form-column">
-            <div class="form-field">
-                <label>Decision Class:</label>
-                <div class="input-with-help">
-                    <select></select>
-                    <span class="help-icon">?</span>
-                </div>
-            </div>
+        <FormField Id="verification-class" Label="Verification Class" InputType="select" ShowHelp="true" ShowDropdownIcon="true">
+            <Options>
+                <option value=""></option>
+            </Options>
+        </FormField>
 
-            <div class="form-field">
-                <label>Generation Class:</label>
-                <div class="input-with-help">
-                    <select></select>
-                    <span class="help-icon">?</span>
-                </div>
-            </div>
-        </div>
+        <FormField Id="generation-class" Label="Generation Class" InputType="select" ShowHelp="true" ShowDropdownIcon="true">
+            <Options>
+                <option value=""></option>
+            </Options>
+        </FormField>
 
-        <div class="form-column">
-            <div class="form-field">
-                <label>Verification Class:</label>
-                <div class="input-with-help">
-                    <select></select>
-                    <span class="help-icon">?</span>
-                </div>
-            </div>
+        <FormField Id="saving-class" Label="Saving Class" InputType="select" ShowHelp="true" ShowDropdownIcon="true">
+            <Options>   
+                <option value=""></option>
+            </Options>
+        </FormField>
 
-            <div class="form-field">
-                <label>Saving Class:</label>
-                <div class="input-with-help">
-                    <select></select>
-                    <span class="help-icon">?</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-wide">
-            <label>OP Decision Criteria/Attribute:</label>
-            <div class="input-with-help">
-                <textarea rows="5"></textarea>
-                <span class="help-icon">?</span>
-            </div>
-        </div>
+        <FormField Id="op-decision-criteria" Label="OP Decision Criteria/Attribute" InputType="textarea"
+                   Rows="5" ShowHelp="true" Class="full-width" />
     </div>
-</div>
+</FormContainer>

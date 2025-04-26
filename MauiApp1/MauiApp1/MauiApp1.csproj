@@ -61,6 +61,15 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include="Components\ProjectComponents\FormField.razor.css" />
+      <Content Include="Components\ProjectComponents\NetworkFormular.razor.css" />
+      <Content Include="Components\ProjectComponents\OperationClassFormular.razor.css" />
+      <Content Include="Components\ProjectComponents\OperationFormular.razor.css" />
+      <Content Include="Components\ProjectComponents\StatusFormular.razor.css" />
+      <Content Include="Components\ProjectComponents\ToolFormular.razor.css" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.4" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />

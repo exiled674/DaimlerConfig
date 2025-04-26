@@ -1,0 +1,21 @@
+﻿<!-- Component: Base Container -->
+<div class="form-container">
+    <div class="form-header">
+        <span class="header-title">@Title</span>
+        @if (Collapsible)
+        {
+            <div class="header-icon">↓</div>
+        }
+    </div>
+
+    <div class="form-content @ContentClass">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public bool Collapsible { get; set; }
+    [Parameter] public string ContentClass { get; set; }
+}
