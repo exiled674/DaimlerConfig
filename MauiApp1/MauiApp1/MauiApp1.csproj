@@ -61,14 +61,19 @@
     </ItemGroup>
 
     <ItemGroup>
+      <AndroidResource Remove="Components\NewFolder\**" />
+      <Compile Remove="Components\NewFolder\**" />
+      <Content Remove="Components\NewFolder\**" />
+      <EmbeddedResource Remove="Components\NewFolder\**" />
+      <MauiXaml Remove="Components\NewFolder\**" />
+      <None Remove="Components\NewFolder\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.4" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Components\NewFolder\" />
     </ItemGroup>
 
 </Project>
