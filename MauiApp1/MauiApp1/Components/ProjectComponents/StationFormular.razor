@@ -1,27 +1,35 @@
 ﻿
 
 <div class="station-container">
-    <div class="tool-header">Station</div>
+
+    <div class="station-header">Station</div>
 
 
     <form class="station-form">
 
-        <div class="formElement">
-            <label for="assembly">Assemblystation</label>
-            <input type="text" id="assembly">
+        <div class="formCol">
+
+            <div class="formElement">
+                <label for="assembly">Assemblystation:</label>
+                <input type="text" id="assembly">
+            </div>
+
+            <div class="formElement">
+                <label for="desc">Assembly Description</label>
+                <input type="text" id="desc">
+            </div>
+
+            <div class="formElement">
+                <label for="assembly">Station Type</label>
+                <select id="tool-class">
+                    <option value="">Select…</option>
+                </select>
+            </div>
+
         </div>
 
-        <div class="formElement">
-            <label for="assembly">Assemblystation</label>
-            <input type="text" id="assembly">
-        </div>
-
-        <div class="formElement">
-            <label for="assembly">Assemblystation</label>
-            <input type="text" id="assembly">
-        </div>
-
-
+        <button>Create Station</button>
+        
     </form>
 
 </div>
