@@ -47,8 +47,12 @@
     }
 
 
+    public void reload()
+    {
+        stationNames = db.GetAllStationNames();
+        StateHasChanged();
+    }
 
-    
 
 
 }

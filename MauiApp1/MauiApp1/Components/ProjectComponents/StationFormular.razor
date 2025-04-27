@@ -38,13 +38,21 @@
 </div>
 
 @code {
+
+    [Parameter]
+    public EventCallback CreatedStation {get; set;}
+
     private string assemblyStation;
     private string assemblyDescription;
     private string stationType;
 
-    public void CreateStation()
+    
+
+    public async Task CreateStation()
     {
         db.addNewStation(999, stationType, 998, assemblyStation, assemblyDescription);
+        await CreatedStation.InvokeAsync();
+
     }
 
 
