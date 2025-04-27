@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Graphics.Win2D;
 
 namespace MauiApp1
 {
@@ -20,6 +21,7 @@ namespace MauiApp1
     		builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
+          
 
             return builder.Build();
         }
