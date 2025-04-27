@@ -61,7 +61,10 @@
 
     protected override void OnInitialized()
     {
+        db = new DBService();
         db.CreateDatabase();
+        db.InsertSomething();
+        db.GetAllStationNames();
 
     }
     
