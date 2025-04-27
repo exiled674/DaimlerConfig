@@ -59,18 +59,15 @@
         }
 
 .help-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    color: black;
-    background-color: #ADB5BD;
+    background-color: #e0e0e0;
     border-radius: 50%;
+    width: 22px;
+    height: 22px;
     text-align: center;
-    box-shadow: inset -1px -1px 1px rgba(0,0,0,0.25);
+    line-height: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
 }
 
 .char-counter {
