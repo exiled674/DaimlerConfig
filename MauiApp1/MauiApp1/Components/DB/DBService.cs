@@ -127,23 +127,26 @@ namespace MauiApp1.Components.DB
             {
                 connection.Open();
 
-                // Beispielwert für das Einfügen in die Station-Tabelle
-                var insertQuery = @"
-            INSERT INTO ""Station"" (""stationID"", ""stationNumber"", ""stationDescription"", ""StationType_idStationType"")
-            VALUES (@stationID, @stationNumber, @stationDescription, @stationType_idStationType);
-        ";
+                // 1. Eltern-Datensatz in StationType einfügen (falls noch nicht vorhanden)
+                var insertType = @"
+            INSERT OR IGNORE INTO StationType (idStationType, stationTypeName)
+            VALUES (@id, @name);";
+                connection.Execute(insertType, new { id = 1, name = "DefaultType" });
 
-                // Beispielwerte zum Einfügen
+                // 2. Datensatz in Station einfügen
+                var insertStation = @"
+            INSERT INTO Station
+              (stationID, stationNumber, stationDescription, StationType_idStationType)
+            VALUES
+              (@stationID, @stationNumber, @stationDescription, @stationType_idStationType);";
                 var parameters = new
                 {
                     stationID = 2,
                     stationNumber = "STN0012",
                     stationDescription = "Beispielstation2",
-                    stationType_idStationType = 1 // Dies muss mit einer gültigen StationType_id übereinstimmen
+                    stationType_idStationType = 1
                 };
-
-                // Ausführen der Abfrage mit den Parametern
-                connection.Execute(insertQuery, parameters);
+                connection.Execute(insertStation, parameters);
             }
         }
 

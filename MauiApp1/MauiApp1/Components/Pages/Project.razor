@@ -17,7 +17,7 @@
 
 <div class="screen">
 
-    <Stations></Stations>
+    <Stations StationNames=@stat></Stations>
     <div class="table_area">
         <Table SetFormular="SetFormular"></Table>
         @switch (formular)
@@ -44,9 +44,6 @@
 </div>
 
 @code {
-
-
-
     private string? formular;
 
 
@@ -57,15 +54,14 @@
     }
 
     private DBService db;
-
+    private List<string> stat;
 
     protected override void OnInitialized()
     {
         db = new DBService();
         db.CreateDatabase();
         db.InsertSomething();
-        db.GetAllStationNames();
-
+        stat = db.GetAllStationNames();
     }
     
 }

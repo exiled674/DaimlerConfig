@@ -1,7 +1,7 @@
 ﻿<div class="stations">
-    @if (stations != null)
+    @if (StationNames != null)
     {
-        foreach (var station in stations)
+        foreach (var station in StationNames)
         {
             <button>@station</button>
         }
@@ -11,15 +11,10 @@
     </div>
 </div>
 
-@code {
-    List<string>? stations;
 
-    protected override void OnInitialized()
-    {
-        stations = new List<string>();
-        for (int i = 1; i < 40; i++)
-        {
-            stations.Add("Station: " + i.ToString());
-        }
-    }
+
+@code {
+    [Parameter]
+    public List<string> StationNames { get; set; }
 }
+
