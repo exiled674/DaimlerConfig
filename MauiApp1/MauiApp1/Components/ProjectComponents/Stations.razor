@@ -1,8 +1,11 @@
 ﻿@using MauiApp1.Components.DB
+@inject DBService db
+
+
 <div class="stations">
-    @if (StationNames != null)
+    @if (stationNames != null)
     {
-        foreach (var station in StationNames)
+        foreach (var station in stationNames)
         {
             <button @onclick='() => SetCurrentStation(station)'>@station</button>
         }
@@ -15,13 +18,18 @@
 
 
 @code {
-    [Parameter]
-    public List<string> StationNames { get; set; }
 
     [Parameter]
     public EventCallback<string> CurrentStation { get; set; }
 
-    private DBService stationService;
+
+    private List<string> stationNames;
+
+    protected override void OnInitialized()
+    {
+        stationNames = db.GetAllStationNames();
+    }
+
 
     private void SetCurrentStation(string stationName)
     {
@@ -30,11 +38,10 @@
 
     private void createNewStation()
     {
-        stationService = new DBService();
-        stationService.addNewStation(10, "testName", 20, "janDerCoole", "lukas");
-        StationNames = stationService.GetAllStationNames();
+        db = new DBService();
+        db.addNewStation(12, "testName3", 24, "janDerCoole1", "lukas2");
+        stationNames = db.GetAllStationNames();
     }
 
-    
 }
 

@@ -1,6 +1,6 @@
 ﻿@page "/project"
 @using MauiApp1.Components.DB
-
+@inject DBService db
 
 <!-- Hier UI-Layout für Project-Bildschirm -->
 
@@ -18,7 +18,7 @@
 <div class="screen">
     
 
-    <Stations StationNames=@stat CurrentStation="SetCurrentStation"></Stations>
+    <Stations CurrentStation="SetCurrentStation"></Stations>
     <div class="table_area">
         <Table SetFormular="SetFormular"></Table>
         @switch (formular)
@@ -60,15 +60,10 @@
         currentStation = stationName;
     }
 
-    private DBService db;
-    private List<string> stat;
-
     protected override void OnInitialized()
     {
-        db = new DBService();
         db.CreateDatabase();
         //db.InsertSomething();
-        stat = db.GetAllStationNames();
     }
     
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MauiApp1.Components.DB;
+using Microsoft.Extensions.Logging;
 
 
 namespace MauiApp1
@@ -22,7 +23,7 @@ namespace MauiApp1
     		builder.Logging.AddDebug();
 #endif
           
-
+            builder.Services.AddSingleton<DBService>();
             return builder.Build();
         }
     }
