@@ -30,6 +30,11 @@ namespace MauiApp1.Components.DB
                   ""stationTypeName"" TEXT UNIQUE
                 );
 
+                INSERT OR REPLACE INTO ""StationType"" (stationTypeName) VALUES
+                ('StationController'),
+                ('PCS-Service'),
+                ('DataPump');
+
                 CREATE TABLE IF NOT EXISTS ""Station"" (
                   ""stationID"" INTEGER PRIMARY KEY,
                   ""stationNumber"" TEXT UNIQUE,
@@ -166,27 +171,19 @@ namespace MauiApp1.Components.DB
             }
         }
 
-        public void addNewStation(int idStationType, string stationTypeName, int idStation, string stationNumberNew, string stationDescriptionNew)
+        public void addNewStation(int idStationType, string stationNumberNew, string stationDescriptionNew)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
 
-                var insertType = @"
-                INSERT OR REPLACE INTO StationType (idStationType, stationTypeName)
-                VALUES (@id, @name);";
-                connection.Execute(insertType, new { id = idStationType, name = stationTypeName });
-
-
                 var insertStation = @"
                 INSERT OR REPLACE INTO Station
-                (stationID, stationNumber, stationDescription, StationType_idStationType)
+                (stationNumber, stationDescription, StationType_idStationType)
                 VALUES
-                (@stationID, @stationNumber, @stationDescription, @stationType_idStationType);";
+                (@stationNumber, @stationDescription, @stationType_idStationType);";
 
-                connection.Execute(insertStation, new { stationID = idStation, stationNumber = stationNumberNew, stationDescription = stationDescriptionNew, stationType_idStationType = idStationType });
-
-
+                connection.Execute(insertStation, new {stationNumber = stationNumberNew, stationDescription = stationDescriptionNew, stationType_idStationType = idStationType });
 
 
             }

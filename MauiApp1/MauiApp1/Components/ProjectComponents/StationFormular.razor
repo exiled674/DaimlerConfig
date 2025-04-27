@@ -22,10 +22,10 @@
 
             <div class="formElement">
                 <label for="assembly">Station Type</label>
-                <select @bind="stationType" id="tool-class">
-                    <option value="StationControler">StationController</option>
-                    <option value="PCS-Service">PCS-Service</option>
-                    <option value="DataPump">DataPump</option>
+                <select @bind="stationTypeId" id="tool-class">
+                    <option value=1>StationController</option>
+                    <option value=2>PCS-Service</option>
+                    <option value=3>DataPump</option>
                 </select>
             </div>
 
@@ -44,13 +44,13 @@
 
     private string assemblyStation;
     private string assemblyDescription;
-    private string stationType;
+    private int stationTypeId;
 
     
 
     public async Task CreateStation()
     {
-        db.addNewStation(999, stationType, 998, assemblyStation, assemblyDescription);
+        db.addNewStation(stationTypeId, assemblyStation, assemblyDescription);
         await CreatedStation.InvokeAsync();
 
     }
