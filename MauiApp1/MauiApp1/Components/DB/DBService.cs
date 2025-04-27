@@ -166,6 +166,32 @@ namespace MauiApp1.Components.DB
             }
         }
 
+        public void addNewStation(int idStationType, string stationTypeName, int idStation, string stationNumberNew, string stationDescriptionNew)
+        {
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+
+                var insertType = @"
+                INSERT OR REPLACE INTO StationType (idStationType, stationTypeName)
+                VALUES (@id, @name);";
+                connection.Execute(insertType, new { id = idStationType, name = stationTypeName });
+
+
+                var insertStation = @"
+                INSERT OR REPLACE INTO Station
+                (stationID, stationNumber, stationDescription, StationType_idStationType)
+                VALUES
+                (@stationID, @stationNumber, @stationDescription, @stationType_idStationType);";
+
+                connection.Execute(insertStation, new { stationID = idStation, stationNumber = stationNumberNew, stationDescription = stationDescriptionNew, stationType_idStationType = idStationType });
+
+
+
+
+            }
+        }
+
 
     }
 }

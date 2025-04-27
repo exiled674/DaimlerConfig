@@ -1,4 +1,5 @@
-﻿<div class="stations">
+﻿@using MauiApp1.Components.DB
+<div class="stations">
     @if (StationNames != null)
     {
         foreach (var station in StationNames)
@@ -7,7 +8,7 @@
         }
     }
     <div class="fixed-footer">
-        <button>Create new Station</button>
+        <button @onclick='() => createNewStation()'>Create new Station</button>
     </div>
 </div>
 
@@ -20,9 +21,19 @@
     [Parameter]
     public EventCallback<string> CurrentStation { get; set; }
 
+    private DBService stationService;
+
     private void SetCurrentStation(string stationName)
     {
         CurrentStation.InvokeAsync(stationName);
     }
+
+    private void createNewStation()
+    {
+        stationService = new DBService();
+        stationService.addNewStation(10, "testName", 20, "janDerCoole", "lukas");
+    }
+
+    
 }
 
