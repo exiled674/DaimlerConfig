@@ -17,9 +17,9 @@
 
 <div class="screen">
 
-    <Stations CurrentStation="SetCurrentStation"></Stations>
+    <Stations CurrentStation="SetCurrentStation" CreateStationButton="SetFormular"></Stations>
     <div class="table_area">
-        <Table SetFormular="SetFormular"></Table>
+        <Table SetFormular="SetFormular" ></Table>
         @switch (formular)
         {
             case "toolFormular":
@@ -37,6 +37,9 @@
             case "statusFormular":
                 <StatusFormular></StatusFormular>
                 break;*/
+           case "stationFormular":
+                <StationFormular></StationFormular>
+                break;
         }
         <p>Double Click On The Cell You Want To Work On Or Add A New Tool</p>
     </div>

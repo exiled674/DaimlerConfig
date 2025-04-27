@@ -1,35 +1,51 @@
-﻿
+﻿@using MauiApp1.Components.DB
+@inject DBService db
 
 <div class="station-container">
 
     <div class="station-header">Station</div>
 
 
-    <form class="station-form">
+    <form @onsubmit="CreateStation" class="station-form">
 
         <div class="formCol">
 
             <div class="formElement">
                 <label for="assembly">Assemblystation:</label>
-                <input type="text" id="assembly">
+                <input @bind="assemblyStation" type="text" id="assembly">
             </div>
 
             <div class="formElement">
                 <label for="desc">Assembly Description</label>
-                <input type="text" id="desc">
+                <input @bind="assemblyDescription" type="text" id="desc">
             </div>
 
             <div class="formElement">
                 <label for="assembly">Station Type</label>
-                <select id="tool-class">
-                    <option value="">Select…</option>
+                <select @bind="stationType" id="tool-class">
+                    <option value="StationControler">StationController</option>
+                    <option value="PCS-Service">PCS-Service</option>
+                    <option value="DataPump">DataPump</option>
                 </select>
             </div>
 
         </div>
 
-        <button>Create Station</button>
-        
+        <button type="submit">Create Station</button>
+
     </form>
 
 </div>
+
+@code {
+    private string assemblyStation;
+    private string assemblyDescription;
+    private string stationType;
+
+    public void CreateStation()
+    {
+        db.addNewStation(999, stationType, 998, assemblyStation, assemblyDescription);
+    }
+
+
+}

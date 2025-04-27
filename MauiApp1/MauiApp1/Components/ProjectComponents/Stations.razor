@@ -22,6 +22,9 @@
     [Parameter]
     public EventCallback<string> CurrentStation { get; set; }
 
+    [Parameter]
+    public EventCallback<string> CreateStationButton { get; set; }
+
 
     private List<string> stationNames;
 
@@ -33,15 +36,20 @@
 
     private void SetCurrentStation(string stationName)
     {
-        CurrentStation.InvokeAsync(stationName);
+        CreateStationButton.InvokeAsync(stationName);
     }
 
     private void createNewStation()
     {
         db = new DBService();
-        db.addNewStation(12, "testName3", 24, "janDerCoole1", "lukas2");
+        CreateStationButton.InvokeAsync("stationFormular");
         stationNames = db.GetAllStationNames();
     }
+
+
+
+    
+
 
 }
 
