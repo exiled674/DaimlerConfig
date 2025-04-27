@@ -1,0 +1,18 @@
+.station-container {
+    background-color: #B8BFC6;
+}
+
+.tool-header {
+    background: #707070;
+}
+
+.station-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.formElement {
+    display: flex;
+    flex-direction: column;
+}
+
