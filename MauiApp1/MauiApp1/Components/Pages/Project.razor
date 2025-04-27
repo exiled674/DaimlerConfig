@@ -16,8 +16,9 @@
 
 
 <div class="screen">
+    @currentStation
 
-    <Stations StationNames=@stat></Stations>
+    <Stations StationNames=@stat CurrentStation="SetCurrentStation"></Stations>
     <div class="table_area">
         <Table SetFormular="SetFormular"></Table>
         @switch (formular)
@@ -45,12 +46,18 @@
 
 @code {
     private string? formular;
+    private string? currentStation;
 
 
     private void SetFormular(string value)
     {
         formular = value;
 
+    }
+
+    private void SetCurrentStation(string stationName)
+    {
+        currentStation = stationName;
     }
 
     private DBService db;
@@ -60,7 +67,7 @@
     {
         db = new DBService();
         db.CreateDatabase();
-        db.InsertSomething();
+        //db.InsertSomething();
         stat = db.GetAllStationNames();
     }
     

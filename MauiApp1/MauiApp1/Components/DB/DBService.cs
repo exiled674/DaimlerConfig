@@ -131,7 +131,7 @@ namespace MauiApp1.Components.DB
                 var insertType = @"
             INSERT OR IGNORE INTO StationType (idStationType, stationTypeName)
             VALUES (@id, @name);";
-                connection.Execute(insertType, new { id = 1, name = "DefaultType" });
+                connection.Execute(insertType, new { id = 3, name = "DefaultType1" });
 
                 // 2. Datensatz in Station einfügen
                 var insertStation = @"
@@ -141,10 +141,10 @@ namespace MauiApp1.Components.DB
               (@stationID, @stationNumber, @stationDescription, @stationType_idStationType);";
                 var parameters = new
                 {
-                    stationID = 2,
-                    stationNumber = "STN0012",
-                    stationDescription = "Beispielstation2",
-                    stationType_idStationType = 1
+                    stationID = 5,
+                    stationNumber = "ST",
+                    stationDescription = "Beispielsta",
+                    stationType_idStationType = 3
                 };
                 connection.Execute(insertStation, parameters);
             }

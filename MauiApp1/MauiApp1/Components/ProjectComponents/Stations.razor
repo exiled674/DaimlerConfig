@@ -3,7 +3,7 @@
     {
         foreach (var station in StationNames)
         {
-            <button>@station</button>
+            <button @onclick='() => SetCurrentStation(station)'>@station</button>
         }
     }
     <div class="fixed-footer">
@@ -16,5 +16,13 @@
 @code {
     [Parameter]
     public List<string> StationNames { get; set; }
+
+    [Parameter]
+    public EventCallback<string> CurrentStation { get; set; }
+
+    private void SetCurrentStation(string stationName)
+    {
+        CurrentStation.InvokeAsync(stationName);
+    }
 }
 
