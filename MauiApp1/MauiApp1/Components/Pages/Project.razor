@@ -1,5 +1,5 @@
 ﻿@page "/project"
-
+@using MauiApp1.Components.DB
 
 
 <!-- Hier UI-Layout für Project-Bildschirm -->
@@ -45,7 +45,7 @@
 
 @code {
 
-    
+
 
     private string? formular;
 
@@ -56,6 +56,14 @@
 
     }
 
+    private DBService db;
+
+
+    protected override void OnInitialized()
+    {
+        db.CreateDatabase();
+
+    }
     
 }
 

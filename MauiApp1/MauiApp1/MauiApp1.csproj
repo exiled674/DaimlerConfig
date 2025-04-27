@@ -70,14 +70,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="Components\DB\DBService.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Components\DB\DBService.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.66" />
         <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.4" />
         <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.4" />
