@@ -30,7 +30,7 @@ namespace MauiApp1.Components.DB
                   ""stationTypeName"" TEXT UNIQUE
                 );
 
-                INSERT OR REPLACE INTO ""StationType"" (stationTypeName) VALUES
+                INSERT OR IGNORE INTO ""StationType"" (stationTypeName) VALUES
                 ('StationController'),
                 ('PCS-Service'),
                 ('DataPump');
