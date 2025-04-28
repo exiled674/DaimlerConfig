@@ -1,7 +1,7 @@
 ﻿@using MauiApp1.Components.DB
 @inject DBService db
 
-
+@CurrentStation
 <div class="my-grid-wrapper">
     <QuickGrid Items="tableHead" class="quickGrid">
         <Columns>
@@ -24,7 +24,6 @@
             <TemplateColumn Title="Classes">
                 <CellTemplate>
                     <div @onclick='() => CurrentFormular("operationclassFormular")'>
-
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
@@ -32,7 +31,6 @@
             <TemplateColumn Title="Network">
                 <CellTemplate>
                     <div @onclick='() => CurrentFormular("networkFormular")'>
-
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
@@ -40,7 +38,6 @@
             <TemplateColumn Title="Status">
                 <CellTemplate>
                     <div @onclick='() => CurrentFormular("statusFormular")'>
-
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
@@ -53,15 +50,24 @@
     </button>
 </div>
 
-
-
 @code {
-
     [Parameter]
     public EventCallback<string> SetFormular { get; set; }
 
+    private int _currentStation;
     [Parameter]
-    public int CurrentStation { get; set; }
+    public int CurrentStation
+    {
+        get => _currentStation;
+        set
+        {
+            if (_currentStation != value)
+            {
+                _currentStation = value;
+                LoadData(); // => neue Daten laden wenn Station sich ändert!
+            }
+        }
+    }
 
     private IQueryable<TableHead> tableHead;
 
@@ -69,23 +75,29 @@
 
     protected override void OnInitialized()
     {
-        if (CurrentStation != 0)
-        {
-            // Hier kannst du die Daten basierend auf der Station laden und Tupel in TableHead umwandeln
-            var operations = db.GetOperationsFromStation(CurrentStation);
-
-            // Umwandeln der Tupel in TableHead Objekte
-            tableHead = operations.Select(op => new TableHead(op.operationDescription, op.toolID.ToString())).AsQueryable();
-
-        }
+        LoadData(); // Lade die Daten auch beim Start
     }
 
+    private void LoadData()
+    {
+        if (CurrentStation != 0)
+        {
+            var operations = db.GetOperationsFromStation(CurrentStation);
 
+            tableHead = operations
+                .Select(op => new TableHead(op.operationDescription, op.toolID.ToString()))
+                .AsQueryable();
+        }
+        else
+        {
+            tableHead = Enumerable.Empty<TableHead>().AsQueryable();
+        }
 
+        InvokeAsync(StateHasChanged); // Wichtig, damit UI neu gerendert wird!
+    }
 
     private void CurrentFormular(string formular)
     {
         SetFormular.InvokeAsync(formular);
     }
-
 }

@@ -13,14 +13,13 @@
 <div class="lineName">
     <h1>Project: Area_B02_Main</h1>
 </div>
-@currentStation
 
 
 <div class="screen">
 
     <Stations CurrentStation="SetCurrentStation" CreateStationButton="SetFormular" @ref="stationsComponent"></Stations>
     <div class="table_area">
-        <Table SetFormular="SetFormular" CurrentStation="@currentStation"  ></Table>
+        <Table SetFormular="SetFormular" CurrentStation="@currentStation"></Table>
         @switch (formular)
         {
             case "toolFormular":
@@ -74,6 +73,8 @@
     {
         stationsComponent?.reload();
     }
+
+
 
 }
 
