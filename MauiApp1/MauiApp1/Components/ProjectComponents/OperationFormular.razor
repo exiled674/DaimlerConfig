@@ -1,6 +1,11 @@
-﻿<div class="tool-container">
+﻿@using MauiApp1.Components.DB
+@inject DBService db
+
+<div class="tool-container">
     <!-- header bar -->
     <div class="tool-header">Operation</div>
+
+    <button @onclick="Save">Save</button>
 
     <!-- form -->
     <form class="tool-form">
@@ -8,16 +13,16 @@
         <div class="form-row">
             <label for="op-id">Operation ID:</label>
             <div class="input-group">
-                <input type="text" id="op-id" value="23" readonly>
+                <input @bind="opId" type="text" id="op-id" readonly>
             </div>
         </div>
 
         <div class="form-row">
             <label for="op-id">Serial/Parallel:</label>
             <div class="input-group">
-                <select id="tool-type">
-                    <option value="">Serial</option>
-                    <option value="">Parallel</option>
+                <select @bind="toolType" id="tool-type">
+                    <option value="Serial">Serial</option>
+                    <option value="Parallel">Parallel</option>
                 </select>
             </div>
         </div>
@@ -26,7 +31,7 @@
         <div class="form-row">
             <label for="op-shortname">Operation ShortName:</label>
             <div class="input-group">
-                <input type="text" id="op-shortname" placeholder="Operation 1" maxlength="16">
+                <input @bind="opShortname" type="text" id="op-shortname" placeholder="Operation 1" maxlength="16">
             </div>
         </div>
 
@@ -34,7 +39,7 @@
         <div class="form-row">
             <label for="op-sequenz">Operation Sequenz:</label>
             <div class="input-group error">
-                <input type="text" id="op-sequenz" placeholder="Fehler">
+                <input @bind="opSequenz" type="text" id="op-sequenz" placeholder="Fehler">
             </div>
         </div>
 
@@ -42,16 +47,31 @@
         <div class="form-row">
             <label for="op-sequenz">Operation Description:</label>
             <div class="input-group error">
-                <textarea id="tool-description" rows="4" maxlength="100"></textarea>
+                <textarea @bind="operationDescription" id="tool-description" rows="4" maxlength="100"></textarea>
             </div>
         </div>
 
         <div class="form-row">
             <label for="op-sequenz">Operation Sequenz Group:</label>
             <div class="input-group error">
-                <textarea id="tool-description" rows="4" maxlength="100"></textarea>
+                <textarea @bind="operationSequenzGroup" id="tool-description" rows="4" maxlength="100"></textarea>
             </div>
         </div>
 
     </form>
 </div>
+
+
+@code {
+    public string opId;
+    public string toolType;
+    public string opShortname;
+    public string opSequenz;
+    public string operationDescription;
+    public string operationSequenzGroup;
+
+    public void Save()
+    {
+        
+    }
+}

@@ -263,9 +263,36 @@ namespace MauiApp1.Components.DB
 
 
 
+        public void AddOrUpdateTool(
+        int toolID,
+        int stationID,
+        string toolShortname,
+        string toolDescription,
+        int toolClassID,
+        int toolTypeID)
+        {
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
 
+                var insertTool = @"
+                INSERT OR REPLACE INTO ""Tool"" 
+                  (""toolID"", ""Station_stationID"", ""toolShortname"", ""toolDescription"", ""ToolClass_idToolClass"", ""ToolType_idToolType"")
+                VALUES
+                  (@toolID, @stationID, @toolShortname, @toolDescription, @toolClassID, @toolTypeID);
+            ";
 
-
+                connection.Execute(insertTool, new
+                {
+                    toolID,
+                    stationID,
+                    toolShortname,
+                    toolDescription,
+                    toolClassID,
+                    toolTypeID
+                });
+            }
+        }
 
     }
 }
