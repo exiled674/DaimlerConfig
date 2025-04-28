@@ -82,6 +82,16 @@
         
     }
 
+    protected override void OnParametersSet()
+    {
+        var tool = db.GetToolInfo(toolId);
+        
+        
+            toolShortname = tool.toolShortname;
+            toolDescription = tool.toolDescription;
+        
+    }
+
 
 
 
