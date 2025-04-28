@@ -14,7 +14,7 @@
         <div class="form-row full">
             <label for="tool-id">Tool ID:</label>
             <div class="input-group">
-                <input @bind="toolId" type="text" id="tool-id" readonly>
+                <input @bind="toolId" type="number" id="tool-id" readonly>
                 <span class="help-icon">?</span>
             </div>
         </div>
@@ -32,7 +32,7 @@
         <div class="form-row">
             <label for="tool-class">Tool Class:</label>
             <div class="input-group">
-                <select @bind="tooClass" id="tool-class">
+                <select  id="tool-class">
                     <option value="">Select…</option>
                     <!-- … -->
                 </select>
@@ -53,7 +53,7 @@
         <div class="form-row">
             <label for="tool-type">Tool Type:</label>
             <div class="input-group">
-                <select @bind="toolType" id="tool-type">
+                <select  id="tool-type">
                     <option value="">Select…</option>
                 </select>
                 <span class="help-icon">?</span>
@@ -65,11 +65,27 @@
 
 
 @code {
-    public string toolId;
     public string toolShortname;
-    public string tooClass;
     public string toolDescription;
-    public string toolType;
+
+
+    [Parameter]
+    public int toolId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var tool = db.GetToolInfo(toolId);
+        
+        
+            toolShortname = tool.toolShortname;
+            toolDescription = tool.toolDescription;
+        
+    }
+
+
+
+
+
 
 
     private void Save()

@@ -142,10 +142,10 @@ namespace MauiApp1.Components.DB
 
                 // 1. Dummy-Daten für Tools einfügen
                 var insertTools = @"
-                INSERT OR IGNORE INTO Tool (toolID, Station_stationID) VALUES
-                (1, 1),
-                (2, 3),
-                (2, 2);";
+                INSERT OR REPLACE INTO Tool (toolID, Station_stationID, toolShortname, toolDescription) VALUES
+                (1, 1, 'shortname 1', 'desc 1'),
+                (2, 3, 'shortname 2', 'desc 2'),
+                (2, 2, 'shortname 2', 'desc 2');";
 
                 connection.Execute(insertTools);
 
@@ -267,38 +267,59 @@ namespace MauiApp1.Components.DB
             }
         }
 
-
-
-       /* public void AddOrUpdateTool(
-        int toolID,
-        int stationID,
-        string toolShortname,
-        string toolDescription,
-        int toolClassID,
-        int toolTypeID)
+        public (string toolShortname, string toolDescription) GetToolInfo(int toolID)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
 
-                var insertTool = @"
-                INSERT OR REPLACE INTO ""Tool"" 
-                  (""toolID"", ""Station_stationID"", ""toolShortname"", ""toolDescription"", ""ToolClass_idToolClass"", ""ToolType_idToolType"")
-                VALUES
-                  (@toolID, @stationID, @toolShortname, @toolDescription, @toolClassID, @toolTypeID);
-            ";
+                var query = @"
+                SELECT toolShortname, toolDescription
+                FROM Tool
+                WHERE toolID = @toolID
+                LIMIT 1;";  // nur ein Ergebnis
 
-                connection.Execute(insertTool, new
-                {
-                    toolID,
-                    stationID,
-                    toolShortname,
-                    toolDescription,
-                    toolClassID,
-                    toolTypeID
-                });
+                var result = connection.QuerySingleOrDefault<(string toolShortname, string toolDescription)>(query, new { toolID });
+
+                return result;
             }
-        }*/
+        }
+
+
+
+
+
+
+        /* public void AddOrUpdateTool(
+         int toolID,
+         int stationID,
+         string toolShortname,
+         string toolDescription,
+         int toolClassID,
+         int toolTypeID)
+         {
+             using (var connection = new SqliteConnection(_connectionString))
+             {
+                 connection.Open();
+
+                 var insertTool = @"
+                 INSERT OR REPLACE INTO ""Tool"" 
+                   (""toolID"", ""Station_stationID"", ""toolShortname"", ""toolDescription"", ""ToolClass_idToolClass"", ""ToolType_idToolType"")
+                 VALUES
+                   (@toolID, @stationID, @toolShortname, @toolDescription, @toolClassID, @toolTypeID);
+             ";
+
+                 connection.Execute(insertTool, new
+                 {
+                     toolID,
+                     stationID,
+                     toolShortname,
+                     toolDescription,
+                     toolClassID,
+                     toolTypeID
+                 });
+             }
+         }*/
 
     }
 }
