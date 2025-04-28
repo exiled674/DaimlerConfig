@@ -7,7 +7,7 @@
         <Columns>
             <TemplateColumn Title="Tool">
                 <CellTemplate>
-                    <div @onclick='() => CurrentFormular("toolFormular")'>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
                         @context.Tool
                         <div class="status-circle"></div>
                     </div>
@@ -15,7 +15,7 @@
             </TemplateColumn>
             <TemplateColumn Title="Operation">
                 <CellTemplate>
-                    <div @onclick='() => CurrentFormular("operationFormular")'>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
                         @context.Operation
                         <div class="status-circle"></div>
                     </div>
@@ -23,21 +23,21 @@
             </TemplateColumn>
             <TemplateColumn Title="Classes">
                 <CellTemplate>
-                    <div @onclick='() => CurrentFormular("operationclassFormular")'>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn Title="Network">
                 <CellTemplate>
-                    <div @onclick='() => CurrentFormular("networkFormular")'>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
             </TemplateColumn>
             <TemplateColumn Title="Status">
                 <CellTemplate>
-                    <div @onclick='() => CurrentFormular("statusFormular")'>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
@@ -53,6 +53,10 @@
 @code {
     [Parameter]
     public EventCallback<string> SetFormular { get; set; }
+
+    [Parameter]
+    public EventCallback<int> CurrentToolID { get; set; }
+
 
     private int _currentStation;
     [Parameter]
@@ -96,9 +100,10 @@
         InvokeAsync(StateHasChanged); // Wichtig, damit UI neu gerendert wird!
     }
 
-    private void CurrentFormular(string formular)
+    private async Task CurrentFormularAsync(string formular, int tID)
     {
-        SetFormular.InvokeAsync(formular);
+        await SetFormular.InvokeAsync(formular);
+        await CurrentToolID.InvokeAsync(tID);
     }
 
     private void AddRow()

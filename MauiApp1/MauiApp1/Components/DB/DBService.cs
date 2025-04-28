@@ -101,7 +101,7 @@ namespace MauiApp1.Components.DB
                 CREATE TABLE IF NOT EXISTS ""Operation"" (
                   ""idOperation"" INTEGER,
                   ""Tool_toolID"" INTEGER,
-                  ""Station_stationID"" INTEGER UNIQUE,
+                  ""Station_stationID"" INTEGER,
                   ""operationShortname"" TEXT,
                   ""operationDescription"" TEXT,
                   ""operationSequenceGroup"" TEXT,
@@ -115,7 +115,7 @@ namespace MauiApp1.Components.DB
                   ""SavingClass_idSavingClass"" INTEGER,
                   ""GenerationClass_idGenerationClass"" INTEGER,
                   ""VerificationClass_idVerificationClass"" INTEGER,
-                  PRIMARY KEY (""idOperation"", ""Tool_toolID"", ""Station_stationID""),
+                  PRIMARY KEY (""idOperation""),
                   FOREIGN KEY (""Tool_toolID"", ""Station_stationID"") REFERENCES ""Tool"" (""toolID"", ""Station_stationID""),
                   FOREIGN KEY (""qGate_idQGate"") REFERENCES ""qGate"" (""idQGate""),
                   FOREIGN KEY (""DecisionClass_idDecisionClass"") REFERENCES ""DecisionClass"" (""idDecisionClass""),
@@ -143,15 +143,21 @@ namespace MauiApp1.Components.DB
                 // 1. Dummy-Daten für Tools einfügen
                 var insertTools = @"
                 INSERT OR IGNORE INTO Tool (toolID, Station_stationID) VALUES
-                (1, 1);";
+                (1, 1),
+                (2, 3),
+                (2, 2);";
 
                 connection.Execute(insertTools);
 
                 var insertOperations = @"
-                INSERT OR IGNORE INTO Operation (idOperation, Tool_toolID, Station_stationID, operationDescription)
+                INSERT OR REPLACE INTO Operation (idOperation, Tool_toolID, Station_stationID, operationDescription)
                 VALUES 
                 (1, 1, 1, 'Operation 1 Beschreibung'),
-                (2, 1, 1, 'Operation 2 Beschreibung');";
+                (3, 1, 1, 'Operation 3'),
+                
+                (2, 2, 2, 'Operation 2 Beschreibung');";
+                
+                  
 
                 connection.Execute(insertOperations);
             }
@@ -263,7 +269,7 @@ namespace MauiApp1.Components.DB
 
 
 
-        public void AddOrUpdateTool(
+       /* public void AddOrUpdateTool(
         int toolID,
         int stationID,
         string toolShortname,
@@ -292,7 +298,7 @@ namespace MauiApp1.Components.DB
                     toolTypeID
                 });
             }
-        }
+        }*/
 
     }
 }
