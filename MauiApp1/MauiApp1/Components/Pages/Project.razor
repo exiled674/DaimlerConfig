@@ -13,13 +13,14 @@
 <div class="lineName">
     <h1>Project: Area_B02_Main</h1>
 </div>
+@currentStation
 
 
 <div class="screen">
 
     <Stations CurrentStation="SetCurrentStation" CreateStationButton="SetFormular" @ref="stationsComponent"></Stations>
     <div class="table_area">
-        <Table SetFormular="SetFormular" ></Table>
+        <Table SetFormular="SetFormular" CurrentStation="@currentStation"  ></Table>
         @switch (formular)
         {
             case "toolFormular":
@@ -48,7 +49,7 @@
 
 @code {
     private string? formular;
-    private string? currentStation;
+    private int currentStation; 
     private Stations stationsComponent;
 
     private void SetFormular(string value)
@@ -59,13 +60,14 @@
 
     private void SetCurrentStation(string stationName)
     {
-        currentStation = stationName;
+        
+        currentStation = db.StationIDfromName(stationName);
     }
 
     protected override void OnInitialized()
     {
         db.CreateDatabase();
-        db.InsertSomething();
+        //db.InsertSomething();
     }
 
     public void ReloadStation()

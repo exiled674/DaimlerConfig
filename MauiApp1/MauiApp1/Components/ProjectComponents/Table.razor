@@ -1,4 +1,8 @@
-﻿<div class="my-grid-wrapper">
+﻿@using MauiApp1.Components.DB
+@inject DBService db
+
+
+<div class="my-grid-wrapper">
     <QuickGrid Items="tableHead" class="quickGrid">
         <Columns>
             <TemplateColumn Title="Tool">
@@ -20,7 +24,7 @@
             <TemplateColumn Title="Classes">
                 <CellTemplate>
                     <div @onclick='() => CurrentFormular("operationclassFormular")'>
-                        @context.Classes
+
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
@@ -28,7 +32,7 @@
             <TemplateColumn Title="Network">
                 <CellTemplate>
                     <div @onclick='() => CurrentFormular("networkFormular")'>
-                        @context.Network
+
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
@@ -36,7 +40,7 @@
             <TemplateColumn Title="Status">
                 <CellTemplate>
                     <div @onclick='() => CurrentFormular("statusFormular")'>
-                        @context.Status
+
                         <div class="status-circle"></div>
                     </div>
                 </CellTemplate>
@@ -56,18 +60,28 @@
     [Parameter]
     public EventCallback<string> SetFormular { get; set; }
 
+    [Parameter]
+    public int CurrentStation { get; set; }
 
+    private IQueryable<TableHead> tableHead;
 
-    private IQueryable<TableHead> tableHead = new List<TableHead>
+    private record TableHead(string Tool, string Operation);
+
+    protected override void OnInitialized()
     {
-        new("Tool1", "Operation1", "Class1", "Network1", "Status1"),
-        new("Tool2", "Operation2", "Class2", "Network2", "Status2"),
-        new("Tool3", "Operation3", "Class3", "Network3", "Status3"),
-        new("Tool4", "Operation4", "Class4", "Network4", "Status4"),
-        // … weitere Datensätze …
-    }.AsQueryable();
+        if (CurrentStation != 0)
+        {
+            // Hier kannst du die Daten basierend auf der Station laden und Tupel in TableHead umwandeln
+            var operations = db.GetOperationsFromStation(CurrentStation);
 
-    private record TableHead(string Tool, string Operation, string Classes, string Network, string Status);
+            // Umwandeln der Tupel in TableHead Objekte
+            tableHead = operations.Select(op => new TableHead(op.operationDescription, op.toolID.ToString())).AsQueryable();
+
+        }
+    }
+
+
+
 
     private void CurrentFormular(string formular)
     {

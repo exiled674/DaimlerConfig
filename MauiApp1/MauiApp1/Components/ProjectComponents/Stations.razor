@@ -13,6 +13,15 @@
     <div class="fixed-footer">
         <button @onclick='() => createNewStation()'>Create new Station</button>
     </div>
+    
+    @foreach (var operation in db.GetOperationsFromStation(1))
+    {
+        <div>
+            Operation: @operation.operationDescription (ToolID: @operation.toolID)
+        </div>
+    }
+
+
 </div>
 
 
@@ -36,7 +45,7 @@
 
     private void SetCurrentStation(string stationName)
     {
-        CreateStationButton.InvokeAsync(stationName);
+        CurrentStation.InvokeAsync(stationName);
     }
 
     private void createNewStation()

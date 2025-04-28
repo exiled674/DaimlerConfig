@@ -101,7 +101,7 @@ namespace MauiApp1.Components.DB
                 CREATE TABLE IF NOT EXISTS ""Operation"" (
                   ""idOperation"" INTEGER,
                   ""Tool_toolID"" INTEGER,
-                  ""Station_stationID"" INTEGER,
+                  ""Station_stationID"" INTEGER UNIQUE,
                   ""operationShortname"" TEXT,
                   ""operationDescription"" TEXT,
                   ""operationSequenceGroup"" TEXT,
@@ -124,8 +124,7 @@ namespace MauiApp1.Components.DB
                   FOREIGN KEY (""VerificationClass_idVerificationClass"") REFERENCES ""VerificationClass"" (""idVerificationClass"")
                 );
 
-                INSERT OR IGNORE INTO Tool (toolID, Station_stationID) Values
-                (2,2);
+                
 
                 PRAGMA foreign_keys = on;
                 ";
@@ -143,10 +142,18 @@ namespace MauiApp1.Components.DB
 
                 // 1. Dummy-Daten für Tools einfügen
                 var insertTools = @"
-        INSERT OR IGNORE INTO Tool (toolID, Station_stationID) VALUES
-        (1, 1);";
+                INSERT OR IGNORE INTO Tool (toolID, Station_stationID) VALUES
+                (1, 1);";
 
                 connection.Execute(insertTools);
+
+                var insertOperations = @"
+                INSERT OR IGNORE INTO Operation (idOperation, Tool_toolID, Station_stationID, operationDescription)
+                VALUES 
+                (1, 1, 1, 'Operation 1 Beschreibung'),
+                (2, 1, 1, 'Operation 2 Beschreibung');";
+
+                connection.Execute(insertOperations);
             }
         }
 
@@ -194,7 +201,7 @@ namespace MauiApp1.Components.DB
 
 
 
-        public List<string> GetToolsFromStation(string stationID)
+        public List<string> GetToolsFromStation(int stationID)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {
@@ -211,6 +218,52 @@ namespace MauiApp1.Components.DB
                 return tools;
             }
         }
+
+
+
+        public List<(string operationDescription, int toolID)> GetOperationsFromStation(int stationID)
+        {
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+
+                // 1. Tools der Station abrufen
+                var tools = GetToolsFromStation(stationID);
+
+                if (tools.Count == 0)
+                    return new List<(string, int)>(); // Falls keine Tools → keine Operationen
+
+                // 2. Operationen abrufen, die mit den Tools zusammenhängen
+                var query = @"
+            SELECT operationDescription, Tool_toolID
+            FROM Operation
+            WHERE Station_stationID = @stationID;";
+
+                var operations = connection.Query<(string, int)>(query, new { stationID }).ToList();
+
+                return operations;
+            }
+        }
+
+        public int StationIDfromName(string stationName)
+        {
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+
+                // SQL-Abfrage, um die stationID basierend auf dem stationNumber (Name) zu suchen
+                var query = "SELECT stationID FROM Station WHERE stationNumber = @stationName";
+
+                // Die stationID wird als Int zurückgegeben
+                var stationID = connection.QuerySingleOrDefault<int>(query, new { stationName });
+
+                return stationID;
+            }
+        }
+
+
+
+
 
 
 
