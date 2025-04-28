@@ -45,7 +45,7 @@
         </Columns>
     </QuickGrid>
 
-    <button id="addRow" @onlick="AddRow">
+    <button id="addRow" @onclick="AddRow">
         +
     </button>
 </div>
@@ -71,7 +71,7 @@
 
     private IQueryable<TableHead> tableHead;
 
-    private record TableHead(string Tool, string Operation);
+    private record TableHead(string Operation, string Tool);
 
     protected override void OnInitialized()
     {
@@ -103,7 +103,16 @@
 
     private void AddRow()
     {
-        //tableHead.Add(new TableHead(string.Empty, string.Empty));
+        // 1. aktuelle Daten in Liste umwandeln
+        var list = tableHead.ToList();
+
+        // 2. neuen, leeren Eintrag hinzufügen
+        list.Add(new TableHead(Operation: "", Tool: ""));
+
+        // 3. zurück zu IQueryable machen
+        tableHead = list.AsQueryable();
+
+        // 4. UI neu rendern
         StateHasChanged();
     }
 }

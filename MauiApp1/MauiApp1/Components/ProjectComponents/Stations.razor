@@ -14,12 +14,7 @@
         <button @onclick='() => createNewStation()'>Create new Station</button>
     </div>
     
-    @foreach (var operation in db.GetOperationsFromStation(1))
-    {
-        <div>
-            Operation: @operation.operationDescription (ToolID: @operation.toolID)
-        </div>
-    }
+   
 
 
 </div>
