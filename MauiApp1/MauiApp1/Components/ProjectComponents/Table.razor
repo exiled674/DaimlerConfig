@@ -45,7 +45,7 @@
         </Columns>
     </QuickGrid>
 
-    <button id="addRow">
+    <button id="addRow" @onlick="AddRow">
         +
     </button>
 </div>
@@ -99,5 +99,11 @@
     private void CurrentFormular(string formular)
     {
         SetFormular.InvokeAsync(formular);
+    }
+
+    private void AddRow()
+    {
+        //tableHead.Add(new TableHead(string.Empty, string.Empty));
+        StateHasChanged();
     }
 }
