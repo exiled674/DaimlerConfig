@@ -1,6 +1,11 @@
-﻿<div class="tool-container">
+﻿@using MauiApp1.Components.DB
+@inject DBService db
+
+<div class="tool-container">
     <!-- header bar -->
     <div class="tool-header">Tool</div>
+
+    <button @onclick="Save">Save</button>
 
     <!-- form -->
     <form class="tool-form">
@@ -9,7 +14,7 @@
         <div class="form-row full">
             <label for="tool-id">Tool ID:</label>
             <div class="input-group">
-                <input type="text" id="tool-id" value="64" readonly>
+                <input @bind="toolId" type="text" id="tool-id" readonly>
                 <span class="help-icon">?</span>
             </div>
         </div>
@@ -18,7 +23,7 @@
         <div class="form-row">
             <label for="tool-shortname">Tool ShortName:</label>
             <div class="input-group">
-                <input type="text" id="tool-shortname" placeholder="Tool 1" maxlength="16">
+                <input @bind="toolShortname" type="text" id="tool-shortname" placeholder="Tool 1" maxlength="16">
                 <span class="help-icon">?</span>
             </div>
         </div>
@@ -27,7 +32,7 @@
         <div class="form-row">
             <label for="tool-class">Tool Class:</label>
             <div class="input-group">
-                <select id="tool-class">
+                <select @bind="tooClass" id="tool-class">
                     <option value="">Select…</option>
                     <!-- … -->
                 </select>
@@ -39,7 +44,7 @@
         <div class="form-row">
             <label for="tool-description">Tool Description:</label>
             <div class="input-group">
-                <textarea id="tool-description" rows="4" maxlength="100"></textarea>
+                <textarea @bind="toolDescription" id="tool-description" rows="4" maxlength="100"></textarea>
                 <span class="help-icon">?</span>
             </div>
         </div>
@@ -48,7 +53,7 @@
         <div class="form-row">
             <label for="tool-type">Tool Type:</label>
             <div class="input-group">
-                <select id="tool-type">
+                <select @bind="toolType" id="tool-type">
                     <option value="">Select…</option>
                 </select>
                 <span class="help-icon">?</span>
@@ -57,3 +62,19 @@
 
     </form>
 </div>
+
+
+@code {
+    public string toolId;
+    public string toolShortname;
+    public string tooClass;
+    public string toolDescription;
+    public string toolType;
+
+
+    private void Save()
+    {
+        
+    }
+
+}
