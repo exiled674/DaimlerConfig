@@ -68,6 +68,11 @@ namespace MauiApp1.Components.DB
                   FOREIGN KEY (""ToolType_idToolType"") REFERENCES ""ToolType"" (""idToolType"")
                 );
 
+
+                
+
+
+
                 CREATE TABLE IF NOT EXISTS ""qGate"" (
                   ""idQGate"" INTEGER PRIMARY KEY,
                   ""qGateName"" TEXT
@@ -96,6 +101,7 @@ namespace MauiApp1.Components.DB
                 CREATE TABLE IF NOT EXISTS ""Operation"" (
                   ""idOperation"" INTEGER,
                   ""Tool_toolID"" INTEGER,
+                  ""Station_stationID"" INTEGER,
                   ""operationShortname"" TEXT,
                   ""operationDescription"" TEXT,
                   ""operationSequenceGroup"" TEXT,
@@ -109,14 +115,17 @@ namespace MauiApp1.Components.DB
                   ""SavingClass_idSavingClass"" INTEGER,
                   ""GenerationClass_idGenerationClass"" INTEGER,
                   ""VerificationClass_idVerificationClass"" INTEGER,
-                  PRIMARY KEY (""idOperation"", ""Tool_toolID""),
-                  FOREIGN KEY (""Tool_toolID"") REFERENCES ""Tool"" (""toolID""),
+                  PRIMARY KEY (""idOperation"", ""Tool_toolID"", ""Station_stationID""),
+                  FOREIGN KEY (""Tool_toolID"", ""Station_stationID"") REFERENCES ""Tool"" (""toolID"", ""Station_stationID""),
                   FOREIGN KEY (""qGate_idQGate"") REFERENCES ""qGate"" (""idQGate""),
                   FOREIGN KEY (""DecisionClass_idDecisionClass"") REFERENCES ""DecisionClass"" (""idDecisionClass""),
                   FOREIGN KEY (""SavingClass_idSavingClass"") REFERENCES ""SavingClass"" (""idSavingClass""),
                   FOREIGN KEY (""GenerationClass_idGenerationClass"") REFERENCES ""GenerationClass"" (""idGenerationClass""),
                   FOREIGN KEY (""VerificationClass_idVerificationClass"") REFERENCES ""VerificationClass"" (""idVerificationClass"")
                 );
+
+                INSERT OR IGNORE INTO Tool (toolID, Station_stationID) Values
+                (2,2);
 
                 PRAGMA foreign_keys = on;
                 ";
@@ -132,28 +141,15 @@ namespace MauiApp1.Components.DB
             {
                 connection.Open();
 
-                // 1. Eltern-Datensatz in StationType einfügen (falls noch nicht vorhanden)
-                var insertType = @"
-            INSERT OR IGNORE INTO StationType (idStationType, stationTypeName)
-            VALUES (@id, @name);";
-                connection.Execute(insertType, new { id = 3, name = "DefaultType1" });
+                // 1. Dummy-Daten für Tools einfügen
+                var insertTools = @"
+        INSERT OR IGNORE INTO Tool (toolID, Station_stationID) VALUES
+        (1, 1);";
 
-                // 2. Datensatz in Station einfügen
-                var insertStation = @"
-            INSERT INTO Station
-              (stationID, stationNumber, stationDescription, StationType_idStationType)
-            VALUES
-              (@stationID, @stationNumber, @stationDescription, @stationType_idStationType);";
-                var parameters = new
-                {
-                    stationID = 5,
-                    stationNumber = "ST",
-                    stationDescription = "Beispielsta",
-                    stationType_idStationType = 3
-                };
-                connection.Execute(insertStation, parameters);
+                connection.Execute(insertTools);
             }
         }
+
 
         public List<string> GetAllStationNames()
         {
@@ -170,6 +166,12 @@ namespace MauiApp1.Components.DB
                 return stationNames;
             }
         }
+
+
+       
+
+
+
 
         public void addNewStation(int idStationType, string stationNumberNew, string stationDescriptionNew)
         {
@@ -188,6 +190,28 @@ namespace MauiApp1.Components.DB
 
             }
         }
+
+
+
+
+        public List<string> GetToolsFromStation(string stationID)
+        {
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+
+                // SQL-Abfrage: Alle Tool-Shortnames holen, die zur Station gehören
+                var query = @"
+                SELECT toolShortname
+                FROM Tool
+                WHERE Station_stationID = @stationID;";
+
+                var tools = connection.Query<string>(query, new { stationID }).ToList();
+
+                return tools;
+            }
+        }
+
 
 
     }
