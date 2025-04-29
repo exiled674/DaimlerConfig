@@ -401,6 +401,34 @@ namespace MauiApp1.Components.DB
 
 
 
+        public void UpdateToolBasicInfo(
+    int toolID,
+    int stationID,
+    string toolShortname,
+    string toolDescription)
+        {
+            using var conn = new SqliteConnection(_connectionString);
+            conn.Open();
+
+            var sql = @"
+        UPDATE Tool
+        SET toolShortname   = @toolShortname,
+            toolDescription = @toolDescription
+        WHERE toolID            = @toolID
+          AND Station_stationID = @stationID;
+    ";
+
+            conn.Execute(sql, new
+            {
+                toolID,
+                stationID,
+                toolShortname,
+                toolDescription
+            });
+        }
+
+
+
 
     }
 }
