@@ -58,20 +58,15 @@
     public EventCallback<int> CurrentToolID { get; set; }
 
 
-    private int _currentStation;
     [Parameter]
-    public int CurrentStation
+    public int CurrentStation { get; set; }
+
+    protected override void OnParametersSet()
     {
-        get => _currentStation;
-        set
-        {
-            if (_currentStation != value)
-            {
-                _currentStation = value;
-                LoadData(); // => neue Daten laden wenn Station sich ändert!
-            }
-        }
+        // this *will* fire every time the parent passes in a new station ID
+        LoadData();
     }
+
 
     private IQueryable<TableHead> tableHead;
 
@@ -108,26 +103,18 @@
 
     private void AddRow()
     {
-        // 1. get a new toolID
         var newToolID = db.GetNextToolID();
+        db.InsertToolWithBlankOp(
+            toolID: newToolID,
+            stationID: CurrentStation,
+            toolShortname: "",
+            toolDescription: "",
+            toolClassID: null,
+            toolTypeID: null
+        );
 
-        // 2. insert into the DB (you can pick sensible defaults for class/type)
-        db.InsertTool(
-             toolID: newToolID,
-             stationID: CurrentStation,
-             toolShortname: "",
-             toolDescription: "",
-             toolClassID: null,    // no FK constraint check
-             toolTypeID: null
-         );
-
-        // 3. update your in-memory list/display
-        var list = tableHead.ToList();
-        list.Add(new TableHead(Operation: "", Tool: newToolID.ToString()));
-        tableHead = list.AsQueryable();
-
-        // 4. rerender
-        StateHasChanged();
+        // Rebind tableHead from the database so the grid shows your new row:
+        LoadData();
     }
 
 

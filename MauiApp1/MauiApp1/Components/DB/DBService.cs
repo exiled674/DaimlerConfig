@@ -335,6 +335,72 @@ namespace MauiApp1.Components.DB
         }
 
 
+        public void InsertToolWithBlankOp(
+    int toolID,
+    int stationID,
+    string toolShortname,
+    string toolDescription,
+    int? toolClassID = null,
+    int? toolTypeID = null)
+        {
+            // 1) insert the Tool row
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                conn.Open();
+                var insertToolSql = @"
+            INSERT OR REPLACE INTO Tool
+              (toolID,
+               Station_stationID,
+               toolShortname,
+               toolDescription,
+               ToolClass_idToolClass,
+               ToolType_idToolType)
+            VALUES
+              (@toolID,
+               @stationID,
+               @toolShortname,
+               @toolDescription,
+               @toolClassID,
+               @toolTypeID);
+        ";
+                conn.Execute(insertToolSql, new
+                {
+                    toolID,
+                    stationID,
+                    toolShortname,
+                    toolDescription,
+                    toolClassID,
+                    toolTypeID
+                });
+
+                // 2) insert one blank Operation row for that tool
+                var nextOpId = conn.ExecuteScalar<int>(
+                    "SELECT COALESCE(MAX(idOperation), 0) + 1 FROM Operation;"
+                );
+
+                var insertOpSql = @"
+            INSERT INTO Operation
+              (idOperation,
+               Tool_toolID,
+               Station_stationID,
+               operationDescription)
+            VALUES
+              (@idOp,
+               @toolID,
+               @stationID,
+               '');
+        ";
+                conn.Execute(insertOpSql, new
+                {
+                    idOp = nextOpId,
+                    toolID,
+                    stationID
+                });
+            }
+        }
+
+
+
 
     }
 }
