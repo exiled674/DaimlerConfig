@@ -286,40 +286,55 @@ namespace MauiApp1.Components.DB
         }
 
 
+        public void InsertTool(
+    int toolID,
+    int stationID,
+    string toolShortname,
+    string toolDescription,
+    int? toolClassID = null,
+    int? toolTypeID = null)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            // sanity-check: station must exist
+            var stationExists = connection.ExecuteScalar<int>(
+                "SELECT COUNT(*) FROM Station WHERE stationID = @stationID",
+                new { stationID }
+            );
+            if (stationExists == 0)
+                throw new InvalidOperationException($"Station #{stationID} does not exist.");
+
+            // now insert with potentially NULL class/type
+            var sql = @"
+        INSERT OR REPLACE INTO Tool
+        (toolID, Station_stationID, toolShortname, toolDescription, ToolClass_idToolClass, ToolType_idToolType)
+        VALUES
+        (@toolID, @stationID, @toolShortname, @toolDescription, @toolClassID, @toolTypeID);
+    ";
+            connection.Execute(sql, new
+            {
+                toolID,
+                stationID,
+                toolShortname,
+                toolDescription,
+                toolClassID,
+                toolTypeID
+            });
+        }
 
 
 
+        public int GetNextToolID()
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+            // take the current max(toolID) (or 0 if empty) and add 1
+            var sql = "SELECT COALESCE(MAX(toolID), 0) + 1 FROM Tool";
+            return connection.ExecuteScalar<int>(sql);
+        }
 
-        /* public void AddOrUpdateTool(
-         int toolID,
-         int stationID,
-         string toolShortname,
-         string toolDescription,
-         int toolClassID,
-         int toolTypeID)
-         {
-             using (var connection = new SqliteConnection(_connectionString))
-             {
-                 connection.Open();
 
-                 var insertTool = @"
-                 INSERT OR REPLACE INTO ""Tool"" 
-                   (""toolID"", ""Station_stationID"", ""toolShortname"", ""toolDescription"", ""ToolClass_idToolClass"", ""ToolType_idToolType"")
-                 VALUES
-                   (@toolID, @stationID, @toolShortname, @toolDescription, @toolClassID, @toolTypeID);
-             ";
-
-                 connection.Execute(insertTool, new
-                 {
-                     toolID,
-                     stationID,
-                     toolShortname,
-                     toolDescription,
-                     toolClassID,
-                     toolTypeID
-                 });
-             }
-         }*/
 
     }
 }

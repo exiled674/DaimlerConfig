@@ -108,16 +108,27 @@
 
     private void AddRow()
     {
-        // 1. aktuelle Daten in Liste umwandeln
+        // 1. get a new toolID
+        var newToolID = db.GetNextToolID();
+
+        // 2. insert into the DB (you can pick sensible defaults for class/type)
+        db.InsertTool(
+             toolID: newToolID,
+             stationID: CurrentStation,
+             toolShortname: "",
+             toolDescription: "",
+             toolClassID: null,    // no FK constraint check
+             toolTypeID: null
+         );
+
+        // 3. update your in-memory list/display
         var list = tableHead.ToList();
-
-        // 2. neuen, leeren Eintrag hinzufügen
-        list.Add(new TableHead(Operation: "", Tool: ""));
-
-        // 3. zurück zu IQueryable machen
+        list.Add(new TableHead(Operation: "", Tool: newToolID.ToString()));
         tableHead = list.AsQueryable();
 
-        // 4. UI neu rendern
+        // 4. rerender
         StateHasChanged();
     }
+
+
 }
