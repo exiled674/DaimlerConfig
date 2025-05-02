@@ -9,5 +9,9 @@ namespace DaimlerConfig.Components.Repositories
 {
     public class OperationRepository : Repository<Operation>, IOperationRepository
     {
+        public Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
