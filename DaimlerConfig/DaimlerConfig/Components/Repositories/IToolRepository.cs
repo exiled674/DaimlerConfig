@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DaimlerConfig.Components.Repository
+namespace DaimlerConfig.Components.Repositories
 {
-    internal interface IToolRepositorycs
+    internal interface IToolRepository
     {
     }
 }
