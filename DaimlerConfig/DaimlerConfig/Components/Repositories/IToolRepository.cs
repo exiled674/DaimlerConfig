@@ -9,5 +9,8 @@ namespace DaimlerConfig.Components.Repositories
 {
     public interface IToolRepository : IRepository<Tool>
     {
+        Task<IEnumerable<Tool>> getToolsFromStation(int stationID);
+
+
     }
 }
