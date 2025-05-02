@@ -8,5 +8,6 @@ namespace DaimlerConfig.Components.Repositories
 {
     public class ToolRepository : IToolRepository
     {
+
     }
 }
