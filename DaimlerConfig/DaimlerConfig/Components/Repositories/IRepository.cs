@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Repositories
 {
-    internal interface IRepository
+    public interface IRepository<TEntity> where TEntity : class
     {
     }
 }
