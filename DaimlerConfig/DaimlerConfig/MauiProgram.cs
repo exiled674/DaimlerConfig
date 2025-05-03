@@ -26,7 +26,7 @@ namespace DaimlerConfig
 #endif
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
                new SqliteConnectionFactory(
-                   Path.Combine(FileSystem.Current.AppDataDirectory, "meineDatenbank.db")
+                   Path.Combine(Directory.GetCurrentDirectory(), "meineDatenbank.db")
                )
             );
 
