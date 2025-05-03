@@ -9,14 +9,20 @@ namespace DaimlerConfig.Components.Repositories
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        public Task delete();
+        public Task Delete(TEntity entity);
+        public Task DeleteRange(IEnumerable<TEntity> entities);
 
-        public Task add();
 
-        public Task getByID(int id);
+        public Task Add(TEntity entity);
+        public Task AddRange(IEnumerable<TEntity> entities);
 
+
+
+        public Task<TEntity> Get(int id);
+        public Task<IEnumerable<TEntity>> GetAll();
+        public Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate);
         public Task<IEnumerable<TEntity>> getAllOrderedByDate();
 
-        public Task<IEnumerable<TEntity>> find(Expression<Func<TEntity, bool>> predicate);
+        
     }
 }
