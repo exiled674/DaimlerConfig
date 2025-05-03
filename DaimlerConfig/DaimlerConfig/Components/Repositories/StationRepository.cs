@@ -9,9 +9,6 @@ namespace DaimlerConfig.Components.Repositories
 {
     public class StationRepository : Repository<Station>, IStationRepository
     {
-        public Task<IEnumerable<Station>> GetAllStations()
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }
