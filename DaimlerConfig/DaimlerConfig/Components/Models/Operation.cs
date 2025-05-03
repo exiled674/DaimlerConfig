@@ -20,7 +20,7 @@ namespace DaimlerConfig.Components.Models
         private int VerificationClass { get; set; }
         private int SavingClass { get; set; }
         private int ToolID { get; set; }
-        public int ParallelSerial { get; set; } // z. B. "parallel" oder "serial"
+        public bool ParallelSerial { get; set; } // z. B. "parallel" oder "serial"
         private bool QGateRelevant { get; set; }
         private DateTime LastModified { get; set; }
     }
