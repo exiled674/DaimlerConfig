@@ -17,9 +17,9 @@ namespace DaimlerConfig.Components.Models
 
         private string? toolDescription { get; set; }
 
-        private string? toolClass { get; set; }
+        private int toolClassID { get; set; }
 
-        private string? toolType { get; set; }
+        private int toolTypeID { get; set; }
 
         private string? ip_adress {  get; set; }
 
@@ -28,7 +28,7 @@ namespace DaimlerConfig.Components.Models
         private string? dbNoSend { get; set; }
         private string? dbNoReceive { get; set; }
 
-        private string? preCheckByte { get; set; }
+        private int preCheckByte { get; set; }
 
         private string? adressSendDB { get; set; }
 

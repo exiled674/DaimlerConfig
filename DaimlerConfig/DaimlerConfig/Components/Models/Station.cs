@@ -14,15 +14,10 @@ namespace DaimlerConfig.Components.Models
 
         private string? stationName {get; set;}
 
-        private StationType? stationType { get; set; }
+        private int stationType { get; set; }
 
         private DateTime? lastModified {get; set;}
     }
 
-    public enum StationType
-    {
-        StationController,
-        PCSService,
-        DataPump
-    }
+ 
 }
