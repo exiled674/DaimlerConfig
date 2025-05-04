@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+
 using DaimlerConfig.Components.Infrastructure;
 using Dapper;
 
@@ -27,10 +28,13 @@ namespace DaimlerConfig.Components.Repositories
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();
 
+            var type = typeof(TEntity);
+            var primarykey = type.Name + "ID";
+
 
             var properties = typeof(TEntity)
             .GetProperties()
-            .Where(p => !string.Equals(p.Name, "stationID", StringComparison.OrdinalIgnoreCase));
+            .Where(p => !string.Equals(p.Name, primarykey, StringComparison.OrdinalIgnoreCase));
 
 
 
