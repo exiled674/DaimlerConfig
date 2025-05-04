@@ -23,54 +23,58 @@ namespace DaimlerConfig
                 });
 
             builder.Services.AddMauiBlazorWebView();
-
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
-            // Connection‑Factory und DB‑Initializer
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
-                new SqliteConnectionFactory(
-                    Path.Combine(Directory.GetCurrentDirectory(), "meineDatenbank.db")
-                )
-            );
+                new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "meineDatenbank.db")));
             builder.Services.AddSingleton<DatabaseInitializer>();
-
-            // Repositorys registrieren
             builder.Services.AddScoped<IRepository<Station>, Repository<Station>>();
             builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
 
             var app = builder.Build();
 
-            // 1) Schema anlegen
-            app.Services
-               .GetRequiredService<DatabaseInitializer>()
-               .EnsureCreated();
+            app.Services.GetRequiredService<DatabaseInitializer>().EnsureCreated();
 
-            // 2) StationType seeden (hartkodiert)
             var stationTypeRepo = app.Services.GetRequiredService<IRepository<StationType>>();
             var existingTypes = stationTypeRepo.GetAll().GetAwaiter().GetResult();
             if (!existingTypes.Any())
             {
                 stationTypeRepo.Add(new StationType
                 {
-                    // stationTypeID AUTOINCREMENT => nicht setzen
                     stationTypeName = "Default"
                 }).GetAwaiter().GetResult();
+                existingTypes = stationTypeRepo.GetAll().GetAwaiter().GetResult();
             }
 
-            // 3) Station seeden
             var stationRepo = app.Services.GetRequiredService<IRepository<Station>>();
-            var existingStations = stationRepo.GetAll().GetAwaiter().GetResult();
-            if (!existingStations.Any())
-            {
+            
+           
+            
                 stationRepo.Add(new Station
                 {
                     assemblystation = "A1",
                     stationName = "Eingang",
-                    StationType_stationTypeID = existingTypes.FirstOrDefault()?.stationTypeID ?? 0,
+                    StationType_stationTypeID = existingTypes.First().stationTypeID,
                     lastModified = DateTime.Now
                 }).GetAwaiter().GetResult();
+
+                stationRepo.Add(new Station
+                {
+                    assemblystation = "A2",
+                    stationName = "Eingan2",
+                    StationType_stationTypeID = existingTypes.First().stationTypeID,
+                    lastModified = DateTime.Now
+                }).GetAwaiter().GetResult();
+
+            var existingStations = stationRepo.GetAll().GetAwaiter().GetResult();
+            
+
+            var toDelete = existingStations.FirstOrDefault(s => s.assemblystation == "A1" && s.stationName == "Eingang");
+            if (toDelete != null)
+            {
+                stationRepo.Delete(toDelete).GetAwaiter().GetResult();
             }
 
             return app;
