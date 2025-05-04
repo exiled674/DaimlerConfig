@@ -9,32 +9,32 @@ namespace DaimlerConfig.Components.Models
 {
     public class Tool
     {
-        private int toolID {  get; set; }
+        public int toolID {  get; set; }
 
-        private int stationID {  get; set; }
+        public int stationID {  get; set; }
 
-        private string? toolShortname { get; set; }
+        public string? toolShortname { get; set; }
 
-        private string? toolDescription { get; set; }
+        public string? toolDescription { get; set; }
 
-        private int toolClassID { get; set; }
+        public int toolClassID { get; set; }
 
-        private int toolTypeID { get; set; }
+        public int toolTypeID { get; set; }
 
-        private string? ip_adress {  get; set; }
+        public string? ip_adress {  get; set; }
 
-        private string? plcName { get; set; }
+        public string? plcName { get; set; }
 
-        private string? dbNoSend { get; set; }
-        private string? dbNoReceive { get; set; }
+        public string? dbNoSend { get; set; }
+        public string? dbNoReceive { get; set; }
 
-        private int preCheckByte { get; set; }
+        public int preCheckByte { get; set; }
 
-        private string? adressSendDB { get; set; }
+        public string? adressSendDB { get; set; }
 
-        private string? adressReceiveDB { get; set; }
+        public string? adressReceiveDB { get; set; }
 
-        private DateTime? lastModified {  get; set; }
+        public DateTime? lastModified {  get; set; }
 
 
     }

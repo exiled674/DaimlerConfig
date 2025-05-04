@@ -31,9 +31,9 @@ namespace DaimlerConfig.Components.Infrastructure
               stationID INTEGER PRIMARY KEY AUTOINCREMENT,
               assemblystation TEXT,
               stationName TEXT,
-              StationType_idStationType INTEGER,
+              StationType_stationTypeID INTEGER,
               lastModified TEXT,
-              FOREIGN KEY (StationType_idStationType) REFERENCES StationType(stationTypeID)
+              FOREIGN KEY (StationType_stationTypeID) REFERENCES StationType(stationTypeID)
             );
 
             CREATE TABLE IF NOT EXISTS ToolClass (
