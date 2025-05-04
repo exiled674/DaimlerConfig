@@ -8,15 +8,15 @@ namespace DaimlerConfig.Components.Models
 {
     public class Station
     {
-        private int stationID {get; set;}
+        public int stationID {get; set;}
 
-        private string? assemblyStation {get; set;}
+        public string? assemblystation {get; set;}
 
-        private string? stationName {get; set;}
+        public string? stationName {get; set;}
 
-        private int stationType { get; set; }
+        public int StationType_stationTypeID { get; set; }
 
-        private DateTime? lastModified {get; set;}
+        public DateTime? lastModified {get; set;}
     }
 
  
