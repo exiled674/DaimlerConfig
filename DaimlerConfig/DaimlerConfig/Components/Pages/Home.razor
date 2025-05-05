@@ -1,10 +1,9 @@
 ﻿@page "/"
-@using DaimlerConfig.Components.Models
-@using DaimlerConfig.Components.Repositories
-@inject IRepository<Station> StationRepo
+@inject DaimlerConfig.Components.Repositories.IRepository<DaimlerConfig.Components.Models.Station> StationRepo
 
 <h3>Station Details (ID = 6)</h3>
-@if (station == null)
+
+@if (station is null)
 {
     <p>Lade Station...</p>
 }
@@ -18,34 +17,35 @@ else
     </div>
 }
 
-<h3>Stationen mit Name "Eingan2"</h3>
-@if (eingan2Stations == null)
+<h3>Alle Stationen (nach lastModified sortiert)</h3>
+
+@if (sortedStations is null)
 {
     <p>Lade Stationen...</p>
 }
-else if (!eingan2Stations.Any())
+else if (!sortedStations.Any())
 {
-    <p>Keine Stationen mit diesem Namen gefunden.</p>
+    <p>Keine Stationen gefunden.</p>
 }
 else
 {
     <ul>
-        @foreach (var s in eingan2Stations)
+        @foreach (var s in sortedStations)
         {
             <li>
-                <strong>@s.stationName</strong> (Assembly: @s.assemblystation) - Geändert am @s.lastModified
+                <strong>@s.stationName</strong> – @s.lastModified
             </li>
         }
     </ul>
 }
 
 @code {
-    private Station station;
-    private IEnumerable<Station> eingan2Stations;
+    private DaimlerConfig.Components.Models.Station? station;
+    private IEnumerable<DaimlerConfig.Components.Models.Station>? sortedStations;
 
     protected override async Task OnInitializedAsync()
     {
         station = await StationRepo.Get(6);
-        eingan2Stations = await StationRepo.Find(s => s.stationName == "Eingan2");
+        sortedStations = await StationRepo.getAllOrderedByDate();
     }
 }

@@ -160,11 +160,22 @@ namespace DaimlerConfig.Components.Repositories
         }
 
 
-        public Task<IEnumerable<TEntity>> getAllOrderedByDate()
+        public async Task<IEnumerable<TEntity>> getAllOrderedByDate()
         {
-            throw new NotImplementedException();
+            using var conn = _dbConnectionFactory.CreateConnection();
+            conn.Open();
+
+            var props = typeof(TEntity).GetProperties();
+            var hasLastModified = props.Any(p => p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase));
+
+            if (!hasLastModified)
+                throw new InvalidOperationException("TEntity hat keine 'lastModified'-Eigenschaft.");
+
+            var sql = $"SELECT * FROM {_tableName} ORDER BY lastModified DESC";
+            return await conn.QueryAsync<TEntity>(sql);
         }
 
-      
+
+
     }
 }
