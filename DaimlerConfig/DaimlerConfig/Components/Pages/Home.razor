@@ -1,9 +1,10 @@
 ﻿@page "/"
-@inject DaimlerConfig.Components.Repositories.IRepository<DaimlerConfig.Components.Models.Station> StationRepo
+@using DaimlerConfig.Components.Models
+@using DaimlerConfig.Components.Repositories
+@inject IRepository<Station> StationRepo
 
-<h3>Station Details</h3>
-
-@if (station is null)
+<h3>Station Details (ID = 6)</h3>
+@if (station == null)
 {
     <p>Lade Station...</p>
 }
@@ -17,11 +18,34 @@ else
     </div>
 }
 
+<h3>Stationen mit Name "Eingan2"</h3>
+@if (eingan2Stations == null)
+{
+    <p>Lade Stationen...</p>
+}
+else if (!eingan2Stations.Any())
+{
+    <p>Keine Stationen mit diesem Namen gefunden.</p>
+}
+else
+{
+    <ul>
+        @foreach (var s in eingan2Stations)
+        {
+            <li>
+                <strong>@s.stationName</strong> (Assembly: @s.assemblystation) - Geändert am @s.lastModified
+            </li>
+        }
+    </ul>
+}
+
 @code {
-    private DaimlerConfig.Components.Models.Station station;
+    private Station station;
+    private IEnumerable<Station> eingan2Stations;
 
     protected override async Task OnInitializedAsync()
     {
         station = await StationRepo.Get(6);
+        eingan2Stations = await StationRepo.Find(s => s.stationName == "Eingan2");
     }
 }

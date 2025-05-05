@@ -39,9 +39,7 @@ namespace DaimlerConfig
 
             var stationRepo = app.Services.GetRequiredService<IRepository<Station>>();
 
-            // Dummy Station Entität der ID 6 aus der DB
-            var station6 = stationRepo.Get(6).GetAwaiter().GetResult();
-            
+           
 
             return app;
         }
