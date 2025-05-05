@@ -78,10 +78,6 @@ namespace DaimlerConfig.Components.Repositories
         }
 
 
-
-
-
-
         public async Task Delete(TEntity entity)
         {
             using var conn = _dbConnectionFactory.CreateConnection();
@@ -109,24 +105,44 @@ namespace DaimlerConfig.Components.Repositories
         }
 
 
-        public Task DeleteRange(IEnumerable<TEntity> entities)
+        public async Task DeleteRange(IEnumerable<TEntity> entities)
         {
-            throw new NotImplementedException();
+            foreach (var entity in entities)
+            {
+                await Delete(entity);
+            }
         }
 
 
 
-        
+
 
         public Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate)
         {
             throw new NotImplementedException();
         }
 
-        public Task<TEntity> Get(int id)
+        public async Task<TEntity?> Get(int id)
         {
-            throw new NotImplementedException();
+            using var conn = _dbConnectionFactory.CreateConnection();
+            conn.Open();
+
+            var type = typeof(TEntity);
+            var keyProp = type.GetProperties()
+                .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
+
+            if (keyProp == null)
+                throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
+
+            var keyName = keyProp.Name;
+            var sql = $"SELECT * FROM {_tableName} WHERE {keyName} = @{keyName}";
+
+            var dp = new DynamicParameters();
+            dp.Add(keyName, id);
+
+            return await conn.QuerySingleOrDefaultAsync<TEntity>(sql, dp);
         }
+
 
         public async Task<IEnumerable<TEntity>> GetAll()
         {

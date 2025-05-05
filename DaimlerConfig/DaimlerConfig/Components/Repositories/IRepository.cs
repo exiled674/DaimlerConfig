@@ -18,7 +18,7 @@ namespace DaimlerConfig.Components.Repositories
 
 
 
-        public Task<TEntity> Get(int id);
+        public Task<TEntity?> Get(int id);
         public Task<IEnumerable<TEntity>> GetAll();
         public Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate);
         public Task<IEnumerable<TEntity>> getAllOrderedByDate();
