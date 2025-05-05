@@ -49,33 +49,28 @@ namespace DaimlerConfig
             }
 
             var stationRepo = app.Services.GetRequiredService<IRepository<Station>>();
-            
-           
-            
-                stationRepo.Add(new Station
+
+
+
+            stationRepo.AddRange(new[]
+        {
+                new Station
                 {
-                    assemblystation = "A1",
-                    stationName = "Eingang",
+                    assemblystation = "B1",
+                    stationName = "Versand",
                     StationType_stationTypeID = existingTypes.First().stationTypeID,
                     lastModified = DateTime.Now
-                }).GetAwaiter().GetResult();
-
-                stationRepo.Add(new Station
+                },
+                new Station
                 {
-                    assemblystation = "A2",
-                    stationName = "Eingan2",
+                    assemblystation = "C1",
+                    stationName = "Wareneingang",
                     StationType_stationTypeID = existingTypes.First().stationTypeID,
                     lastModified = DateTime.Now
-                }).GetAwaiter().GetResult();
+                }
+            }).GetAwaiter().GetResult();
 
-            var existingStations = stationRepo.GetAll().GetAwaiter().GetResult();
-            
 
-            var toDelete = existingStations.FirstOrDefault(s => s.assemblystation == "A1" && s.stationName == "Eingang");
-            if (toDelete != null)
-            {
-                stationRepo.Delete(toDelete).GetAwaiter().GetResult();
-            }
 
             return app;
         }

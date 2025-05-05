@@ -69,10 +69,14 @@ namespace DaimlerConfig.Components.Repositories
             await conn.ExecuteAsync(sql, dp);
         }
 
-        public Task AddRange(IEnumerable<TEntity> entities)
+        public async Task AddRange(IEnumerable<TEntity> entities)
         {
-            throw new NotImplementedException();
+            foreach (var entity in entities)
+            {
+                await Add(entity);
+            }
         }
+
 
 
 
