@@ -37,40 +37,11 @@ namespace DaimlerConfig
 
             app.Services.GetRequiredService<DatabaseInitializer>().EnsureCreated();
 
-            var stationTypeRepo = app.Services.GetRequiredService<IRepository<StationType>>();
-            var existingTypes = stationTypeRepo.GetAll().GetAwaiter().GetResult();
-            if (!existingTypes.Any())
-            {
-                stationTypeRepo.Add(new StationType
-                {
-                    stationTypeName = "Default"
-                }).GetAwaiter().GetResult();
-                existingTypes = stationTypeRepo.GetAll().GetAwaiter().GetResult();
-            }
-
             var stationRepo = app.Services.GetRequiredService<IRepository<Station>>();
 
-
-
-            stationRepo.AddRange(new[]
-        {
-                new Station
-                {
-                    assemblystation = "B1",
-                    stationName = "Versand",
-                    StationType_stationTypeID = existingTypes.First().stationTypeID,
-                    lastModified = DateTime.Now
-                },
-                new Station
-                {
-                    assemblystation = "C1",
-                    stationName = "Wareneingang",
-                    StationType_stationTypeID = existingTypes.First().stationTypeID,
-                    lastModified = DateTime.Now
-                }
-            }).GetAwaiter().GetResult();
-
-
+            // Dummy Station Entität der ID 6 aus der DB
+            var station6 = stationRepo.Get(6).GetAwaiter().GetResult();
+            
 
             return app;
         }

@@ -1,5 +1,27 @@
 ﻿@page "/"
+@inject DaimlerConfig.Components.Repositories.IRepository<DaimlerConfig.Components.Models.Station> StationRepo
 
-<h1>Hello, world!</h1>
+<h3>Station Details</h3>
 
-Welcome to your new app.
+@if (station is null)
+{
+    <p>Lade Station...</p>
+}
+else
+{
+    <div>
+        <p><strong>Assemblystation:</strong> @station.assemblystation</p>
+        <p><strong>Station Name:</strong> @station.stationName</p>
+        <p><strong>StationType ID:</strong> @station.StationType_stationTypeID</p>
+        <p><strong>Last Modified:</strong> @station.lastModified</p>
+    </div>
+}
+
+@code {
+    private DaimlerConfig.Components.Models.Station station;
+
+    protected override async Task OnInitializedAsync()
+    {
+        station = await StationRepo.Get(6);
+    }
+}
