@@ -1,0 +1,18 @@
+﻿
+.main-screen {
+    display: flex;
+    flex-direction: row;
+    background-color: #F2F2F2;
+    min-height:100%;
+}
+
+.table-formular {
+    display: flex;
+    flex-direction: row;
+    min-width: 86%;
+    margin-left: 2%;
+    margin-top: 2%;
+    background-color: white;
+}
+
+

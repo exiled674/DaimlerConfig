@@ -1,0 +1,21 @@
+﻿* {
+    background-color: white;
+}
+
+.layout {
+    display: flex;
+    flex-direction: row;
+    max-width: 35%;
+}
+
+.toolColoumn {
+    display: flex;
+    flex-direction: column;
+    margin: 50px;    
+    
+}
+
+input, select {
+    margin-bottom: 10px;
+}
+
