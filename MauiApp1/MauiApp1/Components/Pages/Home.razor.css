@@ -1,0 +1,45 @@
+.outerBox {
+    background-color: #DEE2E6;
+    padding-left: 30px;
+    padding-top: 50px;
+    padding-bottom: 100px;
+    padding-right: 50px;
+    border: 2px solid #ADB5BD;
+}
+
+.search {
+    background-color: #ADB5BD;
+    color: white;
+    padding-top: 12px;
+    padding-bottom: 15px;
+}
+
+    .search::placeholder {
+        color: white;
+    }
+
+.projects button {
+    display: block;
+    margin-top: 15px;
+    padding-right: 85%;
+    background-color: #D8D8D8;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.projects {
+    padding-bottom: 150px;
+}git 
+
+    .projects button:hover {
+        background-color: #ADB5BD;
+    }
+
+.newProject {
+    margin-top: 10px;
+    background-color: #495057;
+    color: white;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 300px;
+}

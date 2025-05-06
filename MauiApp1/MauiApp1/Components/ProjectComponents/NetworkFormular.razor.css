@@ -1,0 +1,62 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.network-container {
+    width: 100%;
+    background-color: #B8BFC6;
+}
+
+.network-header {
+    background-color: #707070;
+    color: white;
+    padding: 10px 20px;
+    font-size: 18px;
+}
+
+.network-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+.input-container {
+    display: flex;
+    position: relative;
+}
+
+    .input-container input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+    }
+
+.help-icon {
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    line-height: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.byte-pre-check {
+    grid-column: 2;
+}

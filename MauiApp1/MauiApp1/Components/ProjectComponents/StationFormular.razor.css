@@ -1,0 +1,43 @@
+.station-container {
+    background-color: #B8BFC6;
+    padding: 0px 0px 30px 0px;
+}
+
+
+.station-header {
+    background: #707070;
+    padding: 10px 0px 10px 0px;
+    color: white;
+    font-size: 20px;
+    padding-left: 30px;
+}
+
+.formCol {
+    display: flex;
+    flex-direction: column;
+}
+
+.formElement {
+    display: flex;
+    flex-direction: column;
+}
+
+.station-form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 15px 0px 0px 30px;
+}
+
+.station-form button {
+    margin: 0px 0px 0px 50px;
+    background: #D9D9D9;
+}
+
+.station-form button:hover {
+    background: #7D7B7B;
+}
+
+.formElement {
+    margin: 10px 0px 10px 0px;
+}

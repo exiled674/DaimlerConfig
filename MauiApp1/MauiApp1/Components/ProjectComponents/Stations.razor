@@ -1,0 +1,52 @@
+﻿@using MauiApp1.Components.DB
+@inject DBService db
+
+<div class="stations">
+    @if (stationNames != null)
+    {
+        foreach (var station in stationNames)
+        {
+            var isSelected = station == selectedStation ? "selected" : "";
+                    <button class="@isSelected" @onclick='() => SetCurrentStation(station)'>@station</button>
+        }
+    }
+
+    <div class="fixed-footer">
+        <button @onclick='() => createNewStation()'>Create new Station</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<string> CurrentStation { get; set; }
+
+    [Parameter]
+    public EventCallback<string> CreateStationButton { get; set; }
+
+    private List<string> stationNames;
+    private string selectedStation;
+
+    protected override void OnInitialized()
+    {
+        stationNames = db.GetAllStationNames();
+    }
+
+    private void SetCurrentStation(string stationName)
+    {
+        selectedStation = stationName;
+        CurrentStation.InvokeAsync(stationName);
+    }
+
+    private void createNewStation()
+    {
+        db = new DBService();
+        CreateStationButton.InvokeAsync("stationFormular");
+        stationNames = db.GetAllStationNames();
+    }
+
+    public void reload()
+    {
+        stationNames = db.GetAllStationNames();
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,87 @@
+﻿@page "/"
+@using MauiApp1.Components.DB
+@inject DBService db
+
+<!-- Hier UI-Layout für Project-Bildschirm -->
+
+<nav>
+    <NavLink href="">
+        <input type="button" value="<" />
+    </NavLink>
+</nav>
+
+<div class="lineName">
+    <h1>Project: Area_B02_Main</h1>
+</div>
+
+<div class="screen">
+
+    <Stations CurrentStation="SetCurrentStation" CreateStationButton="SetFormular" @ref="stationsComponent"></Stations>
+    <div class="table_area">
+        <Table SetFormular="SetFormular" CurrentStation="@currentStation" CurrentToolID="SetTool"></Table>
+        @switch (formular)
+        {
+            case "toolFormular":
+                <ToolFormular toolId="@currentToolID" CurrentStation="@currentStation"></ToolFormular>
+                break;
+            case "operationFormular":
+                <OperationFormular></OperationFormular>
+                break;
+            case "operationclassFormular": 
+                <OperationClassFormular></OperationClassFormular>
+                break;
+            /*case "networkFormular":
+                <NetworkFormular></NetworkFormular>
+                break;
+            case "statusFormular":
+                <StatusFormular></StatusFormular>
+                break;*/
+        case "stationFormular":
+                <StationFormular CreatedStation="ReloadStation"></StationFormular>
+                break;
+        }
+        <p>Double Click On The Cell You Want To Work On Or Add A New Tool</p>
+    </div>
+
+</div>
+
+@code {
+    private string? formular;
+    private int currentStation; 
+    private Stations stationsComponent;
+    private int currentToolID;
+
+    private void SetFormular(string value)
+    {
+        formular = value;
+
+    }
+
+    private void SetCurrentStation(string stationName)
+    {
+
+        currentStation = db.StationIDfromName(stationName);
+    }
+
+    protected override void OnInitialized()
+    {
+        db.CreateDatabase();
+        //db.InsertSomething();
+    }
+
+    public void ReloadStation()
+    {
+        stationsComponent?.reload();
+    }
+
+    public void SetTool(int tID)
+    {
+        currentToolID = tID;
+    }
+
+
+
+}
+
+
+

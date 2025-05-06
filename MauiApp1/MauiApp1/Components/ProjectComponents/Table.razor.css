@@ -1,0 +1,68 @@
+
+.my-grid-wrapper {
+    max-height: 70%;
+    min-height: 30%;
+    overflow: scroll;
+    scrollbar-color: #ADB5BD #DEE2E6;
+    font-size: 22px;
+    background: #D9D9D9;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* pierce Blazor CSS-Isolation */
+::deep table.quickGrid {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+::deep table.quickGrid th {
+    background: #ADB5BD;
+    color: #000;
+    border: 1px solid #000;
+    padding: 0.5em;
+    text-align: center;
+    
+}
+
+/* Body-Zellen */
+::deep table.quickGrid td {
+    background: #D9D9D9; 
+    border: 1px solid #000;
+    padding: 0.5em;
+    position: relative;
+    text-align: center;
+}
+
+::deep table.quickGrid td:hover {
+    cursor: pointer;
+    background: #ADB5BD;
+}
+
+.status-circle {
+    width: 10px; 
+    height: 10px;
+    background-color: white; 
+    border-radius: 50%; 
+    display: inline-block;
+    margin-right: 5px;
+    margin-top: 2px;
+    position: absolute;
+    right: 0;
+    
+}
+
+
+#addRow {
+    background: #D9D9D9;
+    width: 100%;
+    height: 40px;
+    font-size: 24px;
+    border-width:1px; 
+}
+
+#addRow:hover {
+    background: #ADB5BD;
+}
+

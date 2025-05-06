@@ -1,0 +1,89 @@
+/* Status Formular CSS Fix */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.status-container {
+    width: 100%;
+    background-color: #B8BFC6;
+    /* Make sure there's no margin causing the spacing */
+    margin: 0;
+}
+
+.status-header {
+    background-color: #707070;
+    color: white;
+    padding: 10px 20px;
+    font-size: 18px;
+    position: relative;
+    /* Ensure no margin on the header */
+    margin: 0;
+}
+
+.arrow-down {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.status-form {
+    background-color: #B8BFC6;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    /* Remove any top margin that might be causing the spacing */
+    margin-top: 0;
+}
+
+.form-group {
+    margin-right: 40px;
+    margin-bottom: 15px;
+}
+
+    .form-group label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.textarea-input {
+    width: 220px;
+    height: 110px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+}
+
+.select-input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    width: 120px;
+}
+
+.help-icon {
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    line-height: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dropdown-arrow {
+    margin-left: -20px;
+    color: #333;
+    pointer-events: none;
+}

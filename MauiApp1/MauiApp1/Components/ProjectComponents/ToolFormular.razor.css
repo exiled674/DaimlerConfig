@@ -1,0 +1,79 @@
+
+.tool-container {
+    width: 100%;
+    background-color: #B8BFC6;
+}
+
+.tool-header {
+    background: #707070;
+    color: white;
+    font-size: 1.2rem;
+    padding: 0.75rem 1rem;
+}
+
+.tool-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 2rem;
+    grid-row-gap: 1rem;
+    padding: 1rem;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+}
+
+    .form-row.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-row label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+.input-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+        flex: 1;
+        width: auto;
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: white;
+    }
+
+        .input-group input#tool-id {
+            flex: 0 0 auto;
+            width: 120px;
+        }
+
+.help-icon {
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    line-height: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.char-counter {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.25rem;
+    font-size: 0.85rem;
+    color: #666;
+}

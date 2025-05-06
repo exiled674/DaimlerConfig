@@ -1,0 +1,120 @@
+﻿@using MauiApp1.Components.DB
+@inject DBService db
+
+<div class="my-grid-wrapper">
+    <QuickGrid Items="tableHead" class="quickGrid">
+        <Columns>
+            <TemplateColumn Title="Tool">
+                <CellTemplate>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
+                        @context.Tool
+                        <div class="status-circle"></div>
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Operation">
+                <CellTemplate>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
+                        @context.Operation
+                        <div class="status-circle"></div>
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Classes">
+                <CellTemplate>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
+                        <div class="status-circle"></div>
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Network">
+                <CellTemplate>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
+                        <div class="status-circle"></div>
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Status">
+                <CellTemplate>
+                    <div @onclick='async () => await CurrentFormularAsync("toolFormular", int.Parse(context.Tool))'>
+                        <div class="status-circle"></div>
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </QuickGrid>
+
+    <button id="addRow" @onclick="AddRow">
+        +
+    </button>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<string> SetFormular { get; set; }
+
+    [Parameter]
+    public EventCallback<int> CurrentToolID { get; set; }
+
+
+    [Parameter]
+    public int CurrentStation { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        // this *will* fire every time the parent passes in a new station ID
+        LoadData();
+    }
+
+
+    private IQueryable<TableHead> tableHead;
+
+    private record TableHead(string Operation, string Tool);
+
+    protected override void OnInitialized()
+    {
+        LoadData(); // Lade die Daten auch beim Start
+    }
+
+    private void LoadData()
+    {
+        if (CurrentStation != 0)
+        {
+            var operations = db.GetOperationsFromStation(CurrentStation);
+
+            tableHead = operations
+                .Select(op => new TableHead(op.operationDescription, op.toolID.ToString()))
+                .AsQueryable();
+        }
+        else
+        {
+            tableHead = Enumerable.Empty<TableHead>().AsQueryable();
+        }
+
+        InvokeAsync(StateHasChanged); // Wichtig, damit UI neu gerendert wird!
+    }
+
+    private async Task CurrentFormularAsync(string formular, int tID)
+    {
+        await SetFormular.InvokeAsync(formular);
+        await CurrentToolID.InvokeAsync(tID);
+    }
+
+    private void AddRow()
+    {
+        var newToolID = db.GetNextToolID();
+        db.InsertToolWithBlankOp(
+            toolID: newToolID,
+            stationID: CurrentStation,
+            toolShortname: "",
+            toolDescription: "",
+            toolClassID: null,
+            toolTypeID: null
+        );
+
+        // Rebind tableHead from the database so the grid shows your new row:
+        LoadData();
+    }
+
+
+}
