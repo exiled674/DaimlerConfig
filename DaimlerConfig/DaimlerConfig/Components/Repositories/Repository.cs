@@ -175,6 +175,53 @@ namespace DaimlerConfig.Components.Repositories
             return await conn.QueryAsync<TEntity>(sql);
         }
 
+        public async Task Update(TEntity entity)
+        {
+            using var conn = _dbConnectionFactory.CreateConnection();
+            conn.Open();
+
+            var type = typeof(TEntity);
+            var keyProp = type.GetProperties()
+                .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
+
+            if (keyProp == null)
+                throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
+
+            var keyName = keyProp.Name;
+            var keyValue = keyProp.GetValue(entity);
+
+            var props = type.GetProperties()
+                .Where(p => !string.Equals(p.Name, keyName, StringComparison.OrdinalIgnoreCase));
+
+            var setClause = string.Join(", ", props.Select(p => $"{p.Name} = @{p.Name}"));
+
+            var sql = $@"
+        UPDATE {_tableName}
+        SET {setClause}
+        WHERE {keyName} = @{keyName};
+    ";
+
+            var dp = new DynamicParameters();
+
+            foreach (var p in props)
+            {
+                var val = p.GetValue(entity);
+                if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
+                    && p.PropertyType == typeof(DateTime))
+                {
+                    var dt = (DateTime)val;
+                    dp.Add(p.Name, dt.ToString("yyyy-MM-dd HH:mm:ss"));
+                }
+                else
+                {
+                    dp.Add(p.Name, val);
+                }
+            }
+
+            dp.Add(keyName, keyValue);
+
+            await conn.ExecuteAsync(sql, dp);
+        }
 
 
     }

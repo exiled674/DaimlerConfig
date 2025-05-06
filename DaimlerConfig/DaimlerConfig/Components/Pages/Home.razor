@@ -1,5 +1,7 @@
 ﻿@page "/"
-@inject DaimlerConfig.Components.Repositories.IRepository<DaimlerConfig.Components.Models.Station> StationRepo
+@using DaimlerConfig.Components.Models
+@using DaimlerConfig.Components.Repositories
+@inject IRepository<Station> StationRepo
 
 <h3>Station Details (ID = 6)</h3>
 
@@ -14,6 +16,7 @@ else
         <p><strong>Station Name:</strong> @station.stationName</p>
         <p><strong>StationType ID:</strong> @station.StationType_stationTypeID</p>
         <p><strong>Last Modified:</strong> @station.lastModified</p>
+        <button @onclick="UpdateStationName">Name ändern</button>
     </div>
 }
 
@@ -40,12 +43,29 @@ else
 }
 
 @code {
-    private DaimlerConfig.Components.Models.Station? station;
-    private IEnumerable<DaimlerConfig.Components.Models.Station>? sortedStations;
+    private Station? station;
+    private IEnumerable<Station>? sortedStations;
 
     protected override async Task OnInitializedAsync()
     {
         station = await StationRepo.Get(6);
         sortedStations = await StationRepo.getAllOrderedByDate();
+    }
+
+    private async Task UpdateStationName()
+    {
+        if (station is null)
+            return;
+
+        station.stationName += " (aktualisiert)";
+        station.lastModified = DateTime.Now;
+
+        await StationRepo.Update(station);
+
+        
+        station = await StationRepo.Get(6);
+        sortedStations = await StationRepo.getAllOrderedByDate();
+
+        StateHasChanged();
     }
 }

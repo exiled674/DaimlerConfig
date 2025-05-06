@@ -16,6 +16,8 @@ namespace DaimlerConfig.Components.Repositories
         public Task Add(TEntity entity);
         public Task AddRange(IEnumerable<TEntity> entities);
 
+        public Task Update(TEntity entity);
+
 
 
         public Task<TEntity?> Get(int id);
