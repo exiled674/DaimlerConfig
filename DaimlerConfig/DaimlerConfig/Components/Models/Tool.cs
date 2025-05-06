@@ -1,40 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-namespace DaimlerConfig.Components.Models
+﻿namespace DaimlerConfig.Components.Models
 {
     public class Tool
     {
-        public int toolID {  get; set; }
+        public int ToolId {  get; set; }
 
-        public int stationID {  get; set; }
+        public int StationId {  get; set; }
 
-        public string? toolShortname { get; set; }
+        public string? ToolShortname { get; set; }
 
-        public string? toolDescription { get; set; }
+        public string? ToolDescription { get; set; }
 
-        public int toolClassID { get; set; }
+        public int ToolClassId { get; set; }
 
-        public int toolTypeID { get; set; }
+        public int ToolTypeId { get; set; }
 
-        public string? ip_adress {  get; set; }
+        public string? IpAddress {  get; set; }
 
-        public string? plcName { get; set; }
+        public string? PlcName { get; set; }
 
-        public string? dbNoSend { get; set; }
-        public string? dbNoReceive { get; set; }
+        public string? DbNoSend { get; set; }
+        public string? DbNoReceive { get; set; }
 
-        public int preCheckByte { get; set; }
+        public int PreCheckByte { get; set; }
 
-        public string? adressSendDB { get; set; }
+        public string? AddressSendDb { get; set; }
 
-        public string? adressReceiveDB { get; set; }
+        public string? AddressReceiveDb { get; set; }
 
-        public DateTime? lastModified {  get; set; }
+        public DateTime? LastModified {  get; set; }
 
 
     }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DaimlerConfig.Components.Infrastructure;
+﻿using DaimlerConfig.Components.Infrastructure;
 using DaimlerConfig.Components.Models;
 
 namespace DaimlerConfig.Components.Repositories
@@ -14,7 +9,7 @@ namespace DaimlerConfig.Components.Repositories
         {
         }
 
-        public Task<IEnumerable<Tool>> getToolsFromStation(int stationID)
+        public Task<IEnumerable<Tool>> GetToolsFromStation(int stationId)
         {
             throw new NotImplementedException();
         }

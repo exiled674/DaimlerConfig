@@ -1,51 +1,51 @@
 ﻿@page "/"
-@inject DaimlerConfig.Components.Repositories.IRepository<DaimlerConfig.Components.Models.Station> StationRepo
+@inject Repositories.IRepository<Models.Station> StationRepo
 
 <h3>Station Details (ID = 6)</h3>
 
-@if (station is null)
+@if (_station is null)
 {
     <p>Lade Station...</p>
 }
 else
 {
     <div>
-        <p><strong>Assemblystation:</strong> @station.assemblystation</p>
-        <p><strong>Station Name:</strong> @station.stationName</p>
-        <p><strong>StationType ID:</strong> @station.StationType_stationTypeID</p>
-        <p><strong>Last Modified:</strong> @station.lastModified</p>
+        <p><strong>Assemblystation:</strong> @_station.Assemblystation</p>
+        <p><strong>Station Name:</strong> @_station.StationName</p>
+        <p><strong>StationType ID:</strong> @_station.StationType_stationTypeID</p>
+        <p><strong>Last Modified:</strong> @_station.LastModified</p>
     </div>
 }
 
 <h3>Alle Stationen (nach lastModified sortiert)</h3>
 
-@if (sortedStations is null)
+@if (_sortedStations is null)
 {
     <p>Lade Stationen...</p>
 }
-else if (!sortedStations.Any())
+else if (!_sortedStations.Any())
 {
     <p>Keine Stationen gefunden.</p>
 }
 else
 {
     <ul>
-        @foreach (var s in sortedStations)
+        @foreach (var s in _sortedStations)
         {
             <li>
-                <strong>@s.stationName</strong> – @s.lastModified
+                <strong>@s.StationName</strong> – @s.LastModified
             </li>
         }
     </ul>
 }
 
 @code {
-    private DaimlerConfig.Components.Models.Station? station;
-    private IEnumerable<DaimlerConfig.Components.Models.Station>? sortedStations;
+    private Models.Station? _station;
+    private IEnumerable<Models.Station>? _sortedStations;
 
     protected override async Task OnInitializedAsync()
     {
-        station = await StationRepo.Get(6);
-        sortedStations = await StationRepo.getAllOrderedByDate();
+        _station = await StationRepo.Get(6);
+        _sortedStations = await StationRepo.GetAllOrderedByDate();
     }
 }

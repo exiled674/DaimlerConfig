@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace DaimlerConfig.Components.Repositories
 {
@@ -21,7 +16,7 @@ namespace DaimlerConfig.Components.Repositories
         public Task<TEntity?> Get(int id);
         public Task<IEnumerable<TEntity>> GetAll();
         public Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate);
-        public Task<IEnumerable<TEntity>> getAllOrderedByDate();
+        public Task<IEnumerable<TEntity>> GetAllOrderedByDate();
 
         
     }

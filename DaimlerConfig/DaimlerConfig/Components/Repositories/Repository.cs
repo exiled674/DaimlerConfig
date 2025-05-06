@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 using DaimlerConfig.Components.Infrastructure;
 using Dapper;
@@ -29,16 +24,15 @@ namespace DaimlerConfig.Components.Repositories
             conn.Open();
 
             var type = typeof(TEntity);
-            var primarykey = type.Name + "ID";
+            var primaryKey = type.Name + "ID";
 
 
             var properties = typeof(TEntity)
             .GetProperties()
-            .Where(p => !string.Equals(p.Name, primarykey, StringComparison.OrdinalIgnoreCase));
+            .Where(p => !string.Equals(p.Name, primaryKey, StringComparison.OrdinalIgnoreCase)).ToList();
+            //ToList() verhindert Mehrfach-Enumeration und verbessert Performance
 
-
-
-            var columnNames = properties.Select(p => p.Name);
+            var columnNames = properties.Select(p => p.Name).ToList();
             var columns = string.Join(", ", columnNames);
             var paramNames = string.Join(", ", columnNames.Select(n => "@" + n));
             var sql = $@"
@@ -53,11 +47,10 @@ namespace DaimlerConfig.Components.Repositories
             foreach (var p in properties)
             {
                 var val = p.GetValue(entity);
-                if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
-                    && p.PropertyType == typeof(DateTime))
+
+                if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase) &&
+                    val is DateTime dt)
                 {
-                    
-                    var dt = (DateTime)val;
                     dp.Add(p.Name, dt.ToString("yyyy-MM-dd HH:mm:ss"));
                 }
                 else
@@ -65,6 +58,7 @@ namespace DaimlerConfig.Components.Repositories
                     dp.Add(p.Name, val);
                 }
             }
+
 
             await conn.ExecuteAsync(sql, dp);
         }
@@ -104,7 +98,7 @@ namespace DaimlerConfig.Components.Repositories
             await conn.ExecuteAsync(sql, dp);
         }
 
-
+        
         public async Task DeleteRange(IEnumerable<TEntity> entities)
         {
             foreach (var entity in entities)
@@ -112,11 +106,8 @@ namespace DaimlerConfig.Components.Repositories
                 await Delete(entity);
             }
         }
-
-
-
-
-
+        
+        
         public async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate)
         {
            
@@ -126,8 +117,8 @@ namespace DaimlerConfig.Components.Repositories
             var func = predicate.Compile();
             return all.Where(func);
         }
-
-
+        
+        
         public async Task<TEntity?> Get(int id)
         {
             using var conn = _dbConnectionFactory.CreateConnection();
@@ -160,7 +151,7 @@ namespace DaimlerConfig.Components.Repositories
         }
 
 
-        public async Task<IEnumerable<TEntity>> getAllOrderedByDate()
+        public async Task<IEnumerable<TEntity>> GetAllOrderedByDate()
         {
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();
