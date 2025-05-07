@@ -1,12 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using DaimlerConfig.Components.Repositories;
 
 namespace DaimlerConfig.Components.Infrastructure
 {
-    internal interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
+        IToolRepository ToolRepository { get; }
+        IStationRepository StationRepository { get; }
+        IOperationRepository OperationRepository { get; }
+
+        Task<int> SaveChangesAsync();
+        void BeginTransaction();
+        Task CommitTransactionAsync();
+        void RollbackTransaction();
     }
 }
