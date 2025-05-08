@@ -182,6 +182,21 @@ namespace DaimlerConfigTest
             Assert.NotNull(retrievedStation.lastModified);
         }
 
+        [Fact]
+        public async void GetAllStationsTest_Works()
+        {
+            
+            var expectedCount = await _connection.QuerySingleAsync<int>("SELECT COUNT(*) FROM Station;");
+
+           
+            var allStations = await stationRepository.GetAll();
+
+           
+            Assert.NotNull(allStations);
+            Assert.Equal(expectedCount, allStations.Count());
+        }
+
+
 
 
 
