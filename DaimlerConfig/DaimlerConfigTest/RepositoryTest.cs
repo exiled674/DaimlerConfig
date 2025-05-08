@@ -58,6 +58,7 @@ namespace DaimlerConfigTest
             Assert.Equal("TestType5", result.stationTypeName);
         }
 
+
         public async void AddStationTest()
         {
             var stationType = new StationType
@@ -86,6 +87,35 @@ namespace DaimlerConfigTest
             Assert.NotNull(result.lastModified);
 
         }
+
+
+        [Fact]
+        public async void DeleteStationTypeTest()
+        {
+            
+            var stationType = new StationType
+            {
+                stationTypeName = "TestType6"
+            };
+            await _repository.Add(stationType);
+           
+            var result = await _connection.QuerySingleOrDefaultAsync<StationType>(
+                "SELECT * FROM StationType WHERE stationTypeName = @stationTypeName",
+                new { stationType.stationTypeName });
+           
+            Assert.NotNull(result);
+            
+            await _repository.Delete(result);
+            
+            var deletedResult = await _connection.QuerySingleOrDefaultAsync<StationType>(
+                "SELECT * FROM StationType WHERE stationTypeName = @stationTypeName",
+                new { stationType.stationTypeName });
+            // Test 2: Überprüfung, ob der Datensatz nicht mehr existiert 
+            Assert.Null(deletedResult);
+        }
+
+
+
 
         private void DeleteAllTables()
         {
