@@ -24,10 +24,19 @@ namespace DaimlerConfigTest
 
             // Dummy-Datenbank mit StationType Tabelle erstellen (nur, wenn sie nicht existiert)
             _connection.Execute(@"
+                PRAGMA foreign_keys = ON;
                 CREATE TABLE IF NOT EXISTS StationType (
                     stationTypeID INTEGER PRIMARY KEY,
                     stationTypeName TEXT NOT NULL
                 );
+              CREATE TABLE IF NOT EXISTS Station (
+                  stationID INTEGER PRIMARY KEY AUTOINCREMENT,
+                  assemblystation TEXT,
+                  stationName TEXT,
+                  StationType_stationTypeID INTEGER,
+                  lastModified TEXT,
+                  FOREIGN KEY (StationType_stationTypeID) REFERENCES StationType(stationTypeID)
+            );
             ");
 
             // Repository-Instanz erstellen
@@ -48,9 +57,11 @@ namespace DaimlerConfigTest
             await _repository.Add(stationType);
 
             // Überprüfung, ob der Datensatz in der Datenbank vorhanden ist
-            var result = await _connection.QuerySingleOrDefaultAsync<StationType>(
+            var result = await _connection.QueryFirstOrDefaultAsync<StationType>(
                 "SELECT * FROM StationType WHERE stationTypeName = @stationTypeName",
                 new { stationType.stationTypeName });
+
+           
 
             // Test 1: Überprüfung, ob der Datensatz existiert 
             Assert.NotNull(result);
@@ -58,7 +69,7 @@ namespace DaimlerConfigTest
             Assert.Equal("TestType5", result.stationTypeName);
         }
 
-
+        [Fact]
         public async void AddStationTest()
         {
             var stationType = new StationType
@@ -71,22 +82,25 @@ namespace DaimlerConfigTest
             {
                 assemblystation = "TestStation",
                 stationName = "TestStationName",
-                StationType_stationTypeID = 0,
+                StationType_stationTypeID = 1,
                 lastModified = DateTime.Now
             };
             await stationRepository.Add(station);
 
-            var result = await _connection.QuerySingleOrDefaultAsync<Station>(
+            var result = await _connection.QueryFirstOrDefaultAsync<Station>(
                 "SELECT * FROM Station WHERE stationName = @stationName",
-                new { station.stationName });
-
+                new { station.assemblystation, station.stationName, station.StationType_stationTypeID, station.lastModified });
+         
             Assert.NotNull(result);
             Assert.Equal("TestStationName", result.stationName);
             Assert.Equal("TestStation", result.assemblystation);
             Assert.Equal(1, result.StationType_stationTypeID);
             Assert.NotNull(result.lastModified);
+           
 
         }
+
+        
 
 
         [Fact]
@@ -110,6 +124,9 @@ namespace DaimlerConfigTest
             var deletedResult = await _connection.QuerySingleOrDefaultAsync<StationType>(
                 "SELECT * FROM StationType WHERE stationTypeName = @stationTypeName",
                 new { stationType.stationTypeName });
+
+            
+
             // Test 2: Überprüfung, ob der Datensatz nicht mehr existiert 
             Assert.Null(deletedResult);
         }
@@ -132,7 +149,7 @@ namespace DaimlerConfigTest
         public void Dispose()
         {
             // Alle Tabellen löschen
-            DeleteAllTables();
+            //DeleteAllTables();
 
             // Verbindung schließen
             _connection.Dispose();
