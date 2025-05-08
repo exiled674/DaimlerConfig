@@ -140,8 +140,8 @@ namespace DaimlerConfigTest
 
             
             var updatedStation = await _connection.QueryFirstOrDefaultAsync<Station>(
-                "SELECT * FROM Station WHERE stationID = @stationID",
-                new { stationID = stationToUpdate.stationID });
+                "SELECT * FROM Station WHERE stationName = @stationName",
+                new { stationName = stationToUpdate.stationName });
 
             Assert.NotNull(updatedStation); 
             Assert.Equal(updatedAssemblyName, updatedStation.assemblystation);
@@ -149,6 +149,40 @@ namespace DaimlerConfigTest
             Assert.Equal(2, updatedStation.StationType_stationTypeID); 
             Assert.NotNull(updatedStation.lastModified);
         }
+
+        [Fact]
+        public async void GetStationByIdTest_Works()
+        {
+           
+            string uniqueStationName = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            _connection.Execute(@"
+            INSERT INTO Station (assemblystation, stationName, StationType_stationTypeID, lastModified)
+            VALUES (@assemblystation, @stationName, @StationType_stationTypeID, @lastModified);",
+                new
+                {
+                    assemblystation = "TestAssembly",
+                    stationName = uniqueStationName,
+                    StationType_stationTypeID = 1,
+                    lastModified = DateTime.Now
+                });
+
+            
+            var stationId = await _connection.QuerySingleAsync<int>(
+                "SELECT stationID FROM Station WHERE stationName = @stationName",
+                new { stationName = uniqueStationName });
+
+           
+            var retrievedStation = await stationRepository.Get(stationId);
+
+            
+            Assert.NotNull(retrievedStation);
+            Assert.Equal("TestAssembly", retrievedStation.assemblystation);
+            Assert.Equal(uniqueStationName, retrievedStation.stationName);
+            Assert.Equal(1, retrievedStation.StationType_stationTypeID);
+            Assert.NotNull(retrievedStation.lastModified);
+        }
+
+
 
 
 
