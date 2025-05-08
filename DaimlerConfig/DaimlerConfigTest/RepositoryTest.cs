@@ -56,6 +56,34 @@ namespace DaimlerConfigTest
             Assert.Equal("TestType5", result.stationTypeName);
         }
 
+        [Fact]
+        public async void DeleteTest_Works()
+        {
+            // Instanz von StationType
+            var stationType = new StationType
+            {
+                stationTypeName = "TestType6"
+            };
+            // Aufruf der Add Methode
+            await _repository.Add(stationType);
+            // Überprüfung, ob der Datensatz in der Datenbank vorhanden ist
+            var result = await _connection.QuerySingleOrDefaultAsync<StationType>(
+                "SELECT * FROM StationType WHERE stationTypeName = @stationTypeName",
+                new { stationType.stationTypeName });
+            // Test 1: Überprüfung, ob der Datensatz existiert 
+            Assert.NotNull(result);
+            // Aufruf der Delete Methode
+            await _repository.Delete(result);
+            // Überprüfung, ob der Datensatz in der Datenbank nicht mehr vorhanden ist
+            var deletedResult = await _connection.QuerySingleOrDefaultAsync<StationType>(
+                "SELECT * FROM StationType WHERE stationTypeName = @stationTypeName",
+                new { stationType.stationTypeName });
+            // Test 2: Überprüfung, ob der Datensatz nicht mehr existiert 
+            Assert.Null(deletedResult);
+        }
+
+
+
         private void DeleteAllTables()
         {
             // Alle Tabellennamen aus sqlite_master abrufen
