@@ -1,53 +1,80 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-
-using Xunit;
-using Moq;
-using System.Data;
+﻿using Xunit;
+using Dapper;
 using DaimlerConfig.Components.Repositories;
+using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.Infrastructure;
+using Microsoft.Data.Sqlite;
+using System.Data;
 
 namespace DaimlerConfigTest
 {
-    public class RepositoryTests
+    public class RepositoryTests : IDisposable
     {
-        [Fact]
-        public async Task Add_ShouldInsertEntity()
+        private readonly IDbConnection _connection;
+        private readonly Repository<StationType> _repository;
+
+        public RepositoryTests()
         {
-            // Arrange
-            var mockConnection = new Mock<IDbConnection>();
-            var mockConnectionFactory = new Mock<IDbConnectionFactory>();
-            mockConnectionFactory
-                .Setup(factory => factory.CreateConnection())
-                .Returns(mockConnection.Object);
+            // ConnectionFactory implementiert CreateConnection und wird hier initialisiert
+            var connectionFactory = new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "TestDatenbank.db"));
 
-            var repository = new Repository<TestEntity>(mockConnectionFactory.Object);
+            // Eine Connection wird hergestellt
+            _connection = connectionFactory.CreateConnection();
 
-            var testEntity = new TestEntity
-            {
-                TestEntityID = 1,
-                Name = "Test",
-                LastModified = DateTime.Now
-            };
+            // Dummy-Datenbank mit StationType Tabelle erstellen (nur, wenn sie nicht existiert)
+            _connection.Execute(@"
+                CREATE TABLE IF NOT EXISTS StationType (
+                    stationTypeID INTEGER PRIMARY KEY,
+                    stationTypeName TEXT NOT NULL
+                );
+            ");
 
-            // Act
-            await repository.Add(testEntity);
-
-            // Assert
-            mockConnectionFactory.Verify(factory => factory.CreateConnection(), Times.Once);
-            mockConnection.Verify(conn => conn.Open(), Times.Once);
+            // Repository-Instanz erstellen
+            _repository = new Repository<StationType>(connectionFactory);
         }
 
-        public class TestEntity
+        [Fact]
+        public async void AddTest()
         {
-            public int TestEntityID { get; set; }
-            public string Name { get; set; }
-            public DateTime LastModified { get; set; }
+            // Instanz von StationType
+            var stationType = new StationType
+            {
+                stationTypeName = "TestType5"
+            };
+
+            // Aufruf der Add Methode
+            await _repository.Add(stationType);
+
+            // Überprüfung, ob der Datensatz in der Datenbank vorhanden ist
+            var result = await _connection.QuerySingleOrDefaultAsync<StationType>(
+                "SELECT * FROM StationType WHERE stationTypeName = @stationTypeName",
+                new { stationType.stationTypeName });
+
+            // Test 1: Überprüfung, ob der Datensatz existiert 
+            Assert.NotNull(result);
+            // Test 2: Überprüfung, ob der stationTypeName korrekt ist
+            Assert.Equal("TestType5", result.stationTypeName);
+        }
+
+        private void DeleteAllTables()
+        {
+            // Alle Tabellennamen aus sqlite_master abrufen
+            var tableNames = _connection.Query<string>("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+
+            // Jede Tabelle löschen
+            foreach (var tableName in tableNames)
+            {
+                _connection.Execute($"DROP TABLE IF EXISTS {tableName};");
+            }
+        }
+
+        public void Dispose()
+        {
+            // Alle Tabellen löschen
+            DeleteAllTables();
+
+            // Verbindung schließen
+            _connection.Dispose();
         }
     }
 }
