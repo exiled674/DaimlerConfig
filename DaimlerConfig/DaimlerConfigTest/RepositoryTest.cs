@@ -12,6 +12,7 @@ namespace DaimlerConfigTest
     {
         private readonly IDbConnection _connection;
         private readonly Repository<StationType> _repository;
+        private readonly StationRepository stationRepository;
 
         public RepositoryTests()
         {
@@ -31,10 +32,11 @@ namespace DaimlerConfigTest
 
             // Repository-Instanz erstellen
             _repository = new Repository<StationType>(connectionFactory);
+            stationRepository = new StationRepository(connectionFactory);
         }
 
         [Fact]
-        public async void AddTest()
+        public async void AddStationTypeTest()
         {
             // Instanz von StationType
             var stationType = new StationType
@@ -54,6 +56,35 @@ namespace DaimlerConfigTest
             Assert.NotNull(result);
             // Test 2: Überprüfung, ob der stationTypeName korrekt ist
             Assert.Equal("TestType5", result.stationTypeName);
+        }
+
+        public async void AddStationTest()
+        {
+            var stationType = new StationType
+            {
+                stationTypeName = "TestType5"
+            };
+            await _repository.Add(stationType);
+
+            var station = new Station
+            {
+                assemblystation = "TestStation",
+                stationName = "TestStationName",
+                StationType_stationTypeID = 0,
+                lastModified = DateTime.Now
+            };
+            await stationRepository.Add(station);
+
+            var result = await _connection.QuerySingleOrDefaultAsync<Station>(
+                "SELECT * FROM Station WHERE stationName = @stationName",
+                new { station.stationName });
+
+            Assert.NotNull(result);
+            Assert.Equal("TestStationName", result.stationName);
+            Assert.Equal("TestStation", result.assemblystation);
+            Assert.Equal(1, result.StationType_stationTypeID);
+            Assert.NotNull(result.lastModified);
+
         }
 
         private void DeleteAllTables()
