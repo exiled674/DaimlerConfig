@@ -103,10 +103,11 @@ namespace DaimlerConfigTest
             Assert.Null(deletedStation); 
         }
 
+      
         [Fact]
         public async void UpdateStationTest_Works()
         {
-           
+            
             string initialStationName = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
             _connection.Execute(@"
                 INSERT INTO Station (assemblystation, stationName, StationType_stationTypeID, lastModified)
@@ -115,40 +116,57 @@ namespace DaimlerConfigTest
                 {
                     assemblystation = "InitialAssembly",
                     stationName = initialStationName,
-                    StationType_stationTypeID = 1, 
+                    StationType_stationTypeID = 1,
                     lastModified = DateTime.Now
                 });
-
 
            
             var stationToUpdate = await _connection.QueryFirstOrDefaultAsync<Station>(
                 "SELECT * FROM Station WHERE stationName = @stationName",
                 new { stationName = initialStationName });
-            Assert.NotNull(stationToUpdate); 
+            Assert.NotNull(stationToUpdate);
 
-
-
-           string updatedStationName = "UpdatedStationName_" + DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-           string updatedAssemblyName = "UpdatedAssembly_" + DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            
+            string updatedStationName = "UpdatedStationName_" + DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            string updatedAssemblyName = "UpdatedAssembly_" + DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
 
             stationToUpdate.assemblystation = updatedAssemblyName;
             stationToUpdate.stationName = updatedStationName;
-            stationToUpdate.StationType_stationTypeID = 2; 
+            stationToUpdate.StationType_stationTypeID = 2;
             stationToUpdate.lastModified = DateTime.Now;
 
             await stationRepository.Update(stationToUpdate);
 
-            
+           
             var updatedStation = await _connection.QueryFirstOrDefaultAsync<Station>(
                 "SELECT * FROM Station WHERE stationName = @stationName",
                 new { stationName = stationToUpdate.stationName });
 
-            Assert.NotNull(updatedStation); 
+            Assert.NotNull(updatedStation);
             Assert.Equal(updatedAssemblyName, updatedStation.assemblystation);
             Assert.Equal(updatedStationName, updatedStation.stationName);
-            Assert.Equal(2, updatedStation.StationType_stationTypeID); 
+            Assert.Equal(2, updatedStation.StationType_stationTypeID);
             Assert.NotNull(updatedStation.lastModified);
+
+            
+            stationToUpdate.assemblystation = null;
+            stationToUpdate.stationName = null;
+            stationToUpdate.lastModified = null;
+
+            await stationRepository.Update(stationToUpdate);
+
+            
+            var nullUpdatedStation = await _connection.QueryFirstOrDefaultAsync<Station>(
+                "SELECT * FROM Station WHERE stationID = @stationID",
+                new { stationID = stationToUpdate.stationID });
+
+            Assert.NotNull(nullUpdatedStation);
+            Assert.Null(nullUpdatedStation.assemblystation);
+            Assert.Null(nullUpdatedStation.stationName);
+            Assert.Equal(2, nullUpdatedStation.StationType_stationTypeID);
+            Assert.Null(nullUpdatedStation.lastModified);
         }
+
 
         [Fact]
         public async void GetStationByIdTest_Works()
