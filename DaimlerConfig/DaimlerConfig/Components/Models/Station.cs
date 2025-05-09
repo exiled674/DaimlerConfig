@@ -12,6 +12,8 @@ namespace DaimlerConfig.Components.Models
 
         public int stationID {get; set;}
 
+        public int lineID { get; set; }
+
         [MaxLength(10, ErrorMessage = "Maximum of 10 characters for assemblystation allowed!")]
         public string? assemblystation {get; set;}
 
