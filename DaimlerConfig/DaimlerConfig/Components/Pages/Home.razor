@@ -5,15 +5,15 @@
 
 @if (_station is null)
 {
-    <p>Lade Station...</p>
+    <p>Keine Stations vorhanden.</p>
 }
 else
 {
     <div>
-        <p><strong>Assemblystation:</strong> @_station.Assemblystation</p>
-        <p><strong>Station Name:</strong> @_station.StationName</p>
+        <p><strong>Assemblystation:</strong> @_station.assemblystation</p>
+        <p><strong>Station Name:</strong> @_station.stationName</p>
         <p><strong>StationType ID:</strong> @_station.StationType_stationTypeID</p>
-        <p><strong>Last Modified:</strong> @_station.LastModified</p>
+        <p><strong>Last Modified:</strong> @_station.lastModified</p>
     </div>
 }
 
@@ -33,7 +33,7 @@ else
         @foreach (var s in _sortedStations)
         {
             <li>
-                <strong>@s.StationName</strong> – @s.LastModified
+                <strong>@s.stationName</strong> – @s.lastModified
             </li>
         }
     </ul>

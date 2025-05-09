@@ -2,7 +2,7 @@
 {
     public class StationType
     {
-        public int StationTypeId { get; set; }
-        public string? StationTypeName { get; set; }
+        public int stationTypeID { get; set; }
+        public string? stationTypeName { get; set; }
     }
 }
