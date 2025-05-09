@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using DaimlerConfig.Components.Infrastructure;
 using DaimlerConfig.Components.Models;
+using Dapper;
 
 namespace DaimlerConfig.Components.Repositories
 {
@@ -16,7 +13,16 @@ namespace DaimlerConfig.Components.Repositories
 
         public Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
         {
-            throw new NotImplementedException();
+            using var connection = _dbConnectionFactory.CreateConnection();
+
+            var query = @"
+                SELECT * 
+                FROM Operation
+                WHERE toolID = @toolID";
+
+            var operations = connection.QueryAsync<Operation>(query, new { toolID });
+
+            return operations;
         }
     }
 }
