@@ -8,7 +8,7 @@
         public string OperationSequence { get; set; }
         public string OperationSequenceGroup { get; set; }
         public string OperationDecisionCriteria { get; set; }
-        public bool AlwaysPerform { get; set; }
+        public bool alwaysPerform { get; set; }
         public int DecisionClass { get; set; }
         public int GenerationClass { get; set; }
         public int VerificationClass { get; set; }

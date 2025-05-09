@@ -1,5 +1,9 @@
 ﻿@page "/"
+@using DaimlerConfig.Components.JsonHandler
+@using DaimlerConfig.Components.Models
 @inject Repositories.IRepository<Models.Station> StationRepo
+@inject Repositories.IRepository<Models.Tool> ToolRepo
+@inject Repositories.IRepository<Models.Operation> OperationRepo
 
 <h3>Station Details (ID = 6)</h3>
 
@@ -37,15 +41,37 @@ else
             </li>
         }
     </ul>
+    @foreach (var s in _stationJson)
+    {
+        @s
+    }
 }
 
 @code {
-    private Models.Station? _station;
-    private IEnumerable<Models.Station>? _sortedStations;
-
+    private Station? _station;
+    
+    private IEnumerable<Station>? _sortedStations;
+    private List<Station>? _stationsList;
+    private IEnumerable<Tool>? _sortedTools;
+    private List<Tool>? _toolsList;
+    private IEnumerable<Operation>? _sortedOperations;
+    private List<Operation>? _operationList;
+    
+    private readonly WriteJson _writeJson = new WriteJson();
+    private string _stationJson;
+    
+    
     protected override async Task OnInitializedAsync()
     {
         _station = await StationRepo.Get(6);
+        
         _sortedStations = await StationRepo.GetAllOrderedByDate();
+        _stationsList = _sortedStations.ToList();
+        _sortedTools = await ToolRepo.GetAllOrderedByDate();
+        _toolsList = _sortedTools.ToList();
+        _sortedOperations = await OperationRepo.GetAllOrderedByDate();
+        _operationList = _sortedOperations.ToList();
+        
+        _stationJson = _writeJson.SerializeStations(_stationsList,_toolsList,_operationList);
     }
 }
