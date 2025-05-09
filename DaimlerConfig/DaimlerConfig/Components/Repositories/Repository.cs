@@ -13,7 +13,7 @@ namespace DaimlerConfig.Components.Repositories
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        private readonly IDbConnectionFactory _dbConnectionFactory;
+        protected readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly string _tableName;
 
 
