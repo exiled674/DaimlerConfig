@@ -90,7 +90,7 @@ namespace DaimlerConfig.Components.Infrastructure
             toolTypeID INTEGER NOT NULL,
             generationClassID INTEGER NOT NULL,
             PRIMARY KEY (toolTypeID, generationClassID),
-            FOREIGN KEY toolTypeID) REFERENCES ToolType(toolTypeID),
+            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
             FOREIGN KEY (generationClassID) REFERENCES GenerationClass(generationClassID)
             );
 
