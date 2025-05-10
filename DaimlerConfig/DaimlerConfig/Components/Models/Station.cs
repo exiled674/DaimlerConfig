@@ -9,22 +9,16 @@ namespace DaimlerConfig.Components.Models
 {
     public class Station
     {
+        public int stationID { get; set; }
 
-        public int stationID {get; set;}
+        public string? assemblystation { get; set; }
 
-        public int lineID { get; set; }
+        public string? stationName { get; set; }
 
-        [MaxLength(10, ErrorMessage = "Maximum of 10 characters for assemblystation allowed!")]
-        public string? assemblystation {get; set;}
+        public int stationTypeID { get; set; }
 
-        [MaxLength(50, ErrorMessage = "Maximum of 10 characters for assemblystation allowed!")]
-        public string? stationName {get; set;}
-
-        [Required(ErrorMessage = "A station type must be specified!")]
-        public int StationType_stationTypeID { get; set; }
-
-        public DateTime? lastModified {get; set;}
+        public DateTime? lastModified { get; set; }
     }
 
- 
+
 }
