@@ -220,6 +220,81 @@ namespace DaimlerConfigTest
             Assert.Null(deletedTool);
         }
 
+        [Fact]
+        public async void DeleteAllTools_Works()
+        {
+            // Mehrere Tools hinzufügen
+            await toolRepository.Add(new Tool
+            {
+                toolShortname = "Tool1",
+                toolDescription = "Description1",
+                toolTypeID = 1,
+                stationID = 1,
+                ipAddressDevice = "192.168.0.101",
+                plcName = "PLC1",
+                dbNoSend = "DB1",
+                dbNoReceive = "DB2",
+                preCheckByte = 1,
+                addressSendDB = "a",
+                addressReceiveDB = "b",
+                lastModified = DateTime.Now
+            });
+
+            await toolRepository.Add(new Tool
+            {
+                toolShortname = "Tool2",
+                toolDescription = "Description2",
+                toolTypeID = 2,
+                stationID = 2,
+                ipAddressDevice = "192.168.0.102",
+                plcName = "PLC2",
+                dbNoSend = "DB3",
+                dbNoReceive = "DB4",
+                preCheckByte = 0,
+                addressSendDB = "c",
+                addressReceiveDB = "d",
+                lastModified = DateTime.Now
+            });
+
+            // Alle Tools löschen
+            var allTools = await toolRepository.GetAll();
+            foreach (var tool in allTools)
+            {
+                await toolRepository.Delete(tool);
+            }
+
+            // Überprüfen, ob keine Tools mehr existieren
+            var remainingTools = await toolRepository.GetAll();
+            Assert.Empty(remainingTools);
+        }
+
+        [Fact]
+        public async void DeleteNonExistentTool_DoesNotThrow()
+        {
+            // Tool erstellen, das nicht in der Datenbank existiert
+            var nonExistentTool = new Tool
+            {
+                toolID = 9999, // Nicht existierende ID
+                toolShortname = "NonExistentTool",
+                toolDescription = "This tool does not exist",
+                toolTypeID = 1,
+                stationID = 1,
+                ipAddressDevice = "192.168.0.200",
+                plcName = "NonExistentPLC",
+                dbNoSend = "DBX",
+                dbNoReceive = "DBY",
+                preCheckByte = 0,
+                addressSendDB = "x",
+                addressReceiveDB = "y",
+                lastModified = DateTime.Now
+            };
+
+            // Versuch, das nicht existierende Tool zu löschen
+            await toolRepository.Delete(nonExistentTool);
+
+            // Keine Ausnahme sollte ausgelöst werden
+        }
+
 
         [Fact]
         public async void UpdateToolTest_Works()
