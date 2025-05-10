@@ -5,7 +5,9 @@
     border-radius: 8px;
 }
 
-
+.projects {
+    margin-bottom: 50px;
+}
 
 .import-button {
     background-color: #343a40;
