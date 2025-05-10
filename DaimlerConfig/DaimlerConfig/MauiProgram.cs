@@ -32,14 +32,17 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<DatabaseInitializer>();
             builder.Services.AddScoped<IRepository<Station>, Repository<Station>>();
             builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
+            builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
+            builder.Services.AddScoped<IRepository<Tool>, Repository<Tool>>();
 
             var app = builder.Build();
 
             app.Services.GetRequiredService<DatabaseInitializer>().EnsureCreated();
 
+            var lineRepo = app.Services.GetRequiredService<IRepository<Line>>();
+            var stationTypeRepo = app.Services.GetRequiredService<IRepository<StationType>>();
             var stationRepo = app.Services.GetRequiredService<IRepository<Station>>();
-
-           
+            var toolRepo = app.Services.GetRequiredService<IRepository<Tool>>();
 
             return app;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,21 +9,21 @@ namespace DaimlerConfig.Components.Models
 {
     public class Operation
     {
-        public int OperationID { get; set; }
-        public string OperationShortname { get; set; }
-        public string OperationDescription { get; set; }
-        public string OperationSequence { get; set; }
-        public string OperationSequenceGroup { get; set; }
-        public string OperationDecisionCriteria { get; set; }
-        public bool AlwaysPerform { get; set; }
-        public int DecisionClass { get; set; }
-        public int GenerationClass { get; set; }
-        public int VerificationClass { get; set; }
-        public int SavingClass { get; set; }
-        public int ToolID { get; set; }
-        public bool ParallelSerial { get; set; } // z. B. "parallel" oder "serial"
-        public bool QGateRelevant { get; set; }
-        public DateTime LastModified { get; set; }
+        public int operationID { get; set; }
+        public required string operationShortname { get; set; }
+        public required string operationDescription { get; set; }
+        public required string operationSequence { get; set; }
+        public required string operationSequenceGroup { get; set; }
+        public required string operationDecisionCriteria { get; set; }
+        public bool alwaysPerform { get; set; }
+        public int decisionClassID { get; set; }
+        public int generationClassID { get; set; }
+        public int verificationClassID { get; set; }
+        public int savingClassID { get; set; }
+        public int toolID { get; set; }
+        public bool parallel { get; set; }
+        public bool qGateID { get; set; }
+        public DateTime lastModified { get; set; }
     }
 
 

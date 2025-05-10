@@ -29,11 +29,11 @@ namespace DaimlerConfig.Components.Infrastructure
 
             CREATE TABLE IF NOT EXISTS Station (
               stationID INTEGER PRIMARY KEY AUTOINCREMENT,
-              assemblystation TEXT,
+              assemblystation TEXT NOT NULL,
               stationName TEXT,
-              StationType_stationTypeID INTEGER,
+              stationTypeID INTEGER,
               lastModified TEXT,
-              FOREIGN KEY (StationType_stationTypeID) REFERENCES StationType(stationTypeID)
+              FOREIGN KEY (stationTypeID) REFERENCES StationType(stationTypeID)
             );
 
             CREATE TABLE IF NOT EXISTS ToolClass (
@@ -44,86 +44,83 @@ namespace DaimlerConfig.Components.Infrastructure
             CREATE TABLE IF NOT EXISTS ToolType (
               toolTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
               toolTypeName TEXT NOT NULL UNIQUE,
-              ToolClass_toolClassID INTEGER NOT NULL,
-              FOREIGN KEY (ToolClass_toolClassID) REFERENCES ToolClass(toolClassID)
+              toolClassID INTEGER NOT NULL,
+              FOREIGN KEY (toolClassID) REFERENCES ToolClass(toolClassID)
             );
 
             CREATE TABLE IF NOT EXISTS Tool (
               toolID INTEGER PRIMARY KEY AUTOINCREMENT,
               toolShortname TEXT,
               toolDescription TEXT,
-              ToolType_toolTypeID INTEGER,
-              Station_stationID INTEGER NOT NULL,
-              IPAdresse_Device TEXT,
-              ""PLC-Name"" TEXT,
-              DB_NoSend TEXT,
-              DB_NoReceive TEXT,
-              preCheck_Byte INTEGER DEFAULT 0,
-              adress_sendDB INTEGER DEFAULT 0,
-              adress_receiveDB INTEGER DEFAULT 0,
+              toolTypeID INTEGER,
+              stationID INTEGER NOT NULL,
+              ipAddressDevice TEXT,
+              plcName TEXT,
+              dbNoSend TEXT,
+              dbNoReceive TEXT,
+              preCheckByte INTEGER DEFAULT 0,
+              addressSendDB INTEGER DEFAULT 0,
+              addressReceiveDB INTEGER DEFAULT 0,
               lastModified TEXT,
-              FOREIGN KEY (ToolType_toolTypeID) REFERENCES ToolType(toolTypeID),
-              FOREIGN KEY (Station_stationID) REFERENCES Station(stationID)
+              FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
+              FOREIGN KEY (stationID) REFERENCES Station(stationID)
             );
 
             CREATE TABLE IF NOT EXISTS DecisionClass (
-              idDecisionClass INTEGER PRIMARY KEY,
+              decisionClassID INTEGER PRIMARY KEY AUTOINCREMENT,
               decisionClassName TEXT NOT NULL UNIQUE
             );
 
             CREATE TABLE IF NOT EXISTS SavingClass (
-              idSavingClass INTEGER PRIMARY KEY,
+              savingClassID INTEGER PRIMARY KEY AUTOINCREMENT,
               savingClassName TEXT NOT NULL UNIQUE
             );
 
             CREATE TABLE IF NOT EXISTS GenerationClass (
-              idGenerationClass INTEGER PRIMARY KEY,
+              generationClassID INTEGER PRIMARY KEY AUTOINCREMENT,
               generationClassName TEXT NOT NULL UNIQUE
             );
 
             CREATE TABLE IF NOT EXISTS VerificationClass (
-              idVerificationClass INTEGER PRIMARY KEY,
+              verificationClassID INTEGER PRIMARY KEY AUTOINCREMENT,
               verificationClassName TEXT NOT NULL UNIQUE
             );
 
             CREATE TABLE IF NOT EXISTS GenerationClass_has_ToolType (
-            ToolType_toolTypeID INTEGER NOT NULL,
-            GenerationClass_idGenerationClass INTEGER NOT NULL,
-            PRIMARY KEY (ToolType_toolTypeID, GenerationClass_idGenerationClass),
-            FOREIGN KEY (ToolType_toolTypeID) REFERENCES ToolType(toolTypeID),
-            FOREIGN KEY (GenerationClass_idGenerationClass) REFERENCES GenerationClass(idGenerationClass)
+            toolTypeID INTEGER NOT NULL,
+            generationClassID INTEGER NOT NULL,
+            PRIMARY KEY (toolTypeID, generationClassID),
+            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
+            FOREIGN KEY (generationClassID) REFERENCES GenerationClass(generationClassID)
             );
 
             CREATE TABLE IF NOT EXISTS VerificationClass_has_ToolType (
-            ToolType_toolTypeID INTEGER NOT NULL,
-            VerificationClass_idVerificationClass INTEGER NOT NULL,
-            PRIMARY KEY (ToolType_toolTypeID, VerificationClass_idVerificationClass),
-            FOREIGN KEY (ToolType_toolTypeID) REFERENCES ToolType(toolTypeID),
-            FOREIGN KEY (VerificationClass_idVerificationClass) REFERENCES VerificationClass(idVerificationClass)
+            toolTypeID INTEGER NOT NULL,
+            verificationClassID INTEGER NOT NULL,
+            PRIMARY KEY (toolTypeID, verificationClassID),
+            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
+            FOREIGN KEY (verificationClassID) REFERENCES VerificationClass(verificationClassID)
             );
 
 
             CREATE TABLE IF NOT EXISTS DecisionClass_has_ToolType (
-            ToolType_toolTypeID INTEGER NOT NULL,
-            DecisionClass_idDecisionClass INTEGER NOT NULL,
-            PRIMARY KEY (ToolType_toolTypeID, DecisionClass_idDecisionClass),
-            FOREIGN KEY (ToolType_toolTypeID) REFERENCES ToolType(toolTypeID),
-            FOREIGN KEY (DecisionClass_idDecisionClass) REFERENCES DecisionClass(idDecisionClass)
+            toolTypeID INTEGER NOT NULL,
+            decisionClassID INTEGER NOT NULL,
+            PRIMARY KEY (toolTypeID, decisionClassID),
+            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
+            FOREIGN KEY (decisionClassID) REFERENCES DecisionClass(decisionClassID)
             );
 
             CREATE TABLE IF NOT EXISTS SavingClass_has_ToolType (
-            ToolType_toolTypeID INTEGER NOT NULL,
-            SavingClass_idSavingClass INTEGER NOT NULL,
-            PRIMARY KEY (ToolType_toolTypeID, SavingClass_idSavingClass),
-            FOREIGN KEY (ToolType_toolTypeID) REFERENCES ToolType(toolTypeID),
-            FOREIGN KEY (SavingClass_idSavingClass) REFERENCES SavingClass(idSavingClass)
+            toolTypeID INTEGER NOT NULL,
+            savingClassID INTEGER NOT NULL,
+            PRIMARY KEY (toolTypeID, savingClassID),
+            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
+            FOREIGN KEY (savingClassID) REFERENCES SavingClass(savingClassID)
             );
 
-
-
-
             CREATE TABLE IF NOT EXISTS QGate (
-              QGateID INTEGER PRIMARY KEY,
+              qGateID INTEGER PRIMARY KEY AUTOINCREMENT,
               qGateName TEXT NOT NULL UNIQUE
             );
 
@@ -135,26 +132,26 @@ namespace DaimlerConfig.Components.Infrastructure
               operationSequence TEXT,
               operationDecisionCriteria TEXT,
               alwaysPerform INTEGER NOT NULL DEFAULT 0,
-              DecisionClass_decisionClassID INTEGER,
-              SavingClass_savingClassID INTEGER,
-              GenerationClass_generationClassID INTEGER,
-              VerificationClass_verificationClassID INTEGER,
-              Tool_toolID INTEGER NOT NULL,
+              decisionClassID INTEGER,
+              savingClassID INTEGER,
+              generationClassID INTEGER,
+              verificationClassID INTEGER,
+              toolID INTEGER NOT NULL,
               parallel INTEGER NOT NULL DEFAULT 0,
               lastModified TEXT,
-              QGate_QGateID INTEGER,
-              FOREIGN KEY (DecisionClass_decisionClassID) REFERENCES DecisionClass(idDecisionClass),
-              FOREIGN KEY (SavingClass_savingClassID) REFERENCES SavingClass(idSavingClass),
-              FOREIGN KEY (GenerationClass_generationClassID) REFERENCES GenerationClass(idGenerationClass),
-              FOREIGN KEY (VerificationClass_verificationClassID) REFERENCES VerificationClass(idVerificationClass),
-              FOREIGN KEY (Tool_toolID) REFERENCES Tool(toolID),
-              FOREIGN KEY (QGate_QGateID) REFERENCES QGate(QGateID)
+              qGateID INTEGER,
+              FOREIGN KEY (decisionClassID) REFERENCES DecisionClass(decisionClassID),
+              FOREIGN KEY (savingClassID) REFERENCES SavingClass(savingClassID),
+              FOREIGN KEY (generationClassID) REFERENCES GenerationClass(generationClassID),
+              FOREIGN KEY (verificationClassID) REFERENCES VerificationClass(verificationClassID),
+              FOREIGN KEY (toolID) REFERENCES Tool(toolID),
+              FOREIGN KEY (qGateID) REFERENCES QGate(qGateID)
             );
 
             ";
 
             conn.Execute(ddl);
-            
+
 
         }
     }
