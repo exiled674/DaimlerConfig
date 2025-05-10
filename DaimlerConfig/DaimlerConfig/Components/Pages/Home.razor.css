@@ -1,0 +1,30 @@
+
+.ProjectManager {
+    background-color: antiquewhite;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+
+
+.import-button {
+    background-color: #343a40;
+    color: white;
+    border-radius: 6px;
+    font-weight: 500;
+    border: none;
+    padding: 12px 20px;
+    transition: background-color 0.3s ease;
+}
+
+.import-button:hover {
+    background-color: #23272b;
+}
+
+.plus-icon {
+    margin-right: 8px;
+    font-size: 18px;
+    line-height: 0;
+    position: relative;
+    top: 2px;
+}

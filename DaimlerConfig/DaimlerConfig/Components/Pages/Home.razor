@@ -1,71 +1,48 @@
-﻿@page "/"
-@using DaimlerConfig.Components.Models
-@using DaimlerConfig.Components.Repositories
-@inject IRepository<Station> StationRepo
+﻿
+@page "/"
 
-<h3>Station Details (ID = 6)</h3>
+<h1>Select Station</h1>
 
-@if (station is null)
-{
-    <p>Lade Station...</p>
-}
-else
-{
-    <div>
-        <p><strong>Assemblystation:</strong> @station.assemblystation</p>
-        <p><strong>Station Name:</strong> @station.stationName</p>
-        <p><strong>StationType ID:</strong> @station.StationType_stationTypeID</p>
-        <p><strong>Last Modified:</strong> @station.lastModified</p>
-        <button @onclick="UpdateStationName">Name ändern</button>
+
+
+<div class="ProjectManager">
+    <div class="row">
+        <div class="col">
+            <Search></Search>
+        </div>
+        <div class="col">
+            <select class="form-select form-select-lg mb-3" aria-label="Large select example">
+                <option selected>Open this select menu</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </div>
     </div>
-}
+    <div class="btn-group-vertical">
+        <ProjectButton></ProjectButton>
+        <ProjectButton></ProjectButton>
+        <ProjectButton></ProjectButton>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="import-button">
+                <span class="plus-icon">+</span>
+                Import Similar Project
+            </button>
+        </div>
+        <div class="col">
+            <button class="import-button">
+                <span class="plus-icon">+</span>
+                Create Empty Project
+            </button>
 
-<h3>Alle Stationen (nach lastModified sortiert)</h3>
+        </div>
+    </div>
+</div>
 
-@if (sortedStations is null)
-{
-    <p>Lade Stationen...</p>
-}
-else if (!sortedStations.Any())
-{
-    <p>Keine Stationen gefunden.</p>
-}
-else
-{
-    <ul>
-        @foreach (var s in sortedStations)
-        {
-            <li>
-                <strong>@s.stationName</strong> – @s.lastModified
-            </li>
-        }
-    </ul>
-}
+
 
 @code {
-    private Station? station;
-    private IEnumerable<Station>? sortedStations;
 
-    protected override async Task OnInitializedAsync()
-    {
-        station = await StationRepo.Get(6);
-        sortedStations = await StationRepo.getAllOrderedByDate();
-    }
-
-    private async Task UpdateStationName()
-    {
-        if (station is null)
-            return;
-
-        station.stationName += " (aktualisiert)";
-        station.lastModified = DateTime.Now;
-
-        await StationRepo.Update(station);
-
-        
-        station = await StationRepo.Get(6);
-        sortedStations = await StationRepo.getAllOrderedByDate();
-
-        StateHasChanged();
-    }
 }
