@@ -11,6 +11,8 @@ namespace DaimlerConfig.Components.Models
     {
         public int stationID { get; set; }
 
+        public int lineID { get; set; }
+
         public string? assemblystation { get; set; }
 
         public string? stationName { get; set; }
