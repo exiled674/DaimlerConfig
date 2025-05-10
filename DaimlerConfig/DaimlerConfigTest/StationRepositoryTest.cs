@@ -83,8 +83,6 @@ namespace DaimlerConfigTest
         }
 
 
-
-
         [Fact]
         public async void AddStationTest_Works()
         {
@@ -125,37 +123,40 @@ namespace DaimlerConfigTest
 
         }
 
-        /*[Fact]
+        [Fact]
         public async void DeleteStationTest_Works()
         {
-            
-            string uniqueStationName = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            //jetziges Datum
+            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+
+            //Station wird manuell eingefügt
             _connection.Execute(@"
-                INSERT INTO Station (assemblystation, stationName, StationType_stationTypeID, lastModified)
-                VALUES (@assemblystation, @stationName, @StationType_stationTypeID, @lastModified);",
+                INSERT INTO Station (lineID, assemblystation, stationName, stationTypeID, lastModified)
+                VALUES (@lineID, @assemblystation, @stationName, @stationTypeID, @lastModified);",
                 new
                 {
-                    assemblystation = "TestAssembly",
-                    stationName = uniqueStationName,
-                    StationType_stationTypeID = 1,
+                    lineID = 1,
+                    assemblystation = "TestStation: " + zeitpunkt,
+                    stationName = "TestStation: " + zeitpunkt,
+                    stationTypeID = 1,
                     lastModified = DateTime.Now
                 });
 
-            
+            //Station wird gesucht 
             var stationToDelete = await _connection.QueryFirstOrDefaultAsync<Station>(
                 "SELECT * FROM Station WHERE stationName = @stationName",
-                new { stationName = uniqueStationName });
-
+                new { stationName = "TestStation: " + zeitpunkt });
+            //Wurde etwas gefunden?
             Assert.NotNull(stationToDelete); 
 
-           
+           //Delete wird aufgerufen
             await stationRepository.Delete(stationToDelete);
 
-            
+            //Station wird erneut gesucht
             var deletedStation = await _connection.QueryFirstOrDefaultAsync<Station>(
                 "SELECT * FROM Station WHERE stationName = @stationName",
-                new { stationName = uniqueStationName });
-
+                new { stationName = "TestStation: " + zeitpunkt });
+            //Wurde etwas gefunden? (Hoffentlich nicht)
             Assert.Null(deletedStation); 
         }
 
@@ -163,63 +164,75 @@ namespace DaimlerConfigTest
         [Fact]
         public async void UpdateStationTest_Works()
         {
-            
-            string initialStationName = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            //jetziges Datum
+            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+
+            //Station wird manuell eingefügt
             _connection.Execute(@"
-                INSERT INTO Station (assemblystation, stationName, StationType_stationTypeID, lastModified)
-                VALUES (@assemblystation, @stationName, @StationType_stationTypeID, @lastModified);",
+                INSERT INTO Station (lineID, assemblystation, stationName, stationTypeID, lastModified)
+                VALUES (@lineID, @assemblystation, @stationName, @stationTypeID, @lastModified);",
                 new
                 {
-                    assemblystation = "InitialAssembly",
-                    stationName = initialStationName,
-                    StationType_stationTypeID = 1,
+                    lineID = 1,
+                    assemblystation = "TestStation: " + zeitpunkt,
+                    stationName = "TestStation: " + zeitpunkt,
+                    stationTypeID = 1,
                     lastModified = DateTime.Now
                 });
 
-           
+           //Station wird gesucht
             var stationToUpdate = await _connection.QueryFirstOrDefaultAsync<Station>(
                 "SELECT * FROM Station WHERE stationName = @stationName",
-                new { stationName = initialStationName });
+                new { stationName = "TestStation: " + zeitpunkt });
+            //Wurde etwas gefunden?
             Assert.NotNull(stationToUpdate);
 
-            
+            //Neue Werte werden erstellt
             string updatedStationName = "UpdatedStationName_" + DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
             string updatedAssemblyName = "UpdatedAssembly_" + DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
 
+            //Station wird aktualisiert
+            stationToUpdate.lineID = 2;
             stationToUpdate.assemblystation = updatedAssemblyName;
             stationToUpdate.stationName = updatedStationName;
-            stationToUpdate.StationType_stationTypeID = 2;
+            stationToUpdate.stationTypeID = 2;
             stationToUpdate.lastModified = DateTime.Now;
 
+            //Update wird aufgerufen
             await stationRepository.Update(stationToUpdate);
 
-           
+            //Station wird erneut gesucht
             var updatedStation = await _connection.QueryFirstOrDefaultAsync<Station>(
                 "SELECT * FROM Station WHERE stationName = @stationName",
-                new { stationName = stationToUpdate.stationName });
+                new {  stationToUpdate.stationName });
 
+            //Wurde etwas gefunden?
             Assert.NotNull(updatedStation);
-            Assert.Equal(updatedAssemblyName, updatedStation.assemblystation);
-            Assert.Equal(updatedStationName, updatedStation.stationName);
-            Assert.Equal(2, updatedStation.StationType_stationTypeID);
+
+            //Sind alle Werte korrekt?
+            Assert.Equal(stationToUpdate.assemblystation, updatedStation.assemblystation);
+            Assert.Equal(stationToUpdate.stationName, updatedStation.stationName);
+            Assert.Equal(stationToUpdate.stationTypeID, updatedStation.stationTypeID);
+            Assert.Equal(stationToUpdate.lineID, updatedStation.lineID);
             Assert.NotNull(updatedStation.lastModified);
 
-            
-            stationToUpdate.assemblystation = null;
+            //Nullwerte werden gesetzt
             stationToUpdate.stationName = null;
             stationToUpdate.lastModified = null;
 
+            //Update wird aufgerufen
             await stationRepository.Update(stationToUpdate);
 
-            
+            //Station wird erneut gesucht
             var nullUpdatedStation = await _connection.QueryFirstOrDefaultAsync<Station>(
                 "SELECT * FROM Station WHERE stationID = @stationID",
-                new { stationID = stationToUpdate.stationID });
+                new { stationToUpdate.stationID });
 
+            //Null-Werte werden überprüft
             Assert.NotNull(nullUpdatedStation);
-            Assert.Null(nullUpdatedStation.assemblystation);
+            Assert.NotNull(nullUpdatedStation.assemblystation);
             Assert.Null(nullUpdatedStation.stationName);
-            Assert.Equal(2, nullUpdatedStation.StationType_stationTypeID);
+            Assert.Equal(2, nullUpdatedStation.stationTypeID);
             Assert.Null(nullUpdatedStation.lastModified);
         }
 
@@ -227,48 +240,55 @@ namespace DaimlerConfigTest
         [Fact]
         public async void GetStationByIdTest_Works()
         {
-           
-            string uniqueStationName = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            //jetziges Datum
+            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+
+            //Station wird manuell eingefügt
             _connection.Execute(@"
-            INSERT INTO Station (assemblystation, stationName, StationType_stationTypeID, lastModified)
-            VALUES (@assemblystation, @stationName, @StationType_stationTypeID, @lastModified);",
+            INSERT INTO Station (lineID, assemblystation, stationName, stationTypeID, lastModified)
+            VALUES (@lineID, @assemblystation, @stationName, @stationTypeID, @lastModified);",
                 new
                 {
-                    assemblystation = "TestAssembly",
-                    stationName = uniqueStationName,
-                    StationType_stationTypeID = 1,
+                    lineID = 1,
+                    assemblystation =  zeitpunkt,
+                    stationName =  zeitpunkt,
+                    stationTypeID = 1,
                     lastModified = DateTime.Now
                 });
 
-            
+            //Station wird gesucht
             var stationId = await _connection.QuerySingleAsync<int>(
                 "SELECT stationID FROM Station WHERE stationName = @stationName",
-                new { stationName = uniqueStationName });
+                new { stationName =  zeitpunkt });
 
-           
+            //Station wird über Get(ID) gesucht
             var retrievedStation = await stationRepository.Get(stationId);
 
-            
+            //Wurde etwas gefunden?
             Assert.NotNull(retrievedStation);
-            Assert.Equal("TestAssembly", retrievedStation.assemblystation);
-            Assert.Equal(uniqueStationName, retrievedStation.stationName);
-            Assert.Equal(1, retrievedStation.StationType_stationTypeID);
+
+            //Sind alle Werte korrekt?
+            Assert.Equal(zeitpunkt, retrievedStation.assemblystation);
+            Assert.Equal(zeitpunkt, retrievedStation.stationName);
+            Assert.Equal(1, retrievedStation.stationTypeID);
+            Assert.Equal(1, retrievedStation.lineID);
             Assert.NotNull(retrievedStation.lastModified);
         }
 
         [Fact]
         public async void GetAllStationsTest_Works()
         {
-            
+            //Anzahl an Records wird gesucht 
             var expectedCount = await _connection.QuerySingleAsync<int>("SELECT COUNT(*) FROM Station;");
 
-           
+           //Anzahl an Records per Methode gesucht
             var allStations = await stationRepository.GetAll();
 
-           
+           //Wurde das IEnumerable übergeben?
             Assert.NotNull(allStations);
+            //Wurde die Anzahl an Records korrekt ermittelt?
             Assert.Equal(expectedCount, allStations.Count());
-        }*/
+        }
 
 
 
