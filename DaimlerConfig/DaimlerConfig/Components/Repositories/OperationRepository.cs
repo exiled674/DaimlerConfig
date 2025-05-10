@@ -18,7 +18,7 @@ namespace DaimlerConfig.Components.Repositories
             var query = @"
                 SELECT * 
                 FROM Operation
-                WHERE Tool_toolID = @toolID";
+                WHERE toolID = @toolID";
 
             var operations = connection.QueryAsync<Operation>(query, new { toolID });
 

@@ -178,6 +178,52 @@ namespace DaimlerConfigTest
             Assert.Equal(tool.lastModified?.ToString("yyyy-MM-dd HH:mm:ss"), result.lastModified?.ToString("yyyy-MM-dd HH:mm:ss"));
         }
 
+        [Fact]
+        public async void AddToolWithInvalidData_Fails()
+        {
+            // Versuch, ein Tool mit ungültigen Daten hinzuzufügen
+            await Assert.ThrowsAsync<SqliteException>(async () =>
+            {
+                _connection.Execute(@"
+            INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive)
+            VALUES (@toolShortname, @toolDescription, @toolTypeID, @stationID, @ipAddressDevice, @plcName, @dbNoSend, @dbNoReceive);",
+                    new
+                    {
+                        toolShortname = "InvalidTool",
+                        toolDescription = "Invalid Description",
+                        toolTypeID = "InvalidType", // String statt int
+                        stationID = 1,
+                        ipAddressDevice = "192.168.0.100",
+                        plcName = "PLC_Invalid",
+                        dbNoSend = "DB_Invalid",
+                        dbNoReceive = "DB_Invalid"
+                    });
+            });
+        }
+
+        [Fact]
+        public async void AddToolWithNonExistentToolTypeID_Fails()
+        {
+            // Versuch, ein Tool mit einer nicht existierenden toolTypeID hinzuzufügen
+            await Assert.ThrowsAsync<SqliteException>(async () =>
+            {
+                var tool = new Tool
+                {
+                    toolShortname = "InvalidToolType",
+                    toolDescription = "Tool with non-existent ToolTypeID",
+                    toolTypeID = 9999, // Nicht existierende toolTypeID
+                    stationID = 1,
+                    ipAddressDevice = "192.168.0.100",
+                    plcName = "PLC_Invalid",
+                    dbNoSend = "DB_Invalid",
+                    dbNoReceive = "DB_Invalid",
+                    lastModified = DateTime.Now
+                };
+                await toolRepository.Add(tool);
+            });
+        }
+
+
 
 
         [Fact]
@@ -427,6 +473,43 @@ namespace DaimlerConfigTest
             Assert.Equal(expectedCount, allTools.Count());
         }
 
+        [Fact]
+        public async void UpdateToolWithInvalidData_Fails()
+        {
+            // Tool manuell einfügen
+            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            _connection.Execute(@"
+        INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified)
+        VALUES (@toolShortname, @toolDescription, @toolTypeID, @stationID, @ipAddressDevice, @plcName, @dbNoSend, @dbNoReceive, @preCheckByte, @addressSendDB, @addressReceiveDB, @lastModified);",
+                new
+                {
+                    toolShortname = "ToolShort_" + zeitpunkt,
+                    toolDescription = "Beschreibung_" + zeitpunkt,
+                    toolTypeID = 1,
+                    stationID = 1,
+                    ipAddressDevice = "192.168.0.100",
+                    plcName = "PLC_" + zeitpunkt,
+                    dbNoSend = "100",
+                    dbNoReceive = "101",
+                    preCheckByte = 1,
+                    addressSendDB = "a",
+                    addressReceiveDB = "a",
+                    lastModified = DateTime.Now
+                });
+
+            // Tool suchen
+            var toolToUpdate = await _connection.QueryFirstOrDefaultAsync<Tool>(
+                "SELECT * FROM Tool WHERE toolShortname = @toolShortname",
+                new { toolShortname = "ToolShort_" + zeitpunkt });
+            Assert.NotNull(toolToUpdate);
+
+            // Versuch, das Tool mit ungültigen Daten zu aktualisieren
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                toolToUpdate.toolTypeID = int.Parse("InvalidType"); // Ungültiger Wert
+                await toolRepository.Update(toolToUpdate);
+            });
+        }
 
 
 
@@ -434,7 +517,8 @@ namespace DaimlerConfigTest
 
 
 
-        /* [Fact]
+
+         [Fact]
          public async void GetToolsFromStationTest_Work()
          {
              // Korrigierte Abfrage mit stationID
@@ -442,7 +526,7 @@ namespace DaimlerConfigTest
              var tools = await toolRepository.getToolsFromStation(1);
              Assert.NotNull(tools);
              Assert.Equal(expectedCount, tools.Count());
-         }*/
+         }
 
 
 
