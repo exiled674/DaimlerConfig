@@ -10,9 +10,6 @@
 
         public int StationType_stationTypeID { get; set; }
         
-        //nur für export
-        public List<Models.Tool>? Tools {get; set;}    
-        
         public DateTime? lastModified {get; set;}
     }
 

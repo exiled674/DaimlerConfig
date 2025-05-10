@@ -30,7 +30,11 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
                 new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "meineDatenbank.db")));
             builder.Services.AddSingleton<DatabaseInitializer>();
+            
             builder.Services.AddScoped<IRepository<Station>, Repository<Station>>();
+            builder.Services.AddScoped<IRepository<Tool>, Repository<Tool>>();
+            builder.Services.AddScoped<IRepository<Operation>, Repository<Operation>>();
+            
             builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
 
             var app = builder.Build();

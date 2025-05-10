@@ -27,9 +27,6 @@
 
         public string? adress_receiveDB { get; set; }
         
-        //nur für export
-        public List<Models.Operation>? Operations {get; set;}    
-
         public DateTime? lastModified {  get; set; }
 
 

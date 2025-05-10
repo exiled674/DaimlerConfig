@@ -3,11 +3,11 @@
     public class Operation
     {
         public int OperationId { get; set; }
-        public string OperationShortname { get; set; }
-        public string OperationDescription { get; set; }
-        public string OperationSequence { get; set; }
-        public string OperationSequenceGroup { get; set; }
-        public string OperationDecisionCriteria { get; set; }
+        public required string OperationShortname { get; set; }
+        public required string OperationDescription { get; set; }
+        public required string OperationSequence { get; set; }
+        public required string OperationSequenceGroup { get; set; }
+        public required string OperationDecisionCriteria { get; set; }
         public bool alwaysPerform { get; set; }
         public int DecisionClass { get; set; }
         public int GenerationClass { get; set; }

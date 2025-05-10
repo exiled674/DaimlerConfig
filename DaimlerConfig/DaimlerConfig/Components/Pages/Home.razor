@@ -41,13 +41,10 @@ else
             </li>
         }
     </ul>
-    @foreach (var s in _stationJson)
-    {
-        @s
-    }
 }
 
 @code {
+    
     private Station? _station;
     
     private IEnumerable<Station>? _sortedStations;
@@ -58,7 +55,6 @@ else
     private List<Operation>? _operationList;
     
     private readonly WriteJson _writeJson = new WriteJson();
-    private string _stationJson;
     
     
     protected override async Task OnInitializedAsync()
@@ -71,7 +67,7 @@ else
         _toolsList = _sortedTools.ToList();
         _sortedOperations = await OperationRepo.GetAllOrderedByDate();
         _operationList = _sortedOperations.ToList();
-        
-        _stationJson = _writeJson.SerializeStations(_stationsList,_toolsList,_operationList);
+
+        await _writeJson.WriteAllToFileAsync(_stationsList, _toolsList, _operationList,"C:\\Users\\jn\\Desktop\\export.json");
     }
 }
