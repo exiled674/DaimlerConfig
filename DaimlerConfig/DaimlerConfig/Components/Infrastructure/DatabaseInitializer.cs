@@ -22,6 +22,11 @@ namespace DaimlerConfig.Components.Infrastructure
             var ddl = @"
             PRAGMA foreign_keys = ON;
 
+            CREATE TABLE IF NOT EXISTS Line (
+              lineID INTEGER PRIMARY KEY AUTOINCREMENT,
+              lineName TEXT NOT NULL UNIQUE
+            );  
+
             CREATE TABLE IF NOT EXISTS StationType (
               stationTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
               stationTypeName TEXT NOT NULL UNIQUE
@@ -32,8 +37,10 @@ namespace DaimlerConfig.Components.Infrastructure
               assemblystation TEXT NOT NULL,
               stationName TEXT,
               stationTypeID INTEGER,
+              lineID INTEGER,
               lastModified TEXT,
               FOREIGN KEY (stationTypeID) REFERENCES StationType(stationTypeID)
+              FOREIGN KEY (lineID) REFERENCES Line(lineID)
             );
 
             CREATE TABLE IF NOT EXISTS ToolClass (

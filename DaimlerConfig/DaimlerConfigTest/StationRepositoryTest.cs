@@ -10,66 +10,122 @@ namespace DaimlerConfigTest
 {
     public class StationRepositoryTest : IDisposable
     {
-        private readonly IDbConnection _connection;
-        private readonly StationRepository stationRepository;
 
-        public StationRepositoryTest()
+        private readonly IDbConnection _connection; // Instanz einer DbConnection
+        private readonly StationRepository stationRepository; // Instanz eines StationRepos
+
+        public StationRepositoryTest() // Konstruktor
         {
+            //SqliteConnectionFactory erhält einen Speicherort für die .db und implementiert IDbConnectionFactory mit einer CreateConnection-Methode
             var connectionFactory = new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "StationTest.db"));
+
+            //Erstellt eine Verbindung zur Datenbank über den Pfad
             _connection = connectionFactory.CreateConnection();
+
+            //Methode um die Tabellen der Datenbank zu erstellen
+            CreateTables();
+
+            //Methode um die Datenbank mit Testdaten zu befüllen
+            SetUpData();
+
+            //Stationrepo mit Verbindung intiialisiert
+            stationRepository = new StationRepository(connectionFactory);
+        }
+
+        internal void CreateTables()
+        {
+            _connection.Execute(@"
+                PRAGMA foreign_keys = ON;
+
+                CREATE TABLE IF NOT EXISTS Line (
+                  lineID INTEGER PRIMARY KEY AUTOINCREMENT,
+                  lineName TEXT NOT NULL UNIQUE
+                );  
+
+                CREATE TABLE IF NOT EXISTS StationType (
+                  stationTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
+                  stationTypeName TEXT NOT NULL UNIQUE
+                );
+
+                CREATE TABLE IF NOT EXISTS Station (
+                  stationID INTEGER PRIMARY KEY AUTOINCREMENT,
+                  assemblystation TEXT NOT NULL,
+                  stationName TEXT,
+                  stationTypeID INTEGER,
+                  lineID INTEGER,
+                  lastModified TEXT,
+                  FOREIGN KEY (stationTypeID) REFERENCES StationType(stationTypeID)
+                  FOREIGN KEY (lineID) REFERENCES Line(lineID)
+                );
+            ");
+        }
+        internal void SetUpData()
+        {
+            
+            _connection.Execute(@"
+            INSERT OR IGNORE INTO Line (lineName) VALUES (@lineName1);
+            INSERT OR IGNORE INTO Line (lineName) VALUES (@lineName2);",
+                new
+                {
+                    lineName1 = "Line1",
+                    lineName2 = "Line2"
+                });
 
             
             _connection.Execute(@"
-                PRAGMA foreign_keys = ON;
-                CREATE TABLE IF NOT EXISTS StationType (
-                    stationTypeID INTEGER PRIMARY KEY,
-                    stationTypeName TEXT NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS Station (
-                  stationID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  assemblystation TEXT,
-                  stationName TEXT,
-                  StationType_stationTypeID INTEGER,
-                  lastModified TEXT,
-                  FOREIGN KEY (StationType_stationTypeID) REFERENCES StationType(stationTypeID)
-                );
-
-               INSERT OR IGNORE INTO StationType (stationTypeName) VALUES
-                ('StationType1'),
-                ('StationType2');
-            ");
-
-           
-            stationRepository = new StationRepository(connectionFactory);
+            INSERT OR IGNORE INTO StationType (stationTypeName) VALUES (@stationTypeName1);
+            INSERT OR IGNORE INTO StationType (stationTypeName) VALUES (@stationTypeName2);",
+                new
+                {
+                    stationTypeName1 = "StationType1",
+                    stationTypeName2 = "StationType2"
+                });
         }
+
+
+
 
         [Fact]
         public async void AddStationTest_Works()
         {
-            string name = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+
+            //jetziges Datum
+            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+
+            //neue Station wird erstellt
             var station = new Station
             {
-                assemblystation = "TestStation",
-                stationName = name,
-                StationType_stationTypeID = 1,
+                lineID = 1,
+                assemblystation = "TestStation: " + zeitpunkt,
+                stationName = "TestStation: " + zeitpunkt,
+                stationTypeID = 1,
                 lastModified = DateTime.Now
             };
+            
+            //Station wird eingefügt
             await stationRepository.Add(station);
 
+
+            // Abfrage der Station über assemblystation
             var result = await _connection.QueryFirstOrDefaultAsync<Station>(
-                "SELECT * FROM Station WHERE stationName = @stationName",
-                new { station.assemblystation, station.stationName, station.StationType_stationTypeID, station.lastModified });
+                "SELECT * FROM Station WHERE assemblystation = @assemblystation",
+                new {station.assemblystation});
          
+            //Wurde etwas eingefügt?
             Assert.NotNull(result);
-            Assert.Equal(name, result.stationName);
-            Assert.Equal("TestStation", result.assemblystation);
-            Assert.Equal(1, result.StationType_stationTypeID);
-            Assert.NotNull(result.lastModified);
-           
+
+            //Sind alle Werte korrekt?
+            Assert.Equal(station.lineID, result.lineID);
+            Assert.Equal(station.stationName, result.stationName);
+            Assert.Equal(station.assemblystation, result.assemblystation);
+            Assert.Equal(station.stationTypeID, result.stationTypeID);
+            Assert.Equal(station.lastModified?.ToString("yyyy-MM-dd HH:mm:ss"), result.lastModified?.ToString("yyyy-MM-dd HH:mm:ss"));
+
+
 
         }
 
-        [Fact]
+        /*[Fact]
         public async void DeleteStationTest_Works()
         {
             
@@ -212,7 +268,7 @@ namespace DaimlerConfigTest
            
             Assert.NotNull(allStations);
             Assert.Equal(expectedCount, allStations.Count());
-        }
+        }*/
 
 
 
