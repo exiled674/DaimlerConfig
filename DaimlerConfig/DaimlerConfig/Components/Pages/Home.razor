@@ -104,7 +104,8 @@
     private void ApplyFilters()
     {
         var filtered = AllLines
-            .Where(line => line.lineName.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            .Where(line => line.lineName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
+
 
         FilteredLines = selectedSort switch
         {
