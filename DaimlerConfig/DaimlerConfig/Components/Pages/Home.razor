@@ -1,5 +1,9 @@
 ﻿@page "/"
 
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+@using DaimlerConfig.Components.Models
+
+
 <h1>Select Station</h1>
 
 <div class="ProjectManager">
@@ -37,17 +41,25 @@
             </div>
         }
         <p class="lineLabel">Local:</p>
-        @foreach (int i in Enumerable.Range(1, 2))
+        @if (Lines is not null && Lines.Any())
         {
-            <div class="area-header">
-                <button class="area-title">Area_B02_Main</button>
-                <button class="three-dots-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                    </svg>
-                </button>
-            </div>
+            foreach (var line in Lines)
+            {
+                <div class="area-header">
+                    <button class="area-title">@line.lineName</button>
+                    <button class="three-dots-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                        </svg>
+                    </button>
+                </div>
+            }
         }
+        else
+        {
+            <p>Keine Lines gefunden.</p>
+        }
+
     </div>
     <div class="row">
         <div class="col">
@@ -66,5 +78,14 @@
 </div>
 
 @code {
+    private List<Line> Lines = new();
+    
 
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Fassade.LineRepository.GetAll();
+        Lines = result.ToList();
+    }
 }
+
+
