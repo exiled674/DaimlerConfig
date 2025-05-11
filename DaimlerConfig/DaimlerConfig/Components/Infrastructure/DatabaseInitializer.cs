@@ -24,7 +24,8 @@ namespace DaimlerConfig.Components.Infrastructure
 
             CREATE TABLE IF NOT EXISTS Line (
               lineID INTEGER PRIMARY KEY AUTOINCREMENT,
-              lineName TEXT NOT NULL UNIQUE
+              lineName TEXT NOT NULL UNIQUE,
+              lastModified TEXT
             );  
 
             CREATE TABLE IF NOT EXISTS StationType (
