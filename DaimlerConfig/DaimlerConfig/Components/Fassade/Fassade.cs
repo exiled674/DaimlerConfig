@@ -33,6 +33,11 @@ namespace DaimlerConfig.Components.Fassade
             return await LineRepository.GetAll();
         }
 
+        public async Task<IEnumerable<Line>> GetAllLinesSortedByDate()
+        {
+            return await LineRepository.getAllOrderedByDate();
+        }
+
     }
 
 

@@ -175,6 +175,26 @@ namespace DaimlerConfig.Components.Repositories
             return await conn.QueryAsync<TEntity>(sql);
         }
 
+        public async Task<IEnumerable<TEntity>> GetAllSortedByName(bool descending = false)
+        {
+            using var conn = _dbConnectionFactory.CreateConnection();
+            conn.Open();
+
+            // z.B. "Line" → "lineName"
+            var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
+
+            var props = typeof(TEntity).GetProperties();
+            var hasNameProp = props.Any(p => p.Name.Equals(nameProperty, StringComparison.OrdinalIgnoreCase));
+
+            if (!hasNameProp)
+                throw new InvalidOperationException($"TEntity hat keine '{nameProperty}'-Eigenschaft.");
+
+            var direction = descending ? "DESC" : "ASC";
+            var sql = $"SELECT * FROM {_tableName} ORDER BY {nameProperty} {direction}";
+            return await conn.QueryAsync<TEntity>(sql);
+        }
+
+
         public async Task Update(TEntity entity)
         {
             using var conn = _dbConnectionFactory.CreateConnection();

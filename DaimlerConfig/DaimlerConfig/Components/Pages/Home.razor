@@ -18,12 +18,11 @@
             </form>
         </div>
         <div class="col">
-            <select class="search-input">
-                <option selected>Sorted by date</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
+            <select class="search-input" @onchange="OnSortChanged">
+                <option value="date" selected>Sorted by date descending</option>
+                <option value="name">Sorted by name ascending</option>
             </select>
+
         </div>
     </div>
     <div class="projects">
@@ -78,22 +77,41 @@
 </div>
 
 @code {
-    private List<Line> AllLines = new(); 
-    private List<Line> FilteredLines = new(); 
+    private List<Line> AllLines = new();
+    private List<Line> FilteredLines = new();
     private string searchText = "";
+    private string selectedSort = "date"; // default sort
 
     protected override async Task OnInitializedAsync()
     {
         var result = await Fassade.LineRepository.GetAll();
         AllLines = result.ToList();
-        FilteredLines = AllLines;
+        ApplyFilters();
     }
 
     private void OnSearchTextChanged(ChangeEventArgs e)
     {
         searchText = e.Value?.ToString() ?? "";
-        FilteredLines = AllLines
-            .Where(line => line.lineName.Contains(searchText, StringComparison.OrdinalIgnoreCase)) 
-            .ToList();
+        ApplyFilters();
+    }
+
+    private void OnSortChanged(ChangeEventArgs e)
+    {
+        selectedSort = e.Value?.ToString() ?? "date";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = AllLines
+            .Where(line => line.lineName.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+        FilteredLines = selectedSort switch
+        {
+            "name" => filtered.OrderBy(l => l.lineName).ToList(),
+            "date" => filtered.OrderByDescending(l => l.lastModified).ToList(),
+            _ => filtered.ToList()
+        };
     }
 }
+
