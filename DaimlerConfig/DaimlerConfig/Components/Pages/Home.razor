@@ -3,16 +3,21 @@
 
 <h1>Select Station</h1>
 
-
-
 <div class="ProjectManager">
     <div class="row">
         <div class="col">
-            <Search></Search>
+            <form class="search-form">
+                <div class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                    </svg>
+                </div>
+                <input class="search-input" type="text" placeholder="Search" name="query">
+            </form>
         </div>
         <div class="col">
-            <select class="form-select form-select-lg mb-3" aria-label="Large select example">
-                <option selected>Open this select menu</option>
+            <select class="search-input">
+                <option selected>Sorted by date</option>
                 <option value="1">One</option>
                 <option value="2">Two</option>
                 <option value="3">Three</option>
@@ -20,9 +25,30 @@
         </div>
     </div>
     <div class="projects">
-        <ProjectButton></ProjectButton>
-        <ProjectButton></ProjectButton>
-        <ProjectButton></ProjectButton>
+        <p class="lineLabel">On SharePoint:</p>
+        @foreach (int i in Enumerable.Range(1, 3))
+        {
+            <div class="area-header">
+                <button class="area-title">Area_B02_Main</button>
+                <button class="three-dots-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                    </svg>
+                </button>
+            </div>
+        }
+        <p class="lineLabel">Local:</p>
+        @foreach (int i in Enumerable.Range(1, 2))
+        {
+            <div class="area-header">
+                <button class="area-title">Area_B02_Main</button>
+                <button class="three-dots-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                    </svg>
+                </button>
+            </div>
+        }
     </div>
     <div class="row">
         <div class="col">
@@ -36,12 +62,9 @@
                 <span class="plus-icon">+</span>
                 Create Empty Project
             </button>
-
         </div>
     </div>
 </div>
-
-
 
 @code {
 

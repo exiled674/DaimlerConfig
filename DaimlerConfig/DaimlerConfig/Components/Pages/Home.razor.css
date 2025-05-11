@@ -1,8 +1,13 @@
 
+body {
+    background-color: #F8FCFF;
+}
+
 .ProjectManager {
-    background-color: antiquewhite;
+    background-color: #FEFEFE;
     padding: 20px;
     border-radius: 8px;
+    border: 2px solid #E0E0E0;
 }
 
 .projects {
@@ -29,4 +34,76 @@
     line-height: 0;
     position: relative;
     top: 2px;
+}
+
+.search-form {
+    position: relative;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 12px 12px 45px;
+    background-color: #F5F5F7;
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 20px;
+    color: #333;
+    outline: none;
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+.search-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: #666;
+}
+
+.search-input::placeholder {
+    color: #666;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+
+.area-header {
+    display: flex;
+    padding: 15px 15px 15px 15px;
+    border-bottom: 1px solid #dee2e6;
+    background-color: #FFFAFF;
+    margin-bottom: 10px;
+}
+
+.area-title {
+    font-weight: 500;
+    font-size: 20px;
+    margin: 0;
+    border: none;
+    background-color: #FFFAFF;
+}
+
+.three-dots-btn {
+    background: transparent;
+    border: none;
+    padding: 5px 15px;
+    font-size: 20px;
+    line-height: 1;
+    margin-left: auto;
+}
+
+.lineLabel {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
 }
