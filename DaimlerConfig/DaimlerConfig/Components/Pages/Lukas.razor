@@ -1,0 +1,72 @@
+﻿@page "/lukas"
+@using DaimlerConfig.Components.Models
+@using DaimlerConfig.Components.Repositories
+@inject IRepository<Station> StationRepo
+
+<h3>Station Details (ID = 6)</h3>
+
+@if (station is null)
+{
+    <p>Lade Station...</p>
+}
+else
+{
+    <div>
+        <p><strong>Line:</strong> @station.lineID</p>
+        <p><strong>Assemblystation:</strong> @station.assemblystation</p>
+        <p><strong>Station Name:</strong> @station.stationName</p>
+        <p><strong>StationType ID:</strong> @station.stationTypeID</p>
+        <p><strong>Last Modified:</strong> @station.lastModified</p>
+        <button @onclick="UpdateStationName">Name ändern</button>
+    </div>
+}
+
+<h3>Alle Stationen (nach lastModified sortiert)</h3>
+
+@if (sortedStations is null)
+{
+    <p>Lade Stationen...</p>
+}
+else if (!sortedStations.Any())
+{
+    <p>Keine Stationen gefunden.</p>
+}
+else
+{
+    <ul>
+        @foreach (var s in sortedStations)
+        {
+            <li>
+                <strong>@s.stationName</strong> – @s.lastModified
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private Station? station;
+    private IEnumerable<Station>? sortedStations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        station = await StationRepo.Get(6);
+        sortedStations = await StationRepo.getAllOrderedByDate();
+    }
+
+    private async Task UpdateStationName()
+    {
+        if (station is null)
+            return;
+
+        station.stationName += " (aktualisiert)";
+        station.lastModified = DateTime.Now;
+
+        await StationRepo.Update(station);
+
+        
+        station = await StationRepo.Get(6);
+        sortedStations = await StationRepo.getAllOrderedByDate();
+
+        StateHasChanged();
+    }
+}
