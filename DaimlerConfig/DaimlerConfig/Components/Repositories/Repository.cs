@@ -262,6 +262,23 @@ namespace DaimlerConfig.Components.Repositories
             await conn.ExecuteAsync(sql, dp);
         }
 
+        public async Task<TEntity?> GetByName(string name)
+        {
+            using var conn = _dbConnectionFactory.CreateConnection();
+            conn.Open();
+
+            var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
+
+            var props = typeof(TEntity).GetProperties();
+            var hasNameProp = props.Any(p => p.Name.Equals(nameProperty, StringComparison.OrdinalIgnoreCase));
+            if (!hasNameProp)
+                throw new InvalidOperationException($"TEntity hat keine '{nameProperty}'-Eigenschaft.");
+
+            var sql = $"SELECT * FROM {_tableName} WHERE {nameProperty} = @name";
+            var result = await conn.QueryFirstOrDefaultAsync<TEntity>(sql, new { name });
+
+            return result;
+        }
 
     }
 }
