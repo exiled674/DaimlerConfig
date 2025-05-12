@@ -26,20 +26,8 @@
         </div>
     </div>
     <div class="projects">
-        <p class="lineLabel">On SharePoint:</p>
-        @foreach (int i in Enumerable.Range(1, 3))
-        {
-            <div class="area-header">
-                <button class="area-title">Area_B02_Main</button>
-                <button class="three-dots-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                    </svg>
-                </button>
-            </div>
-        }
-
-        <p class="lineLabel">Local:</p>
+        
+        <p class="lineLabel">Lines:</p>
         @if (FilteredLines is not null && FilteredLines.Any())
         {
             foreach (var line in FilteredLines)
