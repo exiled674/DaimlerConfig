@@ -43,6 +43,11 @@ namespace DaimlerConfig.Components.Fassade
             await LineRepository.Add(line);
         }
 
+        public async Task DeleteLine(Line line)
+        {
+            await LineRepository.Delete(line);
+        }
+
     }
 
 
