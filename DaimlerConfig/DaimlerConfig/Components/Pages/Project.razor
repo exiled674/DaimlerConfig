@@ -18,7 +18,7 @@
         <aside id="sidebar" class="@SidebarClass border-end ">
             <ul class="sidebar-nav p-0">
                 <li class="sidebar-item">
-                    <a href="/test" class="sidebar-link">
+                    <a href="/" class="sidebar-link">
                         <span>Home</span>
                     </a>
                 </li>
@@ -96,6 +96,7 @@
     {
         // Hole die Line nach dem Namen
         line = await Fassade.GetLineByName(lineName);
+        Console.WriteLine($"Line: {line?.lineName}");
 
         if (line != null)
         {
