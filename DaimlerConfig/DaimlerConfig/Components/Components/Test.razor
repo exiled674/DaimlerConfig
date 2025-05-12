@@ -1,0 +1,309 @@
+﻿@page "/sidebar-test";
+<div class="sidebar-container">
+    <!-- Overlay für mobile Ansicht -->
+    @if (IsOpen && IsMobileView())
+    {
+        <div class="sidebar-overlay" @onclick="CloseSidebar"></div>
+    }
+
+    <!-- Sidebar -->
+    <div class="sidebar @(IsOpen ? "sidebar-open" : "sidebar-closed")">
+        <div class="sidebar-header">
+            <h3>DaimlerConfig</h3>
+            <button class="close-button" @onclick="CloseSidebar">×</button>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="@(CurrentPage == "home" ? "active" : "")">
+                <a @onclick="@(() => NavigateTo("home"))" href="javascript:void(0)">
+                    <i class="menu-icon">🏠</i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Expandierbarer Menüpunkt -->
+            <li class="@(IsConfigExpanded ? "expanded" : "")">
+                <a @onclick="ToggleConfigMenu" href="javascript:void(0)">
+                    <i class="menu-icon">⚙️</i>
+                    <span>Konfiguration</span>
+                    <i class="expand-icon">@(IsConfigExpanded ? "▼" : "▶")</i>
+                </a>
+
+                @if (IsConfigExpanded)
+                {
+                    <ul class="submenu">
+                        <li class="@(CurrentPage == "models" ? "active" : "")">
+                            <a @onclick="@(() => NavigateTo("models"))" href="javascript:void(0)">
+                                <span>Fahrzeugmodelle</span>
+                            </a>
+                        </li>
+                        <li class="@(CurrentPage == "options" ? "active" : "")">
+                            <a @onclick="@(() => NavigateTo("options"))" href="javascript:void(0)">
+                                <span>Ausstattungsoptionen</span>
+                            </a>
+                        </li>
+                    </ul>
+                }
+            </li>
+
+            <li class="@(CurrentPage == "reports" ? "active" : "")">
+                <a @onclick="@(() => NavigateTo("reports"))" href="javascript:void(0)">
+                    <i class="menu-icon">📊</i>
+                    <span>Berichte</span>
+                </a>
+            </li>
+
+            <li class="@(CurrentPage == "settings" ? "active" : "")">
+                <a @onclick="@(() => NavigateTo("settings"))" href="javascript:void(0)">
+                    <i class="menu-icon">🔧</i>
+                    <span>Einstellungen</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Hauptinhalt -->
+    <div class="main-content @(IsOpen ? "content-pushed" : "content-full")">
+        <div class="top-bar">
+            <button class="menu-toggle" @onclick="ToggleSidebar">
+                ☰
+            </button>
+            <h2>@PageTitle</h2>
+        </div>
+
+        <div class="content-container">
+            @ChildContent
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Diese Stile könnten auch in eine separate CSS-Datei ausgelagert werden */
+    .sidebar-container {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .sidebar {
+        background-color: #343a40;
+        color: white;
+        width: 250px;
+        height: 100%;
+        transition: transform 0.3s ease, width 0.3s ease;
+        position: fixed;
+        z-index: 1000;
+        overflow-y: auto;
+    }
+
+    .sidebar-closed {
+        width: 0;
+        overflow: hidden;
+    }
+
+    .sidebar-header {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #495057;
+    }
+
+    .close-button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .sidebar-menu li {
+            padding: 0;
+            border-bottom: 1px solid #495057;
+        }
+
+            .sidebar-menu li a {
+                display: flex;
+                align-items: center;
+                padding: 15px;
+                color: #ced4da;
+                text-decoration: none;
+            }
+
+                .sidebar-menu li a:hover, .sidebar-menu li.active > a {
+                    background-color: #495057;
+                    color: white;
+                }
+
+    .menu-icon {
+        margin-right: 10px;
+    }
+
+    .expand-icon {
+        margin-left: auto;
+    }
+
+    .submenu {
+        list-style: none;
+        padding: 0;
+        background-color: #2c3136;
+    }
+
+        .submenu li a {
+            padding-left: 40px;
+        }
+
+    /* Hauptinhalt */
+    .main-content {
+        flex: 1;
+        transition: padding-left 0.3s ease;
+    }
+
+    .content-pushed {
+        padding-left: 250px;
+    }
+
+    .content-full {
+        padding-left: 0;
+    }
+
+    .top-bar {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        margin-right: 15px;
+    }
+
+    .content-container {
+        padding: 20px;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .sidebar
+
+    {
+        transform: translateX(-100%);
+    }
+
+    .sidebar-open {
+        transform: translateX(0);
+    }
+
+    .content-pushed {
+        padding-left: 0;
+    }
+
+    .main-content {
+        padding-left: 0;
+    }
+
+    }
+</style>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string CurrentPage { get; set; } = "home";
+
+    [Parameter]
+    public EventCallback<string> OnNavigate { get; set; }
+
+    // Berechneter Seitentitel basierend auf CurrentPage
+    private string PageTitle => CurrentPage switch
+    {
+        "home" => "Dashboard",
+        "models" => "Fahrzeugmodelle",
+        "options" => "Ausstattungsoptionen",
+        "reports" => "Berichte",
+        "settings" => "Einstellungen",
+        _ => "DaimlerConfig"
+    };
+
+    // Zustand der Sidebar
+    private bool IsOpen { get; set; } = true;  // Desktop: Standard geöffnet
+
+    // Zustand der expandierbaren Menüs
+    private bool IsConfigExpanded { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        // Je nach Bildschirmgröße anpassen
+        IsOpen = !IsMobileView();
+    }
+
+    private void ToggleSidebar()
+    {
+        IsOpen = !IsOpen;
+        StateHasChanged();
+    }
+
+    private void CloseSidebar()
+    {
+        IsOpen = false;
+        StateHasChanged();
+    }
+
+    private void ToggleConfigMenu()
+    {
+        IsConfigExpanded = !IsConfigExpanded;
+        StateHasChanged();
+    }
+
+    private async Task NavigateTo(string page)
+    {
+        CurrentPage = page;
+        await OnNavigate.InvokeAsync(page);
+
+        // Auf mobilen Geräten nach der Navigation schließen
+        if (IsMobileView())
+        {
+            IsOpen = false;
+        }
+        StateHasChanged();
+    }
+
+    // In einer echten App würde diese Methode die tatsächliche Bildschirmbreite überprüfen
+    private bool IsMobileView()
+    {
+        // In einer echten Implementierung würde dies JS interop verwenden
+        // Für diese Demonstration ist dies ein Platzhalter
+        // Sie müssten hier eine echte JS Interop implementieren, z.B.:
+        /*
+        @inject IJSRuntime JSRuntime
+
+            private async Task<bool> IsMobileViewAsync()
+    {
+        return await JSRuntime.InvokeAsync<bool>("window.innerWidth < 768");
+        }
+            */
+        return false;
+    }
+}
