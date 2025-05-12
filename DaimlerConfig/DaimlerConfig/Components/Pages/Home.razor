@@ -186,11 +186,21 @@
         {
             line.lineName = newName;
             line.lastModified = DateTime.Now;
-            Fassade.LineRepository.Add(line);
+
+            if (line.lineID == 0) // ❗ prüft, ob es eine neue Line ist
+            {
+                await Fassade.LineRepository.Add(line);
+            }
+            else
+            {
+                await Fassade.LineRepository.Update(line);
+            }
+
             EditingLines.Remove(line);
             ApplyFilters();
         }
     }
+
 
     private void CancelEdit(Line line)
     {

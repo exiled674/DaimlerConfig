@@ -53,6 +53,11 @@ namespace DaimlerConfig.Components.Fassade
             return await LineRepository.ExistsByName(name);
         }
 
+        public async Task UpdateLine(Line line)
+        {
+            await LineRepository.Update(line);
+        }
+
     }
 
 
