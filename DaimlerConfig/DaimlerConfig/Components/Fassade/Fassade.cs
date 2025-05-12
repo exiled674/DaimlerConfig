@@ -28,6 +28,7 @@ namespace DaimlerConfig.Components.Fassade
             LineRepository = lineRepository;
         }
 
+        #region Line
         public async Task<IEnumerable<Line>> GetAllLinesAsync()
         {
             return await LineRepository.GetAll();
@@ -62,6 +63,7 @@ namespace DaimlerConfig.Components.Fassade
         {
             await LineRepository.Update(line);
         }
+        #endregion 
 
     }
 
