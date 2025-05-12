@@ -1,0 +1,82 @@
+﻿@page "/kjlhj"
+
+<div class="dropdown-container" tabindex="0" @onfocusout="HandleFocusOut">
+    <button class="more-button" @onclick="ToggleDropdown" aria-expanded="@(ShowMenu)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="1" />
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="12" cy="17" r="1" />
+        </svg>
+    </button>
+
+    @if (ShowMenu)
+    {
+            <div class="dropdown-menu show">
+                <div class="dropdown-item">
+                    Delete
+                </div>
+                <div class="dropdown-item">
+                     WeißNichMehrWas
+                </div>
+            </div>
+    }
+</div>
+
+<style>
+    .dropdown-container {
+        position: relative;
+        font-family: Arial, sans-serif;
+        outline: none; /* für tabindex */
+    }
+    .more-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+    }
+    .more-button:hover {
+        background-color: #f0f0f0;
+    }
+    .dropdown-menu {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        min-width: 200px;
+        z-index: 1000;
+    }
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .dropdown-item:hover {
+        background-color: #f0f0f0;
+    }
+    .dropdown-item i {
+        margin-right: 10px;
+        color: #666;
+    }
+</style>
+
+@code {
+    private bool ShowMenu { get; set; }
+
+    private void ToggleDropdown()
+    {
+        ShowMenu = !ShowMenu;
+    }
+
+    private void HandleFocusOut(FocusEventArgs args)
+    {
+        // Schließt das Menü, wenn der Fokus den Container verlässt
+        ShowMenu = false;
+    }
+}
