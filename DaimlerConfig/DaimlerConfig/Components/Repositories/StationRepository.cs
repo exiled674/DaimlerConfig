@@ -21,7 +21,7 @@ namespace DaimlerConfig.Components.Repositories
 
             var query = @"
                 SELECT * 
-                FROM Line
+                FROM Station
                 WHERE lineID = @lineID";
            
 
