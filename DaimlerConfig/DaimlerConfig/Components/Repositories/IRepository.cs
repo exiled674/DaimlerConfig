@@ -25,6 +25,8 @@ namespace DaimlerConfig.Components.Repositories
         public Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate);
         public Task<IEnumerable<TEntity>> getAllOrderedByDate();
 
-        
+        public Task<bool> ExistsByName(string name);
+
+
     }
 }

@@ -31,32 +31,36 @@
         {
             foreach (var line in FilteredLines)
             {
-                        <div class="area-header">
+                <div class="area-header">
                     @if (EditingLines.Contains(line))
                     {
-                                    <input class="edit-input" 
-                                           value="@line.lineName" 
-                                           @onchange="e => ConfirmEdit(line, e)" 
-                                           autofocus />
+                        <input class="edit-input @(isDuplicateName ? "invalid-input" : "")"
+                        value="@line.lineName" 
+                        @onchange="e => ConfirmEdit(line, e)" 
+                        autofocus />
+                        @if (isDuplicateName)
+                        {
+                            <p class="error-text">The name already exists.</p>
+                        }
                     }
                     else
                     {
-                                    <button class="area-title">
+                        <button class="area-title">
                             @line.lineName : (@line.lastModified)
-                                    </button>
+                        </button>
                     }
 
-                            <button class="three-dots-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                                </svg>
-                            </button>
-                        </div>
+                    <button class="three-dots-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                        </svg>
+                    </button>
+                </div>
             }
         }
         else
         {
-                <p>Keine Lines gefunden.</p>
+            <p>Keine Lines gefunden.</p>
         }
     </div>
 
@@ -77,11 +81,14 @@
 </div>
 
 @code {
-    private List<Line> AllLines = new();
-    private List<Line> FilteredLines = new();
-    private HashSet<Line> EditingLines = new();
-    private string searchText = "";
-    private string selectedSort = "date"; // default sort
+    private List<Line> AllLines = new(); // Alle die angezeigt werden
+    private List<Line> FilteredLines = new(); // Ergebnis der Suchfunktion
+    private HashSet<Line> EditingLines = new(); // Wenn man auf create drückt kommt es hier rein erstmal bis man confirmed
+
+    private string searchText = ""; // Suchtext
+    private string selectedSort = "date"; // Default Sort
+
+    private bool isDuplicateName = false; // Ist der Name schon vergeben?
 
     protected override async Task OnInitializedAsync()
     {
@@ -127,17 +134,18 @@
         ApplyFilters();
     }
 
-    private void ConfirmEdit(Line line, ChangeEventArgs e)
+    private async Task ConfirmEdit(Line line, ChangeEventArgs e)
     {
         var newName = e.Value?.ToString()?.Trim();
-        if (!string.IsNullOrEmpty(newName) && newName != "Enter a name")
+        isDuplicateName = await Fassade.LineExistsByName(newName);
+
+        if (!string.IsNullOrEmpty(newName) && newName != "Enter a name" && !isDuplicateName)
         {
             line.lineName = newName;
             line.lastModified = DateTime.Now;
-			Fassade.LineRepository.Add(line);
+            Fassade.LineRepository.Add(line);
             EditingLines.Remove(line);
             ApplyFilters();
         }
-       
     }
 }

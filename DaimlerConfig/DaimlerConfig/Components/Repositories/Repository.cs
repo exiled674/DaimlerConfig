@@ -23,6 +23,20 @@ namespace DaimlerConfig.Components.Repositories
             _tableName = typeof(TEntity).Name;
         }
 
+        public async Task<bool> ExistsByName(string name)
+        {
+            using var conn = _dbConnectionFactory.CreateConnection();
+            conn.Open();
+
+            // Beispiel: "Line" → "lineName"
+            var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
+
+            var sql = $"SELECT COUNT(1) FROM {_tableName} WHERE {nameProperty} = @name";
+            var result = await conn.ExecuteScalarAsync<int>(sql, new { name });
+
+            return result > 0;
+        }
+
         public async Task Add(TEntity entity)
         {
             using var conn = _dbConnectionFactory.CreateConnection();
@@ -31,24 +45,29 @@ namespace DaimlerConfig.Components.Repositories
             var type = typeof(TEntity);
             var primarykey = type.Name + "ID";
 
-
             var properties = typeof(TEntity)
-            .GetProperties()
-            .Where(p => !string.Equals(p.Name, primarykey, StringComparison.OrdinalIgnoreCase));
+                .GetProperties()
+                .Where(p => !string.Equals(p.Name, primarykey, StringComparison.OrdinalIgnoreCase));
 
+            // Bestimme den Namen, der überprüft werden muss
+            var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
+            var nameValue = type.GetProperty(nameProperty)?.GetValue(entity)?.ToString();
 
+            if (nameValue != null && await ExistsByName(nameValue))
+            {
+                throw new InvalidOperationException($"{nameProperty} '{nameValue}' existiert bereits.");
+            }
 
             var columnNames = properties.Select(p => p.Name);
             var columns = string.Join(", ", columnNames);
             var paramNames = string.Join(", ", columnNames.Select(n => "@" + n));
             var sql = $@"
-        INSERT INTO {_tableName}
-        ({columns})
-        VALUES
-        ({paramNames});
+    INSERT INTO {_tableName}
+    ({columns})
+    VALUES
+    ({paramNames});
     ";
 
-           
             var dp = new DynamicParameters();
             foreach (var p in properties)
             {
@@ -56,7 +75,6 @@ namespace DaimlerConfig.Components.Repositories
                 if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
                     && p.PropertyType == typeof(DateTime))
                 {
-                    
                     var dt = (DateTime)val;
                     dp.Add(p.Name, dt.ToString("yyyy-MM-dd HH:mm:ss"));
                 }
@@ -68,6 +86,7 @@ namespace DaimlerConfig.Components.Repositories
 
             await conn.ExecuteAsync(sql, dp);
         }
+
 
         public async Task AddRange(IEnumerable<TEntity> entities)
         {

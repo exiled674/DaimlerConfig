@@ -48,6 +48,11 @@ namespace DaimlerConfig.Components.Fassade
             await LineRepository.Delete(line);
         }
 
+        public async Task<bool> LineExistsByName(string name)
+        {
+            return await LineRepository.ExistsByName(name);
+        }
+
     }
 
 
