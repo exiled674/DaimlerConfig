@@ -77,10 +77,11 @@
 
 .area-header {
     display: flex;
-    padding: 15px 15px 15px 15px;
+    padding: 15px;
     border-bottom: 1px solid #dee2e6;
     background-color: #FFFAFF;
     margin-bottom: 10px;
+    justify-content: space-between; /* Fügt Platz zwischen den Elementen hinzu */
 }
 
 .area-title {
@@ -94,10 +95,10 @@
 .three-dots-btn {
     background: transparent;
     border: none;
-    padding: 5px 15px;
+    padding: 5px;
     font-size: 20px;
     line-height: 1;
-    margin-left: auto;
+    margin-left: auto; /* Dies sorgt dafür, dass die Schaltfläche nach rechts verschoben wird */
 }
 
 .lineLabel {
@@ -106,3 +107,38 @@
     font-weight: 500;
     color: #333;
 }
+
+.context-container {
+    position: relative;
+    display: flex;
+    justify-content: flex-end; /* Das Kontextmenü nach rechts verschieben */
+}
+
+
+.context-menu {
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    padding: 5px 0;
+    z-index: 1000;
+    width: 120px;
+    right: 0; /* Positioniert das Dropdown-Menü rechts */
+    top: 30px; /* Abstand nach oben */
+}
+
+    .context-menu button {
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        padding: 10px 15px;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+    }
+
+        .context-menu button:hover {
+            background-color: #f0f0f0;
+        }
