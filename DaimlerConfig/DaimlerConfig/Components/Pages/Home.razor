@@ -194,9 +194,15 @@
 
     private void CancelEdit(Line line)
     {
-       
+        if (line.lineName == "Enter a name")
+        {
+            // Bei neu erstellten Lines: löschen
+            AllLines.Remove(line);
+        }
+
         EditingLines.Remove(line);
         isDuplicateName = false;
         ApplyFilters();
     }
+
 }
