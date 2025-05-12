@@ -22,29 +22,41 @@
                 <option value="date" selected>Sorted by date descending</option>
                 <option value="name">Sorted by name ascending</option>
             </select>
-
         </div>
     </div>
+
     <div class="projects">
-        
         <p class="lineLabel">Lines:</p>
         @if (FilteredLines is not null && FilteredLines.Any())
         {
             foreach (var line in FilteredLines)
             {
-                <div class="area-header">
-                    <button class="area-title">@line.lineName : (@line.lastModified) </button> 
-                    <button class="three-dots-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                        </svg>
-                    </button>
-                </div>
+                        <div class="area-header">
+                    @if (EditingLines.Contains(line))
+                    {
+                                    <input class="edit-input" 
+                                           value="@line.lineName" 
+                                           @onchange="e => ConfirmEdit(line, e)" 
+                                           autofocus />
+                    }
+                    else
+                    {
+                                    <button class="area-title">
+                            @line.lineName : (@line.lastModified)
+                                    </button>
+                    }
+
+                            <button class="three-dots-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                </svg>
+                            </button>
+                        </div>
             }
         }
         else
         {
-            <p>Keine Lines gefunden.</p>
+                <p>Keine Lines gefunden.</p>
         }
     </div>
 
@@ -56,7 +68,7 @@
             </button>
         </div>
         <div class="col">
-            <button class="import-button">
+            <button class="import-button" @onclick="CreateNewLine">
                 <span class="plus-icon">+</span>
                 Create Empty Project
             </button>
@@ -67,6 +79,7 @@
 @code {
     private List<Line> AllLines = new();
     private List<Line> FilteredLines = new();
+    private HashSet<Line> EditingLines = new();
     private string searchText = "";
     private string selectedSort = "date"; // default sort
 
@@ -94,7 +107,6 @@
         var filtered = AllLines
             .Where(line => line.lineName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
 
-
         FilteredLines = selectedSort switch
         {
             "name" => filtered.OrderBy(l => l.lineName).ToList(),
@@ -102,5 +114,30 @@
             _ => filtered.ToList()
         };
     }
-}
 
+    private void CreateNewLine()
+    {
+        var newLine = new Line
+            {
+                lineName = "Enter a name",
+                lastModified = DateTime.Now
+            };
+        AllLines.Insert(0, newLine);
+        EditingLines.Add(newLine);
+        ApplyFilters();
+    }
+
+    private void ConfirmEdit(Line line, ChangeEventArgs e)
+    {
+        var newName = e.Value?.ToString()?.Trim();
+        if (!string.IsNullOrEmpty(newName) && newName != "Enter a name")
+        {
+            line.lineName = newName;
+            line.lastModified = DateTime.Now;
+			Fassade.LineRepository.Add(line);
+            EditingLines.Remove(line);
+            ApplyFilters();
+        }
+       
+    }
+}
