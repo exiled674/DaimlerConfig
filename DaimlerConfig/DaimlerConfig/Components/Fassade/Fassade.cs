@@ -38,6 +38,11 @@ namespace DaimlerConfig.Components.Fassade
             return await LineRepository.getAllOrderedByDate();
         }
 
+
+        public async Task<Line?> GetLineByName(string lineName)
+        {
+            return await LineRepository.GetByName(lineName);
+        }
         public async Task AddLine(Line line)
         {
             await LineRepository.Add(line);

@@ -1,4 +1,11 @@
-﻿@page "/";
+﻿@page "/line/{lineName}"
+
+
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+
+
+@using DaimlerConfig.Components.Models
 
 <body>
     <!-- Navbar -->
@@ -126,6 +133,16 @@
             SidebarClass = string.Empty;
         else
             SidebarClass = "collapsed";
+    }
+
+    [Parameter]
+    public string lineName { get; set; } = "";
+
+    private Line? line;
+
+    protected override async Task OnInitializedAsync()
+    {
+        line = await Fassade.GetLineByName(lineName);
     }
 	
 }

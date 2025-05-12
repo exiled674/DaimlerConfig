@@ -1,6 +1,10 @@
 ﻿@page "/"
 
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
+@inject NavigationManager Navigation
+
+
+
 @using DaimlerConfig.Components.Models
 
 <h1>Select Station</h1>
@@ -56,7 +60,7 @@
 
                     else
                     {
-                        <button class="area-title">
+                        <button class="area-title" @onclick="@(() => NavigateToLine(line.lineName))">
                             @line.lineName : (@line.lastModified)
                         </button>
                     }
@@ -214,5 +218,11 @@
         isDuplicateName = false;
         ApplyFilters();
     }
+
+    private void NavigateToLine(string lineName)
+    {
+        Navigation.NavigateTo($"/line/{Uri.EscapeDataString(lineName)}");
+    }
+
 
 }
