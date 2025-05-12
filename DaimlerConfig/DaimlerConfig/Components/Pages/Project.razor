@@ -1,4 +1,4 @@
-﻿@page "/line/{lineName}"
+﻿@page "/"
 
 
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
@@ -135,7 +135,7 @@
             SidebarClass = "collapsed";
     }
 
-    [Parameter]
+    /*[Parameter]
     public string lineName { get; set; } = "";
 
     private Line? line;
@@ -143,6 +143,6 @@
     protected override async Task OnInitializedAsync()
     {
         line = await Fassade.GetLineByName(lineName);
-    }
+    }*/
 	
 }
