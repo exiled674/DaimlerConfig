@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DaimlerConfig.Components.Repositories;
-using Microsoft.AspNetCore.Components;
+﻿using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Models;
-
 
 
 
@@ -18,8 +11,6 @@ namespace DaimlerConfig.Components.Fassade
         public IOperationRepository OperationRepository { get; private set; }
         public IStationRepository StationRepository { get; private set; }
         public IRepository<Line> LineRepository { get; private set; }
-
-
 
         public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository)
         {
@@ -40,11 +31,11 @@ namespace DaimlerConfig.Components.Fassade
             return await LineRepository.getAllOrderedByDate();
         }
 
-
         public async Task<Line?> GetLineByName(string lineName)
         {
             return await LineRepository.GetByName(lineName);
         }
+
         public async Task AddLine(Line line)
         {
             await LineRepository.Add(line);
@@ -66,10 +57,8 @@ namespace DaimlerConfig.Components.Fassade
         }
         #endregion
 
-
         #region Station
-
-        public async Task<IEnumerable<Station>> GetStationsFromLine(int lineID) 
+        public async Task<IEnumerable<Station>> GetStationsFromLine(int lineID)
         {
             return await StationRepository.GetStationsFromLine(lineID);
         }
@@ -137,9 +126,6 @@ namespace DaimlerConfig.Components.Fassade
         {
             return await OperationRepository.ExistsByName(name);
         }
-        #endregion 
+        #endregion
     }
-
-
-
 }

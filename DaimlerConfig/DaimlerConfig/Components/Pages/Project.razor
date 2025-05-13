@@ -186,7 +186,7 @@
     {
         if (isNewTool)
         {
-            selectedTool = new Tool();  // Erstelle ein neues Tool, wenn es ein neues Tool ist
+            selectedTool = new Tool{ stationID = selectedStation.stationID};  // Erstelle ein neues Tool, wenn es ein neues Tool ist
         }
         showToolFormular = !showToolFormular;
         showOperationFormular = false;
@@ -217,7 +217,7 @@
     {
         if (isNewOperation)
         {
-            selectedOperation = new Operation();  // Erstelle eine neue Operation, wenn es eine neue Operation ist
+            selectedOperation = new Operation { toolID = selectedTool.toolID};  // Erstelle eine neue Operation, wenn es eine neue Operation ist
         }
         showOperationFormular = !showOperationFormular;
         showToolFormular = false;
@@ -251,7 +251,10 @@
     {
         if (testBool)
         {
-            selectedStation = new Station();
+            selectedStation = new Station
+                {
+                    lineID = line.lineID  // Setze die lineID beim Erstellen
+                };
         }
         showStationFormular = true;
         showToolFormular = false;
