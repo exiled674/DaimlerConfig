@@ -1,16 +1,19 @@
-﻿<div>
+﻿@using DaimlerConfig.Components.Models
+
+
+<div>
 	<h2>Station</h2>
 	<div class="layout">
 		<div class="toolColoumn">
 
 			<label>Assemblystation:</label>
-			<input class="input-field" type="text" value="" />
+			<input class="input-field" type="text" @bind="SelectedStation.assemblystation" />
 
 			<label>Assemblystation Description:</label>
-			<input class="input-field" type="text" />
+			<input class="input-field" type="text" @bind="SelectedStation.stationName" />
 
 			<label>Station Type:</label>
-			<input class="input-field" type="text" />
+			<input class="input-field" type="text" @bind="SelectedStation.stationTypeID" />
 		</div>
 
 	</div>
@@ -18,5 +21,7 @@
 </div>
 
 @code {
-
+	[Parameter]
+	public Station? SelectedStation { get; set; }
 }
+
