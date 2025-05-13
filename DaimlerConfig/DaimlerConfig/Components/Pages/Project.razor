@@ -28,12 +28,13 @@
                 @foreach (var station in stations)
                 {
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link @(selectedStation?.stationID == station.stationID ? "active" : "")"
-                           @onclick="() => SelectStation(station)">
+                        <button class="sidebar-link btn btn-link w-100 text-start @(selectedStation?.stationID == station.stationID ? "active" : "")"
+                                @onclick="() => SelectStation(station)">
                             <span>@station.stationName</span>
-                        </a>
+                        </button>
                     </li>
                 }
+
 
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link">
