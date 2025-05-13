@@ -109,8 +109,9 @@
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular SelectedStation="selectedStation" />
+                        <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations" />
                     }
+
 
                 </div>
             </main>
@@ -222,4 +223,15 @@
         showToolFormular = false;
         showOperationFormular = false;
     }
+
+    private async Task ReloadStations()
+    {
+        if (line != null)
+        {
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+            Console.WriteLine("Stationen neu geladen nach Update.");
+            StateHasChanged(); 
+        }
+    }
+
 }

@@ -22,13 +22,16 @@
 	[Parameter]
 	public Station? SelectedStation { get; set; }
 
+	
+	[Parameter]
+	public EventCallback OnUpdated { get; set; }
+
 	private async Task UpdateStationAsync()
 	{
 		if (SelectedStation != null)
 		{
 			await Fassade.UpdateStation(SelectedStation);
+			await OnUpdated.InvokeAsync(); 
 		}
 	}
-
-
 }
