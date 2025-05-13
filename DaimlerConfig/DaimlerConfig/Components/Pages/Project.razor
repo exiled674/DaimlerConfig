@@ -107,12 +107,12 @@
 
                     @if (showOperationFormular)
                     {
-                            <OperationFormular SelectedOperation="selectedOperation" OnUpdated="ReloadOperations"/>
+                            <OperationFormular SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" />
                     }
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                            <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations" />
+                            <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
                     }
                 </div>
             </main>

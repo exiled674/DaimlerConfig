@@ -60,6 +60,13 @@
 
                 <label>Byte Pre Check:</label>
                 <input class="input-field" type="text"  />
+
+                @if (SelectedTool.toolID == 0)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm">Create</button>
+                    </div>
+                }
             </div>
         </div>
     </div>
