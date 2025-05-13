@@ -104,12 +104,12 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular)
                     {
-                        <ToolFormular />
+                        <ToolFormular SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
                     }
 
                     @if (showOperationFormular)
                     {
-                        <OperationFormular />
+                        <OperationFormular SelectedOperation="selectedOperation" OnUpdated="ReloadOperations"/>
                     }
 
                     @if (showStationFormular && selectedStation != null)
@@ -244,6 +244,26 @@
             stations = await Fassade.GetStationsFromLine(line.lineID);
             
             StateHasChanged(); 
+        }
+    }
+
+    private async Task ReloadTools()
+    {
+        if (line != null)
+        {
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task ReloadOperations()
+    {
+        if (line != null)
+        {
+            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+
+            StateHasChanged();
         }
     }
 
