@@ -80,15 +80,15 @@
                                             <div class="tool-header d-flex justify-content-between align-items-center">
                                                 <span class="clickable" @onclick="() => SelectTool(tool)">@tool.toolShortname</span>
                                                 <div>
-                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => ToggleToolFormular(false)">Edit</button>
+                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => ToggleToolFormular(false)">+</button>
                                                 </div>
                                             </div>
-
+                                    <div class="operation-list">
                                     @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                     {
                                                     <div class="operation-section d-flex justify-content-between align-items-center">
                                                         <span class="clickable" @onclick="() => SelectOperation(operation)">@operation.operationShortname</span>
-                                                        <button class="btn btn-secondary btn-sm" @onclick="() => ToggleOperationFormular(false)">Edit</button>
+                                                        
                                                     </div>
                                     }
                                     </div>
