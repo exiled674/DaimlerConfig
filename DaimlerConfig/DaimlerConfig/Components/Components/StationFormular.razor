@@ -1,5 +1,5 @@
 ﻿@using DaimlerConfig.Components.Models
-
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 <div>
 	<h2>Station</h2>
@@ -7,21 +7,28 @@
 		<div class="toolColoumn">
 
 			<label>Assemblystation:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.assemblystation" />
+			<input class="input-field" type="text" @bind="SelectedStation.assemblystation" @onblur="UpdateStationAsync" />
 
 			<label>Assemblystation Description:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationName" />
+			<input class="input-field" type="text" @bind="SelectedStation.stationName" @onblur="UpdateStationAsync" />
 
 			<label>Station Type:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationTypeID" />
+			<input class="input-field" type="text" @bind="SelectedStation.stationTypeID" @onblur="UpdateStationAsync" />
 		</div>
-
 	</div>
-
 </div>
 
 @code {
 	[Parameter]
 	public Station? SelectedStation { get; set; }
-}
 
+	private async Task UpdateStationAsync()
+	{
+		if (SelectedStation != null)
+		{
+			await Fassade.UpdateStation(SelectedStation);
+		}
+	}
+
+
+}
