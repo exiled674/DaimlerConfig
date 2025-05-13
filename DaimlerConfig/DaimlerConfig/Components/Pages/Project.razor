@@ -1,0 +1,107 @@
+﻿@page "/line/{lineName}"
+
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+@using DaimlerConfig.Components.Models
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar fixed-top bg-white border-bottom">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h2">Project: Area_B02_Main</span>
+        </div>
+    </nav>
+
+
+    <div class="d-flex sidebar bg-white">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="@SidebarClass border-end ">
+            <ul class="sidebar-nav p-0">
+                <li class="sidebar-item">
+                    <a href="/" class="sidebar-link">
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="sidebar-header">
+                    Stations
+                </li>
+                @foreach (var station in stations)
+                {
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span>@station.stationName</span>
+                        </a>
+                    </li>
+                }
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <i class="lni lni-plus"></i>
+                        <span>Add Station</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Sidebar ends-->
+        <!-- Main Content -->
+        <div class="main">
+            <nav class="navbar navbar-expand">
+                <button class="toggler-btn" @onclick="ToggleSidebar" type="button">
+                    <i class="lni lni-menu-hamburger-1"></i>
+                </button>
+                <h5><span>@line?.lineName</span></h5>
+            </nav>
+            <main class="p-3">
+                <div class="tool-operation-panel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6>Tools and Operations</h6>
+                        <button class="btn btn-primary btn-sm" id="btnAddTool">+ Tool</button>
+                    </div>
+
+                    <div id="toolsList">
+                        <div class="tool-section" data-tool-id="1">
+                            <div class="tool-header d-flex justify-content-between align-items-center">
+                                <span>Tool1</span>
+                                <div>
+                                    <button class="btn btn-secondary btn-sm mr-2">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-panel"></div>
+            </main>
+        </div>
+    </div>
+
+</body>
+
+@code {
+    private string SidebarClass { get; set; } = string.Empty;
+    private void ToggleSidebar()
+    {
+        if (SidebarClass.Contains("collapsed"))
+            SidebarClass = string.Empty;
+        else
+            SidebarClass = "collapsed";
+    }
+
+    [Parameter]
+    public string lineName { get; set; } = "";
+
+    private Line? line;
+    private IEnumerable<Station> stations = Enumerable.Empty<Station>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Hole die Line nach dem Namen
+        line = await Fassade.GetLineByName(lineName);
+        Console.WriteLine($"Line: {line?.lineName}");
+
+        if (line != null)
+        {
+            // Hole die Stationen für die Line
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+        }
+    }
+}

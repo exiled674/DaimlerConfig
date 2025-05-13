@@ -9,7 +9,7 @@ namespace DaimlerConfig.Components.Repositories
 {
     public interface IStationRepository : IRepository<Station>
     {
-        
+        public  Task<IEnumerable<Station>> GetStationsFromLine(int lineID);
 
     }
 }

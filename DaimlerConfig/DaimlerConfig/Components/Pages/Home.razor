@@ -1,51 +1,228 @@
 ﻿@page "/"
-@inject DaimlerConfig.Components.Repositories.IRepository<DaimlerConfig.Components.Models.Station> StationRepo
 
-<h3>Station Details (ID = 6)</h3>
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+@inject NavigationManager Navigation
 
-@if (station is null)
-{
-    <p>Lade Station...</p>
-}
-else
-{
-    <div>
-        <p><strong>Assemblystation:</strong> @station.assemblystation</p>
-        <p><strong>Station Name:</strong> @station.stationName</p>
-        <p><strong>StationType ID:</strong> @station.StationType_stationTypeID</p>
-        <p><strong>Last Modified:</strong> @station.lastModified</p>
+
+
+@using DaimlerConfig.Components.Models
+
+<h1>Select Station</h1>
+
+<div class="ProjectManager">
+    <div class="row">
+        <div class="col">
+            <form class="search-form">
+                <div class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                    </svg>
+                </div>
+                <input class="search-input" type="text" placeholder="Search" @oninput="OnSearchTextChanged" value="@searchText">
+            </form>
+        </div>
+        <div class="col">
+            <select class="search-input" @onchange="OnSortChanged">
+                <option value="date" selected>Sorted by date descending</option>
+                <option value="name">Sorted by name ascending</option>
+            </select>
+        </div>
     </div>
-}
 
-<h3>Alle Stationen (nach lastModified sortiert)</h3>
-
-@if (sortedStations is null)
-{
-    <p>Lade Stationen...</p>
-}
-else if (!sortedStations.Any())
-{
-    <p>Keine Stationen gefunden.</p>
-}
-else
-{
-    <ul>
-        @foreach (var s in sortedStations)
+    <div class="projects">
+        <p class="lineLabel">Lines:</p>
+        @if (FilteredLines is not null && FilteredLines.Any())
         {
-            <li>
-                <strong>@s.stationName</strong> – @s.lastModified
-            </li>
+            foreach (var line in FilteredLines)
+            {
+                <div class="area-header">
+                    @if (EditingLines.Contains(line))
+                    {
+                        <div class="edit-line-container">
+                            <input class="edit-input @(isDuplicateName ? "invalid-input" : "")"
+                            value="@line.lineName"
+                            @onchange="e => ConfirmEdit(line, e)"
+                            autofocus />
+                            <button class="cancel-edit-btn" title="Abbrechen" @onclick="() => CancelEdit(line)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 
+                                             .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 
+                                             2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                            @if (isDuplicateName)
+                            {
+                                <p class="error-text">The name already exists.</p>
+                            }
+                        </div>
+                    }
+
+                    else
+                    {
+                        <button class="area-title" @onclick="@(() => NavigateToLine(line.lineName))">
+                            @line.lineName : (@line.lastModified)
+                        </button>
+                    }
+
+                    <div class="context-container">
+                        <button class="three-dots-btn" @onclick="() => ToggleContextMenu(line)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                            </svg>
+                        </button>
+
+                        @if (ActiveContextMenuLine == line)
+                        {
+                            <div class="context-menu">
+                                <button @onclick="() => StartEditing(line)">Edit</button>
+                                <button @onclick="() => DeleteLine(line)">Delete</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         }
-    </ul>
-}
+        else
+        {
+            <p>Keine Lines gefunden.</p>
+        }
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <button class="import-button">
+                <span class="plus-icon">+</span>
+                Import Similar Project
+            </button>
+        </div>
+        <div class="col">
+            <button class="import-button" @onclick="CreateNewLine">
+                <span class="plus-icon">+</span>
+                Create Empty Project
+            </button>
+        </div>
+    </div>
+</div>
 
 @code {
-    private DaimlerConfig.Components.Models.Station? station;
-    private IEnumerable<DaimlerConfig.Components.Models.Station>? sortedStations;
+    private List<Line> AllLines = new();
+    private List<Line> FilteredLines = new();
+    private HashSet<Line> EditingLines = new();
+    private string searchText = "";
+    private string selectedSort = "date";
+    private bool isDuplicateName = false;
+    private Line? ActiveContextMenuLine = null;
+
+    private void ToggleContextMenu(Line line)
+    {
+        if (ActiveContextMenuLine == line)
+            ActiveContextMenuLine = null;
+        else
+            ActiveContextMenuLine = line;
+    }
+
+    private void StartEditing(Line line)
+    {
+        EditingLines.Add(line);
+        ActiveContextMenuLine = null;
+    }
+
+    private async Task DeleteLine(Line line)
+    {
+        await Fassade.DeleteLine(line);
+        AllLines.Remove(line);
+        EditingLines.Remove(line);
+        ActiveContextMenuLine = null;
+        ApplyFilters();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        station = await StationRepo.Get(6);
-        sortedStations = await StationRepo.getAllOrderedByDate();
+        var result = await Fassade.LineRepository.GetAll();
+        AllLines = result.ToList();
+        ApplyFilters();
     }
+
+    private void OnSearchTextChanged(ChangeEventArgs e)
+    {
+        searchText = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void OnSortChanged(ChangeEventArgs e)
+    {
+        selectedSort = e.Value?.ToString() ?? "date";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = AllLines
+            .Where(line => line.lineName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
+
+        FilteredLines = selectedSort switch
+        {
+            "name" => filtered.OrderBy(l => l.lineName).ToList(),
+            "date" => filtered.OrderByDescending(l => l.lastModified).ToList(),
+            _ => filtered.ToList()
+        };
+    }
+
+    private void CreateNewLine()
+    {
+        var newLine = new Line
+            {
+                lineName = "Enter a name",
+                lastModified = DateTime.Now
+            };
+        AllLines.Insert(0, newLine);
+        EditingLines.Add(newLine);
+        ApplyFilters();
+    }
+
+    private async Task ConfirmEdit(Line line, ChangeEventArgs e)
+    {
+        var newName = e.Value?.ToString()?.Trim();
+        isDuplicateName = await Fassade.LineExistsByName(newName);
+
+        if (!string.IsNullOrEmpty(newName) && newName != "Enter a name" && !isDuplicateName)
+        {
+            line.lineName = newName;
+            line.lastModified = DateTime.Now;
+
+            if (line.lineID == 0) // ❗ prüft, ob es eine neue Line ist
+            {
+                await Fassade.LineRepository.Add(line);
+            }
+            else
+            {
+                await Fassade.LineRepository.Update(line);
+            }
+
+            EditingLines.Remove(line);
+            ApplyFilters();
+        }
+    }
+
+
+    private void CancelEdit(Line line)
+    {
+        if (line.lineName == "Enter a name")
+        {
+            // Bei neu erstellten Lines: löschen
+            AllLines.Remove(line);
+        }
+
+        EditingLines.Remove(line);
+        isDuplicateName = false;
+        ApplyFilters();
+    }
+
+    private void NavigateToLine(string lineName)
+    {
+        Navigation.NavigateTo($"/line/{Uri.EscapeDataString(lineName)}");
+    }
+
+
 }
