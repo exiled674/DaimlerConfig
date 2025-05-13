@@ -60,7 +60,11 @@
                 <div class="tool-operation-panel p-5" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
-                        <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
+                        @if(selectedStation != null)
+                        {
+                            <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
+                        }
+                        
                     </div>
 
                     <div id="toolsList">
@@ -80,7 +84,10 @@
                                             <div class="tool-header d-flex justify-content-between align-items-center">
                                                 <span class="clickable" @onclick="() => SelectTool(tool)">@tool.toolShortname</span>
                                                 <div>
+                                                    @if(selectedTool != null) {
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="() => ToggleOperationFormular(true)">+</button>
+                                                    }
+                                                    
                                                 </div>
                                             </div>
                                     <div class="operation-list">
@@ -155,8 +162,10 @@
     private async Task SelectStation(Station station)
     {
         selectedStation = station;
+		selectedTool = null;  // Setze das ausgewählte Tool zurück
+		selectedOperation = null;  // Setze die ausgewählte Operation zurück
 
-        tools = await Fassade.GetToolsFromStation(station.stationID);
+		tools = await Fassade.GetToolsFromStation(station.stationID);
 
         StateHasChanged();
     }
@@ -171,8 +180,9 @@
     private async Task SelectTool(Tool tool)
     {
         selectedTool = tool;  // Setze das ausgewählte Tool
+		selectedOperation = null;  // Setze die ausgewählte Operation zurück
 
-        tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
+		tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
 
         // Zeige das Tool-Formular an
         showToolFormular = true;
