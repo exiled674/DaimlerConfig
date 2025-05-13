@@ -156,7 +156,7 @@
        
         tools = await Fassade.GetToolsFromStation(station.stationID);
 
-        Console.WriteLine($"Ausgewählte Station: {station.stationName}, Tools geladen: {tools.Count()}");
+        
 
         StateHasChanged(); 
     }
@@ -172,7 +172,7 @@
 
         operations = await Fassade.GetOperationsFromTool(tool.toolID);
 
-        Console.WriteLine($"Tool ausgewählt: {tool.toolShortname}, Operationen geladen: {operations.Count()}");
+        
 
         StateHasChanged();
     }
@@ -229,7 +229,7 @@
         if (line != null)
         {
             stations = await Fassade.GetStationsFromLine(line.lineID);
-            Console.WriteLine("Stationen neu geladen nach Update.");
+            
             StateHasChanged(); 
         }
     }
