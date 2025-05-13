@@ -73,6 +73,11 @@ namespace DaimlerConfig.Components.Fassade
         {
             return await StationRepository.GetStationsFromLine(lineID);
         }
+
+        public async Task UpdateStation(Station station)
+        {
+            await StationRepository.Update(station);
+        }
         #endregion
 
         #region Tool
@@ -86,6 +91,11 @@ namespace DaimlerConfig.Components.Fassade
         public async Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
         {
             return await OperationRepository.GetOperationsFromTool(toolID);
+        }
+
+        public async Task<IEnumerable<Operation>> GetAllOperations()
+        {
+            return await OperationRepository.GetAll();
         }
         #endregion 
     }

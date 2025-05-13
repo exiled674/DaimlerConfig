@@ -1,22 +1,37 @@
-﻿<div>
+﻿@using DaimlerConfig.Components.Models
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+<div>
 	<h2>Station</h2>
 	<div class="layout">
 		<div class="toolColoumn">
 
 			<label>Assemblystation:</label>
-			<input class="input-field" type="text" value="" />
+			<input class="input-field" type="text" @bind="SelectedStation.assemblystation" @onblur="UpdateStationAsync" />
 
 			<label>Assemblystation Description:</label>
-			<input class="input-field" type="text" />
+			<input class="input-field" type="text" @bind="SelectedStation.stationName" @onblur="UpdateStationAsync" />
 
 			<label>Station Type:</label>
-			<input class="input-field" type="text" />
+			<input class="input-field" type="text" @bind="SelectedStation.stationTypeID" @onblur="UpdateStationAsync" />
 		</div>
-
 	</div>
-
 </div>
 
 @code {
+	[Parameter]
+	public Station? SelectedStation { get; set; }
 
+	
+	[Parameter]
+	public EventCallback OnUpdated { get; set; }
+
+	private async Task UpdateStationAsync()
+	{
+		if (SelectedStation != null)
+		{
+			await Fassade.UpdateStation(SelectedStation);
+			await OnUpdated.InvokeAsync(); 
+		}
+	}
 }

@@ -32,15 +32,15 @@
                 {
                     <li class="sidebar-item">
                         <a  class="sidebar-link @(selectedStation?.stationID == station.stationID ? "active" : "")"
-                           @onclick="() => SelectStation(station)">
+                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                             <span>@station.stationName</span>
                         </a>
                     </li>
                 }
 
-                
+
                 <li class="sidebar-item">
-                    <a  class="sidebar-link" @onclick=ToggleStationFormular>
+                    <a  class="sidebar-link" @onclick="() => ToggleStationFormular(true)">
                         <i class="lni lni-plus"></i>
                         <span>Add Station</span>
                     </a>
@@ -83,14 +83,14 @@
                                     <div class="tool-header d-flex justify-content-between align-items-center">
                                         <span class="clickable" @onclick="@(() => SelectTool(tool))">@tool.toolShortname</span>
                                         <div>
-                                            <button class="btn btn-secondary btn-sm mr-2">+</button> 
+                                            <button class="btn btn-secondary btn-sm mr-2">+</button>
                                         </div>
                                     </div>
 
-                                    @foreach (var operation in operations.Where(op => op.toolID == tool.toolID))
+                                    @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                     {
                                         <div class="operation-section d-flex justify-content-between align-items-center">
-                                            <span class="clickable">@operation.operationShortname</span>   
+                                            <span class="clickable">@operation.operationShortname</span>
                                             <button class="btn btn-secondary btn-sm">Edit</button>
                                         </div>
                                     }
@@ -112,10 +112,12 @@
                         <OperationFormular />
                     }
 
-                    @if (showStationFormular)
+                    @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular />
+                        <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations" />
                     }
+
+
                 </div>
             </main>
         </div>
@@ -160,10 +162,10 @@
     {
         selectedStation = station;
 
-       
+
         tools = await Fassade.GetToolsFromStation(station.stationID);
 
-        Console.WriteLine($"Ausgewählte Station: {station.stationName}, Tools geladen: {tools.Count()}");
+
 
         StateHasChanged(); 
     }
@@ -181,7 +183,7 @@
 
         operations = await Fassade.GetOperationsFromTool(tool.toolID);
 
-        Console.WriteLine($"Tool ausgewählt: {tool.toolShortname}, Operationen geladen: {operations.Count()}");
+
 
         StateHasChanged();
     }
@@ -190,6 +192,7 @@
 
     #region Operation
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
+    private IEnumerable<Operation> allOperations; 
     #endregion
 
 
@@ -198,14 +201,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
+
         line = await Fassade.GetLineByName(lineName);
-        Console.WriteLine($"Line: {line?.lineName}");
+       
 
         if (line != null)
         {
-            
+
             stations = await Fassade.GetStationsFromLine(line.lineID);
+			if (stations != null)
+        {
+            allOperations = await Fassade.GetAllOperations();
+        }
         }
     }
 
@@ -238,22 +245,27 @@
         showOperationFormular = true;
         showToolFormular = false;
         showStationFormular = false;
-    }-->
+        // Du kannst hier auch den aktuellen Tool-Id speichern, wenn nötig
+    }
 
-
-
-
-    public void ToggleStationFormular()
+    public void ToggleStationFormular(bool testBool)
     {
+        if(testBool) {
+            selectedStation = new Station();
+        }
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
     }
 
-    private int GenerateOperationId()
+    private async Task ReloadStations()
     {
-        if (operations.Any())
-            return operations.Max(o => o.operationID) + 1;
-        return 1;
+        if (line != null)
+        {
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+            
+            StateHasChanged(); 
+        }
     }
+
 }
