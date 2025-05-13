@@ -58,6 +58,7 @@
                 <h5><span>@line?.lineName</span></h5>
             </nav>
             <main class="p-3 pb-0 d-flex gap-3">
+
                 <!-- Linke Spalte: Tools und Operationen -->
                 <div class="tool-operation-panel" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -80,18 +81,23 @@
                             {
                                 <div class="tool-section" data-tool-id="@tool.toolID">
                                     <div class="tool-header d-flex justify-content-between align-items-center">
-                                        <span>@tool.toolShortname</span>
+                                        <span class="clickable" @onclick="@(() => SelectTool(tool))">@tool.toolShortname</span>
                                         <div>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => OpenOperationFormular(1))">+</button>
+                                            <button class="btn btn-secondary btn-sm mr-2">+</button> 
                                         </div>
-
-
                                     </div>
+
+                                    @foreach (var operation in operations.Where(op => op.toolID == tool.toolID))
+                                    {
+                                        <div class="operation-section d-flex justify-content-between align-items-center">
+                                            <span class="clickable">@operation.operationShortname</span>   
+                                            <button class="btn btn-secondary btn-sm">Edit</button>
+                                        </div>
+                                    }
                                 </div>
                             }
                         }
                     </div>
-
                 </div>
 
                 <!-- Rechte Spalte: Content -->
@@ -134,12 +140,16 @@
     #endregion
 
 
+
+
     #region Line
     [Parameter]
     public string lineName { get; set; } = "";
 
     private Line? line;
     #endregion
+
+
 
 
     #region Stations
@@ -158,6 +168,8 @@
         StateHasChanged(); 
     }
     #endregion
+
+
 
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
@@ -182,6 +194,8 @@
 
 
 
+
+
     protected override async Task OnInitializedAsync()
     {
         
@@ -202,22 +216,44 @@
     private void ToggleToolFormular()
     {
         showToolFormular = !showToolFormular;
-        showOperationFormular = false; // nur eins gleichzeitig offen
+        showOperationFormular = false; 
         showStationFormular = false;
     }
 
+
+
+    <!--
     private void OpenOperationFormular(int toolId)
     {
+        var newOperation = new Operation
+            {
+                operationID = GenerateOperationId(),
+                operationShortname = newOperation.operationShortname,
+                toolID = toolId
+            };
+
+        // Achtung: tools ist ein IEnumerable → wir brauchen eine Liste zum Hinzufügen
+        operations = operations.Append(newOperation).ToList();
+
         showOperationFormular = true;
         showToolFormular = false;
-		showStationFormular = false;
-        // Du kannst hier auch den aktuellen Tool-Id speichern, wenn nötig
-    }
+        showStationFormular = false;
+    }-->
+
+
+
 
     public void ToggleStationFormular()
     {
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
+    }
+
+    private int GenerateOperationId()
+    {
+        if (operations.Any())
+            return operations.Max(o => o.operationID) + 1;
+        return 1;
     }
 }

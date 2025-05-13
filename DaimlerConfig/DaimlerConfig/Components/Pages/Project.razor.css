@@ -95,3 +95,13 @@ a.sidebar-link:hover{
 main {
     min-height: 89vh;
 }
+
+
+.clickable {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+    .clickable:hover {
+        text-decoration: none;
+    }
