@@ -186,7 +186,14 @@
 
     #region Operation
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
-    private IEnumerable<Operation> allOperations; 
+    private IEnumerable<Operation> allOperations;
+    private Operation? selectedOperation;  // selectedOperation hinzugefügt
+
+    private async Task SelectOperation(Operation operation)
+    {
+        selectedOperation = operation;  // selectedOperation zuweisen
+        StateHasChanged();
+    }
     #endregion
 
 
