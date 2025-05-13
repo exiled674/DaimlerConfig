@@ -72,7 +72,14 @@ namespace DaimlerConfig.Components.Fassade
         {
             return await StationRepository.GetStationsFromLine(lineID);
         }
-        #endregion 
+        #endregion
+
+        #region Tool
+        public async Task<IEnumerable<Tool>> GetAllToolsAsync()
+        {
+            return await ToolRepository.GetAll();
+        }
+        #endregion
     }
 
 

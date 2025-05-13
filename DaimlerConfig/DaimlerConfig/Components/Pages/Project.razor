@@ -28,11 +28,13 @@
                 @foreach (var station in stations)
                 {
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">
+                        <a href="#" class="sidebar-link @(selectedStation?.stationID == station.stationID ? "active" : "")"
+                           @onclick="() => SelectStation(station)">
                             <span>@station.stationName</span>
                         </a>
                     </li>
                 }
+
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link">
                         <i class="lni lni-plus"></i>
@@ -77,6 +79,8 @@
 </body>
 
 @code {
+
+    #region SideBar
     private string SidebarClass { get; set; } = string.Empty;
     private void ToggleSidebar()
     {
@@ -85,21 +89,46 @@
         else
             SidebarClass = "collapsed";
     }
+    #endregion
 
+
+    #region Line
     [Parameter]
     public string lineName { get; set; } = "";
 
     private Line? line;
+    #endregion
+
+
+    #region Stations
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
+    private Station? selectedStation;
+
+    private async Task SelectStation(Station station)
+    {
+        selectedStation = station;
+
+       
+        tools = await Fassade.GetToolsFromStation(station.stationID);
+
+        Console.WriteLine($"Ausgewählte Station: {station.stationName}, Tools geladen: {tools.Count()}");
+
+        StateHasChanged(); 
+    }
+    #endregion
+
+    #region Tools
+    private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
+    #endregion
 
     protected override async Task OnInitializedAsync()
     {
-        // Hole die Line nach dem Namen
+        
         line = await Fassade.GetLineByName(lineName);
 
         if (line != null)
         {
-            // Hole die Stationen für die Line
+            
             stations = await Fassade.GetStationsFromLine(line.lineID);
         }
     }
