@@ -1,0 +1,89 @@
+﻿<div>
+    <h2>Operation</h2>
+    <div class="layout">
+        <div class="toolColoumn">
+            <label>Operation ID:</label>
+            <input class="input-field" type="text" @bind="OperationId" readonly />
+
+            <label>Operation Shortname:</label>
+            <input class="input-field" type="text" @bind="OperationShortname" />
+
+            <label>Operation Description:</label>
+            <input class="input-field" type="text" @bind="OperationDescription" />
+        </div>
+
+        <div class="toolColoumn">
+            <label>Serial Parallel</label>
+            <select class="input-field" @bind="SerialParallel">
+                <option value="">Select</option>
+                <option value="Serial">Serial</option>
+                <option value="Parallel">Parallel</option>
+            </select>
+
+            <label>Operation Sequenz</label>
+            <input class="input-field" type="text" @bind="OperationSequenz" />
+
+            <label>Operation Sequenz Group</label>
+            <input class="input-field" type="text" @bind="OperationSequenzGroup" />
+        </div>
+    </div>
+    <hr />
+    <div>
+        <h3>Classes</h3>
+        <div class="layout">
+            <div class="toolColoumn">
+                <label>Decision Class:</label>
+                <select class="input-field" @bind="DecisionClass">
+                    <option value="">Select</option>
+                    <option value="Serial">Serial</option>
+                    <option value="Parallel">Parallel</option>
+                </select>
+
+                <label>Generation Class:</label>
+                <select class="input-field" @bind="GenerationClass">
+                    <option value="">Select</option>
+                    <option value="Serial">Serial</option>
+                    <option value="Parallel">Parallel</option>
+                </select>
+            </div>
+
+            <div class="toolColoumn">
+                <label>Verification Class:</label>
+                <select class="input-field" @bind="VerificationClass">
+                    <option value="">Select</option>
+                    <option value="Serial">Serial</option>
+                    <option value="Parallel">Parallel</option>
+                </select>
+
+                <label>Saving Class:</label>
+                <select class="input-field" @bind="SavingClassSelect">
+                    <option value="">Select</option>
+                    <option value="Serial">Serial</option>
+                    <option value="Parallel">Parallel</option>
+                </select>
+            </div>
+
+            <div class="toolColoumn">
+                <label>Saving Class:</label>
+                <textarea class="input-field" rows="4" cols="25" placeholder="Gib deinen Text hier ein..." @bind="SavingClassText"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string OperationId { get; set; } = "27";
+    private string OperationShortname { get; set; } = "Operation 1";
+    private string OperationDescription { get; set; }
+
+    private string SerialParallel { get; set; }
+    private string OperationSequenz { get; set; }
+    private string OperationSequenzGroup { get; set; }
+
+    private string DecisionClass { get; set; }
+    private string GenerationClass { get; set; }
+    private string VerificationClass { get; set; }
+    private string SavingClassSelect { get; set; }
+    private string SavingClassText { get; set; }
+
+}
