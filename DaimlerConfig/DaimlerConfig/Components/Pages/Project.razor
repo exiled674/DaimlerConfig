@@ -12,13 +12,11 @@
         </div>
     </nav>
 
-
     <div class="d-flex sidebar bg-white">
         <!-- Sidebar -->
         <aside id="sidebar" class="@SidebarClass border-end ">
 
             <ul class="sidebar-nav p-0">
-
                 <li class="sidebar-item">
                     <a href="/" class="sidebar-link">
                         <span>Home</span>
@@ -37,7 +35,6 @@
                         </a>
                     </li>
                 }
-
 
                 <li class="sidebar-item">
                     <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
@@ -63,36 +60,36 @@
                 <div class="tool-operation-panel p-5" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
-                        <button class="btn btn-primary btn-sm" @onclick="ToggleToolFormular">+ Tool</button>
+                        <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
                     </div>
 
                     <div id="toolsList">
                         @if (selectedStation == null)
                         {
-                            <p>Bitte eine Station auswählen.</p>
+                                <p>Bitte eine Station auswählen.</p>
                         }
                         else if (!tools.Any())
                         {
-                            <p>Keine Tools für @selectedStation.stationName gefunden.</p>
+                                <p>Keine Tools für @selectedStation.stationName gefunden.</p>
                         }
                         else
                         {
                             @foreach (var tool in tools)
                             {
-                                <div class="tool-section" data-tool-id="@tool.toolID">
-                                    <div class="tool-header d-flex justify-content-between align-items-center">
-                                        <span class="clickable" @onclick="@(() => SelectTool(tool))">@tool.toolShortname</span>
-                                        <div>
-                                            <button class="btn btn-secondary btn-sm mr-2">+</button>
-                                        </div>
-                                    </div>
-                                    <div class="operation-list">
+                                        <div class="tool-section" data-tool-id="@tool.toolID">
+                                            <div class="tool-header d-flex justify-content-between align-items-center">
+                                                <span class="clickable" @onclick="() => SelectTool(tool)">@tool.toolShortname</span>
+                                                <div>
+                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => ToggleToolFormular(false)">Edit</button>
+                                                </div>
+                                            </div>
+
                                     @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                     {
-                                        <div class="operation-section d-flex justify-content-between align-items-center">
-                                            <span class="clickable">@operation.operationShortname</span>
-                                      
-                                        </div>
+                                                    <div class="operation-section d-flex justify-content-between align-items-center">
+                                                        <span class="clickable" @onclick="() => SelectOperation(operation)">@operation.operationShortname</span>
+                                                        <button class="btn btn-secondary btn-sm" @onclick="() => ToggleOperationFormular(false)">Edit</button>
+                                                    </div>
                                     }
                                     </div>
                                 </div>
@@ -105,29 +102,25 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular)
                     {
-                        <ToolFormular />
+                            <ToolFormular SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
                     }
 
                     @if (showOperationFormular)
                     {
-                        <OperationFormular />
+                            <OperationFormular SelectedOperation="selectedOperation" OnUpdated="ReloadOperations"/>
                     }
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations" />
+                            <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations" />
                     }
-
-
                 </div>
             </main>
         </div>
 
     </div>
 
-
 </body>
-
 
 @code {
 
@@ -163,12 +156,9 @@
     {
         selectedStation = station;
 
-
         tools = await Fassade.GetToolsFromStation(station.stationID);
 
-
-
-        StateHasChanged(); 
+        StateHasChanged();
     }
     #endregion
 
@@ -180,40 +170,76 @@
 
     private async Task SelectTool(Tool tool)
     {
-        selectedTool = tool;
+        selectedTool = tool;  // Setze das ausgewählte Tool
 
-        operations = await Fassade.GetOperationsFromTool(tool.toolID);
+        tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
 
+        // Zeige das Tool-Formular an
+        showToolFormular = true;
+        showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
+        showStationFormular = false;   // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-
-        StateHasChanged();
+        StateHasChanged();  // Aktualisiere den UI-Status
     }
 
+    private void ToggleToolFormular(bool isNewTool)
+    {
+        if (isNewTool)
+        {
+            selectedTool = new Tool();  // Erstelle ein neues Tool, wenn es ein neues Tool ist
+        }
+        showToolFormular = !showToolFormular;
+        showOperationFormular = false;
+        showStationFormular = false;
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
     #endregion
 
     #region Operation
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
-    private IEnumerable<Operation> allOperations; 
+    private IEnumerable<Operation> allOperations;
+    private Operation? selectedOperation;
+
+    private async Task SelectOperation(Operation operation)
+    {
+        selectedOperation = operation;  // Setze die ausgewählte Operation
+
+        // Zeige das Operation-Formular an
+        showOperationFormular = true;
+        showToolFormular = false;  // Schließe das Tool-Formular, wenn das Operation-Formular gezeigt wird
+        showStationFormular = false;   // Schließe das Station-Formular, wenn das Operation-Formular gezeigt wird
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
+
+    private void ToggleOperationFormular(bool isNewOperation)
+    {
+        if (isNewOperation)
+        {
+            selectedOperation = new Operation();  // Erstelle eine neue Operation, wenn es eine neue Operation ist
+        }
+        showOperationFormular = !showOperationFormular;
+        showToolFormular = false;
+        showStationFormular = false;
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
     #endregion
-
-
 
 
 
     protected override async Task OnInitializedAsync()
     {
-
         line = await Fassade.GetLineByName(lineName);
-       
 
         if (line != null)
         {
-
             stations = await Fassade.GetStationsFromLine(line.lineID);
-			if (stations != null)
-        {
-            allOperations = await Fassade.GetAllOperations();
-        }
+            if (stations != null)
+            {
+                allOperations = await Fassade.GetAllOperations();
+            }
         }
     }
 
@@ -221,37 +247,10 @@
     private bool showOperationFormular = false;
     private bool showStationFormular = false;
 
-    private void ToggleToolFormular()
+    private void ToggleStationFormular(bool testBool)
     {
-        showToolFormular = !showToolFormular;
-        showOperationFormular = false; 
-        showStationFormular = false;
-    }
-
-
-
-    <!--
-    private void OpenOperationFormular(int toolId)
-    {
-        var newOperation = new Operation
-            {
-                operationID = GenerateOperationId(),
-                operationShortname = newOperation.operationShortname,
-                toolID = toolId
-            };
-
-        // Achtung: tools ist ein IEnumerable → wir brauchen eine Liste zum Hinzufügen
-        operations = operations.Append(newOperation).ToList();
-
-        showOperationFormular = true;
-        showToolFormular = false;
-        showStationFormular = false;
-        // Du kannst hier auch den aktuellen Tool-Id speichern, wenn nötig
-    }-->
-
-    public void ToggleStationFormular(bool testBool)
-    {
-        if(testBool) {
+        if (testBool)
+        {
             selectedStation = new Station();
         }
         showStationFormular = true;
@@ -264,8 +263,25 @@
         if (line != null)
         {
             stations = await Fassade.GetStationsFromLine(line.lineID);
-            
-            StateHasChanged(); 
+            StateHasChanged();
+        }
+    }
+
+    private async Task ReloadTools()
+    {
+        if (line != null)
+        {
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+            StateHasChanged();
+        }
+    }
+
+    private async Task ReloadOperations()
+    {
+        if (line != null)
+        {
+            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+            StateHasChanged();
         }
     }
 
