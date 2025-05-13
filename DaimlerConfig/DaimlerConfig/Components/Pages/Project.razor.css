@@ -41,12 +41,7 @@ a{
     color: black;
     font-weight: bold;
     }
-/*
-.sidebar-logo a {
-    color: black;
-    font-weight: 700;
-    font-size: 1rem;
-}*/
+
 
 .sidebar-nav {
     flex: 1 1 auto;
@@ -99,9 +94,53 @@ main {
 
 .clickable {
     cursor: pointer;
-    text-decoration: underline;
 }
 
     .clickable:hover {
         text-decoration: none;
+    }
+
+
+h6 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.tool-header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+    .tool-header:hover {
+        background-color: #dee2e6;
+    }
+    .tool-header.active {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+.operation-list {
+    margin-left: 20px;
+}
+
+.operation-section {
+    padding: 8px;
+    margin: 3px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    border-left: 3px solid #ced4da;
+}
+
+    .operation-section:hover {
+        background-color: #e9ecef;
+    }
+
+    .operation-section.active {
+        background-color: #cfe2ff;
+        border-left: 3px solid #0d6efd;
     }

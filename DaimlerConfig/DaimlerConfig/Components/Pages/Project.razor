@@ -31,7 +31,7 @@
                 @foreach (var station in stations)
                 {
                     <li class="sidebar-item">
-                        <a  class="sidebar-link @(selectedStation?.stationID == station.stationID ? "active" : "")"
+                        <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active" : "")"
                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                             <span>@station.stationName</span>
                         </a>
@@ -40,7 +40,7 @@
 
 
                 <li class="sidebar-item">
-                    <a  class="sidebar-link" @onclick="() => ToggleStationFormular(true)">
+                    <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
                         <i class="lni lni-plus"></i>
                         <span>Add Station</span>
                     </a>
@@ -60,7 +60,7 @@
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
-                <div class="tool-operation-panel" style="width: 500px;">
+                <div class="tool-operation-panel p-5" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
                         <button class="btn btn-primary btn-sm" @onclick="ToggleToolFormular">+ Tool</button>
@@ -86,14 +86,15 @@
                                             <button class="btn btn-secondary btn-sm mr-2">+</button>
                                         </div>
                                     </div>
-
+                                    <div class="operation-list">
                                     @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                     {
                                         <div class="operation-section d-flex justify-content-between align-items-center">
                                             <span class="clickable">@operation.operationShortname</span>
-                                            <button class="btn btn-secondary btn-sm">Edit</button>
+                                      
                                         </div>
                                     }
+                                    </div>
                                 </div>
                             }
                         }
@@ -246,7 +247,7 @@
         showToolFormular = false;
         showStationFormular = false;
         // Du kannst hier auch den aktuellen Tool-Id speichern, wenn nötig
-    }
+    }-->
 
     public void ToggleStationFormular(bool testBool)
     {
