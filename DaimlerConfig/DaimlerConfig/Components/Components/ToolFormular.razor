@@ -1,69 +1,81 @@
 ﻿<div>
-	<h2>Tool</h2>
-	<div class="layout">
-		<div class="toolColoumn">
-			<label>Tool ID:</label>
-			<input class="input-field" type="text" value="27" readonly />
+    <h2>Tool</h2>
+    <div class="layout">
+        <div class="toolColoumn">
+            <label>Tool ID:</label>
+            <input class="input-field" type="text" @bind="ToolId" readonly />
 
-			<label>Tool Shortname:</label>
-			<input class="input-field" type="text" value="Tool 1" />
+            <label>Tool Shortname:</label>
+            <input class="input-field" type="text" @bind="ToolShortname" />
 
-			<label>Tool Description:</label>
-			<input class="input-field" type="text" />
-		</div>
+            <label>Tool Description:</label>
+            <input class="input-field" type="text" @bind="ToolDescription" />
+        </div>
 
-		<div class="toolColoumn">
-			<label>Tool Class</label>
-			<select class="input-field">
-				<option>Select</option>
-				<option>Option 1</option>
-				<option>Option 2</option>
-				<option>Option 3</option>
-			</select>
+        <div class="toolColoumn">
+            <label>Tool Class</label>
+            <select class="input-field" @bind="ToolClass">
+                <option value="">Select</option>
+                <option value="Option 1">Option 1</option>
+                <option value="Option 2">Option 2</option>
+                <option value="Option 3">Option 3</option>
+            </select>
 
-			<label>Tool Type</label>
-			<select class="input-field">
-				<option>Select</option>
-				<option>Option Type 1</option>
-				<option>Option Type 2</option>
-				<option>Option Type 3</option>
-			</select>
-		</div>
-	</div>
-	<hr />
-	<div>
-		<h3>Network</h3>
-		<div class="layout">
-			<div class="toolColoumn">
-				<label>IP-Address Device:</label>
-				<input class="input-field" type="text" value="172.168.10.59" />
+            <label>Tool Type</label>
+            <select class="input-field" @bind="ToolType">
+                <option value="">Select</option>
+                <option value="Option Type 1">Option Type 1</option>
+                <option value="Option Type 2">Option Type 2</option>
+                <option value="Option Type 3">Option Type 3</option>
+            </select>
+        </div>
+    </div>
+    <hr />
+    <div>
+        <h3>Network</h3>
+        <div class="layout">
+            <div class="toolColoumn">
+                <label>IP-Address Device:</label>
+                <input class="input-field" type="text" @bind="IpAddressDevice" />
 
-				<label>PLC Name:</label>
-				<input class="input-field" ´type="text" />
+                <label>PLC Name:</label>
+                <input class="input-field" type="text" @bind="PlcName" />
 
-				<label>DBNo Send:</label>
-				<input class="input-field" type="text" />
+                <label>DBNo Send:</label>
+                <input class="input-field" type="text" @bind="DbNoSend" />
 
-				<label>DBNo Receive:</label>
-				<input class="input-field" type="text" />
-			</div>
+                <label>DBNo Receive:</label>
+                <input class="input-field" type="text" @bind="DbNoReceive" />
+            </div>
 
-			<div class="toolColoumn">
-				<label>Address in Send-DB:</label>
-				<input class="input-field" type="text" />
+            <div class="toolColoumn">
+                <label>Address in Send-DB:</label>
+                <input class="input-field" type="text" @bind="AddressSendDb" />
 
-				<label>Address in Receive-DB:</label>
-				<input class="input-field" type="text" />
+                <label>Address in Receive-DB:</label>
+                <input class="input-field" type="text" @bind="AddressReceiveDb" />
 
-				<label>Byte Pre Check:</label>
-				<input class="input-field" type="text" />
-			</div>
-		</div>
-	</div>
-
+                <label>Byte Pre Check:</label>
+                <input class="input-field" type="text" @bind="BytePreCheck" />
+            </div>
+        </div>
+    </div>
 </div>
 
-
 @code {
+    private string ToolId { get; set; } = "27";
+    private string ToolShortname { get; set; } = "Tool 1";
+    private string ToolDescription { get; set; }
 
+    private string ToolClass { get; set; }
+    private string ToolType { get; set; }
+
+    private string IpAddressDevice { get; set; } = "172.168.10.59";
+    private string PlcName { get; set; }
+    private string DbNoSend { get; set; }
+    private string DbNoReceive { get; set; }
+
+    private string AddressSendDb { get; set; }
+    private string AddressReceiveDb { get; set; }
+    private string BytePreCheck { get; set; }
 }

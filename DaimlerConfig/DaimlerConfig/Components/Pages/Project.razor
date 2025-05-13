@@ -38,22 +38,7 @@
                     </li>
                 }
 
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Station2</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Station3</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <i class="lni lni-plus"></i>
-                        <span>Add Station</span>
-                    </a>
-                </li>
+
             </ul>
         </aside>
 
@@ -91,7 +76,7 @@
                                     <div class="tool-header d-flex justify-content-between align-items-center">
                                         <span>@tool.toolShortname</span>
                                         <div>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => SelectTool(tool)">+</button>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => OpenOperationFormular(1))">+</button>
                                         </div>
 
 
