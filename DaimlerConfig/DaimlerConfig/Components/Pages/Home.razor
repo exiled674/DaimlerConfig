@@ -5,6 +5,7 @@
 
 
 
+@using DaimlerConfig.Components.JsonHandler
 @using DaimlerConfig.Components.Models
 
 <h1>Select Station</h1>
@@ -102,6 +103,12 @@
                 Create Empty Project
             </button>
         </div>
+        <div class="col">
+            <button class="import-button" @onclick="OpenExportPage">
+                <span class="plus-icon">+</span>
+                Exportseite öffnen
+            </button>
+        </div>
     </div>
 </div>
 
@@ -113,6 +120,27 @@
     private string selectedSort = "date";
     private bool isDuplicateName = false;
     private Line? ActiveContextMenuLine = null;
+    
+    private IEnumerable<Station>? _sortedStations;
+    private List<Station>? _stationsList;
+    private IEnumerable<Tool>? _sortedTools;
+    private List<Tool>? _toolsList;
+    private IEnumerable<Operation>? _sortedOperations;
+    private List<Operation>? _operationList;
+    
+    private readonly WriteJson _writeJson = new WriteJson();
+
+    //private async Task Export()
+    //{
+    //    _sortedStations = await Fassade.StationRepository.GetAll();
+    //    _stationsList = _sortedStations.ToList();
+    //    _sortedTools = await Fassade.ToolRepository.GetAll();
+    //    _toolsList = _sortedTools.ToList();
+    //    _sortedOperations = await Fassade.OperationRepository.GetAll();
+    //    _operationList = _sortedOperations.ToList();
+        
+    //    await _writeJson.WriteAllToFileAsync(_stationsList, _toolsList, _operationList,"C:\\Users\\jn\\Desktop\\export.json");
+    //}
 
     private void ToggleContextMenu(Line line)
     {
@@ -142,6 +170,7 @@
         var result = await Fassade.LineRepository.GetAll();
         AllLines = result.ToList();
         ApplyFilters();
+        
     }
 
     private void OnSearchTextChanged(ChangeEventArgs e)
@@ -168,7 +197,10 @@
             _ => filtered.ToList()
         };
     }
-
+    private void OpenExportPage()
+    {
+        Navigation.NavigateTo("/export");
+    }
     private void CreateNewLine()
     {
         var newLine = new Line

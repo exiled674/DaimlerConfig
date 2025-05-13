@@ -157,7 +157,7 @@ namespace DaimlerConfig.Components.Infrastructure
             );
 
             ";
-
+            
             conn.Execute(ddl);
 
 
