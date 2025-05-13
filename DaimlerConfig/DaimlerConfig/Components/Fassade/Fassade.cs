@@ -9,6 +9,7 @@ using DaimlerConfig.Components.Models;
 
 
 
+
 namespace DaimlerConfig.Components.Fassade
 {
     public class Fassade
@@ -71,6 +72,20 @@ namespace DaimlerConfig.Components.Fassade
         public async Task<IEnumerable<Station>> GetStationsFromLine(int lineID) 
         {
             return await StationRepository.GetStationsFromLine(lineID);
+        }
+        #endregion
+
+        #region Tool
+        public async Task<IEnumerable<Tool>> GetToolsFromStation(int stationID)
+        {
+            return await ToolRepository.GetToolsFromStation(stationID);
+        }
+        #endregion
+
+        #region Operation
+        public async Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
+        {
+            return await OperationRepository.GetOperationsFromTool(toolID);
         }
         #endregion 
     }
