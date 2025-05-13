@@ -1,4 +1,8 @@
-﻿@page "/";
+﻿@page "/line/{lineName}"
+
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+@using DaimlerConfig.Components.Models
 
 <body>
     <!-- Navbar -->
@@ -16,23 +20,26 @@
                 <a href="#">DaimlerConfig</a>
             </div>-->
             <!-- Sidebar Navigation -->
-			<ul class="sidebar-nav p-0">
+            <ul class="sidebar-nav p-0">
                 <!--<li class="sidebar-header">
                     Settings
                 </li>-->
                 <li class="sidebar-item">
-                    <a href="/test" class="sidebar-link">
+                    <a href="/" class="sidebar-link">
                         <span>Home</span>
                     </a>
                 </li>
                 <li class="sidebar-header">
                     Stations
                 </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <span>Station1</span>
-                    </a>
-                </li>
+                @foreach (var station in stations)
+                {
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <span>@station.stationName</span>
+                        </a>
+                    </li>
+                }
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link">
                         <span>Station2</span>
@@ -46,7 +53,7 @@
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link">
                         <i class="lni lni-plus"></i>
-                        <span>Station</span>
+                        <span>Add Station</span>
                     </a>
                 </li>
             </ul>
@@ -59,7 +66,7 @@
                 <button class="toggler-btn" @onclick="ToggleSidebar" type="button">
                     <i class="lni lni-menu-hamburger-1"></i>
                 </button>
-                <h5><span>Station1</span></h5>
+                <h5><span>@line?.lineName</span></h5>
             </nav>
             <main class="p-3">
                 <!-- <div class="container-fluid">
@@ -127,5 +134,23 @@
         else
             SidebarClass = "collapsed";
     }
-	
+
+    [Parameter]
+    public string lineName { get; set; } = "";
+
+    private Line? line;
+    private IEnumerable<Station> stations = Enumerable.Empty<Station>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Hole die Line nach dem Namen
+        line = await Fassade.GetLineByName(lineName);
+        Console.WriteLine($"Line: {line?.lineName}");
+
+        if (line != null)
+        {
+            // Hole die Stationen für die Line
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+        }
+    }
 }

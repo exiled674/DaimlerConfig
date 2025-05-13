@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
+using Dapper;
 using DaimlerConfig.Components.Infrastructure;
 using DaimlerConfig.Components.Models;
 
@@ -14,9 +11,20 @@ namespace DaimlerConfig.Components.Repositories
         {
         }
 
-        public Task<IEnumerable<Tool>> getToolsFromStation(int stationID)
+        public async Task<IEnumerable<Tool>> getToolsFromStation(int stationID)
         {
-            throw new NotImplementedException();
+            using var connection = _dbConnectionFactory.CreateConnection();
+
+           
+            var query = @"
+                SELECT * 
+                FROM Tool
+                WHERE stationID = @stationID";
+
+            
+            var tools = await connection.QueryAsync<Tool>(query, new { stationID });
+
+            return tools;
         }
     }
 }
