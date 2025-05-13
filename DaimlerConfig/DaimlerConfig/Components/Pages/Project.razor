@@ -16,14 +16,9 @@
     <div class="d-flex sidebar bg-white">
         <!-- Sidebar -->
         <aside id="sidebar" class="@SidebarClass border-end ">
-            <!--<div class="sidebar-logo">
-                <a href="#">DaimlerConfig</a>
-            </div>-->
-            <!-- Sidebar Navigation -->
+
             <ul class="sidebar-nav p-0">
-                <!--<li class="sidebar-header">
-                    Settings
-                </li>-->
+
                 <li class="sidebar-item">
                     <a href="/" class="sidebar-link">
                         <span>Home</span>
@@ -32,6 +27,7 @@
                 <li class="sidebar-header">
                     Stations
                 </li>
+
                 @foreach (var station in stations)
                 {
                     <li class="sidebar-item">
@@ -68,40 +64,12 @@
                 </button>
                 <h5><span>@line?.lineName</span></h5>
             </nav>
-            <main class="p-3">
-                <!-- <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-3 sidebar">
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <h5>Tool</h5>
-                                </div>
-                                <div class="col-6">
-                                    <h5>Operation</h5>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <button id="addToolBtn" class="btn btn-success btn-sm add-button w-100">Neues Tool hinzufügen</button>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <ul id="toolList" class="list-group">
-                                         Tools werden hier dynamisch eingefügt 
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>-->
-
-                <div class="tool-operation-panel">
+            <main class="p-3 d-flex gap-3">
+                <!-- Linke Spalte: Tools und Operationen -->
+                <div class="tool-operation-panel" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
-                        <button class="btn btn-primary btn-sm" id="btnAddTool">+ Tool</button>
+                        <button class="btn btn-primary btn-sm" @onclick="ToggleToolFormular">+ Tool</button>
                     </div>
 
                     <div id="toolsList">
@@ -109,19 +77,35 @@
                             <div class="tool-header d-flex justify-content-between align-items-center">
                                 <span>Tool1</span>
                                 <div>
-                                    <button class="btn btn-secondary btn-sm mr-2">+</button>
+                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => OpenOperationFormular(1))">+</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="content-panel"></div>
-                
+
+                <!-- Rechte Spalte: Content -->
+                <div class="content-panel flex-fill">
+                    @if (showToolFormular)
+                    {
+                        <ToolFormular />
+                    }
+
+                    @if (showOperationFormular)
+                    {
+                        <OperationFormular />
+                    }
+
+                    @if (showStationFormular)
+                    {
+                        <StationFormular />
+                    }
+                </div>
             </main>
         </div>
-        <ToolFormular />
+
     </div>
-    
+
 
 </body>
 
@@ -153,5 +137,31 @@
             // Hole die Stationen für die Line
             stations = await Fassade.GetStationsFromLine(line.lineID);
         }
+    }
+
+    private bool showToolFormular = false;
+    private bool showOperationFormular = false;
+    private bool showStationFormular = false;
+
+    private void ToggleToolFormular()
+    {
+        showToolFormular = !showToolFormular;
+        showOperationFormular = false; // nur eins gleichzeitig offen
+        showStationFormular = false;
+    }
+
+    private void OpenOperationFormular(int toolId)
+    {
+        showOperationFormular = true;
+        showToolFormular = false;
+		showStationFormular = false;
+        // Du kannst hier auch den aktuellen Tool-Id speichern, wenn nötig
+    }
+
+    public void ToggleStationlFormular()
+    {
+        showStationFormular = true;
+        showToolFormular = false;
+        showOperationFormular = false;
     }
 }
