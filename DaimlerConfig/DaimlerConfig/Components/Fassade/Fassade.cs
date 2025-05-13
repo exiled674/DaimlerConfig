@@ -92,6 +92,11 @@ namespace DaimlerConfig.Components.Fassade
         {
             return await OperationRepository.GetOperationsFromTool(toolID);
         }
+
+        public async Task<IEnumerable<Operation>> GetAllOperations()
+        {
+            return await OperationRepository.GetAll();
+        }
         #endregion 
     }
 
