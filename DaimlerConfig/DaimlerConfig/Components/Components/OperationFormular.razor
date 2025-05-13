@@ -71,17 +71,18 @@
                 <textarea class="input-field" rows="4" cols="25" placeholder="Gib deinen Text hier ein..." ></textarea>
             </div>
 
+            @if (SelectedOperation.operationID == 0)
+            {
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm">Create</button>
+                </div>
+            }
            
         </div>
     </div>
     
 </div>
-@if (SelectedOperation.operationID == 0)
-{
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <button class="btn btn-primary btn-sm">Create</button>
-    </div>
-}
+
 
 @code {
     [Parameter]
