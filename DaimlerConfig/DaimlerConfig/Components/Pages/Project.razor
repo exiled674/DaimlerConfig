@@ -32,15 +32,15 @@
                 {
                     <li class="sidebar-item">
                         <a  class="sidebar-link @(selectedStation?.stationID == station.stationID ? "active" : "")"
-                           @onclick="() => { SelectStation(station); ToggleStationFormular(); }">
+                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                             <span>@station.stationName</span>
                         </a>
                     </li>
                 }
 
-                
+
                 <li class="sidebar-item">
-                    <a  class="sidebar-link" @onclick=ToggleStationFormular>
+                    <a  class="sidebar-link" @onclick="() => ToggleStationFormular(true)">
                         <i class="lni lni-plus"></i>
                         <span>Add Station</span>
                     </a>
@@ -153,10 +153,10 @@
     {
         selectedStation = station;
 
-       
+
         tools = await Fassade.GetToolsFromStation(station.stationID);
 
-        
+
 
         StateHasChanged(); 
     }
@@ -172,7 +172,7 @@
 
         operations = await Fassade.GetOperationsFromTool(tool.toolID);
 
-        
+
 
         StateHasChanged();
     }
@@ -187,13 +187,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
+
         line = await Fassade.GetLineByName(lineName);
         Console.WriteLine($"Line: {line?.lineName}");
 
         if (line != null)
         {
-            
+
             stations = await Fassade.GetStationsFromLine(line.lineID);
         }
     }
@@ -213,12 +213,15 @@
     {
         showOperationFormular = true;
         showToolFormular = false;
-		showStationFormular = false;
+        showStationFormular = false;
         // Du kannst hier auch den aktuellen Tool-Id speichern, wenn nötig
     }
 
-    public void ToggleStationFormular()
+    public void ToggleStationFormular(bool testBool)
     {
+        if(testBool) {
+            selectedStation = new Station();
+        }
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
