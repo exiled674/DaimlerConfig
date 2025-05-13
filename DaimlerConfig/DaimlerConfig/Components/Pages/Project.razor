@@ -38,7 +38,13 @@
                     </li>
                 }
 
-
+                
+                <li class="sidebar-item">
+                    <a  class="sidebar-link" @onclick=ToggleStationFormular>
+                        <i class="lni lni-plus"></i>
+                        <span>Add Station</span>
+                    </a>
+                </li>
             </ul>
         </aside>
 
@@ -208,7 +214,7 @@
         // Du kannst hier auch den aktuellen Tool-Id speichern, wenn nötig
     }
 
-    public void ToggleStationlFormular()
+    public void ToggleStationFormular()
     {
         showStationFormular = true;
         showToolFormular = false;
