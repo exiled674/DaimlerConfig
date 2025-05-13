@@ -78,6 +78,11 @@ namespace DaimlerConfig.Components.Fassade
         {
             await StationRepository.Update(station);
         }
+
+        public async Task AddStation(Station station)
+        {
+            await StationRepository.Add(station);
+        }
         #endregion
 
         #region Tool
@@ -89,6 +94,11 @@ namespace DaimlerConfig.Components.Fassade
         public async Task UpdateTool(Tool tool)
         {
             await ToolRepository.Update(tool);
+        }
+
+        public async Task AddTool(Tool tool)
+        {
+            await ToolRepository.Add(tool);
         }
         #endregion
 
@@ -106,6 +116,11 @@ namespace DaimlerConfig.Components.Fassade
         public async Task UpdateOperation(Operation operation)
         {
             await OperationRepository.Update(operation);
+        }
+
+        public async Task AddOperation(Operation operation)
+        {
+            await OperationRepository.Add(operation);
         }
         #endregion 
     }
