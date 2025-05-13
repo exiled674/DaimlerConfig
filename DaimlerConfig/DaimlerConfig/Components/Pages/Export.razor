@@ -1,0 +1,62 @@
+﻿@page "/export"
+
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+@using DaimlerConfig.Components.JsonHandler
+
+<h3>Exportieren</h3>
+
+<!-- Eingabefeld für den Dateipfad -->
+<div>
+    <label for="pathInput">Pfad zum Export:</label>
+    <input id="pathInput" @bind="exportPath" placeholder="z.B. C:\Users\Benutzer\Desktop" />
+</div>
+
+<!-- Button, um den Export zu starten -->
+<button @onclick="StartExport">Export starten</button>
+
+<p>@statusMessage</p>
+
+@code {
+    private string exportPath = Path.Combine(@"C:\Users", Environment.UserName, "Desktop");
+    private string exportName = "export.json";
+    private string statusMessage = "";
+    private readonly WriteJson _writeJson = new WriteJson();
+
+    private async Task StartExport()
+    {
+        if (string.IsNullOrWhiteSpace(exportPath) || !Directory.Exists(exportPath))
+        {
+            statusMessage = "Bitte einen gültigen Pfad angeben!";
+            return;
+        }
+
+        try
+        {
+            statusMessage = "Export wird gestartet...";
+
+            // Export-Pfad + Dateiname kombinieren
+            string fullPath = Path.Combine(exportPath, exportName);
+
+            await ExportAsync(fullPath);
+
+            statusMessage = "Export erfolgreich!";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Fehler: {ex.Message}";
+        }
+    }
+
+    private async Task ExportAsync(string path)
+    {
+        var stations = await Fassade.StationRepository.GetAll();
+        var tools = await Fassade.ToolRepository.GetAll();
+        var operations = await Fassade.OperationRepository.GetAll();
+
+        var stationList = stations.ToList();
+        var toolList = tools.ToList();
+        var operationList = operations.ToList();
+
+        await _writeJson.WriteAllToFileAsync(stationList, toolList, operationList, path);
+    }
+}
