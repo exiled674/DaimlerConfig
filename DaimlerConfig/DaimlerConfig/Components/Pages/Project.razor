@@ -307,6 +307,7 @@
         if (line != null)
         {
             operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+            allOperations = await Fassade.GetAllOperations();
             StateHasChanged();
         }
     }

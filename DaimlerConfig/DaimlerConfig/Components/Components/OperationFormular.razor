@@ -6,13 +6,13 @@
     <div class="layout">
         <div class="toolColoumn">
             <label>Operation ID:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationID" readonly @onblur="UpdateOperationAsync"/>
+            <input class="input-field" type="text" @bind="SelectedOperation.operationID" readonly @onblur="UpdateOperationAsync" />
 
             <label>Operation Shortname:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationShortname" @onblur="UpdateOperationAsync"/>
+            <input class="input-field" type="text" @bind="SelectedOperation.operationShortname" @onblur="UpdateOperationAsync" />
 
             <label>Operation Description:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationDescription" @onblur="UpdateOperationAsync"/>
+            <input class="input-field" type="text" @bind="SelectedOperation.operationDescription" @onblur="UpdateOperationAsync" />
         </div>
 
         <div class="toolColoumn">
@@ -24,10 +24,10 @@
             </select>
 
             <label>Operation Sequenz</label>
-            <input class="input-field" type="text"/>
+            <input class="input-field" type="text" />
 
             <label>Operation Sequenz Group</label>
-            <input class="input-field" type="text"/>
+            <input class="input-field" type="text" />
         </div>
     </div>
     <hr />
@@ -36,14 +36,14 @@
         <div class="layout">
             <div class="toolColoumn">
                 <label>Decision Class:</label>
-                <select class="input-field" >
+                <select class="input-field">
                     <option value="">Select</option>
                     <option value="Serial">Serial</option>
                     <option value="Parallel">Parallel</option>
                 </select>
 
                 <label>Generation Class:</label>
-                <select class="input-field" >
+                <select class="input-field">
                     <option value="">Select</option>
                     <option value="Serial">Serial</option>
                     <option value="Parallel">Parallel</option>
@@ -52,14 +52,14 @@
 
             <div class="toolColoumn">
                 <label>Verification Class:</label>
-                <select class="input-field" >
+                <select class="input-field">
                     <option value="">Select</option>
                     <option value="Serial">Serial</option>
                     <option value="Parallel">Parallel</option>
                 </select>
 
                 <label>Saving Class:</label>
-                <select class="input-field" >
+                <select class="input-field">
                     <option value="">Select</option>
                     <option value="Serial">Serial</option>
                     <option value="Parallel">Parallel</option>
@@ -67,27 +67,23 @@
             </div>
 
             <div class="toolColoumn">
-                <label>Saving Class:</label>
-                <textarea class="input-field" rows="4" cols="25" placeholder="Gib deinen Text hier ein..." ></textarea>
+                <label>Decision Criteria:</label>
+                <textarea class="input-field" rows="4" cols="25" placeholder="Gib deinen Text hier ein..."></textarea>
             </div>
 
             @if (SelectedOperation.operationID == 0)
             {
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm">Create</button>
+                    <button class="btn btn-success btn-sm" @onclick="AddOperationAsync">Create</button>
                 </div>
             }
-           
         </div>
     </div>
-    
 </div>
-
 
 @code {
     [Parameter]
     public Operation? SelectedOperation { get; set; }
-
 
     [Parameter]
     public EventCallback OnUpdated { get; set; }
@@ -101,4 +97,25 @@
         }
     }
 
+    private async Task AddOperationAsync()
+    {
+        if (SelectedOperation == null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(SelectedOperation.operationShortname))
+        {
+            Console.WriteLine("Operation Shortname darf nicht leer sein.");
+            return;
+        }
+
+        bool exists = await Fassade.OperationExistsByName(SelectedOperation.operationShortname);
+        if (exists)
+        {
+            Console.WriteLine("Operation Shortname ist bereits vergeben.");
+            return;
+        }
+
+        await Fassade.AddOperation(SelectedOperation);
+        await OnUpdated.InvokeAsync();
+    }
 }
