@@ -77,17 +77,17 @@
                             {
                                         <div class="tool-section" data-tool-id="@tool.toolID">
                                             <div class="tool-header d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="@(() => SelectTool(tool, false))">@tool.toolShortname</span>
+                                                <span class="clickable" @onclick="() => SelectTool(tool)">@tool.toolShortname</span>
                                                 <div>
-                                                    <button class="btn btn-secondary btn-sm mr-2">+</button>
+                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => ToggleToolFormular(false)">Edit</button>
                                                 </div>
                                             </div>
 
                                     @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                     {
                                                     <div class="operation-section d-flex justify-content-between align-items-center">
-                                                        <span class="clickable">@operation.operationShortname</span>
-                                                        <button class="btn btn-secondary btn-sm">Edit</button>
+                                                        <span class="clickable" @onclick="() => SelectOperation(operation)">@operation.operationShortname</span>
+                                                        <button class="btn btn-secondary btn-sm" @onclick="() => ToggleOperationFormular(false)">Edit</button>
                                                     </div>
                                     }
                                         </div>
@@ -159,9 +159,9 @@
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
 
-    private async Task SelectTool(Tool tool, bool isNew)
+    private async Task SelectTool(Tool tool)
     {
-        selectedTool = isNew ? new Tool() : tool;  // Wenn isNew true ist, setze ein leeres Tool
+        selectedTool = tool;  // Setze das ausgewählte Tool
 
         tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
 
@@ -169,6 +169,19 @@
         showToolFormular = true;
         showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
         showStationFormular = false;   // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
+
+    private void ToggleToolFormular(bool isNewTool)
+    {
+        if (isNewTool)
+        {
+            selectedTool = new Tool();  // Erstelle ein neues Tool, wenn es ein neues Tool ist
+        }
+        showToolFormular = !showToolFormular;
+        showOperationFormular = false;
+        showStationFormular = false;
 
         StateHasChanged();  // Aktualisiere den UI-Status
     }
@@ -181,8 +194,27 @@
 
     private async Task SelectOperation(Operation operation)
     {
-        selectedOperation = operation;  // selectedOperation zuweisen
-        StateHasChanged();
+        selectedOperation = operation;  // Setze die ausgewählte Operation
+
+        // Zeige das Operation-Formular an
+        showOperationFormular = true;
+        showToolFormular = false;  // Schließe das Tool-Formular, wenn das Operation-Formular gezeigt wird
+        showStationFormular = false;   // Schließe das Station-Formular, wenn das Operation-Formular gezeigt wird
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
+
+    private void ToggleOperationFormular(bool isNewOperation)
+    {
+        if (isNewOperation)
+        {
+            selectedOperation = new Operation();  // Erstelle eine neue Operation, wenn es eine neue Operation ist
+        }
+        showOperationFormular = !showOperationFormular;
+        showToolFormular = false;
+        showStationFormular = false;
+
+        StateHasChanged();  // Aktualisiere den UI-Status
     }
     #endregion
 
@@ -204,22 +236,7 @@
     private bool showOperationFormular = false;
     private bool showStationFormular = false;
 
-    private void ToggleToolFormular(bool isNew)
-    {
-        showToolFormular = true;
-        showOperationFormular = false;
-        showStationFormular = false;
-
-        // Falls ein neues Tool hinzugefügt werden soll, übergebe ein leeres Tool
-        if (isNew)
-        {
-            selectedTool = new Tool();
-        }
-
-        StateHasChanged();  // Aktualisiere den UI-Status
-    }
-
-    public void ToggleStationFormular(bool testBool)
+    private void ToggleStationFormular(bool testBool)
     {
         if (testBool)
         {
