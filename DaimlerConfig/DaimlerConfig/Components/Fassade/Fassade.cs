@@ -1,5 +1,6 @@
 ﻿using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Models;
+using DaimlerConfig.Components.JsonHandler;
 
 
 
@@ -11,6 +12,8 @@ namespace DaimlerConfig.Components.Fassade
         public IOperationRepository OperationRepository { get; private set; }
         public IStationRepository StationRepository { get; private set; }
         public IRepository<Line> LineRepository { get; private set; }
+
+        private readonly WriteJson _writeJson = new WriteJson();
 
         public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository)
         {
@@ -127,5 +130,18 @@ namespace DaimlerConfig.Components.Fassade
             return await OperationRepository.ExistsByName(name);
         }
         #endregion
+
+        public async Task<string> Export()
+        {
+            var stations = await StationRepository.GetAll();
+            var tools = await ToolRepository.GetAll();
+            var operations = await OperationRepository.GetAll();
+
+            var stationList = stations.ToList();
+            var toolList = tools.ToList();
+            var operationList = operations.ToList();
+
+            return await _writeJson.WriteAllToFileAsync(stationList, toolList, operationList);
+        }
     }
 }
