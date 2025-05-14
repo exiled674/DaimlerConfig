@@ -28,14 +28,30 @@ namespace DaimlerConfig.Components.Repositories
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();
 
-            // Beispiel: "Line" → "lineName"
-            var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
+            // Dynamisch den Spaltennamen basierend auf der Tabelle setzen
+            string nameProperty;
+            switch (_tableName)
+            {
+                case "Station":
+                    nameProperty = "assemblystation";
+                    break;
+                case "Tool":
+                    nameProperty = "toolShortname";
+                    break;
+                case "Operation":
+                    nameProperty = "operationShortname";
+                    break;
+                default:
+                    // Falls der Tabellenname nicht erkannt wird
+                    throw new InvalidOperationException($"Unbekannte Tabelle: {_tableName}");
+            }
 
             var sql = $"SELECT COUNT(1) FROM {_tableName} WHERE {nameProperty} = @name";
             var result = await conn.ExecuteScalarAsync<int>(sql, new { name });
 
             return result > 0;
         }
+
 
         public async Task Add(TEntity entity)
         {

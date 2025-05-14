@@ -17,7 +17,7 @@
 
         <div class="toolColoumn">
             <label>Tool Class</label>
-            <select class="input-field" >
+            <select class="input-field">
                 <option value="">Select</option>
                 <option value="Option 1">Option 1</option>
                 <option value="Option 2">Option 2</option>
@@ -25,7 +25,7 @@
             </select>
 
             <label>Tool Type</label>
-            <select class="input-field" >
+            <select class="input-field">
                 <option value="">Select</option>
                 <option value="Option Type 1">Option Type 1</option>
                 <option value="Option Type 2">Option Type 2</option>
@@ -39,33 +39,37 @@
         <div class="layout">
             <div class="toolColoumn">
                 <label>IP-Address Device:</label>
-                <input class="input-field" type="text"  />
+                <input class="input-field" type="text" />
 
                 <label>PLC Name:</label>
-                <input class="input-field" type="text"  />
+                <input class="input-field" type="text" />
 
                 <label>DBNo Send:</label>
-                <input class="input-field" type="text"  />
+                <input class="input-field" type="text" />
 
                 <label>DBNo Receive:</label>
-                <input class="input-field" type="text"  />
+                <input class="input-field" type="text" />
             </div>
 
             <div class="toolColoumn">
                 <label>Address in Send-DB:</label>
-                <input class="input-field" type="text"  />
+                <input class="input-field" type="text" />
 
                 <label>Address in Receive-DB:</label>
-                <input class="input-field" type="text"  />
+                <input class="input-field" type="text" />
 
                 <label>Byte Pre Check:</label>
-                <input class="input-field" type="text"  />
+                <input class="input-field" type="text" />
 
-                @if (SelectedTool.toolID == 0)
+                @if (SelectedTool?.toolID == 0)
                 {
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button class="btn btn-primary btn-sm">Create</button>
+                        <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
                     </div>
+                    @if (!string.IsNullOrEmpty(ValidationMessage))
+                    {
+                        <div class="text-danger">@ValidationMessage</div>
+                    }
                 }
             </div>
         </div>
@@ -76,19 +80,44 @@
     [Parameter]
     public Tool? SelectedTool { get; set; }
 
-
     [Parameter]
     public EventCallback OnUpdated { get; set; }
 
+    private string? ValidationMessage;
+
     private async Task UpdateToolAsync()
     {
-        if (SelectedTool != null)
+        if (SelectedTool != null && SelectedTool.toolID != 0)
         {
             await Fassade.UpdateTool(SelectedTool);
             await OnUpdated.InvokeAsync();
         }
     }
+
+    private async Task CreateToolAsync()
+    {
+        ValidationMessage = null;
+
+        if (SelectedTool == null)
+        {
+            ValidationMessage = "Tool-Daten fehlen.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(SelectedTool.toolShortname))
+        {
+            ValidationMessage = "Tool Shortname darf nicht leer sein.";
+            return;
+        }
+
+        bool exists = await Fassade.ToolExistsByName(SelectedTool.toolShortname);
+        if (exists)
+        {
+            ValidationMessage = "Tool Shortname ist bereits vergeben.";
+            return;
+        }
+
+        await Fassade.AddTool(SelectedTool);
+        await OnUpdated.InvokeAsync();
+    }
 }
-
-
-

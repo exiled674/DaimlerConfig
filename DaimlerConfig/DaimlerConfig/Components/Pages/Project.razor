@@ -60,7 +60,11 @@
                 <div class="tool-operation-panel p-5" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
-                        <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
+                        @if(selectedStation != null)
+                        {
+                            <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
+                        }
+                        
                     </div>
 
                     <div id="toolsList">
@@ -80,7 +84,10 @@
                                             <div class="tool-header d-flex justify-content-between align-items-center">
                                                 <span class="clickable" @onclick="() => SelectTool(tool)">@tool.toolShortname</span>
                                                 <div>
+                                                    @if(selectedTool != null) {
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="() => ToggleOperationFormular(true)">+</button>
+                                                    }
+                                                    
                                                 </div>
                                             </div>
                                     <div class="operation-list">
@@ -155,8 +162,10 @@
     private async Task SelectStation(Station station)
     {
         selectedStation = station;
+		selectedTool = null;  // Setze das ausgewählte Tool zurück
+		selectedOperation = null;  // Setze die ausgewählte Operation zurück
 
-        tools = await Fassade.GetToolsFromStation(station.stationID);
+		tools = await Fassade.GetToolsFromStation(station.stationID);
 
         StateHasChanged();
     }
@@ -171,8 +180,9 @@
     private async Task SelectTool(Tool tool)
     {
         selectedTool = tool;  // Setze das ausgewählte Tool
+		selectedOperation = null;  // Setze die ausgewählte Operation zurück
 
-        tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
+		tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
 
         // Zeige das Tool-Formular an
         showToolFormular = true;
@@ -186,7 +196,11 @@
     {
         if (isNewTool)
         {
-            selectedTool = new Tool();  // Erstelle ein neues Tool, wenn es ein neues Tool ist
+            selectedTool = new Tool
+                {
+                    stationID = selectedStation.stationID,  // Setze stationID
+                    toolTypeID = 1,                        // Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
+                };
         }
         showToolFormular = !showToolFormular;
         showOperationFormular = false;
@@ -194,6 +208,7 @@
 
         StateHasChanged();  // Aktualisiere den UI-Status
     }
+
     #endregion
 
     #region Operation
@@ -217,7 +232,15 @@
     {
         if (isNewOperation)
         {
-            selectedOperation = new Operation();  // Erstelle eine neue Operation, wenn es eine neue Operation ist
+            selectedOperation = new Operation
+                {
+                    toolID = selectedTool.toolID,  // Setze die toolID
+                    decisionClassID = 1,           // Setze den Foreign Key auf 1
+                    savingClassID = 1,             // Setze den Foreign Key auf 1
+                    generationClassID = 1,         // Setze den Foreign Key auf 1
+                    verificationClassID = 1,       // Setze den Foreign Key auf 1
+                    qGateID = 1                    // Setze den Foreign Key auf 1
+                };
         }
         showOperationFormular = !showOperationFormular;
         showToolFormular = false;
@@ -251,7 +274,10 @@
     {
         if (testBool)
         {
-            selectedStation = new Station();
+            selectedStation = new Station
+                {
+                    lineID = line.lineID  // Setze die lineID beim Erstellen
+                };
         }
         showStationFormular = true;
         showToolFormular = false;
@@ -281,6 +307,7 @@
         if (line != null)
         {
             operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+            allOperations = await Fassade.GetAllOperations();
             StateHasChanged();
         }
     }
