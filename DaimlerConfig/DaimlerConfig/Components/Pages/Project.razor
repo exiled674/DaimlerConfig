@@ -8,7 +8,7 @@
     <!-- Navbar -->
     <nav class="navbar fixed-top bg-white border-bottom">
         <div class="container-fluid">
-            <span class="navbar-brand mb-0 h2">Project: Area_B02_Main</span>
+            <span class="navbar-brand mb-0 h2">Project: @line?.lineName</span>
         </div>
     </nav>
 
@@ -52,7 +52,7 @@
                 <button class="toggler-btn" @onclick="ToggleSidebar" type="button">
                     <i class="lni lni-menu-hamburger-1"></i>
                 </button>
-                <h5><span>@line?.lineName</span></h5>
+                <h5><span>Current Station: @(selectedStation != null ? selectedStation.stationName : "Please choose a station")</span></h5>
             </nav>
             <main class="p-3 pb-0 d-flex gap-3">
 

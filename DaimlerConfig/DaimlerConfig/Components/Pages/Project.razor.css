@@ -22,7 +22,7 @@ a{
     background-color: white;
     display: flex;
     flex-direction: column;
-    padding-top: 50px;
+    padding-top: 55px;
 }
 
 #sidebar.collapsed{
@@ -56,7 +56,7 @@ a{
 
 a.sidebar-link {
     padding: .2rem 1.5rem;
-    font-size: .90rem;
+    font-size: 0.95rem;
     color: black;
     position: relative;
     transition: all 0.35s;
