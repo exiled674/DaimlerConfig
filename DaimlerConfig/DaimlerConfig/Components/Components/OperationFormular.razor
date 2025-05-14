@@ -77,6 +77,14 @@
                     <button class="btn btn-success btn-sm" @onclick="AddOperationAsync">Create</button>
                 </div>
             }
+
+            @if (SelectedOperation.operationID != 0)
+            {
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button class="btn btn-success btn-sm" >Delete</button>
+                </div>
+            }
+
         </div>
     </div>
 </div>

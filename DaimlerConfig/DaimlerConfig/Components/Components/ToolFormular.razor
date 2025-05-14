@@ -71,6 +71,17 @@
                         <div class="text-danger">@ValidationMessage</div>
                     }
                 }
+
+                @if (SelectedTool?.toolID != 0)
+                {
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button class="btn btn-primary btn-sm" >Delete</button>
+                        </div>
+                    @if (!string.IsNullOrEmpty(ValidationMessage))
+                    {
+                                <div class="text-danger">@ValidationMessage</div>
+                    }
+                }
             </div>
         </div>
     </div>
