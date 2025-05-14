@@ -1,5 +1,4 @@
-﻿
-using DaimlerConfig.Components.Infrastructure;
+﻿using DaimlerConfig.Components.Infrastructure;
 using DaimlerConfig.Components.Models;
 using Dapper;
 
@@ -17,8 +16,8 @@ namespace DaimlerConfig.Components.Repositories
 
             var query = @"
                 SELECT * 
-                FROM Operation
-                WHERE toolID = @toolID";
+                FROM [Operation]
+                WHERE [toolID] = @toolID";
 
             var operations = connection.QueryAsync<Operation>(query, new { toolID });
 

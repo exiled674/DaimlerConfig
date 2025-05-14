@@ -18,8 +18,8 @@ namespace DaimlerConfig.Components.Repositories
            
             var query = @"
                 SELECT * 
-                FROM Tool
-                WHERE stationID = @stationID";
+                FROM [Tool]
+                WHERE [stationID] = @stationID";
 
             
             var tools = await connection.QueryAsync<Tool>(query, new { stationID });

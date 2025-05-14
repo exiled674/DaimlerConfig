@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Data.SqlClient;
 using DaimlerConfig.Components.Infrastructure;
 using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.Repositories;
@@ -23,20 +24,27 @@ namespace DaimlerConfig
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
+            // 1. Konfigurationsdatei einbinden
+            builder.Configuration
+                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
+
+            // 2. Azure SQL Server ConnectionFactory registrieren
+            var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
-                new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "meineDatenbank.db")));
+                new SqlServerConnectionFactory(sqlConnectionString));
+
+            // 3. Initializer und Repositories
             builder.Services.AddSingleton<DatabaseInitializer>();
-           
             builder.Services.AddSingleton<IToolRepository, ToolRepository>();
             builder.Services.AddSingleton<IOperationRepository, OperationRepository>();
             builder.Services.AddSingleton<IStationRepository, StationRepository>();
             builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
-
 
             builder.Services.AddSingleton<Fassade>(sp =>
             {
@@ -48,15 +56,10 @@ namespace DaimlerConfig
                 return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo);
             });
 
-
-
-
-
             var app = builder.Build();
 
+            // 4. Datenbank sicherstellen (für EF Core oder eigene Implementierung)
             app.Services.GetRequiredService<DatabaseInitializer>().EnsureCreated();
-
-            
 
             return app;
         }

@@ -4,20 +4,19 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
+using System.Data;
+using Microsoft.Data.SqlClient;
 
 namespace DaimlerConfig.Components.Infrastructure
 {
-    public class SqliteConnectionFactory : IDbConnectionFactory
+    public class SqlServerConnectionFactory : IDbConnectionFactory
     {
         private readonly string _connectionString;
 
-        public SqliteConnectionFactory(string databasePath)
-        {
-            _connectionString = $"Data Source={databasePath}";
-        }
+        public SqlServerConnectionFactory(string connectionString)
+            => _connectionString = connectionString;
 
         public IDbConnection CreateConnection()
-            => new SqliteConnection(_connectionString);
+            => new SqlConnection(_connectionString);
     }
 }
