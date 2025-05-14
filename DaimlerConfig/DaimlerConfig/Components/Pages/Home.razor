@@ -96,10 +96,10 @@
 
     <div class="row">
         <div class="col">
-            <a class="import-button" href="/export">
+            <button class="import-button" @onclick="FilePick">
                 <span class="plus-icon">+</span>
                 Import Similar Project
-            </a>
+            </button>
         </div>
         <div class="col">
             <button class="import-button" @onclick="CreateNewLine">
@@ -229,7 +229,7 @@
         Navigation.NavigateTo($"/line/{Uri.EscapeDataString(lineName)}");
     }
 
-    private async Task PickFile()
+    private async Task FilePick()
     {
         var json = await Fassade.Export();
         var bytes = Encoding.UTF8.GetBytes(json);

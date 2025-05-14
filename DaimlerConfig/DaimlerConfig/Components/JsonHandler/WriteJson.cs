@@ -1,6 +1,8 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -24,11 +26,10 @@ public class WriteJson
     /// <summary>
     /// Konvertiert eine Liste von allen Elementen in einen JSON-String
     /// </summary>
-    public async Task WriteAllToFileAsync(
-        List<Models.Station> stations,
-        List<Models.Tool> tools,
-        List<Models.Operation> operations,
-        string filePath)
+    public async Task<string> WriteAllToFileAsync(
+    List<Models.Station> stations,
+    List<Models.Tool> tools,
+    List<Models.Operation> operations)
     {
         var allData = new
         {
@@ -37,19 +38,10 @@ public class WriteJson
             Operations = operations
         };
 
-        try
-        {
-            await using var fs = File.Create(filePath);
-            await JsonSerializer.SerializeAsync(fs, allData, _options);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Schreiben der Datei: {ex.Message}");
-            throw;
-        }
+        return JsonSerializer.Serialize(allData, _options);
     }
 
-        
+
     /// <summary>
     /// Konvertiert eine Liste von StationTypes in einen JSON-String
     /// </summary>
