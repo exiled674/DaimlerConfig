@@ -26,7 +26,7 @@ namespace DaimlerConfig
 
             // 1. Konfigurationsdatei einbinden
             builder.Configuration
-                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                   .AddJsonFile("D:\\MSSQL\\appsettings.json", optional: false, reloadOnChange: true);
 
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
