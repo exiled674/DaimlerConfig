@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DaimlerConfig.Components.Repositories;
-using Microsoft.AspNetCore.Components;
+﻿using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Models;
+using DaimlerConfig.Components.JsonHandler;
 
 
 
@@ -18,7 +13,7 @@ namespace DaimlerConfig.Components.Fassade
         public IStationRepository StationRepository { get; private set; }
         public IRepository<Line> LineRepository { get; private set; }
 
-
+        private readonly WriteJson _writeJson = new WriteJson();
 
         public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository)
         {
@@ -39,11 +34,11 @@ namespace DaimlerConfig.Components.Fassade
             return await LineRepository.getAllOrderedByDate();
         }
 
-
         public async Task<Line?> GetLineByName(string lineName)
         {
             return await LineRepository.GetByName(lineName);
         }
+
         public async Task AddLine(Line line)
         {
             await LineRepository.Add(line);
@@ -65,16 +60,103 @@ namespace DaimlerConfig.Components.Fassade
         }
         #endregion
 
-
         #region Station
-
-        public async Task<IEnumerable<Station>> GetStationsFromLine(int lineID) 
+        public async Task<IEnumerable<Station>> GetStationsFromLine(int lineID)
         {
             return await StationRepository.GetStationsFromLine(lineID);
         }
-        #endregion 
+
+        public async Task UpdateStation(Station station)
+        {
+            await StationRepository.Update(station);
+        }
+
+        public async Task AddStation(Station station)
+        {
+            await StationRepository.Add(station);
+        }
+
+        public async Task<bool> StationExistsByName(string name)
+        {
+            return await StationRepository.ExistsByName(name);
+        }
+
+        public async Task DeleteStation(Station station)
+        {
+            await StationRepository.Delete(station);
+        }
+        #endregion
+
+        #region Tool
+        public async Task<IEnumerable<Tool>> GetToolsFromStation(int stationID)
+        {
+            return await ToolRepository.GetToolsFromStation(stationID);
+        }
+
+        public async Task UpdateTool(Tool tool)
+        {
+            await ToolRepository.Update(tool);
+        }
+
+        public async Task AddTool(Tool tool)
+        {
+            await ToolRepository.Add(tool);
+        }
+
+        public async Task<bool> ToolExistsByName(string name)
+        {
+            return await ToolRepository.ExistsByName(name);
+        }
+
+        public async Task DeleteTool(Tool tool)
+        {
+            await ToolRepository.Delete(tool);
+        }
+        #endregion
+
+        #region Operation
+        public async Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
+        {
+            return await OperationRepository.GetOperationsFromTool(toolID);
+        }
+
+        public async Task<IEnumerable<Operation>> GetAllOperations()
+        {
+            return await OperationRepository.GetAll();
+        }
+
+        public async Task UpdateOperation(Operation operation)
+        {
+            await OperationRepository.Update(operation);
+        }
+
+        public async Task AddOperation(Operation operation)
+        {
+            await OperationRepository.Add(operation);
+        }
+
+        public async Task<bool> OperationExistsByName(string name)
+        {
+            return await OperationRepository.ExistsByName(name);
+        }
+
+        public async Task DeleteOperation(Operation operation)
+        {
+            await OperationRepository.Delete(operation);
+        }
+        #endregion
+
+        public async Task<string> Export()
+        {
+            var stations = await StationRepository.GetAll();
+            var tools = await ToolRepository.GetAll();
+            var operations = await OperationRepository.GetAll();
+
+            var stationList = stations.ToList();
+            var toolList = tools.ToList();
+            var operationList = operations.ToList();
+
+            return await _writeJson.WriteAllToFileAsync(stationList, toolList, operationList);
+        }
     }
-
-
-
 }
