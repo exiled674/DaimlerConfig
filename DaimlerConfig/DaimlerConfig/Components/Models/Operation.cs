@@ -23,7 +23,7 @@ namespace DaimlerConfig.Components.Models
         public int toolID { get; set; }
         public bool parallel { get; set; }
         public int qGateID { get; set; }
-        public DateTime lastModified { get; set; }
+        public DateTime? lastModified { get; set; }
     }
 
 

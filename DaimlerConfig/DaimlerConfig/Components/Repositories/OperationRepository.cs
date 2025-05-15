@@ -10,7 +10,7 @@ namespace DaimlerConfig.Components.Repositories
         {
         }
 
-        public Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
+        public async Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
         {
             using var connection = _dbConnectionFactory.CreateConnection();
 
@@ -19,7 +19,7 @@ namespace DaimlerConfig.Components.Repositories
                 FROM [Operation]
                 WHERE [toolID] = @toolID";
 
-            var operations = connection.QueryAsync<Operation>(query, new { toolID });
+            var operations = await connection.QueryAsync<Operation>(query, new { toolID });
 
             return operations;
         }

@@ -67,11 +67,11 @@ namespace DaimlerConfig.Components.Repositories
             var columns = string.Join(", ", columnNames.Select(c => $"[{c}]"));
             var paramNames = string.Join(", ", columnNames.Select(n => "@" + n));
             var sql = $@"
-INSERT INTO [{_tableName}]
-({columns})
-VALUES
-({paramNames});
-";
+            INSERT INTO [{_tableName}]
+            ({columns})
+            VALUES
+            ({paramNames});
+            ";
 
             var dp = new DynamicParameters();
             foreach (var p in properties)
