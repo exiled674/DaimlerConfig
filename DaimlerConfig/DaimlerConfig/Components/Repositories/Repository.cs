@@ -41,6 +41,9 @@ namespace DaimlerConfig.Components.Repositories
                 case "Operation":
                     nameProperty = "operationShortname";
                     break;
+                case "Line":
+                    nameProperty = "lineName";  // Spaltenname für Line hinzufügen
+                    break;
                 default:
                     // Falls der Tabellenname nicht erkannt wird
                     throw new InvalidOperationException($"Unbekannte Tabelle: {_tableName}");
@@ -51,6 +54,7 @@ namespace DaimlerConfig.Components.Repositories
 
             return result > 0;
         }
+
 
 
         public async Task Add(TEntity entity)

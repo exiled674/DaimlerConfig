@@ -80,6 +80,11 @@ namespace DaimlerConfig.Components.Fassade
         {
             return await StationRepository.ExistsByName(name);
         }
+
+        public async Task DeleteStation(Station station)
+        {
+            await StationRepository.Delete(station);
+        }
         #endregion
 
         #region Tool
@@ -101,6 +106,11 @@ namespace DaimlerConfig.Components.Fassade
         public async Task<bool> ToolExistsByName(string name)
         {
             return await ToolRepository.ExistsByName(name);
+        }
+
+        public async Task DeleteTool(Tool tool)
+        {
+            await ToolRepository.Delete(tool);
         }
         #endregion
 
@@ -128,6 +138,11 @@ namespace DaimlerConfig.Components.Fassade
         public async Task<bool> OperationExistsByName(string name)
         {
             return await OperationRepository.ExistsByName(name);
+        }
+
+        public async Task DeleteOperation(Operation operation)
+        {
+            await OperationRepository.Delete(operation);
         }
         #endregion
 
