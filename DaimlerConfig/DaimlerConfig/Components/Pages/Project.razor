@@ -1,4 +1,4 @@
-﻿@page "/line/{lineName}"
+@page "/line/{lineName}"
 
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
@@ -8,14 +8,14 @@
     <!-- Navbar -->
     <nav class="navbar fixed-top bg-white border-bottom">
         <div class="container-fluid">
-            <span class="navbar-brand mb-0 h2">Project: Area_B02_Main</span>
+            <span class="navbar-brand mb-0 h2">Project: @line?.lineName</span>
         </div>
     </nav>
-
 
     <div class="d-flex sidebar bg-white">
         <!-- Sidebar -->
         <aside id="sidebar" class="@SidebarClass border-end ">
+
             <ul class="sidebar-nav p-0">
                 <li class="sidebar-item">
                     <a href="/" class="sidebar-link">
@@ -25,16 +25,19 @@
                 <li class="sidebar-header">
                     Stations
                 </li>
+
                 @foreach (var station in stations)
                 {
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">
-                            <span>@station.stationName</span>
-                        </a>
-                    </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active" : "")"
+                            @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                                <span>@station.stationName</span>
+                            </a>
+                        </li>
                 }
+
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                    <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
                         <i class="lni lni-plus"></i>
                         <span>Add Station</span>
                     </a>
@@ -49,34 +52,87 @@
                 <button class="toggler-btn" @onclick="ToggleSidebar" type="button">
                     <i class="lni lni-menu-hamburger-1"></i>
                 </button>
-                <h5><span>@line?.lineName</span></h5>
+                <h5><span>Current Station: @(selectedStation != null ? selectedStation.stationName : "Please choose a station")</span></h5>
             </nav>
-            <main class="p-3">
-                <div class="tool-operation-panel">
+            <main class="p-3 pb-0 d-flex gap-3">
+
+                <!-- Linke Spalte: Tools und Operationen -->
+                <div class="tool-operation-panel p-5" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
-                        <button class="btn btn-primary btn-sm" id="btnAddTool">+ Tool</button>
+                        @if (selectedStation != null)
+                        {
+                                <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
+                        }
+
                     </div>
 
                     <div id="toolsList">
-                        <div class="tool-section" data-tool-id="1">
-                            <div class="tool-header d-flex justify-content-between align-items-center">
-                                <span>Tool1</span>
-                                <div>
-                                    <button class="btn btn-secondary btn-sm mr-2">+</button>
-                                </div>
-                            </div>
-                        </div>
+                        @if (selectedStation == null)
+                        {
+                                    <p>Bitte eine Station auswählen.</p>
+                        }
+                        else if (!tools.Any())
+                        {
+                                    <p>Keine Tools für @selectedStation.stationName gefunden.</p>
+                        }
+                        else
+                        {
+                            @foreach (var tool in tools)
+                            {
+                                                <div class="tool-section" data-tool-id="@tool.toolID">
+                                                    <div class="tool-header d-flex justify-content-between align-items-center">
+                                                        <span class="clickable" @onclick="() => SelectTool(tool)">@tool.toolShortname</span>
+                                                        <div>
+                                            @if (selectedTool != null)
+                                            {
+                                                                <button class="btn btn-secondary btn-sm mr-2" @onclick="() => ToggleOperationFormular(true)">+</button>
+                                            }
+
+                                                        </div>
+                                                    </div>
+                                            <div class="operation-list">
+                                        @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
+                                        {
+                                                                <div class="operation-section d-flex justify-content-between align-items-center">
+                                                                    <span class="clickable" @onclick="() => SelectOperation(operation)">@operation.operationShortname</span>
+
+                                                                </div>
+                                        }
+                                            </div>
+                                        </div>
+                            }
+                        }
                     </div>
                 </div>
-                <div class="content-panel"></div>
+
+                <!-- Rechte Spalte: Content -->
+                <div class="content-panel flex-fill">
+                    @if (showToolFormular)
+                    {
+                                <ToolFormular SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
+                    }
+
+                    @if (showOperationFormular)
+                    {
+                                <OperationFormular SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" />
+                    }
+
+                    @if (showStationFormular && selectedStation != null)
+                    {
+                                <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
+                    }
+                </div>
             </main>
         </div>
+
     </div>
 
 </body>
 
 @code {
+
+    #region SideBar
     private string SidebarClass { get; set; } = string.Empty;
     private void ToggleSidebar()
     {
@@ -85,23 +141,176 @@
         else
             SidebarClass = "collapsed";
     }
+    #endregion
 
+
+
+
+    #region Line
     [Parameter]
     public string lineName { get; set; } = "";
 
     private Line? line;
+    #endregion
+
+
+
+
+    #region Stations
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
+    private Station? selectedStation;
+
+    private async Task SelectStation(Station station)
+    {
+        selectedStation = station;
+        selectedTool = null;  // Setze das ausgewählte Tool zurück
+        selectedOperation = null;  // Setze die ausgewählte Operation zurück
+
+        tools = await Fassade.GetToolsFromStation(station.stationID);
+
+        StateHasChanged();
+    }
+    #endregion
+
+
+
+    #region Tools
+    private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
+    private Tool? selectedTool;
+
+    private async Task SelectTool(Tool tool)
+    {
+        selectedTool = tool;  // Setze das ausgewählte Tool
+        selectedOperation = null;  // Setze die ausgewählte Operation zurück
+
+        tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
+
+        // Zeige das Tool-Formular an
+        showToolFormular = true;
+        showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
+        showStationFormular = false;   // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
+
+    private void ToggleToolFormular(bool isNewTool)
+    {
+        if (isNewTool)
+        {
+            selectedTool = new Tool
+                {
+                    stationID = selectedStation.stationID,  // Setze stationID
+                    toolTypeID = 1,                        // Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
+                };
+        }
+        showToolFormular = !showToolFormular;
+        showOperationFormular = false;
+        showStationFormular = false;
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
+
+    #endregion
+
+    #region Operation
+    private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
+    private IEnumerable<Operation> allOperations;
+    private Operation? selectedOperation;
+
+    private async Task SelectOperation(Operation operation)
+    {
+        selectedOperation = operation;  // Setze die ausgewählte Operation
+
+        // Zeige das Operation-Formular an
+        showOperationFormular = true;
+        showToolFormular = false;  // Schließe das Tool-Formular, wenn das Operation-Formular gezeigt wird
+        showStationFormular = false;   // Schließe das Station-Formular, wenn das Operation-Formular gezeigt wird
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
+
+    private void ToggleOperationFormular(bool isNewOperation)
+    {
+        if (isNewOperation)
+        {
+            selectedOperation = new Operation
+                {
+                    toolID = selectedTool.toolID,  // Setze die toolID
+                    decisionClassID = 1,           // Setze den Foreign Key auf 1
+                    savingClassID = 1,             // Setze den Foreign Key auf 1
+                    generationClassID = 1,         // Setze den Foreign Key auf 1
+                    verificationClassID = 1,       // Setze den Foreign Key auf 1
+                    qGateID = 1                    // Setze den Foreign Key auf 1
+                };
+        }
+        showOperationFormular = !showOperationFormular;
+        showToolFormular = false;
+        showStationFormular = false;
+
+        StateHasChanged();  // Aktualisiere den UI-Status
+    }
+    #endregion
+
+
 
     protected override async Task OnInitializedAsync()
     {
-        // Hole die Line nach dem Namen
         line = await Fassade.GetLineByName(lineName);
-        Console.WriteLine($"Line: {line?.lineName}");
 
         if (line != null)
         {
-            // Hole die Stationen für die Line
             stations = await Fassade.GetStationsFromLine(line.lineID);
+            if (stations != null)
+            {
+                allOperations = await Fassade.GetAllOperations();
+            }
         }
     }
+
+    private bool showToolFormular = false;
+    private bool showOperationFormular = false;
+    private bool showStationFormular = false;
+
+    private void ToggleStationFormular(bool testBool)
+    {
+        if (testBool)
+        {
+            selectedStation = new Station
+                {
+                    lineID = line.lineID  // Setze die lineID beim Erstellen
+                };
+        }
+        showStationFormular = true;
+        showToolFormular = false;
+        showOperationFormular = false;
+    }
+
+    private async Task ReloadStations()
+    {
+        if (line != null)
+        {
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+            StateHasChanged();
+        }
+    }
+
+    private async Task ReloadTools()
+    {
+        if (line != null)
+        {
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+            StateHasChanged();
+        }
+    }
+
+    private async Task ReloadOperations()
+    {
+        if (line != null)
+        {
+            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+            allOperations = await Fassade.GetAllOperations();
+            StateHasChanged();
+        }
+    }
+
 }
