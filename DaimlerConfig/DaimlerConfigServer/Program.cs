@@ -1,4 +1,4 @@
-using DaimlerConfigServer.Components;
+using DaimlerConfigServer.ServerComponents;
 
 var builder = WebApplication.CreateBuilder(args);
 
