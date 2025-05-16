@@ -57,6 +57,6 @@
         var toolList = tools.ToList();
         var operationList = operations.ToList();
 
-        await _writeJson.WriteAllToFileAsync(stationList, toolList, operationList, path);
+        await _writeJson.WriteAllToFileAsync(stationList, toolList, operationList);
     }
 }

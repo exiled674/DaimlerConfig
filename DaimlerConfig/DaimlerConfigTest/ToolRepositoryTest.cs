@@ -523,7 +523,7 @@ namespace DaimlerConfigTest
          {
              // Korrigierte Abfrage mit stationID
              var expectedCount = await _connection.QuerySingleAsync<int>("SELECT COUNT(*) FROM Tool WHERE stationID = 1;");
-             var tools = await toolRepository.getToolsFromStation(1);
+             var tools = await toolRepository.GetToolsFromStation(1);
              Assert.NotNull(tools);
              Assert.Equal(expectedCount, tools.Count());
          }
