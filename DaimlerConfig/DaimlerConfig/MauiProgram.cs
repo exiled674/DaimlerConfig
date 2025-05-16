@@ -25,8 +25,10 @@ namespace DaimlerConfig
                 });
 
             // 1. Konfigurationsdatei einbinden
+            string benutzerOrdner = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string dateiPfad = Path.Combine(benutzerOrdner, "appsettings.json");
             builder.Configuration
-                   .AddJsonFile("D:\\MSSQL\\appsettings.json", optional: false, reloadOnChange: true);
+                   .AddJsonFile(dateiPfad, optional: false, reloadOnChange: true);
 
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
@@ -57,6 +59,7 @@ namespace DaimlerConfig
             });
 
             var app = builder.Build();
+
 
             // 4. Datenbank sicherstellen (für EF Core oder eigene Implementierung)
             app.Services.GetRequiredService<DatabaseInitializer>().EnsureCreated();
