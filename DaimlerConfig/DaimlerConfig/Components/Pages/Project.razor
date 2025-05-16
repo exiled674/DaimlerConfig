@@ -313,7 +313,7 @@
 
     private async Task ReloadOperations()
     {
-        if (line != null)
+        if (line != null && selectedTool != null)
         {
             operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
             allOperations = await Fassade.GetAllOperations();
