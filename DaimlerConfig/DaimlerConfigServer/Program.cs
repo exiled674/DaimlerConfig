@@ -1,3 +1,4 @@
+using DaimlerConfigServer.Hubs;
 using DaimlerConfigServer.ServerComponents;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddSignalR();
+
+
 
 var app = builder.Build();
 
@@ -24,5 +29,7 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapHub<SignalHub>("/signalhub");
 
 app.Run();
