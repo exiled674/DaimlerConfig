@@ -1,0 +1,39 @@
+﻿@page "/"
+@using DaimlerConfig.Services
+@inject SignalRService signalRService
+
+<h3>Chat With Server</h3>
+
+<input @bind="Message" class="form-control" placeholder="Enter Message" />
+<button @onclick="SendMessage" class="btn btn-primary">Send</button>
+
+<ul>
+    @foreach (var msg in Messages)
+    {
+        <li>@msg</li>
+    }
+</ul>
+
+@code {
+    string? Message;
+    List<string> Messages = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+       await signalRService.StartConnectionAsync();
+       signalRService.RegisterResponseHandler((response) =>
+       {
+           Messages.Add(response);
+           InvokeAsync(StateHasChanged);
+       });
+    }
+
+    async Task SendMessage()
+    {
+        if (!string.IsNullOrEmpty(Message))
+        {
+            await signalRService.SendMessageToServer(Message);
+            Message = null!;
+        }
+    }
+}

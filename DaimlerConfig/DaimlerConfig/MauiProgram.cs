@@ -9,6 +9,8 @@ using DaimlerConfig.Components.Infrastructure;
 using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Fassade;
+using DaimlerConfig.Services;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace DaimlerConfig
 {
@@ -34,7 +36,8 @@ namespace DaimlerConfig
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
-#endif
+#endif      
+            builder.Services.AddSingleton<SignalRService>();
 
             // 2. Azure SQL Server ConnectionFactory registrieren
             var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -57,6 +60,13 @@ namespace DaimlerConfig
 
                 return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo);
             });
+
+
+            //SignalR
+
+            var hubURL = "http://localhost:5056/signalhub";
+            var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
+            builder.Services.AddSingleton(connection);
 
             var app = builder.Build();
 
