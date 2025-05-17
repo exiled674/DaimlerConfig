@@ -275,7 +275,14 @@
                     {
                         case "StationChanged":
                             if (line != null)
+                            {
                                 stations = await Fassade.GetStationsFromLine(line.lineID);
+                                if (selectedStation != null)
+                                {
+                                    // Hole die aktualisierte Station aus der Datenbank
+                                    selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
+                                }
+                            }
                             break;
                         case "ToolChanged":
                             if (selectedStation != null)
