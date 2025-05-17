@@ -296,6 +296,7 @@
                                     // Hole die aktualisierte Station aus der Datenbank
                                     selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
                                 }
+                                allOperations = await Fassade.GetAllOperations();
                             }
                             break;
                         case "ToolChanged":
