@@ -85,7 +85,7 @@
                             {
                                                 <div class="tool-section" data-tool-id="@tool.toolID">
                                                     <div class="tool-header d-flex justify-content-between align-items-center">
-                                                        <span class="clickable" @onclick="() => SelectTool(tool)">@tool.toolShortname</span>
+                                                        <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
                                                         <div>
                                             @if (selectedTool != null)
                                             {
@@ -111,12 +111,12 @@
 
                 <!-- Rechte Spalte: Content -->
                 <div class="content-panel flex-fill">
-                    @if (showToolFormular)
+                    @if (showToolFormular && selectedTool != null)
                     {
                                 <ToolFormular SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
                     }
 
-                    @if (showOperationFormular)
+                    @if (showOperationFormular && selectedOperation != null)
                     {
                                 <OperationFormular SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" />
                     }
@@ -377,7 +377,7 @@
 
     private async Task ReloadTools()
     {
-        if (line != null)
+        if (line != null && selectedStation != null)
         {
             tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
             StateHasChanged();
@@ -386,7 +386,7 @@
 
     private async Task ReloadOperations()
     {
-        if (line != null && selectedTool != null)
+        if (line != null && selectedStation != null && selectedTool != null)
         {
             operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
             allOperations = await Fassade.GetAllOperations();
