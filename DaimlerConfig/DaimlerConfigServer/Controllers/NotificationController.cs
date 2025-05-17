@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using DaimlerConfigServer.Hubs;
+using System.Runtime.CompilerServices;
 
 namespace DaimlerConfigServer.Controllers
 {
@@ -17,3 +18,4 @@ namespace DaimlerConfigServer.Controllers
         }
     }
 }
+

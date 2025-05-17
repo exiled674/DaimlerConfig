@@ -1,5 +1,8 @@
 @page "/line/{lineName}"
 
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Components.Models
@@ -263,6 +266,42 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+                SignalRService.RegisterResponseHandler(async (string msg) =>
+            {
+                await InvokeAsync(async () =>
+                {
+                    switch (msg)
+                    {
+                        case "StationChanged":
+                            if (line != null)
+                                stations = await Fassade.GetStationsFromLine(line.lineID);
+                            break;
+                        case "ToolChanged":
+                            if (selectedStation != null)
+                                tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+                            break;
+                        case "OperationChanged":
+                            if (selectedTool != null)
+                                operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                            break;
+                            // später noch: "LineChanged" …
+                    }
+
+                    StateHasChanged();
+                });
+            });
+
+                // 2) Starte die Verbindung
+                await SignalRService.StartConnectionAsync();
+
+
+
+
+
+
+
+
         line = await Fassade.GetLineByName(lineName);
 
         if (line != null)
