@@ -1,6 +1,9 @@
 ﻿@using DaimlerConfig.Components.Models
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+
 <div>
 	<h2>Station</h2>
 	<div class="layout">
@@ -25,6 +28,7 @@
 </div>
 
 @code {
+
 	[Parameter]
 	public Station? SelectedStation { get; set; }
 
@@ -45,29 +49,33 @@
 		if (SelectedStation is null)
 			return;
 
-		
+
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
 		{
-			
-			
+
+
 			return;
 		}
 
 		if (SelectedStation.stationTypeID != 1)
 		{
-			
+
 			return;
 		}
 
 		bool exists = await Fassade.StationExistsByName(SelectedStation.assemblystation);
 		if (exists)
 		{
-			
+
 			return;
 		}
 
 		// Alles erfüllt → Station anlegen
 		await Fassade.AddStation(SelectedStation);
 		await OnUpdated.InvokeAsync();
+
+
+
+		await SignalRService.SendMessageToServer("StationChanged");
 	}
 }
