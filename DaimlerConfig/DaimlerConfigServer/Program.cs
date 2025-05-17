@@ -1,5 +1,6 @@
 using DaimlerConfigServer.Hubs;
 using DaimlerConfigServer.ServerComponents;
+using Microsoft.Azure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,12 +10,13 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {  Title = "Our API", Version = "v1" });
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Our API", Version = "v1" });
 });
 builder.Services.AddControllers();
-builder.Services.AddSignalR();
 
-
+// Azure SignalR Service einbinden
+builder.Services.AddSignalR()
+    .AddAzureSignalR(builder.Configuration["AzureSignalR:ConnectionString"]);
 
 var app = builder.Build();
 
@@ -39,13 +41,13 @@ app.UseCors(builder =>
 });
 app.UseHttpsRedirection();
 
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+// SignalR Hub über Azure SignalR Service bereitstellen
 app.MapHub<SignalHub>("/signalhub");
 app.MapControllers();
 
