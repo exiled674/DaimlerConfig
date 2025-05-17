@@ -296,7 +296,7 @@
                                     // Hole die aktualisierte Station aus der Datenbank
                                     selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
                                 }
-                                allOperations = await Fassade.GetAllOperations();
+                               
                             }
                             break;
                         case "ToolChanged":
@@ -319,6 +319,7 @@
                                     // Aktualisiere die ausgewählte Operation aus der neuen Liste
                                     selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
                                 }
+                                allOperations = await Fassade.GetAllOperations();
                             }
                             break;
                     }
