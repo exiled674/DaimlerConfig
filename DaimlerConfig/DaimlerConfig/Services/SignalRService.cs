@@ -25,12 +25,16 @@ namespace DaimlerConfig.Services
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine($"SignalR-Startfehler: {ex.Message}");
             }
         }
 
         public async Task SendMessageToServer(string message)
         {
+            if (connection.State != HubConnectionState.Connected)
+            {
+                await StartConnectionAsync();
+            }
             await connection.SendAsync("ReceiveMessage", message);
         }
 
