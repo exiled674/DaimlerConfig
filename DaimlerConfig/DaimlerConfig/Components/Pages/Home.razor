@@ -1,13 +1,18 @@
-﻿@page "/h"
+﻿@page "/"
 
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 @inject NavigationManager Navigation
+
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+
 
 @using CommunityToolkit.Maui.Storage;
 @using System.Text.Json
 @using System.IO
 @using System.Text
 @using Microsoft.Maui.Storage
+
 
 
 @using DaimlerConfig.Components.Models
@@ -144,7 +149,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Fassade.LineRepository.GetAll();
+        SignalRService.RegisterResponseHandler(async (string msg) =>
+                {
+                var result = await Fassade.GetAllLinesAsync();
+                AllLines = result.ToList();
+                ApplyFilters();
+                StateHasChanged();
+        });
+        await SignalRService.StartConnectionAsync();
+
+        // Initiales Laden
+        var result = await Fassade.GetAllLinesAsync();
         AllLines = result.ToList();
         ApplyFilters();
     }
