@@ -150,11 +150,14 @@
     protected override async Task OnInitializedAsync()
     {
         SignalRService.RegisterResponseHandler(async (string msg) =>
-                {
+        {
+            await InvokeAsync(async () =>
+            {
                 var result = await Fassade.GetAllLinesAsync();
                 AllLines = result.ToList();
                 ApplyFilters();
                 StateHasChanged();
+            });
         });
         await SignalRService.StartConnectionAsync();
 
@@ -199,6 +202,7 @@
         AllLines.Insert(0, newLine);
         EditingLines.Add(newLine);
         ApplyFilters();
+
     }
 
     private async Task ConfirmEdit(Line line, ChangeEventArgs e)
@@ -214,12 +218,14 @@
             if (line.lineID == 0) // ❗ prüft, ob es eine neue Line ist
             {
                 await Fassade.LineRepository.Add(line);
+
             }
             else
             {
                 await Fassade.LineRepository.Update(line);
             }
-
+            // SignalR-Nachricht senden
+            await SignalRService.SendMessageToServer("LineChanged");
             EditingLines.Remove(line);
             ApplyFilters();
         }
