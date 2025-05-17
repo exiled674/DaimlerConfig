@@ -166,8 +166,22 @@
     private async Task SelectStation(Station station)
     {
         selectedStation = station;
-        selectedTool = null;  // Setze das ausgewählte Tool zurück
-        selectedOperation = null;  // Setze die ausgewählte Operation zurück
+        selectedTool = new Tool
+            {
+                stationID = selectedStation.stationID,  // Setze stationID
+                toolTypeID = 1,                        // Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
+            };  // Setze das ausgewählte Tool zurück
+
+
+        selectedOperation = new Operation
+            {
+                toolID = selectedTool.toolID,  // Setze die toolID
+                decisionClassID = 1,           // Setze den Foreign Key auf 1
+                savingClassID = 1,             // Setze den Foreign Key auf 1
+                generationClassID = 1,         // Setze den Foreign Key auf 1
+                verificationClassID = 1,       // Setze den Foreign Key auf 1
+                qGateID = 1                    // Setze den Foreign Key auf 1
+            };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
 
         tools = await Fassade.GetToolsFromStation(station.stationID);
 
