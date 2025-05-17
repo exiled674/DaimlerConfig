@@ -41,6 +41,7 @@
 		{
 			await Fassade.UpdateStation(SelectedStation);
 			await OnUpdated.InvokeAsync();
+			await SignalRService.SendMessageToServer("StationChanged");
 		}
 	}
 
