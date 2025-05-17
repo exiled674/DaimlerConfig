@@ -9,13 +9,13 @@
     <div class="layout">
         <div class="toolColoumn">
             <label>Operation ID:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationID" readonly @onblur="UpdateOperationAsync" />
+            <input class="input-field" type="text" @bind="SelectedOperation.operationID" readonly  />
 
             <label>Operation Shortname:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationShortname" @onblur="UpdateOperationAsync" />
+            <input class="input-field" type="text" @bind="SelectedOperation.operationShortname"  />
 
             <label>Operation Description:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationDescription" @onblur="UpdateOperationAsync" />
+            <input class="input-field" type="text" @bind="SelectedOperation.operationDescription"  />
         </div>
 
         <div class="toolColoumn">
@@ -78,6 +78,13 @@
             {
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <button class="btn btn-success btn-sm" @onclick="AddOperationAsync">Create</button>
+                </div>
+            }
+
+            @if (SelectedOperation.operationID != 0)
+            {
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button class="btn btn-success btn-sm" @onclick="UpdateOperationAsync">Update</button>
                 </div>
             }
         </div>

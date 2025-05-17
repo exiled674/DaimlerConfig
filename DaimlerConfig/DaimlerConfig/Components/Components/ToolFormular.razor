@@ -9,13 +9,13 @@
     <div class="layout">
         <div class="toolColoumn">
             <label>Tool ID:</label>
-            <input class="input-field" type="text" @bind="SelectedTool.toolID" readonly @onblur="UpdateToolAsync" />
+            <input class="input-field" type="text" @bind="SelectedTool.toolID" readonly  />
 
             <label>Tool Shortname:</label>
-            <input class="input-field" type="text" @bind="SelectedTool.toolShortname" @onblur="UpdateToolAsync" />
+            <input class="input-field" type="text" @bind="SelectedTool.toolShortname" />
 
             <label>Tool Description:</label>
-            <input class="input-field" type="text" @bind="SelectedTool.toolDescription" @onblur="UpdateToolAsync" />
+            <input class="input-field" type="text" @bind="SelectedTool.toolDescription"  />
         </div>
 
         <div class="toolColoumn">
@@ -68,6 +68,17 @@
                 {
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(ValidationMessage))
+                    {
+                        <div class="text-danger">@ValidationMessage</div>
+                    }
+                }
+
+                @if (SelectedTool?.toolID != 0)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync">Update</button>
                     </div>
                     @if (!string.IsNullOrEmpty(ValidationMessage))
                     {

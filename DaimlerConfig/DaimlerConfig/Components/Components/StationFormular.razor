@@ -9,13 +9,13 @@
 	<div class="layout">
 		<div class="toolColoumn">
 			<label>Assemblystation:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.assemblystation" @onblur="UpdateStationAsync" />
+			<input class="input-field" type="text" @bind="SelectedStation.assemblystation"  />
 
 			<label>Assemblystation Description:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationName" @onblur="UpdateStationAsync" />
+			<input class="input-field" type="text" @bind="SelectedStation.stationName"  />
 
 			<label>Station Type:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationTypeID" @onblur="UpdateStationAsync" />
+			<input class="input-field" type="text" @bind="SelectedStation.stationTypeID" />
 
 			@if (SelectedStation?.stationID == 0)
 			{
@@ -23,6 +23,15 @@
 					<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
 				</div>
 			}
+
+			@if (SelectedStation?.stationID != 0)
+			{
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<button class="btn btn-primary btn-sm" @onclick="UpdateStationAsync">Update</button>
+				</div>
+			}
+
+
 		</div>
 	</div>
 </div>
