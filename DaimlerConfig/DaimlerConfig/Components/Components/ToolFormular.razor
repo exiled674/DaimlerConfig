@@ -1,6 +1,9 @@
 ﻿@using DaimlerConfig.Components.Models
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+
 <div>
     <h2>Tool</h2>
     <div class="layout">
@@ -91,6 +94,7 @@
         {
             await Fassade.UpdateTool(SelectedTool);
             await OnUpdated.InvokeAsync();
+            await SignalRService.SendMessageToServer("ToolChanged");
         }
     }
 
@@ -119,5 +123,7 @@
 
         await Fassade.AddTool(SelectedTool);
         await OnUpdated.InvokeAsync();
+
+        await SignalRService.SendMessageToServer("ToolChanged");
     }
 }

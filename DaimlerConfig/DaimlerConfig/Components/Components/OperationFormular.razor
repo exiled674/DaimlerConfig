@@ -1,6 +1,9 @@
 ﻿@using DaimlerConfig.Components.Models
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+
 <div>
     <h2>Operation</h2>
     <div class="layout">
@@ -94,6 +97,7 @@
         {
             await Fassade.UpdateOperation(SelectedOperation);
             await OnUpdated.InvokeAsync();
+            await SignalRService.SendMessageToServer("OperationChanged");
         }
     }
 
@@ -117,5 +121,6 @@
 
         await Fassade.AddOperation(SelectedOperation);
         await OnUpdated.InvokeAsync();
+        await SignalRService.SendMessageToServer("OperationChanged");
     }
 }
