@@ -42,7 +42,12 @@
         <div class="layout">
             <div class="toolColoumn">
                 <label>IP-Address Device:</label>
-                <input class="input-field" type="text" />
+                <input class="input-field" type="text" @bind="IPInput" @onblur="ValidateIP" placeholder="0.0.0.0" />
+
+                @if (!string.IsNullOrEmpty(IPValidationMessage))
+                {
+                    <div class="text-danger">@IPValidationMessage</div>
+                }
 
                 <label>PLC Name:</label>
                 <input class="input-field" type="text" />
@@ -137,4 +142,28 @@
 
         await SignalRService.SendMessageToServer("ToolChanged");
     }
+
+
+    private string IPInput = "";
+
+    private string? IPValidationMessage;
+
+    private void ValidateIP()
+    {
+        IPValidationMessage = null;
+
+        if (string.IsNullOrWhiteSpace(IPInput))
+        {
+            IPValidationMessage = "IP-Adresse darf nicht leer sein.";
+            return;
+        }
+
+        var regex = new System.Text.RegularExpressions.Regex(@"^(([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
+
+        if (!regex.IsMatch(IPInput))
+        {
+            IPValidationMessage = "Ungültiges IP-Adressformat.";
+        }
+    }
+
 }
