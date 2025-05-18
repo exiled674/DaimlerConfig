@@ -11,6 +11,7 @@ using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Fassade;
 using DaimlerConfig.Services;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Text.Json;
 
 namespace DaimlerConfig
 {
@@ -63,11 +64,25 @@ namespace DaimlerConfig
 
 
             //SignalR
+            var configPfad = Path.Combine(benutzerOrdner, "signalRVPS.json");
+            string hubURL = null;
 
-            //SharePoint
-            //var hubURL = "https://daimlerconfigserver20250517154135-b2epeqc2fphfcdh9.canadacentral-01.azurewebsites.net/signalhub";
-            //VPS
-            var hubURL = "http://92.205.188.134:5000/signalhub";
+            // JSON-Datei einlesen und SignalR-URL extrahieren
+            if (File.Exists(configPfad))
+            {
+                var jsonInhalt = File.ReadAllText(configPfad);
+                using var jsonDoc = JsonDocument.Parse(jsonInhalt);
+                if (jsonDoc.RootElement.TryGetProperty("SignalRHubUrl", out var urlElement))
+                {
+                    hubURL = urlElement.GetString();
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(hubURL))
+            {
+                throw new Exception("SignalR-URL konnte nicht aus der Konfiguration geladen werden.");
+            }
+
             var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
             builder.Services.AddSingleton(connection);
 
