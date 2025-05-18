@@ -64,10 +64,10 @@ namespace DaimlerConfig
 
             //SignalR
 
-            //var hubURL = "https://daimlerconfigserver20250517154135-b2epeqc2fphfcdh9.canadacentral-01.azurewebsites.net/";
-            var hubURL = "https://daimlerconfigserver20250517154135-b2epeqc2fphfcdh9.canadacentral-01.azurewebsites.net/signalhub";
-
-            //var hubURL = "https://localhost:5056/signalhub";
+            //SharePoint
+            //var hubURL = "https://daimlerconfigserver20250517154135-b2epeqc2fphfcdh9.canadacentral-01.azurewebsites.net/signalhub";
+            //VPS
+            var hubURL = "http://92.205.188.134:5000/signalhub";
             var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
             builder.Services.AddSingleton(connection);
 
