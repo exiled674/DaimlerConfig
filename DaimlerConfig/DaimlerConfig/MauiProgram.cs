@@ -46,7 +46,7 @@ namespace DaimlerConfig
                 new SqlServerConnectionFactory(sqlConnectionString));
 
             // 3. Initializer und Repositories
-            builder.Services.AddSingleton<DatabaseInitializer>();
+           
             builder.Services.AddSingleton<IToolRepository, ToolRepository>();
             builder.Services.AddSingleton<IOperationRepository, OperationRepository>();
             builder.Services.AddSingleton<IStationRepository, StationRepository>();
@@ -89,8 +89,8 @@ namespace DaimlerConfig
             var app = builder.Build();
 
 
-            // 4. Datenbank sicherstellen (für EF Core oder eigene Implementierung)
-            app.Services.GetRequiredService<DatabaseInitializer>().EnsureCreated();
+            
+            
 
             return app;
         }
