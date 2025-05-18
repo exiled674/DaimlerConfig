@@ -13,14 +13,17 @@ namespace DaimlerConfig.Components.Fassade
         public IStationRepository StationRepository { get; private set; }
         public IRepository<Line> LineRepository { get; private set; }
 
+        public IRepository<StationType> StationTypeRepository { get; private set; }
+
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository)
+        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository)
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
             StationRepository = stationRepository;
             LineRepository = lineRepository;
+            StationTypeRepository = stationTypeRepository;
         }
 
         #region Line
@@ -57,6 +60,13 @@ namespace DaimlerConfig.Components.Fassade
         public async Task UpdateLine(Line line)
         {
             await LineRepository.Update(line);
+        }
+        #endregion
+
+        #region StationType
+        public async Task<IEnumerable<StationType>> GetAllStationTypes()
+        {
+            return await StationTypeRepository.GetAll();
         }
         #endregion
 
