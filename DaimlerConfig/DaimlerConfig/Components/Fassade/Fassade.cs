@@ -270,6 +270,7 @@ namespace DaimlerConfig.Components.Fassade
         }
         #endregion
 
+        #region Export
         public async Task<string> Export()
         {
             var stations = await StationRepository.GetAll();
@@ -282,5 +283,18 @@ namespace DaimlerConfig.Components.Fassade
 
             return await _writeJson.WriteAllToFileAsync(stationList, toolList, operationList);
         }
+        #endregion
+
+        #region Copy
+        public Tool CloneTool(Tool tool)
+        {
+            return tool.Clone();
+        }
+
+        public Operation CloneOperation(Operation operation)
+        {
+            return operation.Clone();
+        }
+        #endregion
     }
 }
