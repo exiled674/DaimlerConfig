@@ -143,6 +143,7 @@
         await Fassade.DeleteLine(line);
         AllLines.Remove(line);
         EditingLines.Remove(line);
+        await SignalRService.SendMessageToServer("LineChanged");
         ActiveContextMenuLine = null;
         ApplyFilters();
     }
