@@ -114,11 +114,35 @@ namespace DaimlerConfig.Components.Fassade
         public async Task UpdateTool(Tool tool)
         {
             await ToolRepository.Update(tool);
+            var station = await StationRepository.Get(tool.stationID);
+            if (station != null)
+            {
+                station.lastModified = DateTime.Now;
+                await StationRepository.Update(station);
+            }
+            var line = await LineRepository.Get(station.lineID);
+            if (line != null)
+            {
+                line.lastModified = DateTime.Now;
+                await LineRepository.Update(line);
+            }
         }
 
         public async Task AddTool(Tool tool)
         {
             await ToolRepository.Add(tool);
+            var station = await StationRepository.Get(tool.stationID);
+            if (station != null)
+            {
+                station.lastModified = DateTime.Now;
+                await StationRepository.Update(station);
+            }
+            var line = await LineRepository.Get(station.lineID);
+            if (line != null)
+            {
+                line.lastModified = DateTime.Now;
+                await LineRepository.Update(line);
+            }
         }
 
         public async Task<bool> ToolExistsByName(string name)
@@ -129,6 +153,18 @@ namespace DaimlerConfig.Components.Fassade
         public async Task DeleteTool(Tool tool)
         {
             await ToolRepository.Delete(tool);
+            var station = await StationRepository.Get(tool.stationID);
+            if (station != null)
+            {
+                station.lastModified = DateTime.Now;
+                await StationRepository.Update(station);
+            }
+            var line = await LineRepository.Get(station.lineID);
+            if (line != null)
+            {
+                line.lastModified = DateTime.Now;
+                await LineRepository.Update(line);
+            }
         }
         #endregion
 
