@@ -3,6 +3,7 @@
 
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
+@using System.Linq
 
 <div>
 	<h2>Station</h2>
@@ -15,7 +16,14 @@
 			<input class="input-field" type="text" @bind="SelectedStation.stationName"  />
 
 			<label>Station Type:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationTypeID" />
+			<select class="input-field" @bind="SelectedStation.stationTypeID">
+				@if(stationTypes != null){
+					@foreach (var stationType in stationTypes)
+					{
+						<option value="@stationType.stationTypeID">@stationType.stationTypeName</option>
+					}
+				}
+			</select>
 
 			@if (SelectedStation?.stationID == 0)
 			{
@@ -43,6 +51,13 @@
 
 	[Parameter]
 	public EventCallback OnUpdated { get; set; }
+
+	IEnumerable<StationType> stationTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        stationTypes = await Fassade.GetAllStationTypes();
+    }
 
 	private async Task UpdateStationAsync()
 	{
