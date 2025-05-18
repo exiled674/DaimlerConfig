@@ -69,11 +69,23 @@ namespace DaimlerConfig.Components.Fassade
         public async Task UpdateStation(Station station)
         {
             await StationRepository.Update(station);
+            var line = await LineRepository.Get(station.lineID);
+            if (line != null)
+            {
+                line.lastModified = DateTime.Now;
+                await LineRepository.Update(line);
+            }
         }
 
         public async Task AddStation(Station station)
         {
             await StationRepository.Add(station);
+            var line = await LineRepository.Get(station.lineID);
+            if (line != null)
+            {
+                line.lastModified = DateTime.Now;
+                await LineRepository.Update(line);
+            }
         }
 
         public async Task<bool> StationExistsByName(string name)
@@ -84,6 +96,12 @@ namespace DaimlerConfig.Components.Fassade
         public async Task DeleteStation(Station station)
         {
             await StationRepository.Delete(station);
+            var line = await LineRepository.Get(station.lineID);
+            if (line != null)
+            {
+                line.lastModified = DateTime.Now;
+                await LineRepository.Update(line);
+            }
         }
         #endregion
 
