@@ -89,7 +89,7 @@
                                                         <div>
                                             @if (selectedTool != null)
                                             {
-                                                                <button class="btn btn-secondary btn-sm mr-2" @onclick="() => ToggleOperationFormular(true)">+</button>
+                                                                <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { ToggleOperationFormular(true); SelectTool(tool); }">+</button>
                                             }
 
                                                         </div>
@@ -210,10 +210,12 @@
 
         tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
 
+
+
         // Zeige das Tool-Formular an
-        showToolFormular = true;
+        /*showToolFormular = true;
         showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
-        showStationFormular = false;   // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
+        showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
         StateHasChanged();  // Aktualisiere den UI-Status
     }
