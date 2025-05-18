@@ -10,7 +10,7 @@ namespace DaimlerConfig.Components.Models
 {
     public class Tool : ICopyable<Tool>
     {
-        public int? toolID { get; set; }
+        public int? toolID { get; set; } = 0;
 
         public int? stationID { get; set; }
 
@@ -39,7 +39,7 @@ namespace DaimlerConfig.Components.Models
         public Tool Clone()
         {
             var clone = (Tool)this.MemberwiseClone();
-            clone.toolID = null;
+            clone.toolID = 0;
             clone.stationID = null;
             return clone;
         }
