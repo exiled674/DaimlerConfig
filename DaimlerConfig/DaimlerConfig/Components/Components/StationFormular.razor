@@ -82,11 +82,7 @@
 			return;
 		}
 
-		if (!new[] { 1, 2, 3 }.Contains(SelectedStation.stationTypeID))
-		{
-
-			return;
-		}
+		
 
 		bool exists = await Fassade.StationExistsByName(SelectedStation.assemblystation);
 		if (exists)
