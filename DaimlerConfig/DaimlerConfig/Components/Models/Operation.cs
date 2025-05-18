@@ -7,9 +7,13 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Models
 {
-    public class Operation
+    public class Operation : ICopyable<Operation>
     {
-        public int operationID { get; set; }
+        public int? operationID { get; set; }
+
+        public int? toolID { get; set; }
+
+
         public  string? operationShortname { get; set; }
         public  string? operationDescription { get; set; }
         public  string? operationSequence { get; set; }
@@ -20,10 +24,18 @@ namespace DaimlerConfig.Components.Models
         public int generationClassID { get; set; }
         public int verificationClassID { get; set; }
         public int savingClassID { get; set; }
-        public int toolID { get; set; }
+       
         public bool parallel { get; set; }
         public int qGateID { get; set; }
         public DateTime? lastModified { get; set; }
+
+        public Operation Clone()
+        {
+            var clone = (Operation)this.MemberwiseClone();
+            clone.operationID = null;
+            clone.toolID = null;
+            return clone;
+        }
     }
 
 
