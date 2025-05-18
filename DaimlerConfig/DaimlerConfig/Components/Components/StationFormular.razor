@@ -56,13 +56,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-		stationTypes = await Fassade.GetAllStationTypes();
-
-		// Standardwert setzen, falls noch keiner ausgewählt ist
-		if (stationTypes != null && stationTypes.Any() && (SelectedStation?.stationTypeID == 0))
-		{
-			SelectedStation.stationTypeID = stationTypes.First().stationTypeID;
-		}
+		stationTypes = await Fassade.GetAllStationTypes();		
     }
 
 	private async Task UpdateStationAsync()
