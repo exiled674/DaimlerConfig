@@ -137,7 +137,7 @@ namespace DaimlerConfig.Components.Repositories
             return all.Where(func);
         }
 
-        public async Task<TEntity?> Get(int id)
+        public async Task<TEntity?> Get(int? id)
         {
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();

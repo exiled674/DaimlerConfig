@@ -31,12 +31,12 @@
 
                 @foreach (var station in stations)
                 {
-                        <li class="sidebar-item">
-                            <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active" : "")"
-                            @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                                <span>@station.stationName</span>
-                            </a>
-                        </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active" : "")"
+                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                            <span>@station.stationName</span>
+                        </a>
+                    </li>
                 }
 
                 <li class="sidebar-item">
@@ -65,7 +65,7 @@
                         <h6>Tools and Operations</h6>
                         @if (selectedStation != null)
                         {
-                                <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
+                            <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
                         }
 
                     </div>
@@ -73,36 +73,36 @@
                     <div id="toolsList">
                         @if (selectedStation == null)
                         {
-                                    <p>Bitte eine Station auswählen.</p>
+                            <p>Bitte eine Station auswählen.</p>
                         }
                         else if (!tools.Any())
                         {
-                                    <p>Keine Tools für @selectedStation.stationName gefunden.</p>
+                            <p>Keine Tools für @selectedStation.stationName gefunden.</p>
                         }
                         else
                         {
                             @foreach (var tool in tools)
                             {
-                                                <div class="tool-section" data-tool-id="@tool.toolID">
-                                                    <div class="tool-header d-flex justify-content-between align-items-center">
-                                                        <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
-                                                        <div>
-                                                                <button class="btn btn-secondary btn-sm mr-2" >copy</button>
-                                                                <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { ToggleOperationFormular(true); SelectTool(tool); }">+</button>
-                                            
+                                <div class="tool-section" data-tool-id="@tool.toolID">
+                                    <div class="tool-header d-flex justify-content-between align-items-center">
+                                        <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
+                                        <div>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { ToggleOperationFormular(true); SelectTool(tool); }">+</button>
 
-                                                        </div>
-                                                    </div>
-                                            <div class="operation-list">
+
+                                        </div>
+                                    </div>
+                                    <div class="operation-list">
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
-                                                                <div class="operation-section d-flex justify-content-between align-items-center">
-                                                                    <span class="clickable" @onclick="() => SelectOperation(operation)">@operation.operationShortname</span>
+                                            <div class="operation-section d-flex justify-content-between align-items-center">
+                                                <span class="clickable" @onclick="() => SelectOperation(operation)">@operation.operationShortname</span>
 
-                                                                </div>
-                                        }
                                             </div>
-                                        </div>
+                                        }
+                                    </div>
+                                </div>
                             }
                         }
                     </div>
@@ -112,17 +112,17 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                                <ToolFormular SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
+                        <ToolFormular SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
                     {
-                                <OperationFormular SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" />
+                        <OperationFormular SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" />
                     }
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                                <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
+                        <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
                     }
                 </div>
             </main>
@@ -216,7 +216,7 @@
         showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
         showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-        StateHasChanged();  // Aktualisiere den UI-Status
+                        StateHasChanged();  // Aktualisiere den UI-Status
     }
 
     private void ToggleToolFormular(bool isNewTool)
@@ -282,55 +282,55 @@
     protected override async Task OnInitializedAsync()
     {
 
-                SignalRService.RegisterResponseHandler(async (string msg) =>
+        SignalRService.RegisterResponseHandler(async (string msg) =>
+    {
+        await InvokeAsync(async () =>
+        {
+            switch (msg)
             {
-                await InvokeAsync(async () =>
-                {
-                    switch (msg)
+                case "StationChanged":
+                    if (line != null)
                     {
-                        case "StationChanged":
-                            if (line != null)
-                            {
-                                stations = await Fassade.GetStationsFromLine(line.lineID);
-                                if (selectedStation != null)
-                                {
-                                    // Hole die aktualisierte Station aus der Datenbank
-                                    selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
-                                }
-                               
-                            }
-                            break;
-                        case "ToolChanged":
-                            if (selectedStation != null)
-                            {
-                                tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
-                                if (selectedTool != null)
-                                {
-                                    // Aktualisiere das ausgewählte Tool aus der neuen Liste
-                                    selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
-                                }
-                            }
-                            break;
-                        case "OperationChanged":
-                            if (selectedTool != null)
-                            {
-                                operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                                if (selectedOperation != null)
-                                {
-                                    // Aktualisiere die ausgewählte Operation aus der neuen Liste
-                                    selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
-                                }
-                                allOperations = await Fassade.GetAllOperations();
-                            }
-                            break;
+                        stations = await Fassade.GetStationsFromLine(line.lineID);
+                        if (selectedStation != null)
+                        {
+                            // Hole die aktualisierte Station aus der Datenbank
+                            selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
+                        }
+
                     }
+                    break;
+                case "ToolChanged":
+                    if (selectedStation != null)
+                    {
+                        tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+                        if (selectedTool != null)
+                        {
+                            // Aktualisiere das ausgewählte Tool aus der neuen Liste
+                            selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
+                        }
+                    }
+                    break;
+                case "OperationChanged":
+                    if (selectedTool != null)
+                    {
+                        operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                        if (selectedOperation != null)
+                        {
+                            // Aktualisiere die ausgewählte Operation aus der neuen Liste
+                            selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
+                        }
+                        allOperations = await Fassade.GetAllOperations();
+                    }
+                    break;
+            }
 
-                    StateHasChanged();
-                });
-            });
+            StateHasChanged();
+        });
+    });
 
-                // 2) Starte die Verbindung
-                await SignalRService.StartConnectionAsync();
+        // 2) Starte die Verbindung
+        await SignalRService.StartConnectionAsync();
 
 
 
@@ -397,5 +397,21 @@
             StateHasChanged();
         }
     }
+
+    #region Clone
+    private Tool? copiedTool;
+    private Operation? copiedOperation;
+    public void CloneTool(Tool copied)
+    {
+
+        copiedTool = Fassade.Clone(copied);
+
+    }
+
+    public void CloneOperation(Operation copied)
+    {
+        copiedOperation = Fassade.Clone(copied);
+    }
+    #endregion
 
 }

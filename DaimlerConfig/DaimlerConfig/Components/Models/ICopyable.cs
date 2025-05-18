@@ -8,7 +8,7 @@ namespace DaimlerConfig.Components.Models
 {
     public interface ICopyable<T>
     {
-        T Clone();
+        public T Clone();
     }
 
 }

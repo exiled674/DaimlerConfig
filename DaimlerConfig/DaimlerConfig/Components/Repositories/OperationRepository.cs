@@ -10,7 +10,7 @@ namespace DaimlerConfig.Components.Repositories
         {
         }
 
-        public async Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
+        public async Task<IEnumerable<Operation>> GetOperationsFromTool(int? toolID)
         {
             using var connection = _dbConnectionFactory.CreateConnection();
 

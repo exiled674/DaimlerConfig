@@ -20,7 +20,7 @@ namespace DaimlerConfig.Components.Repositories
 
 
 
-        public Task<TEntity?> Get(int id);
+        public Task<TEntity?> Get(int? id);
 
         public Task<TEntity?> GetByName(string name);
         public Task<IEnumerable<TEntity>> GetAll();

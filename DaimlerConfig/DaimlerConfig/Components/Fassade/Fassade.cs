@@ -118,7 +118,7 @@ namespace DaimlerConfig.Components.Fassade
         #endregion
 
         #region Tool
-        public async Task<IEnumerable<Tool>> GetToolsFromStation(int stationID)
+        public async Task<IEnumerable<Tool>> GetToolsFromStation(int? stationID)
         {
             return await ToolRepository.GetToolsFromStation(stationID);
         }
@@ -183,7 +183,7 @@ namespace DaimlerConfig.Components.Fassade
         #endregion
 
         #region Operation
-        public async Task<IEnumerable<Operation>> GetOperationsFromTool(int toolID)
+        public async Task<IEnumerable<Operation>> GetOperationsFromTool(int? toolID)
         {
             return await OperationRepository.GetOperationsFromTool(toolID);
         }
@@ -285,15 +285,11 @@ namespace DaimlerConfig.Components.Fassade
         }
         #endregion
 
-        #region Copy
-        public Tool CloneTool(Tool tool)
+        #region Clone
+        
+        public T Clone<T>(ICopyable<T> obj)
         {
-            return tool.Clone();
-        }
-
-        public Operation CloneOperation(Operation operation)
-        {
-            return operation.Clone();
+            return obj.Clone();
         }
         #endregion
     }

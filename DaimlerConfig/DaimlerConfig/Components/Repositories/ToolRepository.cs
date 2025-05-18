@@ -11,7 +11,7 @@ namespace DaimlerConfig.Components.Repositories
         {
         }
 
-        public async Task<IEnumerable<Tool>> GetToolsFromStation(int stationID)
+        public async Task<IEnumerable<Tool>> GetToolsFromStation(int? stationID)
         {
             using var connection = _dbConnectionFactory.CreateConnection();
 
