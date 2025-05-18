@@ -78,6 +78,7 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task UpdateStation(Station station)
         {
+            station.lastModified = DateTime.Now;
             await StationRepository.Update(station);
             var line = await LineRepository.Get(station.lineID);
             if (line != null)
@@ -89,6 +90,7 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task AddStation(Station station)
         {
+            station.lastModified = DateTime.Now;
             await StationRepository.Add(station);
             var line = await LineRepository.Get(station.lineID);
             if (line != null)
@@ -123,6 +125,7 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task UpdateTool(Tool tool)
         {
+            tool.lastModified = DateTime.Now;
             await ToolRepository.Update(tool);
             var station = await StationRepository.Get(tool.stationID);
             if (station != null)
@@ -140,6 +143,7 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task AddTool(Tool tool)
         {
+            tool.lastModified = DateTime.Now;
             await ToolRepository.Add(tool);
             var station = await StationRepository.Get(tool.stationID);
             if (station != null)
@@ -191,6 +195,7 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task UpdateOperation(Operation operation)
         {
+            operation.lastModified = DateTime.Now;
             await OperationRepository.Update(operation);
             var tool = await ToolRepository.Get(operation.toolID);
             if (tool != null)
@@ -214,6 +219,7 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task AddOperation(Operation operation)
         {
+            operation.lastModified = DateTime.Now;
             await OperationRepository.Add(operation);
             var tool = await ToolRepository.Get(operation.toolID);
             if (tool != null)
