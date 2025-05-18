@@ -82,7 +82,7 @@
 			return;
 		}
 
-		if (SelectedStation.stationTypeID != 1)
+		if (!new[] { 1, 2, 3 }.Contains(SelectedStation.stationTypeID))
 		{
 
 			return;
