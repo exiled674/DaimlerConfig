@@ -220,7 +220,7 @@
         showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
         showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                                                StateHasChanged();  // Aktualisiere den UI-Status
+                                                                                StateHasChanged();  // Aktualisiere den UI-Status
     }
 
     private void ToggleToolFormular(bool isNewTool)
@@ -422,7 +422,15 @@
         selectedTool = copiedTool;
         selectedTool.stationID = selectedStation.stationID;
         copiedTool = null;
-		ToggleToolFormular(false);
+        ToggleToolFormular(false);
+    }
+
+    public void InsertOperation()
+    {
+        selectedOperation = copiedOperation;
+        selectedOperation.toolID = selectedTool.toolID;
+        copiedOperation = null;
+        ToggleOperationFormular(false);
     }
     #endregion
 
