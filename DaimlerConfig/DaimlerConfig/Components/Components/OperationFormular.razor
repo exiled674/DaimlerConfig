@@ -98,36 +98,53 @@
     [Parameter]
     public EventCallback OnUpdated { get; set; }
 
+
+    #region CRUD
     private async Task UpdateOperationAsync()
     {
-        if (SelectedOperation != null)
-        {
-            await Fassade.UpdateOperation(SelectedOperation);
-            await OnUpdated.InvokeAsync();
-            await SignalRService.SendMessageToServer("OperationChanged");
-        }
+        if (await ValidateData() == false)
+            return;
+
+        await Fassade.UpdateOperation(SelectedOperation);
+        await OnUpdated.InvokeAsync();
+        await SignalRService.SendMessageToServer("OperationChanged");
+
     }
 
     private async Task AddOperationAsync()
     {
-        if (SelectedOperation == null)
+        if (await ValidateData() == false)
             return;
-
-        if (string.IsNullOrWhiteSpace(SelectedOperation.operationShortname))
-        {
-            Console.WriteLine("Operation Shortname darf nicht leer sein.");
-            return;
-        }
-
-        bool exists = await Fassade.OperationExistsByName(SelectedOperation.operationShortname);
-        if (exists)
-        {
-            Console.WriteLine("Operation Shortname ist bereits vergeben.");
-            return;
-        }
 
         await Fassade.AddOperation(SelectedOperation);
         await OnUpdated.InvokeAsync();
         await SignalRService.SendMessageToServer("OperationChanged");
     }
+    #endregion
+
+    #region Validate
+    private async Task<bool> ValidateData()
+    {
+        //Objekt
+        if (SelectedOperation == null)
+            return false;
+
+        //OperationShortname
+        if (string.IsNullOrWhiteSpace(SelectedOperation.operationShortname))
+            return false;
+
+        if (SelectedOperation.operationShortname.Length > 16)
+            return false;
+
+        if (await Fassade.OperationExistsByName(SelectedOperation.operationShortname))
+            return false;
+
+        //OperationDescription
+        if (SelectedOperation.operationDescription.Length > 100)
+            return false;
+
+        return true;
+    }
+
+    #endregion
 }
