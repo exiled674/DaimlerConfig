@@ -16,8 +16,8 @@ a{
 }
 
 #sidebar {
-    max-width: 150px;
-    min-width: 150px;
+    max-width: 200px;
+    min-width: 200px;
     transition: all 0.35s ease-in-out;
     background-color: white;
     display: flex;
@@ -26,7 +26,7 @@ a{
 }
 
 #sidebar.collapsed{
-    margin-left: -150px;
+    margin-left: -200px;
 }
 
 .toggler-btn {
@@ -36,7 +36,7 @@ a{
     z-index: 1;
 }
 
-.toggler-btn i {
+.toggler-btn svg {
     font-size: 1.5rem;
     color: black;
     font-weight: bold;
@@ -63,10 +63,26 @@ a.sidebar-link {
     display: block;
 }
 
+    /* Aktiv-Stil mit seitlichem Balken */
+    a.sidebar-link.active {
+        background-color: lightgray; /* gleicher Stil wie Hover */
+    }
 
-a.sidebar-link:hover{
-    background-color: lightgray;
-}
+        /* Der Balken links */
+        a.sidebar-link.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: dimgrey; /* oder deine Wunschfarbe */
+            border-radius: 2px;
+        }
+
+    a.sidebar-link:hover {
+        background-color: lightgray;
+    }
 
 
 .stationSelected {
@@ -77,7 +93,7 @@ a.sidebar-link:hover{
     width: 25%;
     background-color: #f8f9fa;
     border-right: 1px solid #dee2e6;
-    padding: 15px;
+    padding: 20px;
     overflow-y: auto;
 }
 
@@ -96,6 +112,14 @@ main {
     min-height: 89vh;
 }
 
+.square-button {
+    width: 30.6px;
+    height: 30.6px;
+    padding: 0;
+    text-align: center;
+    line-height: 32px;
+    font-size: 18px; /* Adjust if needed */
+}
 
 .clickable {
     cursor: pointer;
@@ -149,3 +173,4 @@ h6 {
         background-color: #cfe2ff;
         border-left: 3px solid #0d6efd;
     }
+

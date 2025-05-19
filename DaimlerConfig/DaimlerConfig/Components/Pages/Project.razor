@@ -31,12 +31,13 @@
 
                 @foreach (var station in stations)
                 {
-                    <li class="sidebar-item">
-                        <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
-                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                            <span>@station.assemblystation</span>
-                        </a>
-                    </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active" : "")"
+                            @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                                <Badge colour="#FF0000" />
+                                <span>@station.stationName</span>
+                            </a>
+                        </li>
                 }
 
                 <li class="sidebar-item">
@@ -53,14 +54,16 @@
         <div class="main">
             <nav class="navbar navbar-expand">
                 <button class="toggler-btn" @onclick="ToggleSidebar" type="button">
-                    <i class="lni lni-menu-hamburger-1"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                    </svg>
                 </button>
                 <h5><span>Current Station: @(selectedStation != null ? selectedStation.stationName : "Please choose a station")</span></h5>
             </nav>
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
-                <div class="tool-operation-panel p-5" style="width: 500px;">
+                <div class="tool-operation-panel" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
                         @if (selectedStation != null)
@@ -77,22 +80,24 @@
                     <div id="toolsList">
                         @if (selectedStation == null)
                         {
-                            <p>Bitte eine Station auswählen.</p>
+                            <div>Please choose a station.</div>
                         }
                         else if (!tools.Any())
                         {
-                            <p>Keine Tools für @selectedStation.stationName gefunden.</p>
+                                    <d>No tools found.</d>
                         }
                         else
                         {
                             @foreach (var tool in tools)
                             {
-                                <div class="tool-section" data-tool-id="@tool.toolID">
-                                    <div class="tool-header d-flex justify-content-between align-items-center">
-                                        <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
-                                        <div>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { ToggleOperationFormular(true); SelectTool(tool); }">+</button>
+                                                <div class="tool-section" data-tool-id="@tool.toolID">
+                                                    <div class="tool-header d-flex justify-content-between align-items-center">
+                                                        <span class="clickable" @onclick="() => SelectTool(tool)">@tool.toolShortname</span>
+                                                        <div>
+                                            @if (selectedTool != null)
+                                            {
+                                                <button class="btn btn-secondary btn-sm square-button" @onclick="() => ToggleOperationFormular(true)">+</button>
+                                            }
 
 
                                         </div>
@@ -359,20 +364,25 @@
     private bool showOperationFormular = false;
     private bool showStationFormular = false;
 
-    private void ToggleStationFormular(bool testBool)
+    private void ToggleStationFormular(bool isNewStation)
     {
-        if (testBool)
+        if (isNewStation)
         {
             selectedStation = new Station
                 {
                     lineID = line.lineID,
                     stationTypeID = 1
                 };
+            selectedTool = null;
+            selectedOperation = null;
+            tools = Enumerable.Empty<Tool>();
+            allOperations = Enumerable.Empty<Operation>();
         }
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
     }
+
 
     private async Task ReloadStations()
     {

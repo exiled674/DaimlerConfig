@@ -18,61 +18,84 @@
             <input class="input-field" type="text" @bind="SelectedOperation.operationDescription"  />
         </div>
 
-        <div class="toolColoumn">
-            <label>Serial Parallel</label>
-            <select class="input-field">
-                <option value="">Select</option>
-                <option value="Serial">Serial</option>
-                <option value="Parallel">Parallel</option>
-            </select>
+        <div class="toolColoumnRight ">
 
-            <label>Operation Sequenz</label>
-            <input class="input-field" type="text" />
+           
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="ProcessingMode">
+                    <option value="">select...</option>
+                    <option value="Serial">Serial</option>
+                    <option value="Parallel">Parallel</option>
+                </select>
+                <label for="ProcessingMode">Processing Mode</label>
+            </div>
 
-            <label>Operation Sequenz Group</label>
-            <input class="input-field" type="text" />
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>Operation Sequenz</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>Operation Sequenz Group</label>
+            </div>
+
         </div>
+
+         
+
+        
     </div>
     <hr />
-    <div>
-        <h3>Classes</h3>
-        <div class="layout">
-            <div class="toolColoumn">
-                <label>Decision Class:</label>
-                <select class="input-field">
-                    <option value="">Select</option>
-                    <option value="Serial">Serial</option>
-                    <option value="Parallel">Parallel</option>
-                </select>
+    <div >
+        <h2>Classes</h2>
+        <div class="layout position-relative">
+            <div class="toolColoumnLeft">
+                <div class="form-floating mb-3">
+                    <select class="form-select form-select" id="DecisionClass">
+                        <option value="">select...</option>
+                        <option value="Class1">needs</option>
+                        <option value="Class2">binding</option>
+                    </select>
+                    <label for="DecisionClass">Decision Class</label>
+                </div>
 
-                <label>Generation Class:</label>
-                <select class="input-field">
-                    <option value="">Select</option>
-                    <option value="Serial">Serial</option>
-                    <option value="Parallel">Parallel</option>
-                </select>
+                <div class="form-floating mb-3">
+                    <select class="form-select form-select" id="GenerationClass">
+                        <option value="">select...</option>
+                        <option value="Class1">needs</option>
+                        <option value="Class2">binding</option>
+                    </select>
+                    <label for="GenerationClass">Generation Class</label>
+                </div>
+
+
+                <div class="form-floating mb-3">
+                    <select class="form-select form-select" id="VerificationClass">
+                        <option value="">select...</option>
+                        <option value="Class1">needs</option>
+                        <option value="Class2">binding</option>
+                    </select>
+                    <label for="VerificationClass">Verification Class</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <select class="form-select form-select" id="SavingClass">
+                        <option value="">select...</option>
+                        <option value="Class1">needs</option>
+                        <option value="Class2">binding</option>
+                    </select>
+                    <label for="SavingClass">Saving Class</label>
+                </div>
             </div>
 
-            <div class="toolColoumn">
-                <label>Verification Class:</label>
-                <select class="input-field">
-                    <option value="">Select</option>
-                    <option value="Serial">Serial</option>
-                    <option value="Parallel">Parallel</option>
-                </select>
+            <div class="toolColoumnRight">
 
-                <label>Saving Class:</label>
-                <select class="input-field">
-                    <option value="">Select</option>
-                    <option value="Serial">Serial</option>
-                    <option value="Parallel">Parallel</option>
-                </select>
-            </div>
-
-            <div class="toolColoumn">
-                <label>Decision Criteria:</label>
-                <textarea class="input-field" rows="4" cols="25" placeholder="Gib deinen Text hier ein..."></textarea>
-            </div>
+                <div class="form-floating">
+                    <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px"></textarea>
+                    <label for="DecisionCriteria">Decision Criteria</label>
+                </div>
+            </div>            
 
             @if (SelectedOperation.operationID == 0)
             {

@@ -1,29 +1,37 @@
-﻿﻿* {
-    background-color: white;
+﻿.layout {
+    /*display: flex;*/
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap; /* Important for wrapping */
 }
 
-.layout {
+.class-header {
     display: flex;
     flex-direction: row;
-    max-width: 35%;
+    gap: 20px;
+    flex-wrap: wrap
 }
 
-.toolColoumn {
+h2 {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    font-weight:bold;
+}
+
+.toolColumnLeft, toolColoumnRight {
+    flex: 1;
+    min-width: 300px; /* Prevents columns from shrinking too much */
     display: flex;
     flex-direction: column;
-    margin: 50px;
 }
 
-input, select {
-    margin-bottom: 10px;
+label {
+    font-size: 0.95em;
 }
 
-
-.input-field {
-    padding: 12px 50px 12px 16px;
-    font-size: 14px;
-    border: none;
-    border-bottom: 1px solid black;
-    border-radius: 4px;
-    background-color: #F2F2F2;
+/* Optional: stack vertically at smaller screen sizes */
+@media (max-width: 768px) {
+    .layout {
+        flex-direction: column;
+    }
 }
