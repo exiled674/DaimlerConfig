@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿@using DaimlerConfig.Components.Models
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
@@ -119,3 +120,96 @@
 	}
 	#endregion
 }
+
+﻿@using DaimlerConfig.Components.Models
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+<div>
+
+	<div class="class-header justify-content-between align-items-center">
+		<h2>Station</h2>
+		@if (SelectedStation?.stationID == 0)
+		{
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
+			</div>
+		}
+
+		@if (SelectedStation?.stationID != 0)
+		{
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<button class="btn btn-primary btn-sm">Delete</button>
+			</div>
+		}
+	</div>
+	<div class="layout position-relative">
+		<div class="stationColoumn">
+
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @bind="SelectedStation.assemblystation" @onblur="UpdateStationAsync">
+				<label>Assemblystation</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @bind="SelectedStation.stationName" @onblur="UpdateStationAsync">
+				<label>Assemblystation Description</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @bind="SelectedStation.stationTypeID" @onblur="UpdateStationAsync">
+				<label>Station Type</label>
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public Station? SelectedStation { get; set; }
+
+	[Parameter]
+	public EventCallback OnUpdated { get; set; }
+
+	private async Task UpdateStationAsync()
+	{
+		if (SelectedStation != null)
+		{
+			await Fassade.UpdateStation(SelectedStation);
+			await OnUpdated.InvokeAsync();
+		}
+	}
+
+	private async Task CreateStationAsync()
+	{
+		if (SelectedStation is null)
+			return;
+
+		
+		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
+		{
+			
+			
+			return;
+		}
+
+		if (SelectedStation.stationTypeID != 1)
+		{
+			
+			return;
+		}
+
+		bool exists = await Fassade.StationExistsByName(SelectedStation.assemblystation);
+		if (exists)
+		{
+			
+			return;
+		}
+
+		// Alles erfüllt → Station anlegen
+		await Fassade.AddStation(SelectedStation);
+		await OnUpdated.InvokeAsync();
+	}
+}
+
