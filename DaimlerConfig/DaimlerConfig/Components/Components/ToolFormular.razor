@@ -7,10 +7,22 @@
 <div>
     <div class="class-header  justify-content-between align-items-center">
         <h2>Tool</h2>
+        <div class="d-flex gap-2">
         @if (SelectedTool?.toolID == 0)
         {
             <div class="d-flex justify-content-end align-items-center mb-3">
                 <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+            </div>
+            @if (!string.IsNullOrEmpty(ValidationMessage))
+            {
+                <div class="text-danger">@ValidationMessage</div>
+            }
+        }
+
+        @if (SelectedTool?.toolID != 0)
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync">Update</button>
             </div>
             @if (!string.IsNullOrEmpty(ValidationMessage))
             {
@@ -28,17 +40,18 @@
                 <div class="text-danger">@ValidationMessage</div>
             }
         }
+        </div>
     </div>
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly @onblur="UpdateToolAsync">
+                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly>
                 <label>Tool ID</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @bind="SelectedTool.toolShortname" @onblur="UpdateToolAsync">
+                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @bind="SelectedTool.toolShortname">
                 <label>Tool Shortname</label>
                 <datalist id="datalistOptions">
 
@@ -51,7 +64,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" @bind="SelectedTool.toolDescription" @onblur="UpdateToolAsync"></textarea>
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" @bind="SelectedTool.toolDescription" ></textarea>
                 <label>Tool Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedTool?.toolDescription?.Length ?? 0}/100")
@@ -122,27 +135,6 @@
             </div>
                 
 
-                @if (SelectedTool?.toolID == 0)
-                {
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
-                    </div>
-                    @if (!string.IsNullOrEmpty(ValidationMessage))
-                    {
-                        <div class="text-danger">@ValidationMessage</div>
-                    }
-                }
-
-                @if (SelectedTool?.toolID != 0)
-                {
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync">Update</button>
-                    </div>
-                    @if (!string.IsNullOrEmpty(ValidationMessage))
-                    {
-                        <div class="text-danger">@ValidationMessage</div>
-                    }
-                }
             </div>
         </div>
     </div>

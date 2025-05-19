@@ -7,6 +7,9 @@
 <div>
     <div class="class-header justify-content-between align-items-center">
         <h2>Operation</h2>
+
+        <!--Buttons Create Delete-->
+        <div class="d-flex gap-2">
         @if (SelectedOperation.operationID == 0)
         {
             <div class="d-flex justify-content-end align-items-center mb-3">
@@ -16,10 +19,19 @@
 
         @if (SelectedOperation.operationID != 0)
         {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-success btn-sm" @onclick="UpdateOperationAsync">Update</button>
+            </div>
+        }
+
+        @if (SelectedOperation.operationID != 0)
+        {
             <div class="d-flex justify-content-end align-items-center mb-3">
                 <button class="btn btn-primary btn-sm">Delete</button>
             </div>
         }
+        </div>
+
     </div>
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
@@ -130,20 +142,6 @@
                     <label for="DecisionCriteria">Decision Criteria</label>
                 </div>
             </div>            
-
-            @if (SelectedOperation.operationID == 0)
-            {
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <button class="btn btn-success btn-sm" @onclick="AddOperationAsync">Create</button>
-                </div>
-            }
-
-            @if (SelectedOperation.operationID != 0)
-            {
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <button class="btn btn-success btn-sm" @onclick="UpdateOperationAsync">Update</button>
-                </div>
-            }
         </div>
     </div>
 </div>
