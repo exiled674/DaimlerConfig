@@ -42,12 +42,9 @@
         <div class="layout">
             <div class="toolColoumn">
                 <label>IP-Address Device:</label>
-                <input class="input-field" type="text" @bind="SelectedTool.ipAddressDevice" @onblur="e => ValidateIP()" placeholder="0.0.0.0" />
+                <input class="input-field" type="text" @bind="SelectedTool.ipAddressDevice"  placeholder="0.0.0.0" />
 
-                @if (!string.IsNullOrEmpty(IPValidationMessage))
-                {
-                    <div class="text-danger">@IPValidationMessage</div>
-                }
+
 
                 <label>PLC Name:</label>
                 <input class="input-field" type="text" />
@@ -97,20 +94,6 @@
 
 @code {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     [Parameter]
     public Tool? SelectedTool { get; set; }
 
@@ -119,79 +102,64 @@
 
     private string? ValidationMessage;
 
+
+    #region CRUD
     private async Task UpdateToolAsync()
     {
-        if (SelectedTool != null && SelectedTool.toolID != 0)
-        {
-            await Fassade.UpdateTool(SelectedTool);
-            await OnUpdated.InvokeAsync();
-            await SignalRService.SendMessageToServer("ToolChanged");
-        }
+        if (await ValidateData() == false)
+            return;
+
+        await Fassade.UpdateTool(SelectedTool);
+        await OnUpdated.InvokeAsync();
+        await SignalRService.SendMessageToServer("ToolChanged");
     }
 
     private async Task CreateToolAsync()
     {
-        ValidationMessage = null;
+		if (await ValidateData() == false)
+			return;
 
-        if (SelectedTool == null)
-        {
-            ValidationMessage = "Tool-Daten fehlen.";
-            return;
-        }
 
-        if (string.IsNullOrWhiteSpace(SelectedTool.toolShortname))
-        {
-            ValidationMessage = "Tool Shortname darf nicht leer sein.";
-            return;
-        }
-
-        bool exists = await Fassade.ToolExistsByName(SelectedTool.toolShortname);
-        if (exists)
-        {
-            ValidationMessage = "Tool Shortname ist bereits vergeben.";
-            return;
-        }
-
-        if (!ValidateIP())
-        {
-            ValidationMessage = "Ungültige IP-Adresse.";
-            return;
-        }
-
-       
         await Fassade.AddTool(SelectedTool);
         await OnUpdated.InvokeAsync();
-
         await SignalRService.SendMessageToServer("ToolChanged");
     }
+    #endregion
 
-
-
-
-    private string? IPValidationMessage;
-
-    private bool ValidateIP()
+    #region Validate
+    private async Task<bool> ValidateData()
     {
-        IPValidationMessage = null;
-
-        if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
-        {
-            IPValidationMessage = "IP-Adresse darf nicht leer sein.";
+        // Objekt
+        if (SelectedTool == null)
             return false;
-        }
 
+        //ToolShortname
+        if (string.IsNullOrWhiteSpace(SelectedTool.toolShortname))
+            return false;
+
+        if (SelectedTool.toolShortname.Length > 16)
+            return false;
+
+		if (await Fassade.ToolExistsByName(SelectedTool.toolShortname))
+			return false;
+
+		//ToolDescription
+		if (SelectedTool.toolDescription.Length > 100)
+			return false;
+
+
+
+        //IP-Adresse
+         if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
+            return false;
+            
         var regex = new System.Text.RegularExpressions.Regex(@"^(([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
 
         if (!regex.IsMatch(SelectedTool.ipAddressDevice))
-        {
-            IPValidationMessage = "Ungültiges IP-Adressformat.";
-
             return false;
-        }
-
-
 
         return true;
     }
+    #endregion
 
 }
