@@ -65,22 +65,22 @@
 	#region CRUD
 	private async Task UpdateStationAsync()
 	{
-		if (await ValidateData() == true)
-		{
-			await Fassade.UpdateStation(SelectedStation);
-			await OnUpdated.InvokeAsync();
-			await SignalRService.SendMessageToServer("StationChanged");
-		}
+		if (await ValidateData() == false) return;
+
+		await Fassade.UpdateStation(SelectedStation);
+		await OnUpdated.InvokeAsync();
+		await SignalRService.SendMessageToServer("StationChanged");
+
 	}
 
 	private async Task CreateStationAsync()
 	{
-		if (await ValidateData() == true)
-		{
-			await Fassade.AddStation(SelectedStation);
-			await OnUpdated.InvokeAsync();
-			await SignalRService.SendMessageToServer("StationChanged");
-		}	
+		if (await ValidateData() == false) return;
+
+		await Fassade.AddStation(SelectedStation);
+		await OnUpdated.InvokeAsync();
+		await SignalRService.SendMessageToServer("StationChanged");
+			
 	}
 	#endregion
 
