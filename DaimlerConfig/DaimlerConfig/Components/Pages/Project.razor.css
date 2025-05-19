@@ -63,16 +63,32 @@ a.sidebar-link {
     display: block;
 }
 
+    /* Aktiv-Stil mit seitlichem Balken */
+    a.sidebar-link.active {
+        background-color: lightgray; /* gleicher Stil wie Hover */
+    }
 
-a.sidebar-link:hover{
-    background-color: lightgray;
-}
+        /* Der Balken links */
+        a.sidebar-link.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: dimgrey; /* oder deine Wunschfarbe */
+            border-radius: 2px;
+        }
+
+    a.sidebar-link:hover {
+        background-color: lightgray;
+    }
 
 .tool-operation-panel {
     width: 25%;
     background-color: #f8f9fa;
     border-right: 1px solid #dee2e6;
-    padding: 15px;
+    padding: 20px;
     overflow-y: auto;
 }
 
@@ -91,6 +107,14 @@ main {
     min-height: 89vh;
 }
 
+.square-button {
+    width: 30.6px;
+    height: 30.6px;
+    padding: 0;
+    text-align: center;
+    line-height: 32px;
+    font-size: 18px; /* Adjust if needed */
+}
 
 .clickable {
     cursor: pointer;
@@ -144,3 +168,4 @@ h6 {
         background-color: #cfe2ff;
         border-left: 3px solid #0d6efd;
     }
+

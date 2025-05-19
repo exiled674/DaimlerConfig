@@ -4,9 +4,10 @@
 
 .ProjectManager {
     background-color: #FEFEFE;
-    padding: 20px;
+    padding: 20%;
     border-radius: 8px;
     border: 2px solid #E0E0E0;
+    padding-top: 60px;
 }
 
 .projects {
@@ -54,11 +55,13 @@
 
 .search-icon {
     position: absolute;
-    top: 50%;
     left: 15px;
-    transform: translateY(-50%);
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 20px;
-    height: 20px;
     pointer-events: none;
 }
 
@@ -157,3 +160,4 @@
     cursor: pointer;
     padding: 0;
 }
+

@@ -2,32 +2,43 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 <div>
-	<h2>Station</h2>
-	<div class="layout">
-		<div class="toolColoumn">
-			<label>Assemblystation:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.assemblystation" @onblur="UpdateStationAsync" />
 
-			<label>Assemblystation Description:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationName" @onblur="UpdateStationAsync" />
+	<div class="class-header justify-content-between align-items-center">
+		<h2>Station</h2>
+		@if (SelectedStation?.stationID == 0)
+		{
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
+			</div>
+		}
 
-			<label>Station Type:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationTypeID" @onblur="UpdateStationAsync" />
+		@if (SelectedStation?.stationID != 0)
+		{
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<button class="btn btn-primary btn-sm">Delete</button>
+			</div>
+		}
+	</div>
+	<div class="layout position-relative">
+		<div class="stationColoumn">
 
-			@if (SelectedStation?.stationID == 0)
-			{
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
-				</div>
-			}
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @bind="SelectedStation.assemblystation" @onblur="UpdateStationAsync">
+				<label>Assemblystation</label>
+			</div>
 
-			@if (SelectedStation?.stationID != 0)
-			{
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm" >Delete</button>
-				</div>
-			}
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @bind="SelectedStation.stationName" @onblur="UpdateStationAsync">
+				<label>Assemblystation Description</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @bind="SelectedStation.stationTypeID" @onblur="UpdateStationAsync">
+				<label>Station Type</label>
+			</div>
+
 		</div>
+
 	</div>
 </div>
 
