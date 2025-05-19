@@ -36,7 +36,7 @@ a{
     z-index: 1;
 }
 
-.toggler-btn i {
+.toggler-btn svg {
     font-size: 1.5rem;
     color: black;
     font-weight: bold;
