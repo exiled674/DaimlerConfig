@@ -272,19 +272,24 @@
     private bool showOperationFormular = false;
     private bool showStationFormular = false;
 
-    private void ToggleStationFormular(bool testBool)
+    private void ToggleStationFormular(bool isNewStation)
     {
-        if (testBool)
+        if (isNewStation)
         {
             selectedStation = new Station
                 {
                     lineID = line.lineID  // Setze die lineID beim Erstellen
                 };
+            selectedTool = null;
+            selectedOperation = null;
+            tools = Enumerable.Empty<Tool>();
+            allOperations = Enumerable.Empty<Operation>();
         }
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
     }
+
 
     private async Task ReloadStations()
     {
