@@ -88,14 +88,27 @@
 	#region Validate
 	private async Task<bool> ValidateData()
 	{
+		//Objekt
 		if (SelectedStation is null)
 			return false;
+		
 
+
+		//Assemblystation
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
 			return false;
 
 		if (await Fassade.StationExistsByName(SelectedStation.assemblystation))
 			return false;
+
+		if (SelectedStation.assemblystation.Length > 10)
+			return false;
+
+
+
+		//StationName
+		if (SelectedStation.stationName.Length > 50)
+			return false;)
 
 		return true;
 
