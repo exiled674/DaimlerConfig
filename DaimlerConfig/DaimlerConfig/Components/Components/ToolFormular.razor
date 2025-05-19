@@ -5,66 +5,122 @@
 @inject SignalRService SignalRService
 
 <div>
-    <h2>Tool</h2>
-    <div class="layout">
-        <div class="toolColoumn">
-            <label>Tool ID:</label>
-            <input class="input-field" type="text" @bind="SelectedTool.toolID" readonly  />
+    <div class="class-header  justify-content-between align-items-center">
+        <h2>Tool</h2>
+        @if (SelectedTool?.toolID == 0)
+        {
+            <div class="d-flex justify-content-end align-items-center mb-3">
+                <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+            </div>
+            @if (!string.IsNullOrEmpty(ValidationMessage))
+            {
+                <div class="text-danger">@ValidationMessage</div>
+            }
+        }
 
-            <label>Tool Shortname:</label>
-            <input class="input-field" type="text" @bind="SelectedTool.toolShortname" />
-
-            <label>Tool Description:</label>
-            <input class="input-field" type="text" @bind="SelectedTool.toolDescription"  />
-        </div>
-
-        <div class="toolColoumn">
-            <label>Tool Class</label>
-            <select class="input-field">
-                <option value="">Select</option>
-                <option value="Option 1">Option 1</option>
-                <option value="Option 2">Option 2</option>
-                <option value="Option 3">Option 3</option>
-            </select>
-
-            <label>Tool Type</label>
-            <select class="input-field">
-                <option value="">Select</option>
-                <option value="Option Type 1">Option Type 1</option>
-                <option value="Option Type 2">Option Type 2</option>
-                <option value="Option Type 3">Option Type 3</option>
-            </select>
-        </div>
+        @if (SelectedTool?.toolID != 0)
+        {
+            <div class="d-flex justify-content-end align-items-center mb-3">
+                <button class="btn btn-primary btn-sm">Delete</button>
+            </div>
+            @if (!string.IsNullOrEmpty(ValidationMessage))
+            {
+                <div class="text-danger">@ValidationMessage</div>
+            }
+        }
     </div>
-    <hr />
-    <div>
-        <h3>Network</h3>
-        <div class="layout">
-            <div class="toolColoumn">
-                <label>IP-Address Device:</label>
-                <input class="input-field" type="text" @bind="SelectedTool.ipAddressDevice"  placeholder="0.0.0.0" />
+    <div class="layout position-relative">
+        <div class="toolColoumnLeft">
 
-
-
-                <label>PLC Name:</label>
-                <input class="input-field" type="text" />
-
-                <label>DBNo Send:</label>
-                <input class="input-field" type="text" />
-
-                <label>DBNo Receive:</label>
-                <input class="input-field" type="text" />
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly @onblur="UpdateToolAsync">
+                <label>Tool ID</label>
             </div>
 
-            <div class="toolColoumn">
-                <label>Address in Send-DB:</label>
-                <input class="input-field" type="text" />
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @bind="SelectedTool.toolShortname" @onblur="UpdateToolAsync">
+                <label>Tool Shortname</label>
+                <datalist id="datalistOptions">
 
-                <label>Address in Receive-DB:</label>
-                <input class="input-field" type="text" />
+                    <option value="San Francisco"></option>
+                    <option value="New York"></option>
+                    <option value="Seattle"></option>
+                    <option value="Los Angeles"></option>
+                    <option value="Chicago"></option>
+                </datalist>
+            </div>
 
-                <label>Byte Pre Check:</label>
-                <input class="input-field" type="text" />
+            <div class="form-floating mb-3">
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" @bind="SelectedTool.toolDescription" @onblur="UpdateToolAsync"></textarea>
+                <label>Tool Description</label>
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedTool?.toolDescription?.Length ?? 0}/100")
+                </span>
+            </div>
+
+
+        </div>
+
+        <div class="toolColoumnRight ">
+
+
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="ToolClass">
+                    <option value="">select...</option>
+                    <option value="Class1">needs</option>
+                    <option value="Class2">binding</option>
+                </select>
+                <label for="ToolClass">Tool Class</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="ToolType">
+                    <option value="">select...</option>
+                    <option value="Class1">needs</option>
+                    <option value="Class2">binding</option>
+                </select>
+                <label for="ToolType">Tool Type</label>
+            </div>
+         </div>
+
+        </div>
+    <hr />
+    <div>
+        <h2>Network</h2>
+        <div class="layout position-relative">
+            <div class="toolColoumnLeft">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>IP-Address Device</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>PLC Name</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>DBNo Send</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>DBNo Receive</label>
+            </div>
+            </div>
+
+            <div class="toolColoumnRight">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>Address in Send-DB</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>Address in Receive-DB</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>Byte Pre Check</label>
+            </div>
+                
 
                 @if (SelectedTool?.toolID == 0)
                 {
