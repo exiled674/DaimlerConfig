@@ -259,5 +259,27 @@ WHERE [{keyName}] = @{keyName};
             var sql = $"SELECT TOP 1 * FROM [{_tableName}] WHERE [{nameProperty}] = @name";
             return await conn.QueryFirstOrDefaultAsync<TEntity>(sql, new { name });
         }
+
+
+        public async Task<bool> ExistsByNameWithForeignKey(string name, string foreignKeyColumn, int foreignKeyId)
+        {
+            using var conn = _dbConnectionFactory.CreateConnection();
+            conn.Open();
+
+            string nameProperty = _tableName switch
+            {
+                "Station" => "assemblystation",
+                "Tool" => "toolShortname",
+                "Operation" => "operationShortname",
+                "Line" => "lineName",
+                _ => throw new InvalidOperationException($"Unbekannte Tabelle: {_tableName}")
+            };
+
+            var sql = $"SELECT COUNT(1) FROM [{_tableName}] WHERE [{nameProperty}] = @name AND [{foreignKeyColumn}] = @foreignKeyId";
+            var result = await conn.ExecuteScalarAsync<int>(sql, new { name, foreignKeyId });
+
+            return result > 0;
+        }
+
     }
 }

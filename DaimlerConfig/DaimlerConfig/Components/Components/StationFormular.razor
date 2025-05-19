@@ -80,7 +80,7 @@
 		await Fassade.AddStation(SelectedStation);
 		await OnUpdated.InvokeAsync();
 		await SignalRService.SendMessageToServer("StationChanged");
-			
+
 	}
 	#endregion
 
@@ -91,14 +91,14 @@
 		//Objekt
 		if (SelectedStation is null)
 			return false;
-		
+
 
 
 		//Assemblystation
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
 			return false;
 
-		if (await Fassade.StationExistsByName(SelectedStation.assemblystation))
+		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.lineID))
 			return false;
 
 		if (SelectedStation.assemblystation.Length > 10)
@@ -107,8 +107,12 @@
 
 
 		//StationName
-		if (SelectedStation.stationName.Length > 50)
-			return false;
+		if (SelectedStation.stationName != null)
+		{
+			if (SelectedStation.stationName.Length > 50)
+				return false;
+		}
+		
 
 		return true;
 

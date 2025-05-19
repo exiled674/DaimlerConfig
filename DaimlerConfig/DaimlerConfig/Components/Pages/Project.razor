@@ -34,7 +34,7 @@
                     <li class="sidebar-item">
                         <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                            <span>@station.stationName</span>
+                            <span>@station.assemblystation</span>
                         </a>
                     </li>
                 }

@@ -115,6 +115,12 @@ namespace DaimlerConfig.Components.Fassade
                 await LineRepository.Update(line);
             }
         }
+
+        public async Task<bool> StationExistsInLine(string name, int lineID)
+        {
+            var stations = await StationRepository.GetStationsFromLine(lineID);
+            return stations.Any(station => station.assemblystation!.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
         #endregion
 
         #region Tool
