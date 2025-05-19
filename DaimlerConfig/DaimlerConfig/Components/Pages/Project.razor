@@ -31,6 +31,7 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active" : "")"
                             @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                                <Badge colour="#FF0000" />
                                 <span>@station.stationName</span>
                             </a>
                         </li>
