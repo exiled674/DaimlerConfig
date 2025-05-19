@@ -25,12 +25,12 @@
         <div class="toolColoumnLeft">
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedOperation.operationID" readonly @onblur="UpdateOperationAsync">
+                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedOperation.operationID" readonly >
                 <label>Operation ID</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @bind="SelectedOperation.operationShortname" @onblur="UpdateOperationAsync">
+                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @bind="SelectedOperation.operationShortname">
                 <label>Operation Shortname</label>
                 <datalist id="datalistOptions">
 
@@ -43,7 +43,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @bind="SelectedOperation.operationDescription" @onblur="UpdateOperationAsync"></textarea>
+                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @bind="SelectedOperation.operationDescription"></textarea>
                 <label>Operation Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationDescription?.Length ?? 0}/100")</span>
