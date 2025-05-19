@@ -54,14 +54,18 @@
 
 	IEnumerable<StationType> stationTypes;
 
-    protected override async Task OnInitializedAsync()
-    {
-		stationTypes = await Fassade.GetAllStationTypes();		
-    }
 
+
+	protected override async Task OnInitializedAsync()
+	{
+		stationTypes = await Fassade.GetAllStationTypes();		
+	}
+
+
+	#region CRUD
 	private async Task UpdateStationAsync()
 	{
-		if (SelectedStation != null)
+		if (await ValidateData() == true)
 		{
 			await Fassade.UpdateStation(SelectedStation);
 			await OnUpdated.InvokeAsync();
@@ -71,32 +75,30 @@
 
 	private async Task CreateStationAsync()
 	{
-		if (SelectedStation is null)
-			return;
+		if (await ValidateData() == true)
+		{
+			await Fassade.AddStation(SelectedStation);
+			await OnUpdated.InvokeAsync();
+			await SignalRService.SendMessageToServer("StationChanged");
+		}	
+	}
+	#endregion
 
+
+	#region Validate
+	private async Task<bool> ValidateData()
+	{
+		if (SelectedStation is null)
+			return false;
 
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
-		{
+			return false;
 
+		if (await Fassade.StationExistsByName(SelectedStation.assemblystation))
+			return false;
 
-			return;
-		}
+		return true;
 
-		
-
-		bool exists = await Fassade.StationExistsByName(SelectedStation.assemblystation);
-		if (exists)
-		{
-
-			return;
-		}
-
-		// Alles erfüllt → Station anlegen
-		await Fassade.AddStation(SelectedStation);
-		await OnUpdated.InvokeAsync();
-
-
-
-		await SignalRService.SendMessageToServer("StationChanged");
 	}
+	#endregion
 }
