@@ -9,7 +9,7 @@ namespace DaimlerConfig.Components.Models
 {
     public class Operation : ICopyable<Operation>
     {
-        public int? operationID { get; set; }
+        public int? operationID { get; set; } = 0;
 
         public int? toolID { get; set; }
 
@@ -32,7 +32,7 @@ namespace DaimlerConfig.Components.Models
         public Operation Clone()
         {
             var clone = (Operation)this.MemberwiseClone();
-            clone.operationID = null;
+            clone.operationID = 0;
             clone.toolID = null;
             return clone;
         }
