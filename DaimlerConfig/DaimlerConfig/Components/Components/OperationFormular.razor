@@ -136,12 +136,19 @@
         if (SelectedOperation.operationShortname.Length > 16)
             return false;
 
-        if (await Fassade.OperationExistsByName(SelectedOperation.operationShortname))
+        if (!SelectedOperation.toolID.HasValue)
+            return false;
+
+        if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.toolID.Value))
             return false;
 
         //OperationDescription
-        if (SelectedOperation.operationDescription.Length > 100)
-            return false;
+        if (SelectedOperation.operationDescription != null)
+        {
+            if (SelectedOperation.operationDescription.Length > 100)
+                return false;
+        }
+       
 
         return true;
     }
