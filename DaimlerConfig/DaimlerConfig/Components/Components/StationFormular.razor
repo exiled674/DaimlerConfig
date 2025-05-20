@@ -6,41 +6,70 @@
 @using System.Linq
 
 <div>
-	<h2>Station</h2>
-	<div class="layout">
-		<div class="toolColoumn">
-			<label>Assemblystation:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.assemblystation"  />
 
-			<label>Assemblystation Description:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationName"  />
+	<div class="class-header justify-content-between align-items-center">
+		<h2>Station</h2>
+		<div class="d-flex justify-content-end align-items-center gap-2"> 
+		@if (SelectedStation?.stationID == 0)
+		{
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
+			</div>
+		}
 
-			<label>Station Type:</label>
-			<select class="input-field" @bind="SelectedStation.stationTypeID">
-				@if(stationTypes != null){
-					@foreach (var stationType in stationTypes)
+		@if (SelectedStation?.stationID == 0)
+		{
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
+			</div>
+		}
+
+		@if (SelectedStation?.stationID != 0)
+		{
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<button class="btn btn-primary btn-sm" @onclick="UpdateStationAsync">Update</button>
+			</div>
+		}
+
+		@if (SelectedStation?.stationID != 0)
+		{
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<button class="btn btn-primary btn-sm">Delete</button>
+			</div>
+		}
+		</div>
+	</div>
+
+
+
+	<div class="layout position-relative">
+		<div class="stationColoumn">
+
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @bind="SelectedStation.assemblystation">
+				<label>Assemblystation</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @bind="SelectedStation.stationName">
+				<label>Assemblystation Description</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<select class="form-select form-select" id="StationType" @bind="SelectedStation.stationTypeID">
+					@if (stationTypes != null)
 					{
-						<option value="@stationType.stationTypeID">@stationType.stationTypeName</option>
+						@foreach (var stationType in stationTypes)
+						{
+							<option value="@stationType.stationTypeID">@stationType.stationTypeName</option>
+						}
 					}
-				}
-			</select>
-
-			@if (SelectedStation?.stationID == 0)
-			{
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
-				</div>
-			}
-
-			@if (SelectedStation?.stationID != 0)
-			{
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm" @onclick="UpdateStationAsync">Update</button>
-				</div>
-			}
-
+				</select>
+				<label for="StationType">Station Type</label>
+			</div>
 
 		</div>
+
 	</div>
 </div>
 

@@ -34,6 +34,7 @@
                     <li class="sidebar-item">
                         <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                                    <Badge colour="@BadgeColor" />
                             <span>@station.assemblystation</span>
                         </a>
                     </li>
@@ -77,11 +78,11 @@
                     <div id="toolsList">
                         @if (selectedStation == null)
                         {
-                            <p>Bitte eine Station auswählen.</p>
+                            <p>Please choose a station.</p>
                         }
                         else if (!tools.Any())
                         {
-                            <p>Keine Tools für @selectedStation.stationName gefunden.</p>
+                            <p>No tools found.</p>
                         }
                         else
                         {
@@ -139,6 +140,7 @@
 @code {
 
     #region SideBar
+    private string BadgeColor = "#006700"; //needs to be implemented
     private string SidebarClass { get; set; } = string.Empty;
     private void ToggleSidebar()
     {
@@ -359,15 +361,19 @@
     private bool showOperationFormular = false;
     private bool showStationFormular = false;
 
-    private void ToggleStationFormular(bool testBool)
+    private void ToggleStationFormular(bool isNewStation)
     {
-        if (testBool)
+        if (isNewStation)
         {
             selectedStation = new Station
                 {
                     lineID = line.lineID,
                     stationTypeID = 1
                 };
+            selectedTool = null;
+            selectedOperation = null;
+            tools = Enumerable.Empty<Tool>();
+            allOperations = Enumerable.Empty<Operation>();
         }
         showStationFormular = true;
         showToolFormular = false;

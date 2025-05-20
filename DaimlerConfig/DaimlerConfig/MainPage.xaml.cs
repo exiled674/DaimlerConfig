@@ -6,5 +6,23 @@
         {
             InitializeComponent();
         }
+
+
+        protected override void OnAppearing()
+
+
+        {
+
+
+            base.OnAppearing();
+
+
+            this.Window.MinimumWidth = 800;
+
+
+            this.Window.MinimumHeight = 600;
+
+
+        }
     }
 }

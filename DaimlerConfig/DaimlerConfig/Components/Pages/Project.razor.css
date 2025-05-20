@@ -16,8 +16,8 @@ a{
 }
 
 #sidebar {
-    max-width: 150px;
-    min-width: 150px;
+    max-width: 200px;
+    min-width: 200px;
     transition: all 0.35s ease-in-out;
     background-color: white;
     display: flex;
@@ -25,9 +25,9 @@ a{
     padding-top: 55px;
 }
 
-#sidebar.collapsed{
-    margin-left: -150px;
-}
+    #sidebar.collapsed {
+        margin-left: -200px;
+    }
 
 .toggler-btn {
     background-color: transparent;
