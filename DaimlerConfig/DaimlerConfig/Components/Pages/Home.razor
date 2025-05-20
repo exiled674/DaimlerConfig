@@ -14,28 +14,33 @@
 
 <nav class="navbar fixed-top bg-white border-bottom">
     <div class="container-fluid">
-        <span class="navbar-brand mb-0 h2">Select Line</span>
+        <span class="navbar-brand mb-0 h2">Select a Line</span>
     </div>
 </nav>
 
 
 <div class="ProjectManager">
-    <div class="row">
+    <div class="row g-3">
+        <!-- Added gutter spacing -->
         <div class="col">
-            <form class="search-form">
-                <div class="search-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <!-- Search Bar (unchanged) -->
+            <form class="d-flex align-items-center bg-body-tertiary rounded-3 p-2 boder-1">
+                <span class="text-muted px-2">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                     </svg>
-                </div>
-                <input type="text" class="form-control form-control" placeholder="Search" @oninput="OnSearchTextChanged" value="@searchText">
+                </span>
+                <input type="text" class="form-control border-0 bg-transparent shadow-none" placeholder="Search" @oninput="OnSearchTextChanged" value="@searchText">
             </form>
         </div>
         <div class="col">
-            <select class="search-input" @onchange="OnSortChanged">
-                <option value="date" selected>Sorted by date descending</option>
-                <option value="name">Sorted by name ascending</option>
-            </select>
+            <!-- Select Dropdown (now perfectly matched) -->
+            <div class="d-flex align-items-center bg-body-tertiary rounded-3 p-2">
+                <select class="form-select border-0 bg-transparent shadow-none ps-0" @onchange="OnSortChanged">
+                    <option value="date" selected>Sorted by date descending</option>
+                    <option value="name">Sorted by name ascending</option>
+                </select>
+            </div>
         </div>
     </div>
 
