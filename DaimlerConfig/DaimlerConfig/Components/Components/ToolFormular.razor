@@ -7,47 +7,47 @@
 <div>
 
     <div class="class-header  justify-content-between align-items-center">
-    <h2>Tool</h2>
+        <h2>Tool</h2>
 
-    <div class="d-flex justify-content-end align-items-center gap-2">
-        @if (SelectedTool?.toolID == 0)
-        {
-            <div class="d-flex justify-content-end align-items-center mb-3">
-                <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
-            </div>
-            @if (!string.IsNullOrEmpty(ValidationMessage))
+        <div class="d-flex justify-content-end align-items-center gap-2">
+            @if (SelectedTool?.toolID == 0)
             {
-                <div class="text-danger">@ValidationMessage</div>
-            }
-        }
-
-        @if (SelectedTool?.toolID != 0)
-        {
-            <div class="d-flex justify-content-end align-items-center mb-3">
-                <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync">Update</button>
-            </div>
-            @if (!string.IsNullOrEmpty(ValidationMessage))
-            {
-                <div class="text-danger">@ValidationMessage</div>
-            }
-        }
-        @if (SelectedTool?.toolID != 0)
-        {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm">Delete</button>
+                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
                 </div>
-            @if (!string.IsNullOrEmpty(ValidationMessage))
-            {
-                        <div class="text-danger">@ValidationMessage</div>
+                @if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    <div class="text-danger">@ValidationMessage</div>
+                }
             }
-        }
+
+            @if (SelectedTool?.toolID != 0)
+            {
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync">Update</button>
+                </div>
+                @if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    <div class="text-danger">@ValidationMessage</div>
+                }
+            }
+            @if (SelectedTool?.toolID != 0)
+            {
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync">Delete</button>
+                </div>
+                @if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    <div class="text-danger">@ValidationMessage</div>
+                }
+            }
         </div>
     </div>
 
 
     <div class="layout position-relative">
         <div class="toolColoumnLeft">     
-            
+
             <div class="form-floating mb-3">
                 <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly>
                 <label>Tool ID</label>
@@ -93,40 +93,40 @@
     <div>
         <h2>Network</h2>
 
-          <div class="layout position-relative">
+        <div class="layout position-relative">
             <div class="toolColoumnLeft">
-            <div class="form-floating mb-3">
+                <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.ipAddressDevice">
-                <label>IP-Address Device</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>PLC Name</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>DBNo Send</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>DBNo Receive</label>
-            </div>
+                    <label>IP-Address Device</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control form-control" placeholder="">
+                    <label>PLC Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control form-control" placeholder="">
+                    <label>DBNo Send</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control form-control" placeholder="">
+                    <label>DBNo Receive</label>
+                </div>
             </div>
 
             <div class="toolColoumnRight">
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>Address in Send-DB</label>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control form-control" placeholder="">
+                    <label>Address in Send-DB</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control form-control" placeholder="">
+                    <label>Address in Receive-DB</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control form-control" placeholder="">
+                    <label>Byte Pre Check</label>
+                </div>
             </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>Address in Receive-DB</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>Byte Pre Check</label>
-             </div>
-         </div>
         </div>
     </div>
 </div>
@@ -163,6 +163,16 @@
         await Fassade.AddTool(SelectedTool);
         await OnUpdated.InvokeAsync();
         await SignalRService.SendMessageToServer("ToolChanged");
+    }
+
+    private async Task DeleteToolAsync()
+    {
+        if(SelectedTool != null)
+        {
+            await Fassade.DeleteTool(SelectedTool);
+            await OnUpdated.InvokeAsync();
+            await SignalRService.SendMessageToServer("ToolChanged");
+        }
     }
     #endregion
 

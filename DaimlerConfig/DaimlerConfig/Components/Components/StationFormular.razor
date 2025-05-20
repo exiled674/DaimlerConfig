@@ -10,33 +10,28 @@
 	<div class="class-header justify-content-between align-items-center">
 		<h2>Station</h2>
 		<div class="d-flex justify-content-end align-items-center gap-2"> 
-		@if (SelectedStation?.stationID == 0)
-		{
-			<div class="d-flex justify-content-between align-items-center mb-3">
-				<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
-			</div>
-		}
+			@if (SelectedStation?.stationID == 0)
+			{
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
+				</div>
+			}
 
-		@if (SelectedStation?.stationID == 0)
-		{
-			<div class="d-flex justify-content-between align-items-center mb-3">
-				<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
-			</div>
-		}
 
-		@if (SelectedStation?.stationID != 0)
-		{
-			<div class="d-flex justify-content-between align-items-center mb-3">
-				<button class="btn btn-primary btn-sm" @onclick="UpdateStationAsync">Update</button>
-			</div>
-		}
 
-		@if (SelectedStation?.stationID != 0)
-		{
-			<div class="d-flex justify-content-between align-items-center mb-3">
-				<button class="btn btn-primary btn-sm">Delete</button>
-			</div>
-		}
+			@if (SelectedStation?.stationID != 0)
+			{
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<button class="btn btn-primary btn-sm" @onclick="UpdateStationAsync">Update</button>
+				</div>
+			}
+
+			@if (SelectedStation?.stationID != 0)
+			{
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<button class="btn btn-primary btn-sm" @onclick="DeleteStationAsync">Delete</button>
+				</div>
+			}
 		</div>
 	</div>
 
@@ -110,6 +105,16 @@
 		await OnUpdated.InvokeAsync();
 		await SignalRService.SendMessageToServer("StationChanged");
 
+	}
+
+	private async Task DeleteStationAsync()
+	{
+		if (SelectedStation != null)
+		{
+			await Fassade.DeleteStation(SelectedStation);
+			await OnUpdated.InvokeAsync();
+			await SignalRService.SendMessageToServer("StationChanged");
+		}
 	}
 	#endregion
 
