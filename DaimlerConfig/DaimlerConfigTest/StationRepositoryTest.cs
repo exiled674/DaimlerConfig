@@ -17,13 +17,10 @@ namespace DaimlerConfigTest
         public StationRepositoryTest() // Konstruktor
         {
             //SqliteConnectionFactory erhält einen Speicherort für die .db und implementiert IDbConnectionFactory mit einer CreateConnection-Methode
-            var connectionFactory = new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "StationTest.db"));
+            var connectionFactory = new SqlServerConnectionFactory("Server = 92.205.188.134, 1433; Initial Catalog = DConfigTest; Persist Security Info = False; User ID = SA; Password = 580 = YQc8Tn1:mNdsoJ.8WeLVHMXIqWO2I5; MultipleActiveResultSets = False; Encrypt = False; TrustServerCertificate = True; Connection Timeout = 30; ");
 
             //Erstellt eine Verbindung zur Datenbank über den Pfad
             _connection = connectionFactory.CreateConnection();
-
-            //Methode um die Tabellen der Datenbank zu erstellen
-            CreateTables();
 
             //Methode um die Datenbank mit Testdaten zu befüllen
             SetUpData();
@@ -32,33 +29,7 @@ namespace DaimlerConfigTest
             stationRepository = new StationRepository(connectionFactory);
         }
 
-        internal void CreateTables()
-        {
-            _connection.Execute(@"
-                PRAGMA foreign_keys = ON;
 
-                CREATE TABLE IF NOT EXISTS Line (
-                  lineID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  lineName TEXT NOT NULL UNIQUE
-                );  
-
-                CREATE TABLE IF NOT EXISTS StationType (
-                  stationTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  stationTypeName TEXT NOT NULL UNIQUE
-                );
-
-                CREATE TABLE IF NOT EXISTS Station (
-                  stationID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  assemblystation TEXT NOT NULL ,
-                  stationName TEXT,
-                  stationTypeID INTEGER,
-                  lineID INTEGER,
-                  lastModified TEXT,
-                  FOREIGN KEY (stationTypeID) REFERENCES StationType(stationTypeID)
-                  FOREIGN KEY (lineID) REFERENCES Line(lineID)
-                );
-            ");
-        }
         internal void SetUpData()
         {
             
@@ -420,16 +391,6 @@ namespace DaimlerConfigTest
             //Wurde die Anzahl an Records korrekt ermittelt?
             Assert.Equal(expectedCount, allStations.Count());
         }
-
-
-       
-
-
-
-
-
-
-
 
 
         public void Dispose()

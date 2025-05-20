@@ -17,78 +17,18 @@ namespace DaimlerConfigTest
         public ToolRepositoryTest()
         {
             //SqliteConnectionFactory erhält einen Speicherort für die .db und implementiert IDbConnectionFactory mit einer CreateConnection-Methode
-            var connectionFactory = new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "ToolTest.db"));
+            var connectionFactory = new SqlServerConnectionFactory("Server = 92.205.188.134, 1433; Initial Catalog = DConfigTest; Persist Security Info = False; User ID = SA; Password = 580 = YQc8Tn1:mNdsoJ.8WeLVHMXIqWO2I5; MultipleActiveResultSets = False; Encrypt = False; TrustServerCertificate = True; Connection Timeout = 30; ");
 
             //Erstellt eine Verbindung zur Datenbank über den Pfad
             _connection = connectionFactory.CreateConnection();
 
             //Methode um die Tabellen der Datenbank zu erstellen
-            CreateTables();
 
             //Methode um die Datenbank mit Testdaten zu befüllen
             SetUpData();
 
             //Stationrepo mit Verbindung intiialisiert
             toolRepository = new ToolRepository(connectionFactory);
-        }
-
-
-        internal void CreateTables()
-        {
-            _connection.Execute(@"
-                PRAGMA foreign_keys = ON;
-
-                CREATE TABLE IF NOT EXISTS Line (
-                  lineID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  lineName TEXT NOT NULL UNIQUE
-                );  
-
-                CREATE TABLE IF NOT EXISTS StationType (
-                  stationTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  stationTypeName TEXT NOT NULL UNIQUE
-                );
-
-                CREATE TABLE IF NOT EXISTS Station (
-                  stationID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  assemblystation TEXT NOT NULL,
-                  stationName TEXT,
-                  stationTypeID INTEGER,
-                  lineID INTEGER,
-                  lastModified TEXT,
-                  FOREIGN KEY (stationTypeID) REFERENCES StationType(stationTypeID)
-                  FOREIGN KEY (lineID) REFERENCES Line(lineID)
-                );
-
-                CREATE TABLE IF NOT EXISTS ToolClass (
-                  toolClassID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  toolClassName TEXT NOT NULL UNIQUE
-                );
-
-                CREATE TABLE IF NOT EXISTS ToolType (
-                  toolTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  toolTypeName TEXT NOT NULL UNIQUE,
-                  toolClassID INTEGER NOT NULL,
-                  FOREIGN KEY (toolClassID) REFERENCES ToolClass(toolClassID)
-                );
-
-                CREATE TABLE IF NOT EXISTS Tool (
-                  toolID INTEGER PRIMARY KEY AUTOINCREMENT,
-                  toolShortname TEXT,
-                  toolDescription TEXT,
-                  toolTypeID INTEGER,
-                  stationID INTEGER NOT NULL,
-                  ipAddressDevice TEXT,
-                  plcName TEXT,
-                  dbNoSend TEXT,
-                  dbNoReceive TEXT,
-                  preCheckByte INTEGER DEFAULT 0,
-                  addressSendDB INTEGER DEFAULT 0,
-                  addressReceiveDB INTEGER DEFAULT 0,
-                  lastModified TEXT,
-                  FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
-                  FOREIGN KEY (stationID) REFERENCES Station(stationID)
-                );
-            ");
         }
 
         internal void SetUpData()
@@ -523,7 +463,7 @@ namespace DaimlerConfigTest
          {
              // Korrigierte Abfrage mit stationID
              var expectedCount = await _connection.QuerySingleAsync<int>("SELECT COUNT(*) FROM Tool WHERE stationID = 1;");
-             var tools = await toolRepository.getToolsFromStation(1);
+             var tools = await toolRepository.GetToolsFromStation(1);
              Assert.NotNull(tools);
              Assert.Equal(expectedCount, tools.Count());
          }
