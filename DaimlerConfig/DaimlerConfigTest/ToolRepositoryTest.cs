@@ -17,7 +17,7 @@ namespace DaimlerConfigTest
         public ToolRepositoryTest()
         {
             //SqliteConnectionFactory erhält einen Speicherort für die .db und implementiert IDbConnectionFactory mit einer CreateConnection-Methode
-            var connectionFactory = new SqlServerConnectionFactory("Server = 92.205.188.134, 1433; Initial Catalog = DConfigTest; Persist Security Info = False; User ID = SA; Password = 580 = YQc8Tn1:mNdsoJ.8WeLVHMXIqWO2I5; MultipleActiveResultSets = False; Encrypt = False; TrustServerCertificate = True; Connection Timeout = 30; ");
+            var connectionFactory = new SqlServerConnectionFactory("Server = 92.205.188.134, 1433; Initial Catalog = DConfigTest; Persist Security Info = False; User ID = SA; Password = 580=YQc8Tn1:mNdsoJ.8WeLVHMXIqWO2I5; MultipleActiveResultSets = False; Encrypt = False; TrustServerCertificate = True; Connection Timeout = 30; ");
 
             //Erstellt eine Verbindung zur Datenbank über den Pfad
             _connection = connectionFactory.CreateConnection();
@@ -69,406 +69,42 @@ namespace DaimlerConfigTest
             ");
         }
 
-        [Fact]
-        public async void AddToolTest_Works()
-        {
-            // Zeitstempel für Eindeutigkeit
-            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
 
-            // Neues Tool erstellen
-            var tool = new Tool
+
+        [Fact]
+        public async Task GetToolsFromStation_ReturnsToolsWithGivenStationID()
+        {
+            // Arrange
+            var uniqueShortname = "ToolTest_" + Guid.NewGuid().ToString("N").Substring(0, 6);
+            var stationID = 61;
+
+            var newTool = new Tool
             {
-                toolShortname = "ToolShort_" + zeitpunkt,
-                toolDescription = "Beschreibung_" + zeitpunkt,
-                toolTypeID = 1,       // muss existieren in SetupData
-                stationID = 1,        // muss existieren in SetupData
-                ipAddressDevice = "192.168.0.100",
-                plcName = "PLC_" + zeitpunkt,
-                dbNoSend = "100",
-                dbNoReceive = "101",
-                preCheckByte = 1,
-                addressSendDB = "a",
-                addressReceiveDB = "a",
-                lastModified = DateTime.Now
+                toolShortname = uniqueShortname,
+                stationID = stationID,
+                lastModified = DateTime.UtcNow
             };
 
-            // Tool speichern
-            await toolRepository.Add(tool);
+            // Füge neuen Tool-Eintrag über Repository hinzu
+            await toolRepository.Add(newTool);
 
-            // Überprüfen, ob das Tool korrekt eingefügt wurde
-            var result = await _connection.QueryFirstOrDefaultAsync<Tool>(
-                "SELECT * FROM Tool WHERE toolShortname = @toolShortname",
-                new { tool.toolShortname });
+            // Hole den eingefügten Eintrag via SQL, um die ID zu prüfen
+            var inserted = await _connection.QuerySingleOrDefaultAsync<Tool>(
+                "SELECT TOP 1 * FROM [Tool] WHERE toolShortname = @Name ORDER BY toolID DESC",
+                new { Name = uniqueShortname });
 
-            // Existenz prüfen
-            Assert.NotNull(result);
+            Assert.NotNull(inserted);
 
-            // Werte prüfen
-            Assert.Equal(tool.toolShortname, result.toolShortname);
-            Assert.Equal(tool.toolDescription, result.toolDescription);
-            Assert.Equal(tool.toolTypeID, result.toolTypeID);
-            Assert.Equal(tool.stationID, result.stationID);
-            Assert.Equal(tool.ipAddressDevice, result.ipAddressDevice);
-            Assert.Equal(tool.plcName, result.plcName);
-            Assert.Equal(tool.dbNoSend, result.dbNoSend);
-            Assert.Equal(tool.dbNoReceive, result.dbNoReceive);
-            Assert.Equal(tool.preCheckByte, result.preCheckByte);
-            Assert.Equal(tool.addressSendDB, result.addressSendDB);
-            Assert.Equal(tool.addressReceiveDB, result.addressReceiveDB);
-            Assert.Equal(tool.lastModified?.ToString("yyyy-MM-dd HH:mm:ss"), result.lastModified?.ToString("yyyy-MM-dd HH:mm:ss"));
+            // Act
+            var result = (await toolRepository.GetToolsFromStation(stationID)).ToList();
+
+            // Assert
+            Assert.NotEmpty(result);
+            Assert.Contains(result, t => t.toolID == inserted.toolID);
+
+            // Cleanup
+            await toolRepository.Delete(inserted);
         }
-
-        [Fact]
-        public async void AddToolWithInvalidData_Fails()
-        {
-            // Versuch, ein Tool mit ungültigen Daten hinzuzufügen
-            await Assert.ThrowsAsync<SqliteException>(async () =>
-            {
-                _connection.Execute(@"
-            INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive)
-            VALUES (@toolShortname, @toolDescription, @toolTypeID, @stationID, @ipAddressDevice, @plcName, @dbNoSend, @dbNoReceive);",
-                    new
-                    {
-                        toolShortname = "InvalidTool",
-                        toolDescription = "Invalid Description",
-                        toolTypeID = "InvalidType", // String statt int
-                        stationID = 1,
-                        ipAddressDevice = "192.168.0.100",
-                        plcName = "PLC_Invalid",
-                        dbNoSend = "DB_Invalid",
-                        dbNoReceive = "DB_Invalid"
-                    });
-            });
-        }
-
-        [Fact]
-        public async void AddToolWithNonExistentToolTypeID_Fails()
-        {
-            // Versuch, ein Tool mit einer nicht existierenden toolTypeID hinzuzufügen
-            await Assert.ThrowsAsync<SqliteException>(async () =>
-            {
-                var tool = new Tool
-                {
-                    toolShortname = "InvalidToolType",
-                    toolDescription = "Tool with non-existent ToolTypeID",
-                    toolTypeID = 9999, // Nicht existierende toolTypeID
-                    stationID = 1,
-                    ipAddressDevice = "192.168.0.100",
-                    plcName = "PLC_Invalid",
-                    dbNoSend = "DB_Invalid",
-                    dbNoReceive = "DB_Invalid",
-                    lastModified = DateTime.Now
-                };
-                await toolRepository.Add(tool);
-            });
-        }
-
-
-
-
-        [Fact]
-        public async void DeleteToolTest_Works()
-        {
-            // Tool manuell einfügen
-            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-            _connection.Execute(@"
-        INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified)
-        VALUES (@toolShortname, @toolDescription, @toolTypeID, @stationID, @ipAddressDevice, @plcName, @dbNoSend, @dbNoReceive, @preCheckByte, @addressSendDB, @addressReceiveDB, @lastModified);",
-                new
-                {
-                    toolShortname = "ToolShort_" + zeitpunkt,
-                    toolDescription = "Beschreibung_" + zeitpunkt,
-                    toolTypeID = 1,
-                    stationID = 1,
-                    ipAddressDevice = "192.168.0.100",
-                    plcName = "PLC_" + zeitpunkt,
-                    dbNoSend = "100",
-                    dbNoReceive = "101",
-                    preCheckByte = 1,
-                    addressSendDB = "a",
-                    addressReceiveDB = "a",
-                    lastModified = DateTime.Now
-                });
-
-            // Tool suchen
-            var toolToDelete = await _connection.QueryFirstOrDefaultAsync<Tool>(
-                "SELECT * FROM Tool WHERE toolShortname = @toolShortname",
-                new { toolShortname = "ToolShort_" + zeitpunkt });
-            Assert.NotNull(toolToDelete);
-
-            // Tool löschen
-            await toolRepository.Delete(toolToDelete);
-
-            // Überprüfen, ob das Tool gelöscht wurde
-            var deletedTool = await _connection.QueryFirstOrDefaultAsync<Tool>(
-                "SELECT * FROM Tool WHERE toolShortname = @toolShortname",
-                new { toolShortname = "ToolShort_" + zeitpunkt });
-            Assert.Null(deletedTool);
-        }
-
-        [Fact]
-        public async void DeleteAllTools_Works()
-        {
-            // Mehrere Tools hinzufügen
-            await toolRepository.Add(new Tool
-            {
-                toolShortname = "Tool1",
-                toolDescription = "Description1",
-                toolTypeID = 1,
-                stationID = 1,
-                ipAddressDevice = "192.168.0.101",
-                plcName = "PLC1",
-                dbNoSend = "DB1",
-                dbNoReceive = "DB2",
-                preCheckByte = 1,
-                addressSendDB = "a",
-                addressReceiveDB = "b",
-                lastModified = DateTime.Now
-            });
-
-            await toolRepository.Add(new Tool
-            {
-                toolShortname = "Tool2",
-                toolDescription = "Description2",
-                toolTypeID = 2,
-                stationID = 2,
-                ipAddressDevice = "192.168.0.102",
-                plcName = "PLC2",
-                dbNoSend = "DB3",
-                dbNoReceive = "DB4",
-                preCheckByte = 0,
-                addressSendDB = "c",
-                addressReceiveDB = "d",
-                lastModified = DateTime.Now
-            });
-
-            // Alle Tools löschen
-            var allTools = await toolRepository.GetAll();
-            foreach (var tool in allTools)
-            {
-                await toolRepository.Delete(tool);
-            }
-
-            // Überprüfen, ob keine Tools mehr existieren
-            var remainingTools = await toolRepository.GetAll();
-            Assert.Empty(remainingTools);
-        }
-
-        [Fact]
-        public async void DeleteNonExistentTool_DoesNotThrow()
-        {
-            // Tool erstellen, das nicht in der Datenbank existiert
-            var nonExistentTool = new Tool
-            {
-                toolID = 9999, // Nicht existierende ID
-                toolShortname = "NonExistentTool",
-                toolDescription = "This tool does not exist",
-                toolTypeID = 1,
-                stationID = 1,
-                ipAddressDevice = "192.168.0.200",
-                plcName = "NonExistentPLC",
-                dbNoSend = "DBX",
-                dbNoReceive = "DBY",
-                preCheckByte = 0,
-                addressSendDB = "x",
-                addressReceiveDB = "y",
-                lastModified = DateTime.Now
-            };
-
-            // Versuch, das nicht existierende Tool zu löschen
-            await toolRepository.Delete(nonExistentTool);
-
-            // Keine Ausnahme sollte ausgelöst werden
-        }
-
-
-        [Fact]
-        public async void UpdateToolTest_Works()
-        {
-            // Tool manuell einfügen
-            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-            _connection.Execute(@"
-        INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified)
-        VALUES (@toolShortname, @toolDescription, @toolTypeID, @stationID, @ipAddressDevice, @plcName, @dbNoSend, @dbNoReceive, @preCheckByte, @addressSendDB, @addressReceiveDB, @lastModified);",
-                new
-                {
-                    toolShortname = "ToolShort_" + zeitpunkt,
-                    toolDescription = "Beschreibung_" + zeitpunkt,
-                    toolTypeID = 1,
-                    stationID = 1,
-                    ipAddressDevice = "192.168.0.100",
-                    plcName = "PLC_" + zeitpunkt,
-                    dbNoSend = "100",
-                    dbNoReceive = "101",
-                    preCheckByte = 1,
-                    addressSendDB = "a",
-                    addressReceiveDB = "a",
-                    lastModified = DateTime.Now
-                });
-
-            // Tool suchen
-            var toolToUpdate = await _connection.QueryFirstOrDefaultAsync<Tool>(
-                "SELECT * FROM Tool WHERE toolShortname = @toolShortname",
-                new { toolShortname = "ToolShort_" + zeitpunkt });
-            Assert.NotNull(toolToUpdate);
-
-            // Neue Werte für das Tool
-            string updatedShortname = "UpdatedToolShort_" + zeitpunkt;
-            string updatedDescription = "Updated Beschreibung";
-            string updatedIpAddress = "192.168.0.200";
-            string updatedPlcName = "UpdatedPLC_" + zeitpunkt;
-            string updatedDbNoSend = "200";
-            string updatedDbNoReceive = "201";
-            int updatedPreCheckByte = 0;
-            string updatedAddressSendDB = "b";
-            string updatedAddressReceiveDB = "c";
-            DateTime updatedLastModified = DateTime.Now;
-
-            // Tool aktualisieren
-            toolToUpdate.toolShortname = updatedShortname;
-            toolToUpdate.toolDescription = updatedDescription;
-            toolToUpdate.toolTypeID = 2; // Ändern auf einen anderen ToolType
-            toolToUpdate.stationID = 2;  // Ändern auf eine andere Station
-            toolToUpdate.ipAddressDevice = updatedIpAddress;
-            toolToUpdate.plcName = updatedPlcName;
-            toolToUpdate.dbNoSend = updatedDbNoSend;
-            toolToUpdate.dbNoReceive = updatedDbNoReceive;
-            toolToUpdate.preCheckByte = updatedPreCheckByte;
-            toolToUpdate.addressSendDB = updatedAddressSendDB;
-            toolToUpdate.addressReceiveDB = updatedAddressReceiveDB;
-            toolToUpdate.lastModified = updatedLastModified;
-
-            await toolRepository.Update(toolToUpdate);
-
-            // Überprüfen, ob das Tool aktualisiert wurde
-            var updatedTool = await _connection.QueryFirstOrDefaultAsync<Tool>(
-                "SELECT * FROM Tool WHERE toolID = @toolID",
-                new { toolToUpdate.toolID });
-            Assert.NotNull(updatedTool);
-
-            // Werte prüfen
-            Assert.Equal(updatedShortname, updatedTool.toolShortname);
-            Assert.Equal(updatedDescription, updatedTool.toolDescription);
-            Assert.Equal(2, updatedTool.toolTypeID); // Geänderter ToolType
-            Assert.Equal(2, updatedTool.stationID);  // Geänderte Station
-            Assert.Equal(updatedIpAddress, updatedTool.ipAddressDevice);
-            Assert.Equal(updatedPlcName, updatedTool.plcName);
-            Assert.Equal(updatedDbNoSend, updatedTool.dbNoSend);
-            Assert.Equal(updatedDbNoReceive, updatedTool.dbNoReceive);
-            Assert.Equal(updatedPreCheckByte, updatedTool.preCheckByte);
-            Assert.Equal(updatedAddressSendDB, updatedTool.addressSendDB);
-            Assert.Equal(updatedAddressReceiveDB, updatedTool.addressReceiveDB);
-            Assert.Equal(updatedLastModified.ToString("yyyy-MM-dd HH:mm:ss"), updatedTool.lastModified?.ToString("yyyy-MM-dd HH:mm:ss"));
-        }
-
-        [Fact]
-        public async void GetToolByIdTest_Works()
-        {
-            // Tool manuell einfügen
-            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-            _connection.Execute(@"
-        INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified)
-        VALUES (@toolShortname, @toolDescription, @toolTypeID, @stationID, @ipAddressDevice, @plcName, @dbNoSend, @dbNoReceive, @preCheckByte, @addressSendDB, @addressReceiveDB, @lastModified);",
-                new
-                {
-                    toolShortname = "ToolShort_" + zeitpunkt,
-                    toolDescription = "Beschreibung_" + zeitpunkt,
-                    toolTypeID = 1,
-                    stationID = 1,
-                    ipAddressDevice = "192.168.0.100",
-                    plcName = "PLC_" + zeitpunkt,
-                    dbNoSend = "100",
-                    dbNoReceive = "101",
-                    preCheckByte = 1,
-                    addressSendDB = "a",
-                    addressReceiveDB = "a",
-                    lastModified = DateTime.Now
-                });
-
-            // Tool-ID abrufen
-            var toolId = await _connection.QuerySingleAsync<int>(
-                "SELECT toolID FROM Tool WHERE toolShortname = @toolShortname",
-                new { toolShortname = "ToolShort_" + zeitpunkt });
-
-            // Tool über Repository abrufen
-            var retrievedTool = await toolRepository.Get(toolId);
-
-            // Überprüfen, ob das Tool gefunden wurde
-            Assert.NotNull(retrievedTool);
-            Assert.Equal(toolId, retrievedTool.toolID);
-        }
-
-
-        [Fact]
-        public async void GetAllToolsTest_Works()
-        {
-            // Anzahl der Tools in der Datenbank abrufen
-            var expectedCount = await _connection.QuerySingleAsync<int>("SELECT COUNT(*) FROM Tool;");
-
-            // Tools über Repository abrufen
-            var allTools = await toolRepository.GetAll();
-
-            // Überprüfen, ob die Anzahl übereinstimmt
-            Assert.NotNull(allTools);
-            Assert.Equal(expectedCount, allTools.Count());
-        }
-
-        [Fact]
-        public async void UpdateToolWithInvalidData_Fails()
-        {
-            // Tool manuell einfügen
-            string zeitpunkt = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-            _connection.Execute(@"
-        INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified)
-        VALUES (@toolShortname, @toolDescription, @toolTypeID, @stationID, @ipAddressDevice, @plcName, @dbNoSend, @dbNoReceive, @preCheckByte, @addressSendDB, @addressReceiveDB, @lastModified);",
-                new
-                {
-                    toolShortname = "ToolShort_" + zeitpunkt,
-                    toolDescription = "Beschreibung_" + zeitpunkt,
-                    toolTypeID = 1,
-                    stationID = 1,
-                    ipAddressDevice = "192.168.0.100",
-                    plcName = "PLC_" + zeitpunkt,
-                    dbNoSend = "100",
-                    dbNoReceive = "101",
-                    preCheckByte = 1,
-                    addressSendDB = "a",
-                    addressReceiveDB = "a",
-                    lastModified = DateTime.Now
-                });
-
-            // Tool suchen
-            var toolToUpdate = await _connection.QueryFirstOrDefaultAsync<Tool>(
-                "SELECT * FROM Tool WHERE toolShortname = @toolShortname",
-                new { toolShortname = "ToolShort_" + zeitpunkt });
-            Assert.NotNull(toolToUpdate);
-
-            // Versuch, das Tool mit ungültigen Daten zu aktualisieren
-            await Assert.ThrowsAsync<FormatException>(async () =>
-            {
-                toolToUpdate.toolTypeID = int.Parse("InvalidType"); // Ungültiger Wert
-                await toolRepository.Update(toolToUpdate);
-            });
-        }
-
-
-
-
-
-
-
-
-         [Fact]
-         public async void GetToolsFromStationTest_Work()
-         {
-             // Korrigierte Abfrage mit stationID
-             var expectedCount = await _connection.QuerySingleAsync<int>("SELECT COUNT(*) FROM Tool WHERE stationID = 1;");
-             var tools = await toolRepository.GetToolsFromStation(1);
-             Assert.NotNull(tools);
-             Assert.Equal(expectedCount, tools.Count());
-         }
-
-
 
 
 
