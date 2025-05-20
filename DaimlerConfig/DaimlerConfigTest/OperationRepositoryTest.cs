@@ -5,6 +5,7 @@ using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.Infrastructure;
 using Microsoft.Data.Sqlite;
 using System.Data;
+using System.Text.Json;
 
 namespace DaimlerConfigTest
 {
@@ -16,8 +17,20 @@ namespace DaimlerConfigTest
 
         public OperationRepositoryTest()
         {
-            //SqliteConnectionFactory erhält einen Speicherort für die .db und implementiert IDbConnectionFactory mit einer CreateConnection-Methode
-            var connectionFactory = new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "OperationTest.db"));
+
+            
+
+            // 1. Datei einlesen
+            string benutzerOrdner = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string dateiPfad = Path.Combine(benutzerOrdner, "dbTest.json");
+            string json = File.ReadAllText(dateiPfad);
+
+            // 2. Deserialisieren
+            var config = JsonSerializer.Deserialize<DbConfig>(json);
+
+            // 3. An die Factory übergeben (je nach Konstruktor)
+            var connectionFactory = new SqlServerConnectionFactory(config.ConnectionString);
+
 
             //Erstellt eine Verbindung zur Datenbank über den Pfad
             _connection = connectionFactory.CreateConnection();
@@ -33,8 +46,9 @@ namespace DaimlerConfigTest
         }
 
 
-        internal void CreateTables()
+        static internal void CreateTables()
         {
+            /*
             _connection.Execute(@"
               PRAGMA foreign_keys = ON;
 
@@ -170,81 +184,94 @@ namespace DaimlerConfigTest
               FOREIGN KEY (toolID) REFERENCES Tool(toolID),
               FOREIGN KEY (qGateID) REFERENCES QGate(qGateID)
             );
-            ");
+            ");*/
+
         }
+
 
         internal void SetUpData()
         {
             // Line-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO Line (lineName) VALUES
-        ('Line1'), ('Line2');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM Line WHERE lineName = 'Line1')
+            INSERT INTO Line (lineName) VALUES ('Line1');
+        IF NOT EXISTS (SELECT 1 FROM Line WHERE lineName = 'Line2')
+            INSERT INTO Line (lineName) VALUES ('Line2');");
 
             // StationType-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO StationType (stationTypeName) VALUES
-        ('StationType1'), ('StationType2');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM StationType WHERE stationTypeName = 'StationType1')
+            INSERT INTO StationType (stationTypeName) VALUES ('StationType1');
+        IF NOT EXISTS (SELECT 1 FROM StationType WHERE stationTypeName = 'StationType2')
+            INSERT INTO StationType (stationTypeName) VALUES ('StationType2');");
 
             // Station-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO Station (assemblystation, stationName, stationTypeID, lineID, lastModified) VALUES
-        ('AssemblyStation1', 'Station1', 1, 1, '2023-10-01'),
-        ('AssemblyStation2', 'Station2', 2, 2, '2023-10-02');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM Station WHERE assemblystation = 'AssemblyStation1' AND stationName = 'Station1')
+            INSERT INTO Station (assemblystation, stationName, stationTypeID, lineID, lastModified) VALUES
+            ('AssemblyStation1', 'Station1', 1, 1, '2023-10-01');
+        IF NOT EXISTS (SELECT 1 FROM Station WHERE assemblystation = 'AssemblyStation2' AND stationName = 'Station2')
+            INSERT INTO Station (assemblystation, stationName, stationTypeID, lineID, lastModified) VALUES
+            ('AssemblyStation2', 'Station2', 2, 2, '2023-10-02');");
 
             // ToolClass-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO ToolClass (toolClassName) VALUES
-        ('ToolClass1'), ('ToolClass2');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM ToolClass WHERE toolClassName = 'ToolClass1')
+            INSERT INTO ToolClass (toolClassName) VALUES ('ToolClass1');
+        IF NOT EXISTS (SELECT 1 FROM ToolClass WHERE toolClassName = 'ToolClass2')
+            INSERT INTO ToolClass (toolClassName) VALUES ('ToolClass2');");
 
             // ToolType-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO ToolType (toolTypeName, toolClassID) VALUES
-        ('ToolType1', 1),
-        ('ToolType2', 2);
-    ");
+        IF NOT EXISTS (SELECT 1 FROM ToolType WHERE toolTypeName = 'ToolType1' AND toolClassID = 1)
+            INSERT INTO ToolType (toolTypeName, toolClassID) VALUES ('ToolType1', 1);
+        IF NOT EXISTS (SELECT 1 FROM ToolType WHERE toolTypeName = 'ToolType2' AND toolClassID = 2)
+            INSERT INTO ToolType (toolTypeName, toolClassID) VALUES ('ToolType2', 2);");
 
             // Tool-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified) VALUES
-        ('Tool1', 'Description1', 1, 1, '192.168.0.1', 'PLC1', 'DB1', 'DB2', 0, '100', '200', '2023-10-01'),
-        ('Tool2', 'Description2', 2, 2, '192.168.0.2', 'PLC2', 'DB3', 'DB4', 1, '101', '201', '2023-10-02');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM Tool WHERE toolShortname = 'Tool1' AND toolTypeID = 1 AND stationID = 1)
+            INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified) VALUES
+            ('Tool1', 'Description1', 1, 1, '192.168.0.1', 'PLC1', 'DB1', 'DB2', 0, '100', '200', '2023-10-01');
+        IF NOT EXISTS (SELECT 1 FROM Tool WHERE toolShortname = 'Tool2' AND toolTypeID = 2 AND stationID = 2)
+            INSERT INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified) VALUES
+            ('Tool2', 'Description2', 2, 2, '192.168.0.2', 'PLC2', 'DB3', 'DB4', 1, '101', '201', '2023-10-02');");
 
             // DecisionClass-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO DecisionClass (decisionClassName) VALUES
-        ('DecisionClass1'), ('DecisionClass2');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM DecisionClass WHERE decisionClassName = 'DecisionClass1')
+            INSERT INTO DecisionClass (decisionClassName) VALUES ('DecisionClass1');
+        IF NOT EXISTS (SELECT 1 FROM DecisionClass WHERE decisionClassName = 'DecisionClass2')
+            INSERT INTO DecisionClass (decisionClassName) VALUES ('DecisionClass2');");
 
             // SavingClass-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO SavingClass (savingClassName) VALUES
-        ('SavingClass1'), ('SavingClass2');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM SavingClass WHERE savingClassName = 'SavingClass1')
+            INSERT INTO SavingClass (savingClassName) VALUES ('SavingClass1');
+        IF NOT EXISTS (SELECT 1 FROM SavingClass WHERE savingClassName = 'SavingClass2')
+            INSERT INTO SavingClass (savingClassName) VALUES ('SavingClass2');");
 
             // GenerationClass-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO GenerationClass (generationClassName) VALUES
-        ('GenerationClass1'), ('GenerationClass2');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM GenerationClass WHERE generationClassName = 'GenerationClass1')
+            INSERT INTO GenerationClass (generationClassName) VALUES ('GenerationClass1');
+        IF NOT EXISTS (SELECT 1 FROM GenerationClass WHERE generationClassName = 'GenerationClass2')
+            INSERT INTO GenerationClass (generationClassName) VALUES ('GenerationClass2');");
 
             // VerificationClass-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO VerificationClass (verificationClassName) VALUES
-        ('VerificationClass1'), ('VerificationClass2');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM VerificationClass WHERE verificationClassName = 'VerificationClass1')
+            INSERT INTO VerificationClass (verificationClassName) VALUES ('VerificationClass1');
+        IF NOT EXISTS (SELECT 1 FROM VerificationClass WHERE verificationClassName = 'VerificationClass2')
+            INSERT INTO VerificationClass (verificationClassName) VALUES ('VerificationClass2');");
 
             // QGate-Daten einfügen
             _connection.Execute(@"
-        INSERT OR IGNORE INTO QGate (qGateName) VALUES
-        ('QGate1'), ('QGate2');
-    ");
+        IF NOT EXISTS (SELECT 1 FROM QGate WHERE qGateName = 'QGate1')
+            INSERT INTO QGate (qGateName) VALUES ('QGate1');
+        IF NOT EXISTS (SELECT 1 FROM QGate WHERE qGateName = 'QGate2')
+            INSERT INTO QGate (qGateName) VALUES ('QGate2');");
         }
-
 
 
 
@@ -301,8 +328,11 @@ namespace DaimlerConfigTest
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
 
             _connection.Execute(@"
-        INSERT INTO Operation (operationShortname, operationDescription, operationSequenceGroup, operationSequence, operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID, generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
-        VALUES (@operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence, @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID, @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);",
+        IF NOT EXISTS (SELECT 1 FROM Operation WHERE operationShortname = @operationShortname)
+        BEGIN
+            INSERT INTO Operation (operationShortname, operationDescription, operationSequenceGroup, operationSequence, operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID, generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
+            VALUES (@operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence, @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID, @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);
+        END",
                 new
                 {
                     operationShortname = "Operation_" + timestamp,
@@ -359,14 +389,17 @@ namespace DaimlerConfigTest
             };
 
             _connection.Execute(@"
-        INSERT INTO Operation (
-            operationShortname, operationDescription, operationSequenceGroup, operationSequence,
-            operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID,
-            generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
-        VALUES (
-            @operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence,
-            @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID,
-            @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);",
+        IF NOT EXISTS (SELECT 1 FROM Operation WHERE operationShortname = @operationShortname)
+        BEGIN
+            INSERT INTO Operation (
+                operationShortname, operationDescription, operationSequenceGroup, operationSequence,
+                operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID,
+                generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
+            VALUES (
+                @operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence,
+                @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID,
+                @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);
+        END",
                 insertData);
 
             var operationToUpdate = await _connection.QueryFirstOrDefaultAsync<Operation>(
@@ -416,6 +449,7 @@ namespace DaimlerConfigTest
         }
 
 
+
         [Fact]
         public async void GetOperationByIdTest_Works()
         {
@@ -441,14 +475,17 @@ namespace DaimlerConfigTest
             };
 
             _connection.Execute(@"
-        INSERT INTO Operation (
-            operationShortname, operationDescription, operationSequenceGroup, operationSequence,
-            operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID,
-            generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
-        VALUES (
-            @operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence,
-            @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID,
-            @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);",
+        IF NOT EXISTS (SELECT 1 FROM Operation WHERE operationShortname = @operationShortname)
+        BEGIN
+            INSERT INTO Operation (
+                operationShortname, operationDescription, operationSequenceGroup, operationSequence,
+                operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID,
+                generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
+            VALUES (
+                @operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence,
+                @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID,
+                @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);
+        END",
                 originalOperation);
 
             var operationId = await _connection.QuerySingleAsync<int>(
@@ -475,6 +512,7 @@ namespace DaimlerConfigTest
             Assert.Equal(originalOperation.lastModified.ToString("yyyy-MM-dd HH:mm:ss"), retrievedOperation.lastModified.ToString("yyyy-MM-dd HH:mm:ss"));
         }
 
+
         [Fact]
         public async void GetAllOperationsTest_Works()
         {
@@ -485,6 +523,7 @@ namespace DaimlerConfigTest
             Assert.NotNull(allOperations);
             Assert.Equal(expectedCount, allOperations.Count());
         }
+
 
 
         public void Dispose()
