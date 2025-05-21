@@ -25,13 +25,19 @@ namespace DaimlerConfigTest
             //Methode um die Tabellen der Datenbank zu erstellen
 
             //Methode um die Datenbank mit Testdaten zu befüllen
+<<<<<<< HEAD
            
 
+=======
+>>>>>>> be87de9389c86277ebb15a0b8de9f69e19d7b4f6
             //Stationrepo mit Verbindung intiialisiert
             toolRepository = new ToolRepository(connectionFactory);
         }
 
+<<<<<<< HEAD
         
+=======
+>>>>>>> be87de9389c86277ebb15a0b8de9f69e19d7b4f6
 
 
         [Fact]
@@ -45,6 +51,7 @@ namespace DaimlerConfigTest
             {
                 toolShortname = uniqueShortname,
                 stationID = stationID,
+                toolTypeID = 3,
                 lastModified = DateTime.UtcNow
             };
 
