@@ -254,6 +254,7 @@ WHERE [{keyName}] = @{keyName};
                 "station" => "stationName",
                 "tool" => "toolShortname",
                 "operation" => "operationShortname",
+                "line" => "lineName",
                 _ => throw new InvalidOperationException($"Kein Name-Mapping für Tabelle '{_tableName}'.")
             };
 

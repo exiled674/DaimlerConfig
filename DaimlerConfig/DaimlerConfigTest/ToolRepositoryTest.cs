@@ -25,50 +25,13 @@ namespace DaimlerConfigTest
             //Methode um die Tabellen der Datenbank zu erstellen
 
             //Methode um die Datenbank mit Testdaten zu befüllen
-            SetUpData();
+           
 
             //Stationrepo mit Verbindung intiialisiert
             toolRepository = new ToolRepository(connectionFactory);
         }
 
-        internal void SetUpData()
-        {
-            // Lines einfügen
-            _connection.Execute(@"
-                INSERT OR IGNORE INTO Line (lineName) VALUES
-                ('Line1'),
-                ('Line2');
-            ");
-
-                    // StationTypes einfügen
-                    _connection.Execute(@"
-                INSERT OR IGNORE INTO StationType (stationTypeName) VALUES
-                ('StationType1'),
-                ('StationType2');
-            ");
-
-                    // Stations einfügen
-                    _connection.Execute(@"
-                INSERT OR IGNORE INTO Station (assemblystation, stationName, stationTypeID, lineID, lastModified) VALUES
-                ('AssemblyStation1', 'Station1', 1, 1, '2023-10-01'),
-                ('AssemblyStation2', 'Station2', 2, 2, '2023-10-02');
-            ");
-
-                    // ToolClasses einfügen
-                    _connection.Execute(@"
-                INSERT OR IGNORE INTO ToolClass (toolClassName) VALUES
-                ('ToolClass1'),
-                ('ToolClass2');
-            ");
-
-                    // ToolTypes einfügen
-                    _connection.Execute(@"
-                INSERT OR IGNORE INTO ToolType (toolTypeName, toolClassID) VALUES
-                ('ToolType1', 1),
-                ('ToolType2', 2);
-            ");
-        }
-
+        
 
 
         [Fact]
