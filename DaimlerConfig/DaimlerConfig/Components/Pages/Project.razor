@@ -34,7 +34,7 @@
                     <li class="sidebar-item">
                         <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                                    <Badge colour="@BadgeColor" />
+                            <Badge colour="@BadgeColor" />
                             <span>@station.assemblystation</span>
                         </a>
                     </li>
@@ -134,7 +134,7 @@
         </div>
 
     </div>
-
+    
 </body>
 
 @code {
@@ -222,7 +222,7 @@
         showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
         showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                                                                                StateHasChanged();  // Aktualisiere den UI-Status
+                                                                                                StateHasChanged();  // Aktualisiere den UI-Status
     }
 
     private void ToggleToolFormular(bool isNewTool)
@@ -240,6 +240,7 @@
         showStationFormular = false;
 
         StateHasChanged();  // Aktualisiere den UI-Status
+
     }
 
     #endregion
@@ -281,6 +282,7 @@
 
         StateHasChanged();  // Aktualisiere den UI-Status
     }
+
     #endregion
 
 
@@ -378,7 +380,12 @@
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
+
+
+
     }
+
+
 
     private async Task ReloadStations()
     {
