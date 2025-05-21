@@ -1,24 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DaimlerConfig.Services
 {
     public class DirtyManagerService
     {
-        private Boolean isDirty = false;
+        private bool isDirty = false;
 
         private async Task setDirty()
         {
-            if (isDirty == true) return;
+            if (isDirty) return;
             isDirty = true;
         }
 
         private async Task setClean()
         {
-            if (isDirty == false) return;
+            if (!isDirty) return;
             isDirty = false;
         }
 
@@ -26,5 +23,18 @@ namespace DaimlerConfig.Services
         {
             return isDirty;
         }
+
+        
+        public async Task<bool> CheckIfDirty<T>(T original, T current) where T : IEquatable<T>
+        {
+            bool result = !(original?.Equals(current) ?? current == null);
+            if (result)
+                await setDirty();
+            else
+                await setClean();
+            return result;
+        }
+
+
     }
 }

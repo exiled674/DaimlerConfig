@@ -10,7 +10,7 @@ namespace DaimlerConfig.Components.Models
     public class Station : ICopyable<Station>, IEquatable<Station>
     {
        
-    }
+    
 
     public int? stationID { get; set; } = 0;
 

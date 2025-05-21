@@ -39,6 +39,8 @@ namespace DaimlerConfig
             builder.Logging.AddDebug();
 #endif      
             builder.Services.AddSingleton<SignalRService>();
+            builder.Services.AddSingleton<DirtyManagerService>();
+
 
             // 2. Azure SQL Server ConnectionFactory registrieren
             var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
