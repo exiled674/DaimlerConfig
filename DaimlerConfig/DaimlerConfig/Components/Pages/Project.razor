@@ -134,7 +134,7 @@
         </div>
 
     </div>
-    
+
 </body>
 
 @code {
@@ -170,7 +170,15 @@
 
     private async Task SelectStation(Station station)
     {
-        selectedStation = station;
+        selectedStation = new Station
+            {
+                stationID = station.stationID,
+                lineID = station.lineID,
+                stationTypeID = station.stationTypeID,
+                assemblystation = station.assemblystation,
+                stationName = station.stationName
+
+            };
         selectedTool = new Tool
             {
                 stationID = selectedStation.stationID,  // Setze stationID
