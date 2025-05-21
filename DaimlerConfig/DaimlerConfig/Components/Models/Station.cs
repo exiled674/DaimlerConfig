@@ -7,9 +7,12 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Models
 {
-    public class Station : ICopyable<Station> 
+    public class Station : ICopyable<Station>, IEquatable<Station>
     {
-        public int? stationID { get; set; } = 0;
+       
+    }
+
+    public int? stationID { get; set; } = 0;
 
         public int? lineID { get; set; }
 
@@ -27,6 +30,18 @@ namespace DaimlerConfig.Components.Models
             clone.stationID = 0;
             clone.lineID = null;
             return clone;
+        }
+
+        public bool Equals(Station? other)
+        {
+            if (other == null)
+                return false;
+
+            return stationID == other.stationID
+                && lineID == other.lineID
+                && string.Equals(assemblystation, other.assemblystation, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(stationName, other.stationName, StringComparison.OrdinalIgnoreCase)
+                && stationTypeID == other.stationTypeID;
         }
     }
 
