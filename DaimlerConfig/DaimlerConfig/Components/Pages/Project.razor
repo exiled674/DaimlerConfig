@@ -137,7 +137,7 @@
     </div>
     @if (showPopup)
     {
-        <SavePopup></SavePopup>
+        <SavePopup OnDismissChange="@HandleDismiss"></SavePopup>
     }
 
 </body>
@@ -158,6 +158,8 @@
 
 
 
+    
+
 
     #region Line
     [Parameter]
@@ -172,6 +174,12 @@
     #region Stations
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
     private Station? selectedStation;
+
+
+    private void HandleDismiss()
+    {
+        showPopup = false;
+    }
 
     private async Task SelectStation(Station station)
     {

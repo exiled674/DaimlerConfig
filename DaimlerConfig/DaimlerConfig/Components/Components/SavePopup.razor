@@ -16,6 +16,9 @@
 
     private bool isVisible;
 
+    [Parameter]
+    public EventCallback OnDismissChange { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         isVisible = await DirtyManagerService.IsDirty();
@@ -23,18 +26,15 @@
 
     private async Task SaveChanges()
     {
-        /*await DirtyManagerService.SaveAsync(); // Methode musst du im Service selbst implementieren
-        isVisible = false;
-        StateHasChanged();
-        // Optional: Navigation hier auslösen (wenn unbedingt nötig)*/
+        
     }
 
-    private void DismissChanges()
+    private async Task DismissChanges()
     {
-        /*DirtyManagerService.Discard(); // Auch diese Methode musst du im Service bauen
+        //DirtyManagerService.Discard(); 
         isVisible = false;
+        await OnDismissChange.InvokeAsync(); // Callback auslösen
         StateHasChanged();
-        // Optional: Navigation hier auslösen*/
     }
 }
 
