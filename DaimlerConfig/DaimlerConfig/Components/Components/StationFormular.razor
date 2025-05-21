@@ -107,6 +107,15 @@
 
 	}
 
+	public async Task UpdateStationAsync(Station station)
+	{
+		if (await ValidateData() == false) return;
+
+		await Fassade.UpdateStation(station);
+		await OnUpdated.InvokeAsync();
+		await SignalRService.SendMessageToServer("StationChanged");
+	}
+
 	private async Task CreateStationAsync()
 	{
 		if (await ValidateData() == false) return;

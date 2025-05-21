@@ -177,6 +177,7 @@
     #region Stations
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
     private Station? selectedStation;
+    private Station? previousStation;
 
 
     private void HandleDismiss()
@@ -197,39 +198,50 @@
 
     private async Task SelectStation(Station station)
     {
+        if (selectedStation != null)
+        {
+            previousStation = selectedStation.Clone();
+            previousStation.stationID = selectedStation.stationID;
+            previousStation.lineID = selectedStation.lineID;
+        }
+
         if (DirtyManagerService.IsDirty().Result == true)
         {
             showPopup = true;
         }
-        selectedStation = new Station
-            {
-                stationID = station.stationID,
-                lineID = station.lineID,
-                stationTypeID = station.stationTypeID,
-                assemblystation = station.assemblystation,
-                stationName = station.stationName
+        else
+        {
+            selectedStation = new Station
+                {
+                    stationID = station.stationID,
+                    lineID = station.lineID,
+                    stationTypeID = station.stationTypeID,
+                    assemblystation = station.assemblystation,
+                    stationName = station.stationName
 
-            };
-        selectedTool = new Tool
-            {
-                stationID = selectedStation.stationID,  // Setze stationID
-                toolTypeID = 1,                        // Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
-            };  // Setze das ausgewählte Tool zurück
+                };
+            selectedTool = new Tool
+                {
+                    stationID = selectedStation.stationID,  // Setze stationID
+                    toolTypeID = 1,                        // Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
+                };  // Setze das ausgewählte Tool zurück
 
 
-        selectedOperation = new Operation
-            {
-                toolID = selectedTool.toolID,  // Setze die toolID
-                decisionClassID = 1,           // Setze den Foreign Key auf 1
-                savingClassID = 1,             // Setze den Foreign Key auf 1
-                generationClassID = 1,         // Setze den Foreign Key auf 1
-                verificationClassID = 1,       // Setze den Foreign Key auf 1
-                qGateID = 1                    // Setze den Foreign Key auf 1
-            };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
+            selectedOperation = new Operation
+                {
+                    toolID = selectedTool.toolID,  // Setze die toolID
+                    decisionClassID = 1,           // Setze den Foreign Key auf 1
+                    savingClassID = 1,             // Setze den Foreign Key auf 1
+                    generationClassID = 1,         // Setze den Foreign Key auf 1
+                    verificationClassID = 1,       // Setze den Foreign Key auf 1
+                    qGateID = 1                    // Setze den Foreign Key auf 1
+                };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
 
-        tools = await Fassade.GetToolsFromStation(station.stationID);
+            tools = await Fassade.GetToolsFromStation(station.stationID);
 
-        StateHasChanged();
+            StateHasChanged();
+        }
+        
     }
     #endregion
 
