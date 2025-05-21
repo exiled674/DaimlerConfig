@@ -13,7 +13,7 @@ namespace DaimlerConfig.Services
             isDirty = true;
         }
 
-        private async Task setClean()
+        public async Task setClean()
         {
             if (!isDirty) return;
             isDirty = false;

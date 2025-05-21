@@ -128,7 +128,7 @@
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
+                        <StationFormular @ref="stationFormular" SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
                     }
                 </div>
             </main>
@@ -137,12 +137,15 @@
     </div>
     @if (showPopup)
     {
-        <SavePopup OnDismissChange="@HandleDismiss"></SavePopup>
+        <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
     }
 
 </body>
 
 @code {
+
+
+    private StationFormular? stationFormular;
 
     #region SideBar
     private string BadgeColor = "#006700"; //needs to be implemented
@@ -158,7 +161,7 @@
 
 
 
-    
+
 
 
     #region Line
@@ -179,6 +182,17 @@
     private void HandleDismiss()
     {
         showPopup = false;
+        DirtyManagerService.setClean();
+        stationFormular.ResetStation();
+
+    }
+
+
+    private void HandleSave()
+    {
+        showPopup = false;
+        DirtyManagerService.setClean();
+        stationFormular.UpdateStationAsync();
     }
 
     private async Task SelectStation(Station station)

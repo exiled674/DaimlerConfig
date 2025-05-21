@@ -19,6 +19,10 @@
     [Parameter]
     public EventCallback OnDismissChange { get; set; }
 
+
+    [Parameter]
+    public EventCallback OnSaveChange { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         isVisible = await DirtyManagerService.IsDirty();
@@ -26,12 +30,14 @@
 
     private async Task SaveChanges()
     {
-        
+        isVisible = false;
+        await OnSaveChange.InvokeAsync(); // Callback auslösen
+        StateHasChanged();
+
     }
 
     private async Task DismissChanges()
     {
-        //DirtyManagerService.Discard(); 
         isVisible = false;
         await OnDismissChange.InvokeAsync(); // Callback auslösen
         StateHasChanged();

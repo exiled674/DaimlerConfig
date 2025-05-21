@@ -83,6 +83,7 @@
 
 
 
+
 	protected override async Task OnInitializedAsync()
 	{
 		stationTypes = await Fassade.GetAllStationTypes();	
@@ -96,7 +97,7 @@
 
 
 	#region CRUD
-	private async Task UpdateStationAsync()
+	public async Task UpdateStationAsync()
 	{
 		if (await ValidateData() == false) return;
 
@@ -155,7 +156,7 @@
 			if (SelectedStation.stationName.Length > 50)
 				return false;
 		}
-		
+
 
 		return true;
 
@@ -168,4 +169,14 @@
 		return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation);
 	}
 	#endregion
+
+	public void ResetStation()
+	{
+		if (OriginalStation != null)
+			SelectedStation = OriginalStation.Clone();
+			SelectedStation.stationID = OriginalStation.stationID;
+			SelectedStation.lineID = OriginalStation.lineID;
+		}
+	}
+
 }
