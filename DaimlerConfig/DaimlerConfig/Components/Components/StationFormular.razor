@@ -132,7 +132,7 @@
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
 			return false;
 
-		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.lineID))
+		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.lineID.Value))
 			return false;
 
 		if (SelectedStation.assemblystation.Length > 10)
