@@ -12,8 +12,7 @@ namespace DaimlerConfig.Components.Models
         public int? operationID { get; set; } = 0;
 
         public int? toolID { get; set; }
-
-
+        
         public  string? operationShortname { get; set; }
         public  string? operationDescription { get; set; }
         public  string? operationSequence { get; set; }

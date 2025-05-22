@@ -39,33 +39,41 @@
         <div class="layout">
             <div class="toolColoumn">
                 <label>Decision Class:</label>
-                <select class="input-field">
+                <select class="input-field" @bind="SelectedOperation.decisionClassID">
                     <option value="">Select</option>
-                    <option value="Serial">Serial</option>
-                    <option value="Parallel">Parallel</option>
+                    @foreach (var option in _decisionClasses)
+                    {
+                        <option value="@option.decisionClassID">@option.decisionClassName</option>
+                    }
                 </select>
 
                 <label>Generation Class:</label>
-                <select class="input-field">
+                <select class="input-field" @bind="SelectedOperation.generationClassID">
                     <option value="">Select</option>
-                    <option value="Serial">Serial</option>
-                    <option value="Parallel">Parallel</option>
+                    @foreach (var option in _generationClasses)
+                    {
+                        <option value="@option.generationClassID">@option.generationClassName</option>
+                    }
                 </select>
             </div>
 
             <div class="toolColoumn">
                 <label>Verification Class:</label>
-                <select class="input-field">
+                <select class="input-field" @bind="SelectedOperation.verificationClassID">
                     <option value="">Select</option>
-                    <option value="Serial">Serial</option>
-                    <option value="Parallel">Parallel</option>
+                    @foreach (var option in _verificationClasses)
+                    {
+                        <option value="@option.verificationClassID">@option.verificationClassName</option>
+                    }
                 </select>
 
                 <label>Saving Class:</label>
-                <select class="input-field">
+                <select class="input-field" @bind="SelectedOperation.savingClassID">
                     <option value="">Select</option>
-                    <option value="Serial">Serial</option>
-                    <option value="Parallel">Parallel</option>
+                    @foreach (var option in _savingClasses)
+                    {
+                        <option value="@option.savingClassID">@option.savingClassName</option>
+                    }
                 </select>
             </div>
 
@@ -97,7 +105,29 @@
 
     [Parameter]
     public EventCallback OnUpdated { get; set; }
+    
+    private Tool? currentTool;
+    
+    private ToolType? currentToolType;
+    
+    private Template? currentTemplate;
 
+    private List<DecisionClass>? _decisionClasses;
+    private List<GenerationClass>? _generationClasses;
+    private List<SavingClass>? _savingClasses;
+    private List<VerificationClass>? _verificationClasses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tools = await Fassade.ToolRepository.Find(t => t.toolID == SelectedOperation.toolID);
+        currentTool = tools.FirstOrDefault();
+        var toolTypeId = currentTool.toolTypeID;
+        var toolTypes = await Fassade.ToolTypeRepository.Find(t => t.toolTypeID == toolTypeId);
+        currentToolType = toolTypes.FirstOrDefault();
+        var templates = await Fassade.TemplateRepository.Find(t => t.TemplateId == toolTypeId);
+        currentTemplate = templates.FirstOrDefault();
+        InitializeClasses();
+    }
 
     #region CRUD
     private async Task UpdateOperationAsync()
@@ -154,4 +184,23 @@
     }
 
     #endregion
+
+    #region Classes
+    protected async Task InitializeClasses()
+    {
+        _decisionClasses = (await Fassade.DecisionClassRepository
+                .Find(_ => true))
+                .ToList();
+        _generationClasses = (await Fassade.GenerationClassRepository
+                .Find(t => t.TemplateId == currentTemplate.TemplateId))
+                .ToList();
+        _savingClasses = (await Fassade.SavingClassRepository
+                .Find(t => t.TemplateId == currentTemplate.TemplateId))
+                .ToList();
+        _verificationClasses = (await Fassade.VerificationClassRepository
+                .Find(t => t.TemplateId == currentTemplate.TemplateId))
+                .ToList();
+    }
+    #endregion
+
 }

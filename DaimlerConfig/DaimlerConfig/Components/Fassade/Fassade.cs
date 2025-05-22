@@ -8,22 +8,47 @@ namespace DaimlerConfig.Components.Fassade
 {
     public class Fassade
     {
-        public IToolRepository ToolRepository { get; private set; }
-        public IOperationRepository OperationRepository { get; private set; }
-        public IStationRepository StationRepository { get; private set; }
-        public IRepository<Line> LineRepository { get; private set; }
+        public IToolRepository ToolRepository { get;}
+        public IOperationRepository OperationRepository { get;}
+        public IStationRepository StationRepository { get;}
+        public IRepository<Line> LineRepository { get; }
+        public IRepository<DecisionClass> DecisionClassRepository { get;}
+        public IRepository<GenerationClass> GenerationClassRepository { get;}
+        public IRepository<SavingClass> SavingClassRepository { get;}
+        public IRepository<VerificationClass> VerificationClassRepository { get;}
+        public IRepository<Template> TemplateRepository { get;}
+        public IRepository<ToolClass> ToolClassRepository { get;}
+        public IRepository<ToolType> ToolTypeRepository { get;}
 
-        public IRepository<StationType> StationTypeRepository { get; private set; }
+        public IRepository<StationType> StationTypeRepository { get;}
 
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository)
+        public Fassade(IToolRepository toolRepository,
+                       IOperationRepository operationRepository,
+                       IStationRepository stationRepository,
+                       IRepository<Line> lineRepository,
+                       IRepository<StationType> stationTypeRepository,
+                       IRepository<DecisionClass> decisionClassRepository,
+                       IRepository<GenerationClass> generationClassRepository,
+                       IRepository<SavingClass> savingClassRepository,
+                       IRepository<VerificationClass> verificationClassRepository,
+                       IRepository<Template> templateRepository,
+                       IRepository<ToolClass> toolClassRepository,
+                       IRepository<ToolType> toolTypeRepository)
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
             StationRepository = stationRepository;
             LineRepository = lineRepository;
             StationTypeRepository = stationTypeRepository;
+            DecisionClassRepository = decisionClassRepository;
+            GenerationClassRepository = generationClassRepository;
+            SavingClassRepository = savingClassRepository;
+            VerificationClassRepository = verificationClassRepository;
+            TemplateRepository = templateRepository;
+            ToolClassRepository = toolClassRepository;
+            ToolTypeRepository = toolTypeRepository;
         }
 
         #region Line

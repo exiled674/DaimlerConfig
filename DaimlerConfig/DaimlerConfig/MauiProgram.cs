@@ -52,6 +52,13 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<IStationRepository, StationRepository>();
             builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
             builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
+            builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
+            builder.Services.AddScoped<IRepository<GenerationClass>, Repository<GenerationClass>>();
+            builder.Services.AddScoped<IRepository<SavingClass>, Repository<SavingClass>>();
+            builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
+            builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
+            builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
+            builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
 
             builder.Services.AddSingleton<Fassade>(sp =>
             {
@@ -61,8 +68,15 @@ namespace DaimlerConfig
                 var stationRepo = sp.GetRequiredService<IStationRepository>();
                 var lineRepo = sp.GetRequiredService<IRepository<Line>>();
                 var stationType = sp.GetRequiredService<IRepository<StationType>>();
+                var decisionClass = sp.GetRequiredService<IRepository<DecisionClass>>();
+                var generationClass = sp.GetRequiredService<IRepository<GenerationClass>>();
+                var savingClass = sp.GetRequiredService<IRepository<SavingClass>>();
+                var verificationClass = sp.GetRequiredService<IRepository<VerificationClass>>();
+                var template = sp.GetRequiredService<IRepository<Template>>();
+                var toolClass = sp.GetRequiredService<IRepository<ToolClass>>();
+                var toolType = sp.GetRequiredService<IRepository<ToolType>>();
 
-                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType);
+                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType,decisionClass, generationClass, savingClass, verificationClass, template, toolClass, toolType);
             });
 
 

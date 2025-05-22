@@ -20,7 +20,7 @@ namespace DaimlerConfig.Components.Models
 
         public int toolTypeID { get; set; }
 
-        public string? ipAddressDevice { get; set; }
+        public string? ipAddressDevice { get; set; } = "0.0.0.0";
 
         public string? plcName { get; set; }
 
@@ -34,7 +34,8 @@ namespace DaimlerConfig.Components.Models
         public string? addressReceiveDB { get; set; }
 
         public DateTime? lastModified { get; set; }
-
+        
+        public int? Sequence { get; set; }
 
         public Tool Clone()
         {
