@@ -30,7 +30,7 @@
             </select>
 
             <label>Tool Type</label>
-            <select class="input-field">
+            <select class="input-field" @bind="SelectedTool.toolTypeID">
                 <option value="">Default</option>
                 @foreach (var option in toolTypes)
                 {
@@ -111,9 +111,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Debug.WriteLine("Test");
         toolClasses = (await Fassade.ToolClassRepository.GetAll()).ToList();
-        Debug.WriteLine("Test");
     }
 
     #region CRUD

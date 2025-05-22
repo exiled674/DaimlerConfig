@@ -122,7 +122,7 @@
         var tools = await Fassade.ToolRepository.Find(t => t.toolID == SelectedOperation.toolID);
         currentTool = tools.FirstOrDefault();
         var toolTypeId = currentTool.toolTypeID;
-        var currentTemplate = await Fassade.TemplateRepository.Get(toolTypeId);
+        currentTemplate = await Fassade.TemplateRepository.Get(toolTypeId);
         InitializeClasses();
     }
 

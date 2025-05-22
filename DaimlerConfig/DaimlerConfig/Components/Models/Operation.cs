@@ -25,7 +25,7 @@ namespace DaimlerConfig.Components.Models
         public int savingClassID { get; set; }
        
         public bool parallel { get; set; }
-        public int qGateID { get; set; }
+        public int qGateID { get; set; } = 1;
         public DateTime? lastModified { get; set; }
 
         public Operation Clone()
