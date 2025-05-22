@@ -177,16 +177,19 @@
 	{
 		return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation);
 	}
-	#endregion
 
 	public async Task ResetStation()
 	{
-		if (OriginalStation != null){
+		if (OriginalStation != null)
+		{
 			SelectedStation = OriginalStation.Clone();
 			SelectedStation.stationID = OriginalStation.stationID;
 			SelectedStation.lineID = OriginalStation.lineID;
 		}
 		await SignalRService.SendMessageToServer("StationChanged");
 	}
+	#endregion
+
+	
 
 }

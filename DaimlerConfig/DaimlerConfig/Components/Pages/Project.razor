@@ -118,7 +118,7 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
+                        <ToolFormular @ref="toolFormular" SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
@@ -146,6 +146,25 @@
 
 
     private StationFormular? stationFormular;
+    private ToolFormular? toolFormular;
+
+    private void HandleDismiss()
+    {
+        showPopup = false;
+        DirtyManagerService.setClean();
+        stationFormular.ResetStation();
+        toolFormular.ResetTool();
+
+    }
+
+
+    private void HandleSave()
+    {
+        showPopup = false;
+        DirtyManagerService.setClean();
+        stationFormular.UpdateStationAsync();
+        toolFormular.UpdateToolAsync();
+    }
 
     #region SideBar
     private string BadgeColor = "#006700"; //needs to be implemented
@@ -177,33 +196,14 @@
     #region Stations
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
     private Station? selectedStation;
-    private Station? previousStation;
 
 
-    private void HandleDismiss()
-    {
-        showPopup = false;
-        DirtyManagerService.setClean();
-        stationFormular.ResetStation();
 
-    }
-
-
-    private void HandleSave()
-    {
-        showPopup = false;
-        DirtyManagerService.setClean();
-        stationFormular.UpdateStationAsync();
-    }
+   
 
     private async Task SelectStation(Station station)
     {
-        if (selectedStation != null)
-        {
-            previousStation = selectedStation.Clone();
-            previousStation.stationID = selectedStation.stationID;
-            previousStation.lineID = selectedStation.lineID;
-        }
+
 
         if (DirtyManagerService.IsDirty().Result == true)
         {
@@ -241,7 +241,7 @@
 
             StateHasChanged();
         }
-        
+
     }
     #endregion
 
@@ -257,27 +257,31 @@
         {
             showPopup = true;
         }
-        selectedTool = tool;  // Setze das ausgewählte Tool
-        selectedOperation = new Operation
-            {
-                toolID = selectedTool.toolID,  // Setze die toolID
-                decisionClassID = 1,           // Setze den Foreign Key auf 1
-                savingClassID = 1,             // Setze den Foreign Key auf 1
-                generationClassID = 1,         // Setze den Foreign Key auf 1
-                verificationClassID = 1,       // Setze den Foreign Key auf 1
-                qGateID = 1                    // Setze den Foreign Key auf 1
-            };  // Setze die ausgewählte Operation zurück
+        else
+        {
+            selectedTool = tool;  // Setze das ausgewählte Tool
+            selectedOperation = new Operation
+                {
+                    toolID = selectedTool.toolID,  // Setze die toolID
+                    decisionClassID = 1,           // Setze den Foreign Key auf 1
+                    savingClassID = 1,             // Setze den Foreign Key auf 1
+                    generationClassID = 1,         // Setze den Foreign Key auf 1
+                    verificationClassID = 1,       // Setze den Foreign Key auf 1
+                    qGateID = 1                    // Setze den Foreign Key auf 1
+                };  // Setze die ausgewählte Operation zurück
 
-        tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
 
 
 
-        // Zeige das Tool-Formular an
-        /*showToolFormular = true;
-        showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
-        showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
+            // Zeige das Tool-Formular an
+            /*showToolFormular = true;
+            showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
+            showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                                                                                                        StateHasChanged();  // Aktualisiere den UI-Status
+                            StateHasChanged();  // Aktualisiere den UI-Status
+        }
+        
     }
 
     private void ToggleToolFormular(bool isNewTool)
@@ -290,7 +294,7 @@
                     toolTypeID = 1,                        // Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
                 };
         }
-        showToolFormular = !showToolFormular;
+        showToolFormular = true;
         showOperationFormular = false;
         showStationFormular = false;
 
@@ -336,7 +340,7 @@
                     qGateID = 1                    // Setze den Foreign Key auf 1
                 };
         }
-        showOperationFormular = !showOperationFormular;
+        showOperationFormular = true;
         showToolFormular = false;
         showStationFormular = false;
 
