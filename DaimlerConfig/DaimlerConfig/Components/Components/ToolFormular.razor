@@ -147,7 +147,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-       
+
         if (SelectedTool != null)
         {
             OriginalTool = SelectedTool.Clone();
@@ -237,6 +237,8 @@
     #region Dirty
     private async Task<bool> CheckIfDirty()
     {
+        if (SelectedTool?.toolID == 0)
+            return false;
         return await DirtyManagerService.CheckIfDirty(SelectedTool, OriginalTool);
     }
 

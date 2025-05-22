@@ -175,6 +175,8 @@
 	#region Dirty
 	private async Task<bool> CheckIfDirty()
 	{
+		if (SelectedStation?.stationID == 0)
+			return false;
 		return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation);
 	}
 
