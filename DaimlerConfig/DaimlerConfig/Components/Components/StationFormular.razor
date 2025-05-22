@@ -181,7 +181,7 @@
 
 	public void ResetStation()
 	{
-		if (OriginalStation != null)
+		if (OriginalStation != null){
 			SelectedStation = OriginalStation.Clone();
 			SelectedStation.stationID = OriginalStation.stationID;
 			SelectedStation.lineID = OriginalStation.lineID;
