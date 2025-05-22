@@ -36,8 +36,8 @@ namespace DaimlerConfig.Components.Models
         public string? addressReceiveDB { get; set; }
 
         public DateTime? lastModified { get; set; }
-        
-        public int? Sequence { get; set; }
+
+        public int? Sequence { get; set; } = 0;
 
         public Tool Clone()
         {
