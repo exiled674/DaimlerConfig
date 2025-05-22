@@ -1,4 +1,5 @@
-﻿@using DaimlerConfig.Components.Models
+﻿@using System.Diagnostics
+@using DaimlerConfig.Components.Models
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Services
@@ -21,6 +22,7 @@
         <div class="toolColoumn">
             <label>Tool Class</label>
             <select class="input-field" @onchange="UpdateToolTypes">
+                <option value="">Default</option>
                 @foreach (var option in toolClasses)
                 {
                     <option value="@option.toolClassID">@option.toolClassName</option>
@@ -29,6 +31,7 @@
 
             <label>Tool Type</label>
             <select class="input-field">
+                <option value="">Default</option>
                 @foreach (var option in toolTypes)
                 {
                     <option value="@option.toolTypeID">@option.toolTypeName</option>
@@ -102,14 +105,15 @@
 
     private string? ValidationMessage;
 
-    private List<ToolClass>? toolClasses;
+    private List<ToolClass> toolClasses = new List<ToolClass>();
 
-    private List<ToolType>? toolTypes;
+    private List<ToolType> toolTypes = new List<ToolType>();
 
     protected override async Task OnInitializedAsync()
     {
-        var toolClasses = await Fassade.ToolClassRepository.GetAll();
-
+        Debug.WriteLine("Test");
+        toolClasses = (await Fassade.ToolClassRepository.GetAll()).ToList();
+        Debug.WriteLine("Test");
     }
 
     #region CRUD
@@ -185,9 +189,7 @@
         {
             SelectedTool.toolClassID = id;
         }
-        if (SelectedTool == null)
-            return;
-        var toolTypes = await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID);
+        toolTypes = (await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID)).ToList();
     }
     #endregion
 
