@@ -179,13 +179,14 @@
 	}
 	#endregion
 
-	public void ResetStation()
+	public async Task ResetStation()
 	{
 		if (OriginalStation != null){
 			SelectedStation = OriginalStation.Clone();
 			SelectedStation.stationID = OriginalStation.stationID;
 			SelectedStation.lineID = OriginalStation.lineID;
 		}
+		await SignalRService.SendMessageToServer("StationChanged");
 	}
 
 }
