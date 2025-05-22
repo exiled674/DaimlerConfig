@@ -3,11 +3,16 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 @inject NavigationManager Navigation
 
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+
+
 @using CommunityToolkit.Maui.Storage;
 @using System.Text.Json
 @using System.IO
 @using System.Text
 @using Microsoft.Maui.Storage
+
 
 
 @using DaimlerConfig.Components.Models
@@ -147,13 +152,27 @@
         await Fassade.DeleteLine(line);
         AllLines.Remove(line);
         EditingLines.Remove(line);
+        await SignalRService.SendMessageToServer("LineChanged");
         ActiveContextMenuLine = null;
         ApplyFilters();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Fassade.LineRepository.GetAll();
+        SignalRService.RegisterResponseHandler(async (string msg) =>
+        {
+            await InvokeAsync(async () =>
+            {
+                var result = await Fassade.GetAllLinesAsync();
+                AllLines = result.ToList();
+                ApplyFilters();
+                StateHasChanged();
+            });
+        });
+        await SignalRService.StartConnectionAsync();
+
+        // Initiales Laden
+        var result = await Fassade.GetAllLinesAsync();
         AllLines = result.ToList();
         ApplyFilters();
     }
@@ -193,6 +212,7 @@
         AllLines.Insert(0, newLine);
         EditingLines.Add(newLine);
         ApplyFilters();
+
     }
 
     private async Task ConfirmEdit(Line line, ChangeEventArgs e)
@@ -208,12 +228,14 @@
             if (line.lineID == 0) // ❗ prüft, ob es eine neue Line ist
             {
                 await Fassade.LineRepository.Add(line);
+
             }
             else
             {
                 await Fassade.LineRepository.Update(line);
             }
-
+            // SignalR-Nachricht senden
+            await SignalRService.SendMessageToServer("LineChanged");
             EditingLines.Remove(line);
             ApplyFilters();
         }

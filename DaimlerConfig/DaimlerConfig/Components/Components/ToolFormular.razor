@@ -1,38 +1,22 @@
 ﻿@using DaimlerConfig.Components.Models
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+
 <div>
-    <div class="class-header  justify-content-between align-items-center">
-        <h2>Tool</h2>
-        @if (SelectedTool?.toolID == 0)
-        {
-            <div class="d-flex justify-content-end align-items-center mb-3">
-                <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
-            </div>
-            @if (!string.IsNullOrEmpty(ValidationMessage))
-            {
-                <div class="text-danger">@ValidationMessage</div>
-            }
-        }
+    <h2>Tool</h2>
+    <div class="layout">
+        <div class="toolColoumn">
+            <label>Tool ID:</label>
+            <input class="input-field" type="text" @bind="SelectedTool.toolID" readonly  />
 
-        @if (SelectedTool?.toolID != 0)
-        {
-            <div class="d-flex justify-content-end align-items-center mb-3">
-                <button class="btn btn-primary btn-sm">Delete</button>
-            </div>
-            @if (!string.IsNullOrEmpty(ValidationMessage))
-            {
-                <div class="text-danger">@ValidationMessage</div>
-            }
-        }
-    </div>
-    <div class="layout position-relative">
-        <div class="toolColoumnLeft">
+            <label>Tool Shortname:</label>
+            <input class="input-field" type="text" @bind="SelectedTool.toolShortname" />
 
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly @onblur="UpdateToolAsync">
-                <label>Tool ID</label>
-            </div>
+            <label>Tool Description:</label>
+            <input class="input-field" type="text" @bind="SelectedTool.toolDescription"  />
+        </div>
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control form-control" maxlength="16" placeholder="" @bind="SelectedTool.toolShortname" @onblur="UpdateToolAsync">
@@ -83,26 +67,22 @@
         </div>
     <hr />
     <div>
-        <h2>Network</h2>
-        <div class="layout position-relative">
-            <div class="toolColoumnLeft">
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>IP-Address Device</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>PLC Name</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>DBNo Send</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
-                <label>DBNo Receive</label>
-            </div>
-            </div>
+        <h3>Network</h3>
+        <div class="layout">
+            <div class="toolColoumn">
+                <label>IP-Address Device:</label>
+                <input class="input-field" type="text" @bind="SelectedTool.ipAddressDevice" @onblur="e => ValidateIP()" placeholder="0.0.0.0" />
+
+                @if (!string.IsNullOrEmpty(IPValidationMessage))
+                {
+                    <div class="text-danger">@IPValidationMessage</div>
+                }
+
+                <label>PLC Name:</label>
+                <input class="input-field" type="text" />
+
+                <label>DBNo Send:</label>
+                <input class="input-field" type="text" />
 
             <div class="toolColoumnRight">
             <div class="form-floating mb-3">
@@ -119,13 +99,48 @@
             </div>
                 
 
-            </div>
+                @if (SelectedTool?.toolID == 0)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(ValidationMessage))
+                    {
+                        <div class="text-danger">@ValidationMessage</div>
+                    }
+                }
 
+                @if (SelectedTool?.toolID != 0)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync">Update</button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(ValidationMessage))
+                    {
+                        <div class="text-danger">@ValidationMessage</div>
+                    }
+                }
+            </div>
         </div>
     </div>
 </div>
 
 @code {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     [Parameter]
     public Tool? SelectedTool { get; set; }
 
@@ -140,6 +155,7 @@
         {
             await Fassade.UpdateTool(SelectedTool);
             await OnUpdated.InvokeAsync();
+            await SignalRService.SendMessageToServer("ToolChanged");
         }
     }
 
@@ -166,7 +182,46 @@
             return;
         }
 
+        if (!ValidateIP())
+        {
+            ValidationMessage = "Ungültige IP-Adresse.";
+            return;
+        }
+
+       
         await Fassade.AddTool(SelectedTool);
         await OnUpdated.InvokeAsync();
+
+        await SignalRService.SendMessageToServer("ToolChanged");
     }
+
+
+
+
+    private string? IPValidationMessage;
+
+    private bool ValidateIP()
+    {
+        IPValidationMessage = null;
+
+        if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
+        {
+            IPValidationMessage = "IP-Adresse darf nicht leer sein.";
+            return false;
+        }
+
+        var regex = new System.Text.RegularExpressions.Regex(@"^(([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
+
+        if (!regex.IsMatch(SelectedTool.ipAddressDevice))
+        {
+            IPValidationMessage = "Ungültiges IP-Adressformat.";
+
+            return false;
+        }
+
+
+
+        return true;
+    }
+
 }

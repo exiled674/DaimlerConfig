@@ -15,14 +15,14 @@ namespace DaimlerConfig.Components.Repositories
         {
         }
 
-        public async Task<IEnumerable<Station>> GetStationsFromLine(int lineID)
+        public async Task<IEnumerable<Station>> GetStationsFromLine(int? lineID)
         {
             using var connection = _dbConnectionFactory.CreateConnection();
 
             var query = @"
                 SELECT * 
-                FROM Station
-                WHERE lineID = @lineID";
+                FROM [Station]
+                WHERE [lineID] = @lineID";
            
 
             var stations = await connection.QueryAsync<Station>(query, new { lineID });

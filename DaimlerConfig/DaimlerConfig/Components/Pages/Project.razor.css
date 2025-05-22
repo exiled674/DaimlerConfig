@@ -84,6 +84,11 @@ a.sidebar-link {
         background-color: lightgray;
     }
 
+
+.stationSelected {
+    background-color: lightgray;
+}
+
 .tool-operation-panel {
     width: 25%;
     background-color: #f8f9fa;

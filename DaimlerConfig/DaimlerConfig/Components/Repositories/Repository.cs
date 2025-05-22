@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 using DaimlerConfig.Components.Infrastructure;
 using Dapper;
 
-
 namespace DaimlerConfig.Components.Repositories
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         protected readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly string _tableName;
-
 
         public Repository(IDbConnectionFactory dbConnectionFactory)
         {
@@ -29,33 +27,20 @@ namespace DaimlerConfig.Components.Repositories
             conn.Open();
 
             // Dynamisch den Spaltennamen basierend auf der Tabelle setzen
-            string nameProperty;
-            switch (_tableName)
+            string nameProperty = _tableName switch
             {
-                case "Station":
-                    nameProperty = "assemblystation";
-                    break;
-                case "Tool":
-                    nameProperty = "toolShortname";
-                    break;
-                case "Operation":
-                    nameProperty = "operationShortname";
-                    break;
-                case "Line":
-                    nameProperty = "lineName";  // Spaltenname für Line hinzufügen
-                    break;
-                default:
-                    // Falls der Tabellenname nicht erkannt wird
-                    throw new InvalidOperationException($"Unbekannte Tabelle: {_tableName}");
-            }
+                "Station" => "assemblystation",
+                "Tool" => "toolShortname",
+                "Operation" => "operationShortname",
+                "Line" => "lineName",
+                _ => throw new InvalidOperationException($"Unbekannte Tabelle: {_tableName}")
+            };
 
-            var sql = $"SELECT COUNT(1) FROM {_tableName} WHERE {nameProperty} = @name";
+            var sql = $"SELECT COUNT(1) FROM [{_tableName}] WHERE [{nameProperty}] = @name";
             var result = await conn.ExecuteScalarAsync<int>(sql, new { name });
 
             return result > 0;
         }
-
-
 
         public async Task Add(TEntity entity)
         {
@@ -63,11 +48,11 @@ namespace DaimlerConfig.Components.Repositories
             conn.Open();
 
             var type = typeof(TEntity);
-            var primarykey = type.Name + "ID";
+            var primaryKey = type.Name + "ID";
 
-            var properties = typeof(TEntity)
+            var properties = type
                 .GetProperties()
-                .Where(p => !string.Equals(p.Name, primarykey, StringComparison.OrdinalIgnoreCase));
+                .Where(p => !string.Equals(p.Name, primaryKey, StringComparison.OrdinalIgnoreCase));
 
             // Bestimme den Namen, der überprüft werden muss
             var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
@@ -79,14 +64,14 @@ namespace DaimlerConfig.Components.Repositories
             }
 
             var columnNames = properties.Select(p => p.Name);
-            var columns = string.Join(", ", columnNames);
+            var columns = string.Join(", ", columnNames.Select(c => $"[{c}]"));
             var paramNames = string.Join(", ", columnNames.Select(n => "@" + n));
             var sql = $@"
-    INSERT INTO {_tableName}
-    ({columns})
-    VALUES
-    ({paramNames});
-    ";
+            INSERT INTO [{_tableName}]
+            ({columns})
+            VALUES
+            ({paramNames});
+            ";
 
             var dp = new DynamicParameters();
             foreach (var p in properties)
@@ -95,8 +80,7 @@ namespace DaimlerConfig.Components.Repositories
                 if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
                     && p.PropertyType == typeof(DateTime))
                 {
-                    var dt = (DateTime)val;
-                    dp.Add(p.Name, dt.ToString("yyyy-MM-dd HH:mm:ss"));
+                    dp.Add(p.Name, (DateTime)val);
                 }
                 else
                 {
@@ -107,7 +91,6 @@ namespace DaimlerConfig.Components.Repositories
             await conn.ExecuteAsync(sql, dp);
         }
 
-
         public async Task AddRange(IEnumerable<TEntity> entities)
         {
             foreach (var entity in entities)
@@ -116,13 +99,11 @@ namespace DaimlerConfig.Components.Repositories
             }
         }
 
-
         public async Task Delete(TEntity entity)
         {
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();
 
-            
             var keyProp = typeof(TEntity)
                 .GetProperties()
                 .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
@@ -133,16 +114,13 @@ namespace DaimlerConfig.Components.Repositories
             var keyName = keyProp.Name;
             var keyValue = keyProp.GetValue(entity);
 
-           
-            var sql = $"DELETE FROM {_tableName} WHERE {keyName} = @{keyName}";
+            var sql = $"DELETE FROM [{_tableName}] WHERE [{keyName}] = @{keyName}";
 
-           
             var dp = new DynamicParameters();
             dp.Add(keyName, keyValue);
 
             await conn.ExecuteAsync(sql, dp);
         }
-
 
         public async Task DeleteRange(IEnumerable<TEntity> entities)
         {
@@ -152,22 +130,14 @@ namespace DaimlerConfig.Components.Repositories
             }
         }
 
-
-
-
-
         public async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate)
         {
-           
             var all = await GetAll();
-
-            
             var func = predicate.Compile();
             return all.Where(func);
         }
 
-
-        public async Task<TEntity?> Get(int id)
+        public async Task<TEntity?> Get(int? id)
         {
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();
@@ -180,7 +150,7 @@ namespace DaimlerConfig.Components.Repositories
                 throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
 
             var keyName = keyProp.Name;
-            var sql = $"SELECT * FROM {_tableName} WHERE {keyName} = @{keyName}";
+            var sql = $"SELECT * FROM [{_tableName}] WHERE [{keyName}] = @{keyName}";
 
             var dp = new DynamicParameters();
             dp.Add(keyName, id);
@@ -188,16 +158,14 @@ namespace DaimlerConfig.Components.Repositories
             return await conn.QuerySingleOrDefaultAsync<TEntity>(sql, dp);
         }
 
-
         public async Task<IEnumerable<TEntity>> GetAll()
         {
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();
 
-            var sql = $"SELECT * FROM {_tableName}";
+            var sql = $"SELECT * FROM [{_tableName}]";
             return await conn.QueryAsync<TEntity>(sql);
         }
-
 
         public async Task<IEnumerable<TEntity>> getAllOrderedByDate()
         {
@@ -210,7 +178,7 @@ namespace DaimlerConfig.Components.Repositories
             if (!hasLastModified)
                 throw new InvalidOperationException("TEntity hat keine 'lastModified'-Eigenschaft.");
 
-            var sql = $"SELECT * FROM {_tableName} ORDER BY lastModified DESC";
+            var sql = $"SELECT * FROM [{_tableName}] ORDER BY [lastModified] DESC";
             return await conn.QueryAsync<TEntity>(sql);
         }
 
@@ -219,9 +187,7 @@ namespace DaimlerConfig.Components.Repositories
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();
 
-            // z.B. "Line" → "lineName"
             var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
-
             var props = typeof(TEntity).GetProperties();
             var hasNameProp = props.Any(p => p.Name.Equals(nameProperty, StringComparison.OrdinalIgnoreCase));
 
@@ -229,10 +195,9 @@ namespace DaimlerConfig.Components.Repositories
                 throw new InvalidOperationException($"TEntity hat keine '{nameProperty}'-Eigenschaft.");
 
             var direction = descending ? "DESC" : "ASC";
-            var sql = $"SELECT * FROM {_tableName} ORDER BY {nameProperty} {direction}";
+            var sql = $"SELECT * FROM [{_tableName}] ORDER BY [{nameProperty}] {direction}";
             return await conn.QueryAsync<TEntity>(sql);
         }
-
 
         public async Task Update(TEntity entity)
         {
@@ -252,31 +217,28 @@ namespace DaimlerConfig.Components.Repositories
             var props = type.GetProperties()
                 .Where(p => !string.Equals(p.Name, keyName, StringComparison.OrdinalIgnoreCase));
 
-            var setClause = string.Join(", ", props.Select(p => $"{p.Name} = @{p.Name}"));
+            var setClause = string.Join(", ", props.Select(p => $"[{p.Name}] = @{p.Name}"));
 
             var sql = $@"
-        UPDATE {_tableName}
-        SET {setClause}
-        WHERE {keyName} = @{keyName};
-    ";
+UPDATE [{_tableName}]
+SET {setClause}
+WHERE [{keyName}] = @{keyName};
+";
 
             var dp = new DynamicParameters();
-
             foreach (var p in props)
             {
                 var val = p.GetValue(entity);
                 if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
                     && p.PropertyType == typeof(DateTime))
                 {
-                    var dt = (DateTime)val;
-                    dp.Add(p.Name, dt.ToString("yyyy-MM-dd HH:mm:ss"));
+                    dp.Add(p.Name, (DateTime)val);
                 }
                 else
                 {
                     dp.Add(p.Name, val);
                 }
             }
-
             dp.Add(keyName, keyValue);
 
             await conn.ExecuteAsync(sql, dp);
@@ -294,11 +256,8 @@ namespace DaimlerConfig.Components.Repositories
             if (!hasNameProp)
                 throw new InvalidOperationException($"TEntity hat keine '{nameProperty}'-Eigenschaft.");
 
-            var sql = $"SELECT * FROM {_tableName} WHERE {nameProperty} = @name";
-            var result = await conn.QueryFirstOrDefaultAsync<TEntity>(sql, new { name });
-
-            return result;
+            var sql = $"SELECT TOP 1 * FROM [{_tableName}] WHERE [{nameProperty}] = @name";
+            return await conn.QueryFirstOrDefaultAsync<TEntity>(sql, new { name });
         }
-
     }
 }

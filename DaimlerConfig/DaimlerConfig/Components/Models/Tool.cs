@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Models
 {
-    public class Tool
+    public class Tool : ICopyable<Tool>
     {
-        public int toolID { get; set; }
+        public int? toolID { get; set; } = 0;
 
-        public int stationID { get; set; }
+        public int? stationID { get; set; }
 
         public string? toolShortname { get; set; }
 
@@ -34,6 +34,15 @@ namespace DaimlerConfig.Components.Models
         public string? addressReceiveDB { get; set; }
 
         public DateTime? lastModified { get; set; }
+
+
+        public Tool Clone()
+        {
+            var clone = (Tool)this.MemberwiseClone();
+            clone.toolID = 0;
+            clone.stationID = null;
+            return clone;
+        }
 
 
     }
