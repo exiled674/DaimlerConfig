@@ -20,19 +20,19 @@
 
         <div class="toolColoumn">
             <label>Tool Class</label>
-            <select class="input-field">
-                <option value="">Select</option>
-                <option value="Option 1">Option 1</option>
-                <option value="Option 2">Option 2</option>
-                <option value="Option 3">Option 3</option>
+            <select class="input-field" @onchange="UpdateToolTypes">
+                @foreach (var option in toolClasses)
+                {
+                    <option value="@option.toolClassID">@option.toolClassName</option>
+                }
             </select>
 
             <label>Tool Type</label>
             <select class="input-field">
-                <option value="">Select</option>
-                <option value="Option Type 1">Option Type 1</option>
-                <option value="Option Type 2">Option Type 2</option>
-                <option value="Option Type 3">Option Type 3</option>
+                @foreach (var option in toolTypes)
+                {
+                    <option value="@option.toolTypeID">@option.toolTypeName</option>
+                }
             </select>
         </div>
     </div>
@@ -102,6 +102,15 @@
 
     private string? ValidationMessage;
 
+    private List<ToolClass>? toolClasses;
+
+    private List<ToolType>? toolTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var toolClasses = await Fassade.ToolClassRepository.GetAll();
+
+    }
 
     #region CRUD
     private async Task UpdateToolAsync()
@@ -152,20 +161,33 @@
             if (SelectedTool.toolDescription.Length > 100)
                 return false;
         }
-        
+
 
 
 
         //IP-Adresse
-         if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
+        if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
             return false;
-            
+
         var regex = new System.Text.RegularExpressions.Regex(@"^(([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
 
         if (!regex.IsMatch(SelectedTool.ipAddressDevice))
             return false;
 
         return true;
+    }
+    #endregion
+
+    #region Classes
+    private async Task UpdateToolTypes(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int id))
+        {
+            SelectedTool.toolClassID = id;
+        }
+        if (SelectedTool == null)
+            return;
+        var toolTypes = await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID);
     }
     #endregion
 
