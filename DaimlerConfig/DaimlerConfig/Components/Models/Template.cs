@@ -3,5 +3,5 @@
 public class Template
 {
     public int TemplateId { get; init; }
-    public int ShortName { get; init; }
+    public string ShortName { get; init; }
 }

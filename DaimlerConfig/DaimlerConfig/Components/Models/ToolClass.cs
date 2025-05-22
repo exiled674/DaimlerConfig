@@ -3,5 +3,5 @@
 public class ToolClass
 {
     public int toolClassID { get; init; }
-    public int toolClassName { get; init; }
+    public string toolClassName { get; init; }
 }

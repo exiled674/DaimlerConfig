@@ -3,7 +3,7 @@
 public class SavingClass
 {
     public int savingClassID { get; init; }
-    public int savingClassName { get; init; }
+    public string savingClassName { get; init; }
     public int TemplateId { get; init; }
-    public int HelpText { get; init; }
+    public string HelpText { get; init; }
 }

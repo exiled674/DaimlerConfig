@@ -3,7 +3,7 @@
 public class DecisionClass
 {
     public int decisionClassID { get; init; }
-    public int decisionClassName { get; init; }
+    public string decisionClassName { get; init; }
     public int TemplateId { get; init; }
-    public int HelpText { get; init; }
+    public string HelpText { get; init; }
 }
