@@ -38,23 +38,13 @@ namespace DaimlerConfig.Services
             await connection.SendAsync("ReceiveMessage", message);
         }
 
-        public async Task CallUnlockToServer(int id)
-        {
-            if (connection.State != HubConnectionState.Connected)
-            {
-                await StartConnectionAsync();
-            }
-            await connection.SendAsync("LockMessage", id);
-        }
+    
 
         public void RegisterResponseHandler(Action<string> handler)
         {
             connection.On("ReceiveMessage", handler);
         }
 
-        public void RegisterLockHandler(Action<int> handler)
-        {
-            connection.On("LockMessage", handler);
-        }
+       
     }
 }
