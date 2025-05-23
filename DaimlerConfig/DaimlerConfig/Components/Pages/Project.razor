@@ -443,7 +443,7 @@
             else if (msg.StartsWith("ToolLocked"))
             {
                 var toolID = int.Parse(msg.Split(';')[1]);
-                if (selectedTool?.toolID == toolID && selectedTool?.lockedBy != currentUser)
+                if (selectedTool?.lockedBy != currentUser)
                 {
                    
                    toolReadOnly = true;
