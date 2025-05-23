@@ -172,6 +172,7 @@
         await Fassade.UpdateTool(SelectedTool);
         await OnUpdated.InvokeAsync();
         await SignalRService.SendMessageToServer("ToolChanged");
+        await DirtyManagerService.setClean();
     }
 
     private async Task CreateToolAsync()
@@ -262,6 +263,8 @@
 
     public async Task LockTool()
     {
+
+        if (SelectedTool.toolID == 0) return;
         if(SelectedTool.isLocked == false)
         {
             SelectedTool.isLocked = true;
