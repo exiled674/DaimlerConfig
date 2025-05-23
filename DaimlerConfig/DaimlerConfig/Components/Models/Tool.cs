@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Models
 {
-    public class Tool : ICopyable<Tool>
+    public class Tool : ICopyable<Tool>,IEquatable<Tool>
     {
         public int? toolID { get; set; } = 0;
 
