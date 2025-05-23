@@ -175,17 +175,23 @@
 	#region Dirty
 	private async Task<bool> CheckIfDirty()
 	{
+		if (SelectedStation?.stationID == 0)
+			return false;
 		return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation);
 	}
-	#endregion
 
-	public void ResetStation()
+	public async Task ResetStation()
 	{
-		if (OriginalStation != null){
+		if (OriginalStation != null)
+		{
 			SelectedStation = OriginalStation.Clone();
 			SelectedStation.stationID = OriginalStation.stationID;
 			SelectedStation.lineID = OriginalStation.lineID;
 		}
+		await SignalRService.SendMessageToServer("StationChanged");
 	}
+	#endregion
+
+	
 
 }

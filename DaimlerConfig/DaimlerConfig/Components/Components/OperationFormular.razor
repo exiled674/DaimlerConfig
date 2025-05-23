@@ -3,6 +3,7 @@
 
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
+@inject DirtyManagerService DirtyManagerService
 
 <div>
     <div class="class-header justify-content-between align-items-center">
@@ -36,17 +37,17 @@
         <div class="toolColoumnLeft">
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedOperation.operationID" readonly>
+                <input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationID" readonly>
                 <label>Operation ID</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @bind="SelectedOperation.operationShortname">
+                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname">
                 <label>Operation Shortname</label>
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @bind="SelectedOperation.operationDescription"></textarea>
+                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @onblur="CheckIfDirty" @bind="SelectedOperation.operationDescription"></textarea>
                 <label>Operation Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationDescription?.Length ?? 0}/100")</span>
@@ -137,9 +138,21 @@
     [Parameter]
     public EventCallback OnUpdated { get; set; }
 
+    private Operation? OriginalOperation { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (SelectedOperation != null)
+        {
+            OriginalOperation = SelectedOperation.Clone();
+            OriginalOperation.operationID = SelectedOperation.operationID;
+            OriginalOperation.toolID = SelectedOperation.toolID;
+        }
+    }
 
     #region CRUD
-    private async Task UpdateOperationAsync()
+    public async Task UpdateOperationAsync()
     {
         if (await ValidateData() == false)
             return;
@@ -164,9 +177,9 @@
     {
         if(SelectedOperation != null)
         {
-			await Fassade.DeleteOperation(SelectedOperation);
-			await OnUpdated.InvokeAsync();
-			await SignalRService.SendMessageToServer("OperationChanged");
+            await Fassade.DeleteOperation(SelectedOperation);
+            await OnUpdated.InvokeAsync();
+            await SignalRService.SendMessageToServer("OperationChanged");
 
         }
     }
@@ -201,5 +214,25 @@
         return true;
     }
 
+    #endregion
+
+    #region Dirty
+    private async Task<bool> CheckIfDirty()
+    {
+        if (SelectedOperation?.operationID == 0)
+            return false;
+        return await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation);
+    }
+
+    public async Task ResetOperation()
+    {
+        if (OriginalOperation != null)
+        {
+            SelectedOperation = OriginalOperation.Clone();
+            SelectedOperation.operationID = OriginalOperation.operationID;
+			SelectedOperation.toolID = OriginalOperation.toolID;
+        }
+        await SignalRService.SendMessageToServer("OperationChanged");
+    }
     #endregion
 }

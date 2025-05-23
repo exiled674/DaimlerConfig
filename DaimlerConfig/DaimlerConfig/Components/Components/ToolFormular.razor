@@ -3,6 +3,7 @@
 
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
+@inject DirtyManagerService DirtyManagerService
 
 <div>
 
@@ -13,7 +14,7 @@
             @if (SelectedTool?.toolID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+                    <button class="btn btn-primary btn-sm"  @onclick="CreateToolAsync">Create</button>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -49,17 +50,17 @@
         <div class="toolColoumnLeft">     
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly>
+                <input type="text" class="form-control form-control" placeholder=""  @onblur="CheckIfDirty" @bind="SelectedTool.toolID" readonly>
                 <label>Tool ID</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @bind="SelectedTool.toolShortname">
+                <input type="text" class="form-control form-control" maxlength="16" placeholder="" readonly="@ReadOnly" @onblur="CheckIfDirty" @bind="SelectedTool.toolShortname">
                 <label>Tool Shortname</label>       
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" @bind="SelectedTool.toolDescription"></textarea>
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription"></textarea>
                 <label>Tool Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedTool?.toolDescription?.Length ?? 0}/100")
@@ -96,7 +97,7 @@
         <div class="layout position-relative">
             <div class="toolColoumnLeft">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.ipAddressDevice">
+                    <input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedTool.ipAddressDevice">
                     <label>IP-Address Device</label>
                 </div>
                 <div class="form-floating mb-3">
@@ -140,11 +141,27 @@
     [Parameter]
     public EventCallback OnUpdated { get; set; }
 
+    [Parameter]
+    public bool ReadOnly { get; set; } 
+
     private string? ValidationMessage;
+
+    private Tool? OriginalTool { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (SelectedTool != null)
+        {
+            OriginalTool = SelectedTool.Clone();
+            OriginalTool.toolID = SelectedTool.toolID;
+            OriginalTool.stationID = SelectedTool.stationID;
+        }
+    }
 
 
     #region CRUD
-    private async Task UpdateToolAsync()
+    public async Task UpdateToolAsync()
     {
         if (await ValidateData() == false)
             return;
@@ -202,14 +219,14 @@
             if (SelectedTool.toolDescription.Length > 100)
                 return false;
         }
-        
+
 
 
 
         //IP-Adresse
-         if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
+        if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
             return false;
-            
+
         var regex = new System.Text.RegularExpressions.Regex(@"^(([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
 
         if (!regex.IsMatch(SelectedTool.ipAddressDevice))
@@ -218,5 +235,35 @@
         return true;
     }
     #endregion
+
+
+    #region Dirty
+    private async Task<bool> CheckIfDirty()
+    {
+        if (SelectedTool?.toolID == 0)
+            return false;
+        return await DirtyManagerService.CheckIfDirty(SelectedTool, OriginalTool);
+    }
+
+    public async Task ResetTool()
+    {
+        if (OriginalTool != null)
+        {
+            SelectedTool = OriginalTool.Clone();
+            SelectedTool.toolID = OriginalTool.toolID;
+            SelectedTool.stationID = OriginalTool.stationID;
+        }
+        await SignalRService.SendMessageToServer("ToolChanged");
+    }
+    #endregion
+
+    public async Task ReloadToolAsync(Tool newSelectedTool)
+    {
+        SelectedTool = newSelectedTool;
+        OriginalTool = newSelectedTool.Clone();
+        OriginalTool.toolID = SelectedTool.toolID;
+		OriginalTool.stationID = SelectedTool.stationID;
+        StateHasChanged();
+    }
 
 }

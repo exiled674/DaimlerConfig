@@ -27,6 +27,7 @@ namespace DaimlerConfig.Services
         
         public async Task<bool> CheckIfDirty<T>(T original, T current) where T : IEquatable<T>
         {
+            
             bool result = !(original?.Equals(current) ?? current == null);
             if (result)
                 await setDirty();

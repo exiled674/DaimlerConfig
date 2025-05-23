@@ -35,6 +35,12 @@ namespace DaimlerConfig.Components.Models
 
         public DateTime? lastModified { get; set; }
 
+        public bool? isLocked {  get; set; }
+
+        public string? lockedBy { get; set; }
+
+        public DateTime? lockTimestamp { get; set; }
+
 
         public Tool Clone()
         {
