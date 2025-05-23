@@ -123,7 +123,8 @@
         currentTool = tools.FirstOrDefault();
         var toolTypeId = currentTool.toolTypeID;
         currentTemplate = await Fassade.TemplateRepository.Get(toolTypeId);
-        InitializeClasses();
+        await InitializeClasses();
+        StateHasChanged();
     }
 
     #region CRUD

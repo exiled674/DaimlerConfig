@@ -21,7 +21,7 @@
 
         <div class="toolColoumn">
             <label>Tool Class</label>
-            <select class="input-field" @onchange="UpdateToolTypes">
+            <select class="input-field" value="@SelectedTool.toolClassID" @onchange="UpdateToolTypes">
                 <option value="">Default</option>
                 @foreach (var option in toolClasses)
                 {
@@ -112,6 +112,7 @@
     protected override async Task OnInitializedAsync()
     {
         toolClasses = (await Fassade.ToolClassRepository.GetAll()).ToList();
+        await UpdateToolTypes(null);
     }
 
     #region CRUD
@@ -183,7 +184,7 @@
     #region Classes
     private async Task UpdateToolTypes(ChangeEventArgs e)
     {
-        if (int.TryParse(e.Value?.ToString(), out int id))
+        if (int.TryParse(e.Value?.ToString(), out var id))
         {
             SelectedTool.toolClassID = id;
         }
