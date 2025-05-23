@@ -304,6 +304,7 @@
                 selectedTool.lockedBy = currentUser;
                 await Fassade.UpdateTool(selectedTool);
                 await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolLocked;" + selectedTool.toolID.ToString());
                 toolReadOnly = false;
 
             }
