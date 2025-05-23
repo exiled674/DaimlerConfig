@@ -411,15 +411,10 @@
 
 
 
-    private int getRandomNum()
-    {
-        Random random = new Random();
-        return random.Next(0, 1001);
-    }
+   
 
 
-    private int delay = 0;
-
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -433,8 +428,7 @@
             {
 
                 
-                 // 0 bis 1000 Millisekunden
-                await Task.Delay(delay);
+                
 
                 var toolID = int.Parse(msg.Split(';')[1]);
                 if (selectedTool?.toolID == toolID)
@@ -472,7 +466,7 @@
                                 selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
                             }
 
-                            delay = getRandomNum();
+                           
 
                         }
                         break;
