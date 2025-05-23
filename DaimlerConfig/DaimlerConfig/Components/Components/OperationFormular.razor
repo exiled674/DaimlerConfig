@@ -112,10 +112,10 @@
     
     private Template? currentTemplate;
 
-    private List<DecisionClass>? _decisionClasses;
-    private List<GenerationClass>? _generationClasses;
-    private List<SavingClass>? _savingClasses;
-    private List<VerificationClass>? _verificationClasses;
+    private List<DecisionClass>? _decisionClasses = new List<DecisionClass>();
+    private List<GenerationClass>? _generationClasses = new List<GenerationClass>();
+    private List<SavingClass>? _savingClasses = new List<SavingClass>();
+    private List<VerificationClass>? _verificationClasses = new List<VerificationClass>();
 
     protected override async Task OnInitializedAsync()
     {

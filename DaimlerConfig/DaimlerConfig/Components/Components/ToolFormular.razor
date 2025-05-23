@@ -22,24 +22,22 @@
         <div class="toolColoumn">
             <label>Tool Class</label>
             <select class="input-field" value="@SelectedTool.toolClassID" @onchange="UpdateToolTypes">
-                <option value="">Default</option>
                 @foreach (var option in toolClasses)
                 {
-                    <option value="@option.toolClassID">@option.toolClassName</option>
+                    <option value="@option.toolClassID">@option.toolClassID @option.toolClassName</option>
                 }
             </select>
 
             <label>Tool Type</label>
-            <select class="input-field" @bind="SelectedTool.toolTypeID">
-                <option value="">Default</option>
+            <select class="input-field" value="@SelectedTool.toolTypeID" @onchange="ToolTypeChanged">
                 @foreach (var option in toolTypes)
                 {
-                    <option value="@option.toolTypeID">@option.toolTypeName</option>
+                    <option value="@option.toolTypeID">@option.toolTypeID @option.toolTypeName</option>
                 }
             </select>
         </div>
     </div>
-    <hr />
+    <hr/>
     <div>
         <h3>Network</h3>
         <div class="layout">
@@ -112,7 +110,8 @@
     protected override async Task OnInitializedAsync()
     {
         toolClasses = (await Fassade.ToolClassRepository.GetAll()).ToList();
-        await UpdateToolTypes(null);
+        toolTypes = (await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID)).ToList();
+        StateHasChanged();
     }
 
     #region CRUD
@@ -187,9 +186,17 @@
         if (int.TryParse(e.Value?.ToString(), out var id))
         {
             SelectedTool.toolClassID = id;
+
         }
         toolTypes = (await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID)).ToList();
     }
-    #endregion
+    private async Task ToolTypeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var id))
+        {
+            SelectedTool.toolTypeID = id;
+        }
+    }
 
+    #endregion
 }
