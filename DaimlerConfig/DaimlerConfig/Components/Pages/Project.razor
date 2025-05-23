@@ -293,7 +293,7 @@
                         }*/
                 }
             }
-            
+
 
 
 
@@ -334,7 +334,7 @@
             showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
             showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                                    StateHasChanged();  // Aktualisiere den UI-Status
+                                                StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
@@ -411,6 +411,16 @@
 
 
 
+    private int getRandomNum()
+    {
+        Random random = new Random();
+        return random.Next(0, 1001);
+    }
+
+
+    private int delay = 0;
+
+
     protected override async Task OnInitializedAsync()
     {
 
@@ -422,9 +432,8 @@
             if (msg.StartsWith("ToolUnlocked"))
             {
 
-
-                Random random = new Random();
-                int delay = random.Next(0, 1001); // 0 bis 1000 Millisekunden
+                
+                 // 0 bis 1000 Millisekunden
                 await Task.Delay(delay);
 
                 var toolID = int.Parse(msg.Split(';')[1]);
@@ -463,6 +472,7 @@
                                 selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
                             }
 
+                            delay = getRandomNum();
 
                         }
                         break;
