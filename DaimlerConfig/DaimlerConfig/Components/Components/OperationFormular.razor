@@ -2,6 +2,7 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Services
+@using Microsoft.IdentityModel.Tokens
 @inject SignalRService SignalRService
 
 <div>
@@ -40,7 +41,6 @@
             <div class="toolColoumn">
                 <label>Decision Class:</label>
                 <select class="input-field" @bind="SelectedOperation.decisionClassID">
-                    <option value="">Select</option>
                     @foreach (var option in _decisionClasses)
                     {
                         <option value="@option.decisionClassID">@option.decisionClassName</option>
@@ -49,7 +49,6 @@
 
                 <label>Generation Class:</label>
                 <select class="input-field" @bind="SelectedOperation.generationClassID">
-                    <option value="">Select</option>
                     @foreach (var option in _generationClasses)
                     {
                         <option value="@option.generationClassID">@option.generationClassName</option>
@@ -60,7 +59,6 @@
             <div class="toolColoumn">
                 <label>Verification Class:</label>
                 <select class="input-field" @bind="SelectedOperation.verificationClassID">
-                    <option value="">Select</option>
                     @foreach (var option in _verificationClasses)
                     {
                         <option value="@option.verificationClassID">@option.verificationClassName</option>
@@ -69,7 +67,6 @@
 
                 <label>Saving Class:</label>
                 <select class="input-field" @bind="SelectedOperation.savingClassID">
-                    <option value="">Select</option>
                     @foreach (var option in _savingClasses)
                     {
                         <option value="@option.savingClassID">@option.savingClassName</option>
@@ -121,8 +118,8 @@
     {
         var tools = await Fassade.ToolRepository.Find(t => t.toolID == SelectedOperation.toolID);
         currentTool = tools.FirstOrDefault();
-        var toolTypeId = currentTool.toolTypeID;
-        currentTemplate = await Fassade.TemplateRepository.Get(toolTypeId);
+        var toolClassId = currentTool.toolClassID;
+        currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
         await InitializeClasses();
         StateHasChanged();
     }
@@ -198,6 +195,10 @@
         _verificationClasses = (await Fassade.VerificationClassRepository
                 .Find(t => t.TemplateId == currentTemplate.TemplateId))
                 .ToList();
+        if (_verificationClasses.IsNullOrEmpty())
+        {
+            _verificationClasses.Add(await Fassade.VerificationClassRepository.Get(0));
+        }
     }
     #endregion
 
