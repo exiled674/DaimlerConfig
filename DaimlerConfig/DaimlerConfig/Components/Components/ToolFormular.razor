@@ -74,7 +74,7 @@
                 <select class="form-select form-select" id="ToolClass" value="@SelectedTool.toolClassID" @onchange="UpdateToolTypes">
                     @foreach (var option in toolClasses)
                     {
-                        <option value="@option.toolClassID">@option.toolClassID @option.toolClassName</option>
+                        <option value="@option.toolClassID">@option.toolClassName</option>
                     }
                 </select>
                 <label for="ToolClass">Tool Class</label>
@@ -84,7 +84,7 @@
                 <select class="form-select form-select" id="ToolType" value="@SelectedTool.toolTypeID" @onchange="ToolTypeChanged">
                     @foreach (var option in toolTypes)
                     {
-                        <option value="@option.toolTypeID">@option.toolTypeID @option.toolTypeName</option>
+                        <option value="@option.toolTypeID">@option.toolTypeName</option>
                     }
                 </select>
                 <label for="ToolType">Tool Type</label>
@@ -164,7 +164,7 @@
             OriginalTool.toolID = SelectedTool.toolID;
             OriginalTool.stationID = SelectedTool.stationID;
             toolClasses = (await Fassade.ToolClassRepository.GetAll()).ToList();
-            toolTypes = (await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID)).ToList();
+            toolTypes = (await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID)).OrderBy(t => t.toolTypeName).ToList();
             StateHasChanged();
         }
     }
@@ -251,7 +251,7 @@
             SelectedTool.toolClassID = id;
 
         }
-        toolTypes = (await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID)).ToList();
+        toolTypes = (await Fassade.ToolTypeRepository.Find(t => t.toolClassID == SelectedTool.toolClassID)).OrderBy(t => t.toolTypeName).ToList();
     }
     private async Task ToolTypeChanged(ChangeEventArgs e)
     {
