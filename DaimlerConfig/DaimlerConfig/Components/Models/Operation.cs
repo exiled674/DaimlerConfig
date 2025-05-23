@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Models
 {
-    public class Operation : ICopyable<Operation>
+    public class Operation : ICopyable<Operation>, IEquatable<Operation>
     {
         public int? operationID { get; set; } = 0;
 
@@ -35,6 +35,27 @@ namespace DaimlerConfig.Components.Models
             clone.toolID = null;
             return clone;
         }
+
+        public bool Equals(Operation? other)
+        {
+            if (other == null) return false;
+
+            return operationID == other.operationID
+                && toolID == other.toolID
+                && string.Equals(operationShortname, other.operationShortname, StringComparison.Ordinal)
+                && string.Equals(operationDescription, other.operationDescription, StringComparison.Ordinal)
+                && string.Equals(operationSequence, other.operationSequence, StringComparison.Ordinal)
+                && string.Equals(operationSequenceGroup, other.operationSequenceGroup, StringComparison.Ordinal)
+                && string.Equals(operationDecisionCriteria, other.operationDecisionCriteria, StringComparison.Ordinal)
+                && alwaysPerform == other.alwaysPerform
+                && decisionClassID == other.decisionClassID
+                && generationClassID == other.generationClassID
+                && verificationClassID == other.verificationClassID
+                && savingClassID == other.savingClassID
+                && parallel == other.parallel
+                && qGateID == other.qGateID;
+        }
+
     }
 
 

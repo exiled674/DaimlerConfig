@@ -4,98 +4,131 @@
 @using DaimlerConfig.Services
 @using Microsoft.IdentityModel.Tokens
 @inject SignalRService SignalRService
+@inject DirtyManagerService DirtyManagerService
 
 <div>
-    <h2>Operation</h2>
-    <div class="layout">
-        <div class="toolColoumn">
-            <label>Operation ID:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationID" readonly  />
+    <div class="class-header justify-content-between align-items-center">
+        <h2>Operation</h2>
+        <div class="d-flex justify-content-end align-items-center gap-2">
+            @if (SelectedOperation.operationID == 0)
+            {
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync">Create</button>
+                </div>
+            }
+            @if (SelectedOperation.operationID != 0)
+            {
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync">Update</button>
+                </div>
+            }
 
-            <label>Operation Shortname:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationShortname"  />
 
-            <label>Operation Description:</label>
-            <input class="input-field" type="text" @bind="SelectedOperation.operationDescription"  />
+            @if (SelectedOperation.operationID != 0)
+            {
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync">Delete</button>
+                </div>
+            }
         </div>
+    </div>
 
-        <div class="toolColoumn">
-            <label>Serial Parallel</label>
-            <select class="input-field">
-                <option value="">Select</option>
-                <option value="Serial">Serial</option>
-                <option value="Parallel">Parallel</option>
-            </select>
 
-            <label>Operation Sequenz</label>
-            <input class="input-field" type="text" />
+    <div class="layout position-relative">
+        <div class="toolColoumnLeft">
 
-            <label>Operation Sequenz Group</label>
-            <input class="input-field" type="text" />
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationID" readonly>
+                <label>Operation ID</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname">
+                <label>Operation Shortname</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @onblur="CheckIfDirty" @bind="SelectedOperation.operationDescription"></textarea>
+                <label>Operation Description</label>
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedOperation?.operationDescription?.Length ?? 0}/100")</span>
+            </div>
+        </div>
+        <div class="toolColoumnRight ">
+
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="ProcessingMode">
+                    <option value="">select...</option>
+                    <option value="Serial">Serial</option>
+                    <option value="Parallel">Parallel</option>
+                </select>
+                <label for="ProcessingMode">Processing Mode</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>Operation Sequenz</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="">
+                <label>Operation Sequenz Group</label>
+            </div>
+
         </div>
     </div>
     <hr />
     <div>
-        <h3>Classes</h3>
-        <div class="layout">
-            <div class="toolColoumn">
-                <label>Decision Class:</label>
-                <select class="input-field" @bind="SelectedOperation.decisionClassID">
-                    @foreach (var option in _decisionClasses)
-                    {
-                        <option value="@option.decisionClassID">@option.decisionClassName</option>
-                    }
-                </select>
-
-                <label>Generation Class:</label>
-                <select class="input-field" @bind="SelectedOperation.generationClassID">
-                    @foreach (var option in _generationClasses)
-                    {
-                        <option value="@option.generationClassID">@option.generationClassName</option>
-                    }
-                </select>
-            </div>
-
-            <div class="toolColoumn">
-                <label>Verification Class:</label>
-                <select class="input-field" @bind="SelectedOperation.verificationClassID">
-                    @foreach (var option in _verificationClasses)
-                    {
-                        <option value="@option.verificationClassID">@option.verificationClassName</option>
-                    }
-                </select>
-
-                <label>Saving Class:</label>
-                <select class="input-field" @bind="SelectedOperation.savingClassID">
-                    @foreach (var option in _savingClasses)
-                    {
-                        <option value="@option.savingClassID">@option.savingClassName</option>
-                    }
-                </select>
-            </div>
-
-            <div class="toolColoumn">
-                <label>Decision Criteria:</label>
-                <textarea class="input-field" rows="4" cols="25" placeholder="Gib deinen Text hier ein..."></textarea>
-            </div>
-
-            @if (SelectedOperation.operationID == 0)
-            {
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <button class="btn btn-success btn-sm" @onclick="AddOperationAsync">Create</button>
+        <h2>Classes</h2>
+        <div class="layout position-relative">
+            <div class="toolColoumnLeft">
+                <div class="form-floating mb-3">
+                    <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID">
+                        @foreach (var option in _decisionClasses)
+                        {
+                            <option value="@option.decisionClassID">@option.decisionClassName</option>
+                        }
+                    </select>
+                    <label for="DecisionClass">Decision Class</label>
                 </div>
-            }
-
-            @if (SelectedOperation.operationID != 0)
-            {
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <button class="btn btn-success btn-sm" @onclick="UpdateOperationAsync">Update</button>
+                <div class="form-floating mb-3">
+                    <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID">
+                        @foreach (var option in _generationClasses)
+                        {
+                            <option value="@option.generationClassID">@option.generationClassName</option>
+                        }
+                    </select>
+                    <label for="GenerationClass">Generation Class</label>
                 </div>
-            }
+                <div class="form-floating mb-3">
+                    <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID">
+                        @foreach (var option in _verificationClasses)
+                        {
+                            <option value="@option.verificationClassID">@option.verificationClassName</option>
+                        }
+                    </select>
+                    <label for="VerificationClass">Verification Class</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID">
+                        @foreach (var option in _savingClasses)
+                        {
+                            <option value="@option.savingClassID">@option.savingClassName</option>
+                        }
+                    </select>
+                    <label for="SavingClass">Saving Class</label>
+                </div>
+            </div>
+            <div class="toolColoumnRight">
+
+                <div class="form-floating">
+                    <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px"></textarea>
+                    <label for="DecisionCriteria">Decision Criteria</label>
+                </div>
+            </div>     
         </div>
     </div>
 </div>
-
 @code {
     [Parameter]
     public Operation? SelectedOperation { get; set; }
@@ -108,14 +141,22 @@
     private ToolType? currentToolType;
     
     private Template? currentTemplate;
+    
+    private Operation? OriginalOperation { get; set; }
 
     private List<DecisionClass>? _decisionClasses = new List<DecisionClass>();
     private List<GenerationClass>? _generationClasses = new List<GenerationClass>();
     private List<SavingClass>? _savingClasses = new List<SavingClass>();
     private List<VerificationClass>? _verificationClasses = new List<VerificationClass>();
-
+    
     protected override async Task OnInitializedAsync()
     {
+        if (SelectedOperation != null)
+        {
+            OriginalOperation = SelectedOperation.Clone();
+            OriginalOperation.operationID = SelectedOperation.operationID;
+            OriginalOperation.toolID = SelectedOperation.toolID;
+        }
         var tools = await Fassade.ToolRepository.Find(t => t.toolID == SelectedOperation.toolID);
         currentTool = tools.FirstOrDefault();
         var toolClassId = currentTool.toolClassID;
@@ -125,7 +166,7 @@
     }
 
     #region CRUD
-    private async Task UpdateOperationAsync()
+    public async Task UpdateOperationAsync()
     {
         if (await ValidateData() == false)
             return;
@@ -144,6 +185,17 @@
         await Fassade.AddOperation(SelectedOperation);
         await OnUpdated.InvokeAsync();
         await SignalRService.SendMessageToServer("OperationChanged");
+    }
+
+    private async Task DeleteOperationAsync()
+    {
+        if(SelectedOperation != null)
+        {
+            await Fassade.DeleteOperation(SelectedOperation);
+            await OnUpdated.InvokeAsync();
+            await SignalRService.SendMessageToServer("OperationChanged");
+
+        }
     }
     #endregion
 
@@ -173,11 +225,29 @@
             if (SelectedOperation.operationDescription.Length > 100)
                 return false;
         }
-       
-
         return true;
     }
 
+    #endregion
+
+    #region Dirty
+    private async Task<bool> CheckIfDirty()
+    {
+        if (SelectedOperation?.operationID == 0)
+            return false;
+        return await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation);
+    }
+
+    public async Task ResetOperation()
+    {
+        if (OriginalOperation != null)
+        {
+            SelectedOperation = OriginalOperation.Clone();
+            SelectedOperation.operationID = OriginalOperation.operationID;
+			SelectedOperation.toolID = OriginalOperation.toolID;
+        }
+        await SignalRService.SendMessageToServer("OperationChanged");
+    }
     #endregion
 
     #region Classes

@@ -249,7 +249,14 @@ WHERE [{keyName}] = @{keyName};
             using var conn = _dbConnectionFactory.CreateConnection();
             conn.Open();
 
-            var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
+            string nameProperty = _tableName.ToLower() switch
+            {
+                "station" => "stationName",
+                "tool" => "toolShortname",
+                "operation" => "operationShortname",
+                "line" => "lineName",
+                _ => throw new InvalidOperationException($"Kein Name-Mapping für Tabelle '{_tableName}'.")
+            };
 
             var props = typeof(TEntity).GetProperties();
             var hasNameProp = props.Any(p => p.Name.Equals(nameProperty, StringComparison.OrdinalIgnoreCase));
@@ -259,7 +266,6 @@ WHERE [{keyName}] = @{keyName};
             var sql = $"SELECT TOP 1 * FROM [{_tableName}] WHERE [{nameProperty}] = @name";
             return await conn.QueryFirstOrDefaultAsync<TEntity>(sql, new { name });
         }
-
 
         public async Task<bool> ExistsByNameWithForeignKey(string name, string foreignKeyColumn, int foreignKeyId)
         {

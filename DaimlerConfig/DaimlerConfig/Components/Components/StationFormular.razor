@@ -3,44 +3,69 @@
 
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
+@inject DirtyManagerService DirtyManagerService
 @using System.Linq
 
 <div>
-	<h2>Station</h2>
-	<div class="layout">
-		<div class="toolColoumn">
-			<label>Assemblystation:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.assemblystation"  />
 
-			<label>Assemblystation Description:</label>
-			<input class="input-field" type="text" @bind="SelectedStation.stationName"  />
-
-			<label>Station Type:</label>
-			<select class="input-field" @bind="SelectedStation.stationTypeID">
-				@if(stationTypes != null){
-					@foreach (var stationType in stationTypes)
-					{
-						<option value="@stationType.stationTypeID">@stationType.stationTypeName</option>
-					}
-				}
-			</select>
-
+	<div class="class-header justify-content-between align-items-center">
+		<h2>Station</h2>
+		<div class="d-flex justify-content-end align-items-center gap-2"> 
 			@if (SelectedStation?.stationID == 0)
 			{
 				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm" @onclick="CreateStationAsync">Create</button>
+					<button class="btn btn-primary btn-sm"  @onclick="CreateStationAsync">Create</button>
+				</div>
+			}
+
+
+
+			@if (SelectedStation?.stationID != 0)
+			{
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<button class="btn btn-primary btn-sm"  @onclick="UpdateStationAsync">Update</button>
 				</div>
 			}
 
 			@if (SelectedStation?.stationID != 0)
 			{
 				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm" @onclick="UpdateStationAsync">Update</button>
+					<button class="btn btn-primary btn-sm" @onclick="DeleteStationAsync">Delete</button>
 				</div>
 			}
+		</div>
+	</div>
 
+
+
+	<div class="layout position-relative">
+		<div class="stationColoumn">
+
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedStation.assemblystation">
+				<label>Assemblystation</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedStation.stationName">
+				<label>Assemblystation Description</label>
+			</div>
+
+			<div class="form-floating mb-3">
+				<select class="form-select form-select" id="StationType" @onblur="CheckIfDirty"  @bind="SelectedStation.stationTypeID">
+					@if (stationTypes != null)
+					{
+						@foreach (var stationType in stationTypes)
+						{
+							<option value="@stationType.stationTypeID">@stationType.stationTypeName</option>
+						}
+					}
+				</select>
+				<label for="StationType">Station Type</label>
+			</div>
 
 		</div>
+
 	</div>
 </div>
 
@@ -54,16 +79,25 @@
 
 	IEnumerable<StationType> stationTypes;
 
+	private Station? OriginalStation { get; set; }
+
+
 
 
 	protected override async Task OnInitializedAsync()
 	{
-		stationTypes = await Fassade.GetAllStationTypes();		
+		stationTypes = await Fassade.GetAllStationTypes();	
+		if (SelectedStation != null)
+		{
+			OriginalStation = SelectedStation.Clone();
+			OriginalStation.stationID = SelectedStation.stationID;
+			OriginalStation.lineID = SelectedStation.lineID;
+		}
 	}
 
 
 	#region CRUD
-	private async Task UpdateStationAsync()
+	public async Task UpdateStationAsync()
 	{
 		if (await ValidateData() == false) return;
 
@@ -71,6 +105,15 @@
 		await OnUpdated.InvokeAsync();
 		await SignalRService.SendMessageToServer("StationChanged");
 
+	}
+
+	public async Task UpdateStationAsync(Station station)
+	{
+		if (await ValidateData() == false) return;
+
+		await Fassade.UpdateStation(station);
+		await OnUpdated.InvokeAsync();
+		await SignalRService.SendMessageToServer("StationChanged");
 	}
 
 	private async Task CreateStationAsync()
@@ -81,6 +124,16 @@
 		await OnUpdated.InvokeAsync();
 		await SignalRService.SendMessageToServer("StationChanged");
 
+	}
+
+	private async Task DeleteStationAsync()
+	{
+		if (SelectedStation != null)
+		{
+			await Fassade.DeleteStation(SelectedStation);
+			await OnUpdated.InvokeAsync();
+			await SignalRService.SendMessageToServer("StationChanged");
+		}
 	}
 	#endregion
 
@@ -98,7 +151,7 @@
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
 			return false;
 
-		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.lineID))
+		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.lineID.Value))
 			return false;
 
 		if (SelectedStation.assemblystation.Length > 10)
@@ -112,10 +165,33 @@
 			if (SelectedStation.stationName.Length > 50)
 				return false;
 		}
-		
+
 
 		return true;
 
 	}
 	#endregion
+
+	#region Dirty
+	private async Task<bool> CheckIfDirty()
+	{
+		if (SelectedStation?.stationID == 0)
+			return false;
+		return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation);
+	}
+
+	public async Task ResetStation()
+	{
+		if (OriginalStation != null)
+		{
+			SelectedStation = OriginalStation.Clone();
+			SelectedStation.stationID = OriginalStation.stationID;
+			SelectedStation.lineID = OriginalStation.lineID;
+		}
+		await SignalRService.SendMessageToServer("StationChanged");
+	}
+	#endregion
+
+	
+
 }

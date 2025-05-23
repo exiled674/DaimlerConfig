@@ -38,6 +38,13 @@ namespace DaimlerConfig.Components.Models
         public DateTime? lastModified { get; set; }
 
         public int? Sequence { get; set; } = 0;
+        
+        public bool? isLocked {  get; set; }
+
+        public string? lockedBy { get; set; }
+
+        public DateTime? lockTimestamp { get; set; }
+
 
         public Tool Clone()
         {
@@ -46,7 +53,23 @@ namespace DaimlerConfig.Components.Models
             clone.stationID = null;
             return clone;
         }
+        public bool Equals(Tool? other)
+        {
+            if (other == null) return false;
 
+            return toolID == other.toolID
+                   && stationID == other.stationID
+                   && string.Equals(toolShortname, other.toolShortname, StringComparison.Ordinal)
+                   && string.Equals(toolDescription, other.toolDescription, StringComparison.Ordinal)
+                   && toolTypeID == other.toolTypeID
+                   && string.Equals(ipAddressDevice, other.ipAddressDevice, StringComparison.Ordinal)
+                   && string.Equals(plcName, other.plcName, StringComparison.Ordinal)
+                   && string.Equals(dbNoSend, other.dbNoSend, StringComparison.Ordinal)
+                   && string.Equals(dbNoReceive, other.dbNoReceive, StringComparison.Ordinal)
+                   && preCheckByte == other.preCheckByte
+                   && string.Equals(addressSendDB, other.addressSendDB, StringComparison.Ordinal)
+                   && string.Equals(addressReceiveDB, other.addressReceiveDB, StringComparison.Ordinal);
+        }
 
     }
 }

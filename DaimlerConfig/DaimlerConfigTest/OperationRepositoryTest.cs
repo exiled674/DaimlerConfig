@@ -5,6 +5,8 @@ using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.Infrastructure;
 using Microsoft.Data.Sqlite;
 using System.Data;
+using System.Text.Json;
+using Windows.System;
 
 namespace DaimlerConfigTest
 {
@@ -16,475 +18,280 @@ namespace DaimlerConfigTest
 
         public OperationRepositoryTest()
         {
-            //SqliteConnectionFactory erhält einen Speicherort für die .db und implementiert IDbConnectionFactory mit einer CreateConnection-Methode
-            var connectionFactory = new SqliteConnectionFactory(Path.Combine(Directory.GetCurrentDirectory(), "OperationTest.db"));
+
+            
+           
+            var connectionFactory = new SqlServerConnectionFactory("Server = 92.205.188.134, 1433; Initial Catalog = DConfigTest; Persist Security Info = False; User ID = SA; Password = 580=YQc8Tn1:mNdsoJ.8WeLVHMXIqWO2I5; MultipleActiveResultSets = False; Encrypt = False; TrustServerCertificate = True; Connection Timeout = 30; ");
 
             //Erstellt eine Verbindung zur Datenbank über den Pfad
             _connection = connectionFactory.CreateConnection();
 
-            //Methode um die Tabellen der Datenbank zu erstellen
-            CreateTables();
 
-            //Methode um die Datenbank mit Testdaten zu befüllen
-            SetUpData();
 
             //Stationrepo mit Verbindung intiialisiert
             operationRepository = new OperationRepository(connectionFactory);
+
+
+
         }
-
-
-        internal void CreateTables()
-        {
-            _connection.Execute(@"
-              PRAGMA foreign_keys = ON;
-
-            CREATE TABLE IF NOT EXISTS Line (
-              lineID INTEGER PRIMARY KEY AUTOINCREMENT,
-              lineName TEXT NOT NULL UNIQUE
-            );  
-
-            CREATE TABLE IF NOT EXISTS StationType (
-              stationTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
-              stationTypeName TEXT NOT NULL UNIQUE
-            );
-
-            CREATE TABLE IF NOT EXISTS Station (
-              stationID INTEGER PRIMARY KEY AUTOINCREMENT,
-              assemblystation TEXT NOT NULL,
-              stationName TEXT,
-              stationTypeID INTEGER,
-              lineID INTEGER,
-              lastModified TEXT,
-              FOREIGN KEY (stationTypeID) REFERENCES StationType(stationTypeID)
-              FOREIGN KEY (lineID) REFERENCES Line(lineID)
-            );
-
-            CREATE TABLE IF NOT EXISTS ToolClass (
-              toolClassID INTEGER PRIMARY KEY AUTOINCREMENT,
-              toolClassName TEXT NOT NULL UNIQUE
-            );
-
-            CREATE TABLE IF NOT EXISTS ToolType (
-              toolTypeID INTEGER PRIMARY KEY AUTOINCREMENT,
-              toolTypeName TEXT NOT NULL UNIQUE,
-              toolClassID INTEGER NOT NULL,
-              FOREIGN KEY (toolClassID) REFERENCES ToolClass(toolClassID)
-            );
-
-            CREATE TABLE IF NOT EXISTS Tool (
-              toolID INTEGER PRIMARY KEY AUTOINCREMENT,
-              toolShortname TEXT,
-              toolDescription TEXT,
-              toolTypeID INTEGER,
-              stationID INTEGER NOT NULL,
-              ipAddressDevice TEXT,
-              plcName TEXT,
-              dbNoSend TEXT,
-              dbNoReceive TEXT,
-              preCheckByte INTEGER DEFAULT 0,
-              addressSendDB INTEGER DEFAULT 0,
-              addressReceiveDB INTEGER DEFAULT 0,
-              lastModified TEXT,
-              FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
-              FOREIGN KEY (stationID) REFERENCES Station(stationID)
-            );
-
-            CREATE TABLE IF NOT EXISTS DecisionClass (
-              decisionClassID INTEGER PRIMARY KEY AUTOINCREMENT,
-              decisionClassName TEXT NOT NULL UNIQUE
-            );
-
-            CREATE TABLE IF NOT EXISTS SavingClass (
-              savingClassID INTEGER PRIMARY KEY AUTOINCREMENT,
-              savingClassName TEXT NOT NULL UNIQUE
-            );
-
-            CREATE TABLE IF NOT EXISTS GenerationClass (
-              generationClassID INTEGER PRIMARY KEY AUTOINCREMENT,
-              generationClassName TEXT NOT NULL UNIQUE
-            );
-
-            CREATE TABLE IF NOT EXISTS VerificationClass (
-              verificationClassID INTEGER PRIMARY KEY AUTOINCREMENT,
-              verificationClassName TEXT NOT NULL UNIQUE
-            );
-
-            CREATE TABLE IF NOT EXISTS GenerationClass_has_ToolType (
-            toolTypeID INTEGER NOT NULL,
-            generationClassID INTEGER NOT NULL,
-            PRIMARY KEY (toolTypeID, generationClassID),
-            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
-            FOREIGN KEY (generationClassID) REFERENCES GenerationClass(generationClassID)
-            );
-
-            CREATE TABLE IF NOT EXISTS VerificationClass_has_ToolType (
-            toolTypeID INTEGER NOT NULL,
-            verificationClassID INTEGER NOT NULL,
-            PRIMARY KEY (toolTypeID, verificationClassID),
-            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
-            FOREIGN KEY (verificationClassID) REFERENCES VerificationClass(verificationClassID)
-            );
-
-
-            CREATE TABLE IF NOT EXISTS DecisionClass_has_ToolType (
-            toolTypeID INTEGER NOT NULL,
-            decisionClassID INTEGER NOT NULL,
-            PRIMARY KEY (toolTypeID, decisionClassID),
-            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
-            FOREIGN KEY (decisionClassID) REFERENCES DecisionClass(decisionClassID)
-            );
-
-            CREATE TABLE IF NOT EXISTS SavingClass_has_ToolType (
-            toolTypeID INTEGER NOT NULL,
-            savingClassID INTEGER NOT NULL,
-            PRIMARY KEY (toolTypeID, savingClassID),
-            FOREIGN KEY (toolTypeID) REFERENCES ToolType(toolTypeID),
-            FOREIGN KEY (savingClassID) REFERENCES SavingClass(savingClassID)
-            );
-
-            CREATE TABLE IF NOT EXISTS QGate (
-              qGateID INTEGER PRIMARY KEY AUTOINCREMENT,
-              qGateName TEXT NOT NULL UNIQUE
-            );
-
-            CREATE TABLE IF NOT EXISTS Operation (
-              operationID INTEGER PRIMARY KEY AUTOINCREMENT,
-              operationShortname TEXT,
-              operationDescription TEXT,
-              operationSequenceGroup TEXT,
-              operationSequence TEXT,
-              operationDecisionCriteria TEXT,
-              alwaysPerform INTEGER NOT NULL DEFAULT 0,
-              decisionClassID INTEGER,
-              savingClassID INTEGER,
-              generationClassID INTEGER,
-              verificationClassID INTEGER,
-              toolID INTEGER NOT NULL,
-              parallel INTEGER NOT NULL DEFAULT 0,
-              lastModified TEXT,
-              qGateID INTEGER,
-              FOREIGN KEY (decisionClassID) REFERENCES DecisionClass(decisionClassID),
-              FOREIGN KEY (savingClassID) REFERENCES SavingClass(savingClassID),
-              FOREIGN KEY (generationClassID) REFERENCES GenerationClass(generationClassID),
-              FOREIGN KEY (verificationClassID) REFERENCES VerificationClass(verificationClassID),
-              FOREIGN KEY (toolID) REFERENCES Tool(toolID),
-              FOREIGN KEY (qGateID) REFERENCES QGate(qGateID)
-            );
-            ");
-        }
-
-        internal void SetUpData()
-        {
-            // Line-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO Line (lineName) VALUES
-        ('Line1'), ('Line2');
-    ");
-
-            // StationType-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO StationType (stationTypeName) VALUES
-        ('StationType1'), ('StationType2');
-    ");
-
-            // Station-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO Station (assemblystation, stationName, stationTypeID, lineID, lastModified) VALUES
-        ('AssemblyStation1', 'Station1', 1, 1, '2023-10-01'),
-        ('AssemblyStation2', 'Station2', 2, 2, '2023-10-02');
-    ");
-
-            // ToolClass-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO ToolClass (toolClassName) VALUES
-        ('ToolClass1'), ('ToolClass2');
-    ");
-
-            // ToolType-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO ToolType (toolTypeName, toolClassID) VALUES
-        ('ToolType1', 1),
-        ('ToolType2', 2);
-    ");
-
-            // Tool-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO Tool (toolShortname, toolDescription, toolTypeID, stationID, ipAddressDevice, plcName, dbNoSend, dbNoReceive, preCheckByte, addressSendDB, addressReceiveDB, lastModified) VALUES
-        ('Tool1', 'Description1', 1, 1, '192.168.0.1', 'PLC1', 'DB1', 'DB2', 0, '100', '200', '2023-10-01'),
-        ('Tool2', 'Description2', 2, 2, '192.168.0.2', 'PLC2', 'DB3', 'DB4', 1, '101', '201', '2023-10-02');
-    ");
-
-            // DecisionClass-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO DecisionClass (decisionClassName) VALUES
-        ('DecisionClass1'), ('DecisionClass2');
-    ");
-
-            // SavingClass-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO SavingClass (savingClassName) VALUES
-        ('SavingClass1'), ('SavingClass2');
-    ");
-
-            // GenerationClass-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO GenerationClass (generationClassName) VALUES
-        ('GenerationClass1'), ('GenerationClass2');
-    ");
-
-            // VerificationClass-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO VerificationClass (verificationClassName) VALUES
-        ('VerificationClass1'), ('VerificationClass2');
-    ");
-
-            // QGate-Daten einfügen
-            _connection.Execute(@"
-        INSERT OR IGNORE INTO QGate (qGateName) VALUES
-        ('QGate1'), ('QGate2');
-    ");
-        }
-
 
 
 
         [Fact]
-        public async void AddOperationTest_Works()
+        public async Task GetAll_ReturnsSameCountAsDirectSelect()
         {
-            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            
 
-            var operation = new Operation
+            // Act: use repository
+            var repoResults = (await operationRepository.GetAll()).ToList();
+
+            // Direct count via raw SQL
+            var expectedCount = await _connection.QuerySingleAsync<int>("SELECT COUNT(*) FROM Operation");
+
+            // Assert counts match
+            Assert.Equal(expectedCount, repoResults.Count);
+        }
+
+        [Fact]
+        public async Task Get_ReturnsOperation44_WhenExists()
+        {
+            // Arrange
+            const int id = 44;
+            // Fetch expected via raw SQL
+            var expected = await _connection.QuerySingleAsync<Operation>(
+                "SELECT * FROM [Operation] WHERE operationID = @Id", new { Id = id });
+
+            // Act
+            var actual = await operationRepository.Get(id);
+
+            // Assert
+            Assert.NotNull(actual);
+            // Compare each property
+            Assert.Equal(expected.operationID, actual.operationID);
+            Assert.Equal(expected.toolID, actual.toolID);
+            Assert.Equal(expected.operationShortname, actual.operationShortname);
+            Assert.Equal(expected.operationDescription, actual.operationDescription);
+            Assert.Equal(expected.operationSequence, actual.operationSequence);
+            Assert.Equal(expected.operationSequenceGroup, actual.operationSequenceGroup);
+            Assert.Equal(expected.operationDecisionCriteria, actual.operationDecisionCriteria);
+            Assert.Equal(expected.alwaysPerform, actual.alwaysPerform);
+            Assert.Equal(expected.decisionClassID, actual.decisionClassID);
+            Assert.Equal(expected.generationClassID, actual.generationClassID);
+            Assert.Equal(expected.verificationClassID, actual.verificationClassID);
+            Assert.Equal(expected.savingClassID, actual.savingClassID);
+            Assert.Equal(expected.parallel, actual.parallel);
+            Assert.Equal(expected.qGateID, actual.qGateID);
+            Assert.Equal(expected.lastModified, actual.lastModified);
+        }
+
+        [Fact]
+        public async Task Add_InsertsNewOperation_WhenNotExists()
+        {
+            // Arrange
+            var newOp = new Operation
             {
-                operationShortname = "Operation_" + timestamp,
-                operationDescription = "Description_" + timestamp,
-                operationSequenceGroup = "Group1",
-                operationSequence = "Sequence1",
-                operationDecisionCriteria = "Criteria1",
-                alwaysPerform = true,
-                decisionClassID = 1,
-                savingClassID = 1,
+                operationShortname = "TestAdd",
+                toolID = 111,
+                alwaysPerform = false,
+                decisionClassID = 4,
                 generationClassID = 1,
-                verificationClassID = 1,
-                toolID = 1,
+                verificationClassID = 4,
+                savingClassID = 4,
                 parallel = false,
-                qGateID = 1,
-                lastModified = DateTime.Now
+                qGateID = 3,
+                lastModified = DateTime.UtcNow
             };
 
-            await operationRepository.Add(operation);
+            // Act
+            await operationRepository.Add(newOp);
 
-            var result = await _connection.QueryFirstOrDefaultAsync<Operation>(
-                "SELECT * FROM Operation WHERE operationShortname = @operationShortname",
-                new { operation.operationShortname });
+            // Fetch inserted via raw SQL
+            var inserted = await _connection.QuerySingleOrDefaultAsync<Operation>(
+                "SELECT TOP 1 * FROM [Operation] WHERE operationShortname = @Name AND toolID = @ToolId ORDER BY operationID DESC",
+                new { Name = newOp.operationShortname, ToolId = newOp.toolID });
 
+            // Assert
+            Assert.NotNull(inserted);
+            Assert.Equal(newOp.operationShortname, inserted.operationShortname);
+            Assert.Equal(newOp.toolID, inserted.toolID);
+            Assert.Equal(newOp.decisionClassID, inserted.decisionClassID);
+
+            // Cleanup: delete the test record
+            await _connection.ExecuteAsync(
+                "DELETE FROM [Operation] WHERE operationID = @Id",
+                new { Id = inserted.operationID });
+        }
+
+        [Fact]
+        public async Task Delete_RemovesOperation_WhenExists()
+        {
+            // Arrange: Neue Operation erstellen
+            var tempOperation = new Operation
+            {
+                operationShortname = "ToBeDeleted",
+                toolID = 111,
+                alwaysPerform = false,
+                decisionClassID = 4,
+                generationClassID = 1,
+                verificationClassID = 4,
+                savingClassID = 4,
+                parallel = false,
+                qGateID = 3,
+                lastModified = DateTime.UtcNow
+            };
+
+            // In DB einfügen
+            await operationRepository.Add(tempOperation);
+
+            // Wieder auslesen (um ID zu bekommen)
+            var inserted = await _connection.QuerySingleOrDefaultAsync<Operation>(
+                "SELECT TOP 1 * FROM [Operation] WHERE operationShortname = @Name AND toolID = @ToolId ORDER BY operationID DESC",
+                new { Name = tempOperation.operationShortname, ToolId = tempOperation.toolID });
+
+            Assert.NotNull(inserted);
+
+            // Act: Löschen mit Repository
+            await operationRepository.Delete(inserted);
+
+            // Assert: Sicherstellen, dass sie gelöscht wurde
+            var deleted = await _connection.QuerySingleOrDefaultAsync<Operation>(
+                "SELECT * FROM [Operation] WHERE operationID = @Id",
+                new { Id = inserted.operationID });
+
+            Assert.Null(deleted);
+        }
+
+
+        [Fact]
+        public async Task Update_ChangesOperationShortname_WhenCalled()
+        {
+            // Arrange: Neue Operation erstellen
+            var tempOperation = new Operation
+            {
+                operationShortname = "BeforeUpdate",
+                toolID = 111,
+                alwaysPerform = false,
+                decisionClassID = 4,
+                generationClassID = 1,
+                verificationClassID = 4,
+                savingClassID = 4,
+                parallel = false,
+                qGateID = 3,
+                lastModified = DateTime.UtcNow
+            };
+
+            // In DB einfügen
+            await operationRepository.Add(tempOperation);
+
+            // Wieder auslesen (inkl. ID)
+            var inserted = await _connection.QuerySingleOrDefaultAsync<Operation>(
+                "SELECT TOP 1 * FROM [Operation] WHERE operationShortname = @Name AND toolID = @ToolId ORDER BY operationID DESC",
+                new { Name = tempOperation.operationShortname, ToolId = tempOperation.toolID });
+
+            Assert.NotNull(inserted);
+
+            // Act: Änderung vornehmen und Update aufrufen
+            inserted.operationShortname = "AfterUpdate";
+            inserted.lastModified = DateTime.UtcNow;
+
+            await operationRepository.Update(inserted);
+
+            // Aus DB erneut lesen
+            var updated = await _connection.QuerySingleOrDefaultAsync<Operation>(
+                "SELECT * FROM [Operation] WHERE operationID = @Id",
+                new { Id = inserted.operationID });
+
+            // Assert: prüfen ob Änderung übernommen wurde
+            Assert.NotNull(updated);
+            Assert.Equal("AfterUpdate", updated.operationShortname);
+
+            // Cleanup
+            await operationRepository.Delete(updated);
+        }
+
+        [Fact]
+        public async Task GetByName_ReturnsCorrectOperation_WhenExists()
+        {
+            // Arrange
+            var uniqueName = "GetByNameTestOp_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+
+            var newOp = new Operation
+            {
+                operationShortname = uniqueName,
+                toolID = 111,
+                alwaysPerform = false,
+                decisionClassID = 4,
+                generationClassID = 1,
+                verificationClassID = 4,
+                savingClassID = 4,
+                parallel = false,
+                qGateID = 3,
+                lastModified = DateTime.UtcNow
+            };
+
+            await operationRepository.Add(newOp);
+
+            // Hole eingefügte Operation mit SQL, um sicherzugehen
+            var inserted = await _connection.QuerySingleOrDefaultAsync<Operation>(
+                "SELECT TOP 1 * FROM [Operation] WHERE operationShortname = @Name ORDER BY operationID DESC",
+                new { Name = uniqueName });
+
+            Assert.NotNull(inserted);
+
+            // Act
+            var result = await operationRepository.GetByName(uniqueName);
+
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(operation.operationShortname, result.operationShortname);
-            Assert.Equal(operation.operationDescription, result.operationDescription);
-            Assert.Equal(operation.operationSequenceGroup, result.operationSequenceGroup);
-            Assert.Equal(operation.operationSequence, result.operationSequence);
-            Assert.Equal(operation.operationDecisionCriteria, result.operationDecisionCriteria);
-            Assert.Equal(operation.alwaysPerform, result.alwaysPerform);
-            Assert.Equal(operation.decisionClassID, result.decisionClassID);
-            Assert.Equal(operation.savingClassID, result.savingClassID);
-            Assert.Equal(operation.generationClassID, result.generationClassID);
-            Assert.Equal(operation.verificationClassID, result.verificationClassID);
-            Assert.Equal(operation.toolID, result.toolID);
-            Assert.Equal(operation.parallel, result.parallel);
-            Assert.Equal(operation.qGateID, result.qGateID);
-            Assert.Equal(operation.lastModified.ToString("yyyy-MM-dd HH:mm:ss"), result.lastModified.ToString("yyyy-MM-dd HH:mm:ss"));
+            Assert.Equal(inserted.operationID, result.operationID);
+            Assert.Equal(inserted.operationShortname, result.operationShortname);
+            Assert.Equal(inserted.toolID, result.toolID);
+
+            // Cleanup
+            await operationRepository.Delete(inserted);
         }
 
-
         [Fact]
-        public async void DeleteOperationTest_Works()
+        public async Task GetOperationsFromTool_ReturnsOperationsWithGivenToolID()
         {
-            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            // Arrange
+            var uniqueShortname = "ToolOpTest_" + Guid.NewGuid().ToString("N").Substring(0, 6);
+            var testToolId = 111;
 
-            _connection.Execute(@"
-        INSERT INTO Operation (operationShortname, operationDescription, operationSequenceGroup, operationSequence, operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID, generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
-        VALUES (@operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence, @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID, @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);",
-                new
-                {
-                    operationShortname = "Operation_" + timestamp,
-                    operationDescription = "Description_" + timestamp,
-                    operationSequenceGroup = "Group1",
-                    operationSequence = "Sequence1",
-                    operationDecisionCriteria = "Criteria1",
-                    alwaysPerform = 1,
-                    decisionClassID = 1,
-                    savingClassID = 1,
-                    generationClassID = 1,
-                    verificationClassID = 1,
-                    toolID = 1,
-                    parallel = 0,
-                    qGateID = 1,
-                    lastModified = DateTime.Now
-                });
-
-            var operationToDelete = await _connection.QueryFirstOrDefaultAsync<Operation>(
-                "SELECT * FROM Operation WHERE operationShortname = @operationShortname",
-                new { operationShortname = "Operation_" + timestamp });
-            Assert.NotNull(operationToDelete);
-
-            await operationRepository.Delete(operationToDelete);
-
-            var deletedOperation = await _connection.QueryFirstOrDefaultAsync<Operation>(
-                "SELECT * FROM Operation WHERE operationShortname = @operationShortname",
-                new { operationShortname = "Operation_" + timestamp });
-            Assert.Null(deletedOperation);
-        }
-
-
-        [Fact]
-        public async void UpdateOperationTest_Works()
-        {
-            string initialTimestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-
-            var insertData = new
+            var newOp = new Operation
             {
-                operationShortname = "Operation_" + initialTimestamp,
-                operationDescription = "Description_" + initialTimestamp,
-                operationSequenceGroup = "Group1",
-                operationSequence = "Sequence1",
-                operationDecisionCriteria = "Criteria1",
-                alwaysPerform = 1,
-                decisionClassID = 1,
-                savingClassID = 1,
+                operationShortname = uniqueShortname,
+                toolID = testToolId,
+                alwaysPerform = false,
+                decisionClassID = 4,
                 generationClassID = 1,
-                verificationClassID = 1,
-                toolID = 1,
-                parallel = 0,
-                qGateID = 1,
-                lastModified = DateTime.Now
-            };
-
-            _connection.Execute(@"
-        INSERT INTO Operation (
-            operationShortname, operationDescription, operationSequenceGroup, operationSequence,
-            operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID,
-            generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
-        VALUES (
-            @operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence,
-            @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID,
-            @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);",
-                insertData);
-
-            var operationToUpdate = await _connection.QueryFirstOrDefaultAsync<Operation>(
-                "SELECT * FROM Operation WHERE operationShortname = @operationShortname",
-                new { insertData.operationShortname });
-
-            Assert.NotNull(operationToUpdate);
-
-            string updateTimestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-
-            operationToUpdate.operationShortname += "_updated_" + updateTimestamp;
-            operationToUpdate.operationDescription += "_updated_" + updateTimestamp;
-            operationToUpdate.operationSequenceGroup = "Group2";
-            operationToUpdate.operationSequence = "Sequence2";
-            operationToUpdate.operationDecisionCriteria = "Criteria2";
-            operationToUpdate.alwaysPerform = false;
-            operationToUpdate.decisionClassID = 2;
-            operationToUpdate.savingClassID = 2;
-            operationToUpdate.generationClassID = 2;
-            operationToUpdate.verificationClassID = 2;
-            operationToUpdate.toolID = 2;
-            operationToUpdate.parallel = true;
-            operationToUpdate.qGateID = 2;
-            operationToUpdate.lastModified = DateTime.Now;
-
-            await operationRepository.Update(operationToUpdate);
-
-            var updatedOperation = await _connection.QueryFirstOrDefaultAsync<Operation>(
-                "SELECT * FROM Operation WHERE operationID = @operationID",
-                new { operationToUpdate.operationID });
-
-            Assert.NotNull(updatedOperation);
-            Assert.Equal(operationToUpdate.operationShortname, updatedOperation.operationShortname);
-            Assert.Equal(operationToUpdate.operationDescription, updatedOperation.operationDescription);
-            Assert.Equal(operationToUpdate.operationSequenceGroup, updatedOperation.operationSequenceGroup);
-            Assert.Equal(operationToUpdate.operationSequence, updatedOperation.operationSequence);
-            Assert.Equal(operationToUpdate.operationDecisionCriteria, updatedOperation.operationDecisionCriteria);
-            Assert.Equal(operationToUpdate.alwaysPerform, updatedOperation.alwaysPerform);
-            Assert.Equal(operationToUpdate.decisionClassID, updatedOperation.decisionClassID);
-            Assert.Equal(operationToUpdate.savingClassID, updatedOperation.savingClassID);
-            Assert.Equal(operationToUpdate.generationClassID, updatedOperation.generationClassID);
-            Assert.Equal(operationToUpdate.verificationClassID, updatedOperation.verificationClassID);
-            Assert.Equal(operationToUpdate.toolID, updatedOperation.toolID);
-            Assert.Equal(operationToUpdate.parallel, updatedOperation.parallel);
-            Assert.Equal(operationToUpdate.qGateID, updatedOperation.qGateID);
-            Assert.Equal(operationToUpdate.lastModified.ToString("yyyy-MM-dd HH:mm:ss"), updatedOperation.lastModified.ToString("yyyy-MM-dd HH:mm:ss"));
-        }
-
-
-        [Fact]
-        public async void GetOperationByIdTest_Works()
-        {
-            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
-            DateTime now = DateTime.Now;
-
-            var originalOperation = new
-            {
-                operationShortname = "Operation_" + timestamp,
-                operationDescription = "Description_" + timestamp,
-                operationSequenceGroup = "Group1",
-                operationSequence = "Sequence1",
-                operationDecisionCriteria = "Criteria1",
-                alwaysPerform = true,
-                decisionClassID = 1,
-                savingClassID = 1,
-                generationClassID = 1,
-                verificationClassID = 1,
-                toolID = 1,
+                verificationClassID = 4,
+                savingClassID = 4,
                 parallel = false,
-                qGateID = 1,
-                lastModified = now
+                qGateID = 3,
+                lastModified = DateTime.UtcNow
             };
 
-            _connection.Execute(@"
-        INSERT INTO Operation (
-            operationShortname, operationDescription, operationSequenceGroup, operationSequence,
-            operationDecisionCriteria, alwaysPerform, decisionClassID, savingClassID,
-            generationClassID, verificationClassID, toolID, parallel, qGateID, lastModified)
-        VALUES (
-            @operationShortname, @operationDescription, @operationSequenceGroup, @operationSequence,
-            @operationDecisionCriteria, @alwaysPerform, @decisionClassID, @savingClassID,
-            @generationClassID, @verificationClassID, @toolID, @parallel, @qGateID, @lastModified);",
-                originalOperation);
+            await operationRepository.Add(newOp);
 
-            var operationId = await _connection.QuerySingleAsync<int>(
-                "SELECT operationID FROM Operation WHERE operationShortname = @operationShortname",
-                new { originalOperation.operationShortname });
+            // Hole die eingefügte Operation mit SQL
+            var inserted = await _connection.QuerySingleOrDefaultAsync<Operation>(
+                "SELECT TOP 1 * FROM [Operation] WHERE operationShortname = @Name ORDER BY operationID DESC",
+                new { Name = uniqueShortname });
 
-            var retrievedOperation = await operationRepository.Get(operationId);
+            Assert.NotNull(inserted);
 
-            Assert.NotNull(retrievedOperation);
-            Assert.Equal(operationId, retrievedOperation.operationID);
-            Assert.Equal(originalOperation.operationShortname, retrievedOperation.operationShortname);
-            Assert.Equal(originalOperation.operationDescription, retrievedOperation.operationDescription);
-            Assert.Equal(originalOperation.operationSequenceGroup, retrievedOperation.operationSequenceGroup);
-            Assert.Equal(originalOperation.operationSequence, retrievedOperation.operationSequence);
-            Assert.Equal(originalOperation.operationDecisionCriteria, retrievedOperation.operationDecisionCriteria);
-            Assert.Equal(originalOperation.alwaysPerform, retrievedOperation.alwaysPerform);
-            Assert.Equal(originalOperation.decisionClassID, retrievedOperation.decisionClassID);
-            Assert.Equal(originalOperation.savingClassID, retrievedOperation.savingClassID);
-            Assert.Equal(originalOperation.generationClassID, retrievedOperation.generationClassID);
-            Assert.Equal(originalOperation.verificationClassID, retrievedOperation.verificationClassID);
-            Assert.Equal(originalOperation.toolID, retrievedOperation.toolID);
-            Assert.Equal(originalOperation.parallel, retrievedOperation.parallel);
-            Assert.Equal(originalOperation.qGateID, retrievedOperation.qGateID);
-            Assert.Equal(originalOperation.lastModified.ToString("yyyy-MM-dd HH:mm:ss"), retrievedOperation.lastModified.ToString("yyyy-MM-dd HH:mm:ss"));
+            // Act
+            var result = (await operationRepository.GetOperationsFromTool(testToolId)).ToList();
+
+            // Assert
+            Assert.NotEmpty(result);
+            Assert.Contains(result, op => op.operationID == inserted.operationID);
+
+            // Cleanup
+            await operationRepository.Delete(inserted);
         }
 
-        [Fact]
-        public async void GetAllOperationsTest_Works()
-        {
-            var expectedCount = await _connection.QuerySingleAsync<int>("SELECT COUNT(*) FROM Operation;");
-
-            var allOperations = await operationRepository.GetAll();
-
-            Assert.NotNull(allOperations);
-            Assert.Equal(expectedCount, allOperations.Count());
-        }
 
 
         public void Dispose()
