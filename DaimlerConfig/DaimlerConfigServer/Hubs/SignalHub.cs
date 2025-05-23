@@ -15,10 +15,7 @@ namespace DaimlerConfigServer.Hubs
             await Clients.All.SendAsync("ReceiveMessage", message);
         }
 
-        public async Task LockMessage(int id)
-        {
-            await Clients.Others.SendAsync("LockMessage", id);
-        }
+      
 
         
     }

@@ -279,15 +279,16 @@
             if(selectedTool.lockedBy == currentUser)
             {
                 selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
                 await Fassade.UpdateTool(selectedTool);
                 await SignalRService.SendMessageToServer("ToolChanged");
-                await SignalRService.CallUnlockToServer(selectedTool.toolID.Value);
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
 
-                
+
                 /*if (toolFormular != null && selectedTool != null)
                 {
                     await toolFormular.ReloadToolAsync(selectedTool);
-                }*/
+                    }*/
             }
 
 
@@ -329,7 +330,7 @@
             showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
             showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                        StateHasChanged();  // Aktualisiere den UI-Status
+                                    StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
@@ -413,46 +414,64 @@
     {
         await InvokeAsync(async () =>
         {
-            switch (msg)
+
+            if (msg.StartsWith("ToolUnlocked"))
             {
-                case "StationChanged":
-                    if (line != null)
-                    {
-                        stations = await Fassade.GetStationsFromLine(line.lineID);
+                var toolID = int.Parse(msg.Split(';')[1]);
+                if (selectedTool?.toolID == toolID)
+                {
+                    selectedTool.isLocked = true;
+                    selectedTool.lockedBy = currentUser;
+                    await Fassade.UpdateTool(selectedTool);
+                    await SignalRService.SendMessageToServer("ToolChanged");
+                    toolReadOnly = false;
+                }
+            }
+            else
+            {
+                switch (msg)
+                {
+                    case "StationChanged":
+                        if (line != null)
+                        {
+                            stations = await Fassade.GetStationsFromLine(line.lineID);
+                            if (selectedStation != null)
+                            {
+                                // Hole die aktualisierte Station aus der Datenbank
+                                selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
+                            }
+
+                        }
+                        break;
+                    case "ToolChanged":
                         if (selectedStation != null)
                         {
-                            // Hole die aktualisierte Station aus der Datenbank
-                            selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
-                        }
+                            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+                            if (selectedTool != null)
+                            {
+                                // Aktualisiere das ausgewählte Tool aus der neuen Liste
+                                selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
+                            }
 
-                    }
-                    break;
-                case "ToolChanged":
-                    if (selectedStation != null)
-                    {
-                        tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+
+                        }
+                        break;
+                    case "OperationChanged":
                         if (selectedTool != null)
                         {
-                            // Aktualisiere das ausgewählte Tool aus der neuen Liste
-                            selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
+                            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                            if (selectedOperation != null)
+                            {
+                                // Aktualisiere die ausgewählte Operation aus der neuen Liste
+                                selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
+                            }
+                            allOperations = await Fassade.GetAllOperations();
                         }
-                       
-                       
-                    }
-                    break;
-                case "OperationChanged":
-                    if (selectedTool != null)
-                    {
-                        operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                        if (selectedOperation != null)
-                        {
-                            // Aktualisiere die ausgewählte Operation aus der neuen Liste
-                            selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
-                        }
-                        allOperations = await Fassade.GetAllOperations();
-                    }
-                    break;
-               
+                        break;
+
+
+                }
+           
                     
             }
 
@@ -460,17 +479,7 @@
         });
     });
 
-        SignalRService.RegisterLockHandler(async (int toolID) =>
-    {
-    await InvokeAsync(async () =>
-    {
-        if (selectedTool?.toolID == toolID && toolReadOnly)
-        {
-            await SelectTool(selectedTool);
-        }
-        StateHasChanged();
-    });
-    });
+        
 
 
         // 2) Starte die Verbindung
