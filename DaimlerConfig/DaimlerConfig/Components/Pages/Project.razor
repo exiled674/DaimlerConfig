@@ -281,10 +281,13 @@
                 selectedTool.isLocked = false;
                 await Fassade.UpdateTool(selectedTool);
                 await SignalRService.SendMessageToServer("ToolChanged");
-                if (toolFormular != null && selectedTool != null)
+                await SignalRService.CallUnlockToServer(selectedTool.toolID.Value);
+
+                
+                /*if (toolFormular != null && selectedTool != null)
                 {
                     await toolFormular.ReloadToolAsync(selectedTool);
-                }
+                }*/
             }
 
 
@@ -449,11 +452,26 @@
                         allOperations = await Fassade.GetAllOperations();
                     }
                     break;
+               
+                    
             }
 
             StateHasChanged();
         });
     });
+
+        SignalRService.RegisterLockHandler(async (int toolID) =>
+    {
+    await InvokeAsync(async () =>
+    {
+        if (selectedTool?.toolID == toolID && toolReadOnly)
+        {
+            await SelectTool(selectedTool);
+        }
+        StateHasChanged();
+    });
+    });
+
 
         // 2) Starte die Verbindung
         await SignalRService.StartConnectionAsync();

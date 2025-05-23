@@ -257,13 +257,6 @@
     }
     #endregion
 
-    public async Task ReloadToolAsync(Tool newSelectedTool)
-    {
-        SelectedTool = newSelectedTool;
-        OriginalTool = newSelectedTool.Clone();
-        OriginalTool.toolID = SelectedTool.toolID;
-		OriginalTool.stationID = SelectedTool.stationID;
-        StateHasChanged();
-    }
+  
 
 }
