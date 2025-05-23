@@ -276,20 +276,24 @@
         }
         else
         {
-            if(selectedTool.lockedBy == currentUser)
+            if(selectedTool != null)
             {
-                selectedTool.isLocked = false;
-                selectedTool.lockedBy = null;
-                await Fassade.UpdateTool(selectedTool);
-                await SignalRService.SendMessageToServer("ToolChanged");
-                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
-
-
-                /*if (toolFormular != null && selectedTool != null)
+                if (selectedTool.lockedBy == currentUser)
                 {
-                    await toolFormular.ReloadToolAsync(selectedTool);
-                    }*/
+                    selectedTool.isLocked = false;
+                    selectedTool.lockedBy = null;
+                    await Fassade.UpdateTool(selectedTool);
+                    await SignalRService.SendMessageToServer("ToolChanged");
+                    await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+
+
+                    /*if (toolFormular != null && selectedTool != null)
+                    {
+                        await toolFormular.ReloadToolAsync(selectedTool);
+                        }*/
+                }
             }
+            
 
 
 
