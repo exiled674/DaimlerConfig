@@ -213,7 +213,7 @@
         if (!SelectedTool.stationID.HasValue)
             return false;
 
-        if (await Fassade.ToolExistsInStation(SelectedTool.toolShortname, SelectedTool.stationID.Value))
+        if (await Fassade.ToolExistsInStation(SelectedTool.toolShortname, SelectedTool.toolID.Value, SelectedTool.stationID.Value))
             return false;
 
         //ToolDescription
