@@ -118,7 +118,7 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool" OnUpdated="ReloadTools" CurrentUser=@currentUser/>
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
@@ -334,7 +334,7 @@
             showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
             showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                                                StateHasChanged();  // Aktualisiere den UI-Status
+                                                            StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
@@ -411,10 +411,10 @@
 
 
 
-   
 
 
-    
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -427,17 +427,26 @@
             if (msg.StartsWith("ToolUnlocked"))
             {
 
-                
-                
+
+
 
                 var toolID = int.Parse(msg.Split(';')[1]);
                 if (selectedTool?.toolID == toolID)
                 {
-                    selectedTool.isLocked = true;
+                    /*selectedTool.isLocked = true;
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
-                    await SignalRService.SendMessageToServer("ToolChanged");
-                    toolReadOnly = false;
+                    await SignalRService.SendMessageToServer("ToolChanged");*/
+                                    toolReadOnly = false;
+                }
+            }
+            else if (msg.StartsWith("ToolLocked"))
+            {
+                var toolID = int.Parse(msg.Split(';')[1]);
+                if (selectedTool?.toolID == toolID && selectedTool?.lockedBy != currentUser)
+                {
+                   
+                   toolReadOnly = true;
                 }
             }
             else

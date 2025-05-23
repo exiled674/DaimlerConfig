@@ -50,17 +50,17 @@
         <div class="toolColoumnLeft">     
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder=""  @onblur="CheckIfDirty" @bind="SelectedTool.toolID" readonly>
+                <input type="text" class="form-control form-control" placeholder=""   @onblur="CheckIfDirty" @bind="SelectedTool.toolID" readonly>
                 <label>Tool ID</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" maxlength="16" placeholder="" readonly="@ReadOnly" @onblur="CheckIfDirty" @bind="SelectedTool.toolShortname">
+                <input type="text" class="form-control form-control" maxlength="16" placeholder="" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolShortname">
                 <label>Tool Shortname</label>       
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription"></textarea>
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription"></textarea>
                 <label>Tool Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedTool?.toolDescription?.Length ?? 0}/100")
@@ -97,7 +97,7 @@
         <div class="layout position-relative">
             <div class="toolColoumnLeft">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedTool.ipAddressDevice">
+                    <input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice">
                     <label>IP-Address Device</label>
                 </div>
                 <div class="form-floating mb-3">
@@ -137,6 +137,9 @@
 
     [Parameter]
     public Tool? SelectedTool { get; set; }
+
+    [Parameter]
+    public string? CurrentUser { get; set; }
 
     [Parameter]
     public EventCallback OnUpdated { get; set; }
@@ -257,6 +260,21 @@
     }
     #endregion
 
-  
+    public async Task LockTool()
+    {
+        if(SelectedTool.isLocked == false)
+        {
+            SelectedTool.isLocked = true;
+            SelectedTool.lockedBy = CurrentUser;
+            await Fassade.UpdateTool(SelectedTool);
+            await OnUpdated.InvokeAsync();
+            await SignalRService.SendMessageToServer("ToolChanged");
+            await SignalRService.SendMessageToServer("ToolLocked;" + SelectedTool.toolID.ToString());
+            ReadOnly = false;
+            StateHasChanged();
+
+        }
+    }
+
 
 }
