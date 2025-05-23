@@ -37,6 +37,8 @@ namespace DaimlerConfig.Components.Models
 
         public bool? isLocked {  get; set; }
 
+        public string? lockedBy { get; set; }
+
         public DateTime? lockTimestamp { get; set; }
 
 

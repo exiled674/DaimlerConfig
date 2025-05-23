@@ -118,7 +118,7 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular @ref="toolFormular" SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
@@ -143,11 +143,15 @@
 </body>
 
 @code {
+    private readonly string currentUser = Guid.NewGuid().ToString();
 
 
     private StationFormular? stationFormular;
     private ToolFormular? toolFormular;
     private OperationFormular? operationFormular;
+
+
+    private bool showPopup = false;
 
     private void HandleDismiss()
     {
@@ -192,11 +196,6 @@
             SidebarClass = "collapsed";
     }
     #endregion
-
-
-
-
-
 
     #region Line
     [Parameter]
@@ -251,7 +250,7 @@
                     generationClassID = 1,         // Setze den Foreign Key auf 1
                     verificationClassID = 1,       // Setze den Foreign Key auf 1
                     qGateID = 1 
-                    // Setze den Foreign Key auf 1
+                // Setze den Foreign Key auf 1
                 };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
 
             tools = await Fassade.GetToolsFromStation(station.stationID);
@@ -267,6 +266,7 @@
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
+    private bool toolReadOnly = false;
 
     private async Task SelectTool(Tool tool)
     {
@@ -276,18 +276,48 @@
         }
         else
         {
-            selectedTool = tool;  // Setze das ausgewählte Tool
+            if(selectedTool.lockedBy == currentUser)
+            {
+                selectedTool.isLocked = false;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                if (toolFormular != null && selectedTool != null)
+                {
+                    await toolFormular.ReloadToolAsync(selectedTool);
+                }
+            }
+
+
+
+            selectedTool = tool;
+            if(selectedTool.isLocked == false)
+            {
+                selectedTool.isLocked = true;
+                selectedTool.lockedBy = currentUser;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                toolReadOnly = false;
+
+            }
+            else
+            {
+                toolReadOnly = true;
+            }
+
+
+
+
             selectedOperation = new Operation
                 {
-                    toolID = selectedTool.toolID,  // Setze die toolID
-                    decisionClassID = 1,           // Setze den Foreign Key auf 1
-                    savingClassID = 1,             // Setze den Foreign Key auf 1
-                    generationClassID = 1,         // Setze den Foreign Key auf 1
-                    verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1                    // Setze den Foreign Key auf 1
-                };  // Setze die ausgewählte Operation zurück
+                    toolID = selectedTool.toolID,  
+                    decisionClassID = 1,           
+                    savingClassID = 1,             
+                    generationClassID = 1,         
+                    verificationClassID = 1,      
+                    qGateID = 1                    
+                };  
 
-            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  // Hol die Tools erneut, falls nötig
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  
 
 
 
@@ -296,7 +326,7 @@
             showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
             showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                                        StateHasChanged();  // Aktualisiere den UI-Status
+                        StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
@@ -344,12 +374,12 @@
 
             StateHasChanged();  // Aktualisiere den UI-Status
         }
-       
+
     }
 
     private void ToggleOperationFormular(bool isNewOperation)
     {
-       
+
         if (isNewOperation)
         {
             selectedOperation = new Operation
@@ -371,7 +401,7 @@
 
     #endregion
 
-    
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -403,6 +433,8 @@
                             // Aktualisiere das ausgewählte Tool aus der neuen Liste
                             selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
                         }
+                       
+                       
                     }
                     break;
                 case "OperationChanged":
@@ -532,6 +564,6 @@
         ToggleOperationFormular(false);
     }
     #endregion
-	private bool showPopup = false;
+	
     
 }
