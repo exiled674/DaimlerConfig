@@ -101,11 +101,15 @@
                 }
                 else
                 {
-                        <div class="d-flex align-items-center flex-grow-1 p-2"
+                        <div class="d-flex align-items-center justify-content-between flex-grow-1 p-2"
                              style="cursor: pointer;"
                              @onclick="@(() => NavigateToLine(line.lineName))">
-
-                            <span class="flex-grow-1">@line.lineName : (@line.lastModified)</span>
+                            
+                             <span>@line.lineName</span>
+                               
+                             <div class="d-flex align-items-center gap-2">
+                             <span class="text-muted">@line.lastModified</span>
+                            
 
                             <div class="dropdown" @onclick:stopPropagation>
                                 <button class="btn btn-sm btn-outline-secondary border-0 dropdown-toggle"
@@ -130,6 +134,7 @@
                                     <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:900;"
                                          @onclick="() => ActiveContextMenuLine = null"></div>
                                 }
+                            </div>
                             </div>
                         </div>
                     }
