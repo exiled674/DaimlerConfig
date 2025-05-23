@@ -19,111 +19,84 @@
 
 @using DaimlerConfig.Components.Models
 
-<nav class="navbar fixed-top bg-white border-bottom">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h2">Select a Line</span>
+<nav class="navbar fixed-top bg-white border-bottom px-5 mx-auto">
+    <div class="container-fluid p-0">
+        <span class="navbar-brand mb-0 h2">Select a line</span>
     </div>
 </nav>
 
 
-<div class="ProjectManager">
-   <div class="row g-3">
-        <!-- Added gutter spacing -->
-        <div class="col">
-            <!-- Search Bar (unchanged) -->
-            <form class="d-flex align-items-center bg-body-tertiary rounded-3 p-2 boder-1">
-                <span class="text-muted px-2">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-                    </svg>
-                </span>
-                <input type="text" class="form-control border-0 bg-transparent shadow-none" placeholder="Search" @oninput="OnSearchTextChanged" value="@searchText">
-            </form>
-        </div>
-        <div class="col">
-            <!-- Select Dropdown (now perfectly matched) -->
-            <div class="d-flex align-items-center bg-body-tertiary rounded-3 p-2">
-                <select class="form-select border-0 bg-transparent shadow-none ps-0" @onchange="OnSortChanged">
-                    <option value="date" selected>Sorted by date descending</option>
-                    <option value="name">Sorted by name ascending</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="projects">
-        <p class="lineLabel">Lines:</p>
-        @if (FilteredLines is not null && FilteredLines.Any())
+<div class="ProjectManager px-5 mx-auto">
+   <div class="projects">
+    <p class="lineLabel">Lines:</p>
+    <hr/>
+    @if (FilteredLines is not null && FilteredLines.Any())
+    {
+        foreach (var line in FilteredLines)
         {
-            foreach (var line in FilteredLines)
-            {
-                <div class="area-header">
-                    @if (EditingLines.Contains(line))
-                    {
-                        <div class="edit-line-container">
-                            <input class="edit-input @(isDuplicateName ? "invalid-input" : "")"
-                            value="@line.lineName"
-                            @onchange="e => ConfirmEdit(line, e)"
-                            autofocus />
-                            <button class="cancel-edit-btn" title="Abbrechen" @onclick="() => CancelEdit(line)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                viewBox="0 0 16 16">
-                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 
-                                             .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 
-                                             2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                                </svg>
-                            </button>
-                            @if (isDuplicateName)
-                            {
-                                <p class="error-text">The name already exists.</p>
-                            }
-                        </div>
-                    }
-
-                    else
-                    {
-                        <button class="area-title" @onclick="@(() => NavigateToLine(line.lineName))">
-                            @line.lineName : (@line.lastModified)
-                        </button>
-                    }
-
-                    <div class="context-container">
-                        <button class="three-dots-btn" @onclick="() => ToggleContextMenu(line)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+            <div class="line-div border rounded d-flex align-items-center justify-content-between mb-2 p-0 overflow-visible position-relative">
+                @if (EditingLines.Contains(line))
+                {
+                    <div class="d-flex align-items-center flex-grow-1 p-2">
+                        <input class="form-control @(isDuplicateName ? "is-invalid" : "")"
+                               value="@line.lineName"
+                               @onchange="e => ConfirmEdit(line, e)"
+                               autofocus />
+                        <button class="btn btn-secondary ms-2" title="Cancel" @onclick="() => CancelEdit(line)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1
+                                   .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646
+                                   2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
                             </svg>
                         </button>
-
-                        @if (ActiveContextMenuLine == line)
+                        @if (isDuplicateName)
                         {
-                            <div class="context-menu">
-                                <button @onclick="() => StartEditing(line)">Edit</button>
-                                <button @onclick="() => DeleteLine(line)">Delete</button>
-                            </div>
+                            <div class="invalid-feedback ms-2">The name already exists.</div>
                         }
                     </div>
-                </div>
-            }
-        }
-        else
-        {
-            <p>Keine Lines gefunden.</p>
-        }
-    </div>
+                }
+                else
+                {
+                        <div class="d-flex align-items-center flex-grow-1 p-2"
+                             style="cursor: pointer;"
+                             @onclick="@(() => NavigateToLine(line.lineName))">
 
-    <div class="row">
-        <div class="col">
-            <button class="import-button" @onclick="FilePick">
-                <span class="plus-icon">+</span>
-                Export Project 
-            </button>
-        </div>
-        <div class="col">
-            <button class="import-button" @onclick="CreateNewLine">
+                            <span class="flex-grow-1">@line.lineName : (@line.lastModified)</span>
+
+                            <div class="dropdown" @onclick:stopPropagation>
+                                <button class="btn btn-sm btn-outline-secondary border-0 dropdown-toggle"
+                                        @onclick="@(() => ToggleContextMenu(line))">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                    </svg>
+                                </button>
+
+                                @if (ActiveContextMenuLine == line)
+                                {
+                                    <div class="dropdown-menu show position-absolute end-0" style="z-index: 1000;">
+                                        <button class="dropdown-item" @onclick="@(() => StartEditing(line))">Edit</button>
+                                        <button class="dropdown-item" @onclick="@(() => DeleteLine(line))">Delete</button>
+                                        <button class="dropdown-item" @onclick="FilePick">Export</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+            </div>
+        }
+    }
+    else
+    {
+        <p class="text-muted">Keine Lines gefunden.</p>
+    }
+</div>
+    <div>
+    <button class="btn btn-block btn-primary" @onclick="CreateNewLine">
                 <span class="plus-icon">+</span>
                 Create Empty Project
-            </button>
-        </div>
+    </button>
     </div>
 </div>
 
@@ -265,6 +238,9 @@
 
     private async Task FilePick()
     {
+        ActiveContextMenuLine = null;
+
+
         var json = await Fassade.Export();
         var bytes = Encoding.UTF8.GetBytes(json);
         var result = await FileSaver.Default.SaveAsync(

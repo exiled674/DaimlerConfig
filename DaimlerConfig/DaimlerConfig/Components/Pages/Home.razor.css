@@ -4,14 +4,27 @@
 
 .ProjectManager {
     background-color: #FEFEFE;
-    padding: 20%;
     border-radius: 8px;
-    border: 2px solid #E0E0E0;
     padding-top: 60px;
+}
+p {
+    margin-bottom: 0px;
+}
+
+hr {
+    margin-top: 0px;
+}
+
+ hr:not([size]) {
+    height: 0.3px;
+ }
+
+.line-div:hover {
+    background-color: #f8f9fa;
 }
 
 .projects {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 }
 
 .import-button {
