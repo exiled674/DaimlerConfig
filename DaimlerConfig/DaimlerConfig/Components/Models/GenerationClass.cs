@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Models
 {
-    public class GenerationClass : OperationClass
+    public class GenerationClass 
     {
+        public int ID { get; set; }
+        public string name { get; set; }
+        public int templateID { get; set; }
+
+        public string HelpText { get; set; }
     }
 }

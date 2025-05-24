@@ -62,7 +62,12 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<IStationRepository, StationRepository>();
             builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
             builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
-            builder.Services.AddScoped<IRepository<OperationClass>, Repository<OperationClass>>();
+            builder.Services.AddScoped<IRepository<GenerationClass>, Repository<GenerationClass>>();
+            builder.Services.AddScoped<IRepository<SavingClass>, Repository<SavingClass>>();
+            builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
+            builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
+
+
             builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
             builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
             builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
@@ -75,11 +80,14 @@ namespace DaimlerConfig
                 var stationRepo = sp.GetRequiredService<IStationRepository>();
                 var lineRepo = sp.GetRequiredService<IRepository<Line>>();
                 var stationType = sp.GetRequiredService<IRepository<StationType>>();
-                var operationClassRepo = sp.GetRequiredService<IRepository<OperationClass>>();
+                var decisionClassRepo = sp.GetRequiredService<IRepository<DecisionClass>>();
+                var generationClassRepo = sp.GetRequiredService<IRepository<GenerationClass>>();
+                var savingClassRepo = sp.GetRequiredService<IRepository<SavingClass>>();
+                var verificationClassRepo = sp.GetRequiredService<IRepository<VerificationClass>>();
                 var toolClassRepo = sp.GetRequiredService<IRepository<ToolClass>>();
                 var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
                 var templateRepo = sp.GetRequiredService<IRepository<Template>>();
-                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, operationClassRepo, toolClassRepo, toolTypeRepo, templateRepo);
+                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, templateRepo);
             });
 
             // 3. SignalR konfigurieren

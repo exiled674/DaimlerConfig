@@ -83,36 +83,40 @@
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="DecisionClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID">
+                    @foreach (var decision in decisionClasses)
+                    {
+                        <option value="@decision.ID">@decision.name</option>
+                    }
                 </select>
                 <label for="DecisionClass">Decision Class</label>
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="GenerationClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID">
+                    @foreach (var generation in generationClasses)
+                    {
+                        <option value="@generation.ID">@generation.name</option>
+                    }
                 </select>
                 <label for="GenerationClass">Generation Class</label>
             </div>
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="VerificationClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID">
+                    @foreach (var verification in verificationClasses)
+                    {
+                      <option value="@verification.ID">@verification.name</option>
+                    }
                 </select>
                 <label for="VerificationClass">Verification Class</label>
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="SavingClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID">
+                    @foreach (var saving in savingClasses)
+                    {
+                      <option value="@saving.ID">@saving.name</option>
+                    }
                 </select>
                 <label for="SavingClass">Saving Class</label>
             </div>
@@ -140,7 +144,19 @@
 
     private Operation? OriginalOperation { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    private Tool? currentTool;
+
+    private Template? currentTemplate;
+
+    private IEnumerable<DecisionClass> decisionClasses = Enumerable.Empty<DecisionClass>();
+
+    private IEnumerable<SavingClass> savingClasses = Enumerable.Empty<SavingClass>();
+
+    private IEnumerable<VerificationClass> verificationClasses = Enumerable.Empty<VerificationClass>();
+
+    private IEnumerable<GenerationClass> generationClasses = Enumerable.Empty<GenerationClass>();
+
+    protected override async Task OnParametersSetAsync()
     {
 
         if (SelectedOperation != null)
@@ -149,6 +165,12 @@
             OriginalOperation.operationID = SelectedOperation.operationID;
             OriginalOperation.toolID = SelectedOperation.toolID;
         }
+
+        currentTool = await Fassade.GetTool(SelectedOperation.toolID);
+        var toolClassId = currentTool.toolClassID;
+        currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
+        InitializeClasses();
+        StateHasChanged();
     }
 
     #region CRUD
@@ -230,9 +252,33 @@
         {
             SelectedOperation = OriginalOperation.Clone();
             SelectedOperation.operationID = OriginalOperation.operationID;
-			SelectedOperation.toolID = OriginalOperation.toolID;
+            SelectedOperation.toolID = OriginalOperation.toolID;
         }
         await SignalRService.SendMessageToServer("OperationChanged");
+    }
+    #endregion
+
+    #region Classes
+    private async Task InitializeClasses()
+    {
+        decisionClasses = await Fassade.GetDecisionClasses();
+
+        savingClasses = await Fassade.GetSavingClasses(currentTemplate.templateID);
+
+        verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.templateID);
+
+        generationClasses = await Fassade.GetGenerationClasses(currentTemplate.templateID);
+
+        if (verificationClasses == null || !verificationClasses.Any())
+        {
+            var list = verificationClasses.ToList();
+            list.AddRange(await Fassade.GetVerificationClass(0));
+            verificationClasses = list.AsEnumerable();
+
+
+        }
+
+        
     }
     #endregion
 }

@@ -19,21 +19,29 @@ namespace DaimlerConfig.Components.Fassade
         public IRepository<ToolClass> ToolClassRepository { get; private set; }
         public IRepository<ToolType> ToolTypeRepository { get; private set; }
 
-        public IRepository<OperationClass> OperationClassRepository { get; private set; }
+        public IRepository<DecisionClass> DecisionClassRepository { get; private set; }
+
+        public IRepository<GenerationClass> GenerationClassRepository { get; private set; }
+
+        public IRepository<SavingClass> SavingClassRepository { get; private set; }
+        public IRepository<VerificationClass> VerificationClassRepository { get; private set; }
 
 
 
 
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<OperationClass> operationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, IRepository<Template> templateRepository )
+        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, IRepository<Template> templateRepository )
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
             StationRepository = stationRepository;
             LineRepository = lineRepository;
             StationTypeRepository = stationTypeRepository;
-            OperationClassRepository = operationClassRepository;
+            DecisionClassRepository = decisionClassRepository;
+            GenerationClassRepository = generationClassRepository;
+            SavingClassRepository = savingClassRepository;
+            VerificationClassRepository = verificationClassRepository;
             ToolClassRepository = toolClassRepository;
             ToolTypeRepository = toolTypeRepository;
             TemplateRepository = templateRepository;
@@ -211,6 +219,11 @@ namespace DaimlerConfig.Components.Fassade
             }
         }
 
+        public async Task<Tool> GetTool(int? toolID)
+        {
+            return await ToolRepository.Get(toolID);
+        }
+
       
         #endregion
 
@@ -342,6 +355,45 @@ namespace DaimlerConfig.Components.Fassade
             var result = await ToolTypeRepository.Find(t => t.toolClassID == toolClassID);
              return result.OrderBy(t => t.toolTypeName);
 
+        }
+
+        #endregion
+
+        #region OperationClasses 
+
+        public async Task<Template> GetTemplate(int toolClassID)
+        {
+            return await TemplateRepository.Get(toolClassID);
+        }
+
+
+        public async Task<IEnumerable<DecisionClass>> GetDecisionClasses()
+        {
+            return await DecisionClassRepository.GetAll();
+            
+        }
+
+        public async Task<IEnumerable<GenerationClass>> GetGenerationClasses(int templateID)
+        {
+            return await GenerationClassRepository.Find(t => t.templateID == templateID);
+            
+        }
+
+        public async Task<IEnumerable<SavingClass>> GetSavingClasses(int templateID)
+        {
+            return await SavingClassRepository.Find(t => t.templateID == templateID);
+
+        }
+
+        public async Task<IEnumerable<VerificationClass>> GetVerificationClasses(int templateID)
+        {
+            return await VerificationClassRepository.Find(t => t.templateID == templateID);
+
+        }
+
+        public async Task<VerificationClass> GetVerificationClass(int id)
+        {
+            return await VerificationClassRepository.Get(id);
         }
 
 
