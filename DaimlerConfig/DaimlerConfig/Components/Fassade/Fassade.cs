@@ -170,11 +170,15 @@ namespace DaimlerConfig.Components.Fassade
             return await ToolRepository.ExistsByName(name);
         }
 
-        public async Task<bool> ToolExistsInStation(string name, int stationID)
+        public async Task<bool> ToolExistsInStation(string name, int toolID, int stationID)
         {
             var tools = await ToolRepository.GetToolsFromStation(stationID);
-            return tools.Any(tool => tool.toolShortname!.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            return tools
+                .Where(tool => tool.toolID != toolID) 
+                .Any(tool => tool.toolShortname!.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
+
 
         public async Task DeleteTool(Tool tool)
         {

@@ -38,9 +38,13 @@ namespace DaimlerConfig.Services
             await connection.SendAsync("ReceiveMessage", message);
         }
 
+    
+
         public void RegisterResponseHandler(Action<string> handler)
         {
             connection.On("ReceiveMessage", handler);
         }
+
+       
     }
 }
