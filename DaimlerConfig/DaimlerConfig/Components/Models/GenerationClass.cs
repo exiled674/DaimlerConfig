@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Models
 {
-    internal class GenerationClass
+    public class GenerationClass : OperationClass
     {
     }
 }

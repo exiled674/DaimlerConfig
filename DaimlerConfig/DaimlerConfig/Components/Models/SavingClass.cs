@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DaimlerConfig.Components.Models
 {
-    internal class SavingClass
+    public class SavingClass : OperationClass
     {
     }
 }

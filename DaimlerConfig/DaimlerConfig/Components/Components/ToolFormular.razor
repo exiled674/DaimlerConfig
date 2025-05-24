@@ -71,9 +71,10 @@
         <div class="toolColoumnRight ">
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="ToolClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+					@foreach (var toolClass in toolClasses)
+					{
+                        <option value="@toolClass.toolClassID">@toolClass.toolClassName</option>
+					})
                 </select>
                 <label for="ToolClass">Tool Class</label>
             </div>
@@ -151,6 +152,9 @@
 
     private Tool? OriginalTool { get; set; }
 
+    private IEnumerable<ToolType> toolTypes;
+    private IEnumerable<ToolClass> toolClasses;
+
     protected override async Task OnInitializedAsync()
     {
 
@@ -159,7 +163,17 @@
             OriginalTool = SelectedTool.Clone();
             OriginalTool.toolID = SelectedTool.toolID;
             OriginalTool.stationID = SelectedTool.stationID;
+
+            toolClasses = await Fassade.GetAllToolClasses();
+            if (SelectedTool.toolClassID != null)
+            {
+                toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
+            }
+            StateHasChanged();
         }
+
+        
+        
     }
 
 

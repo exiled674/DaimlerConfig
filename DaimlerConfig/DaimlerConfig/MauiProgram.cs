@@ -75,7 +75,11 @@ namespace DaimlerConfig
                 var stationRepo = sp.GetRequiredService<IStationRepository>();
                 var lineRepo = sp.GetRequiredService<IRepository<Line>>();
                 var stationType = sp.GetRequiredService<IRepository<StationType>>();
-                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType);
+                var operationClassRepo = sp.GetRequiredService<IRepository<OperationClass>>();
+                var toolClassRepo = sp.GetRequiredService<IRepository<ToolClass>>();
+                var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
+                var templateRepo = sp.GetRequiredService<IRepository<Template>>();
+                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, operationClassRepo, toolClassRepo, toolTypeRepo, templateRepo);
             });
 
             // 3. SignalR konfigurieren

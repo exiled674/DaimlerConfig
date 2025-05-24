@@ -15,15 +15,29 @@ namespace DaimlerConfig.Components.Fassade
 
         public IRepository<StationType> StationTypeRepository { get; private set; }
 
+        public IRepository<Template> TemplateRepository { get; private set; }
+        public IRepository<ToolClass> ToolClassRepository { get; private set; }
+        public IRepository<ToolType> ToolTypeRepository { get; private set; }
+
+        public IRepository<OperationClass> OperationClassRepository { get; private set; }
+
+
+
+
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository)
+        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<OperationClass> operationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, IRepository<Template> templateRepository )
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
             StationRepository = stationRepository;
             LineRepository = lineRepository;
             StationTypeRepository = stationTypeRepository;
+            OperationClassRepository = operationClassRepository;
+            ToolClassRepository = toolClassRepository;
+            ToolTypeRepository = toolTypeRepository;
+            TemplateRepository = templateRepository;
+
         }
 
         #region Line
@@ -315,6 +329,23 @@ namespace DaimlerConfig.Components.Fassade
         {
             return obj.Clone();
         }
+        #endregion
+
+        #region ToolClass/-Type
+        public async Task<IEnumerable<ToolClass>> GetAllToolClasses()
+        {
+            return await ToolClassRepository.GetAll();
+        }
+
+        public async Task<IEnumerable<ToolType>> FindToolTypes(int toolClassID)
+        {
+            var result = await ToolTypeRepository.Find(t => t.toolClassID == toolClassID);
+             return result.OrderBy(t => t.toolTypeName);
+
+        }
+
+
+
         #endregion
     }
 }

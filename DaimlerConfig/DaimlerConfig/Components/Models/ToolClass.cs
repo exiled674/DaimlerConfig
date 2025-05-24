@@ -8,6 +8,7 @@ namespace DaimlerConfig.Components.Models
 {
     public class ToolClass
     {
-        public int toolClassID { get; init; }
-        public string toolClassName { get; init; }
+        public int toolClassID { get; set; }
+        public string toolClassName { get; set; }
     }
+}
