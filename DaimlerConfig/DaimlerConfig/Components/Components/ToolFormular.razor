@@ -70,7 +70,7 @@
 
         <div class="toolColoumnRight ">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolClass" @onchange="OnToolClassChanged">
+                <select class="form-select form-select" id="ToolClass" value="@SelectedTool.toolClassID" @onchange="OnToolClassChanged">
                     @foreach (var toolClass in toolClasses)
                     {
                         <option value="@toolClass.toolClassID">@toolClass.toolClassName</option>
@@ -81,7 +81,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolType" @onchange="OnToolTypeChanged">
+                <select class="form-select form-select" id="ToolType" value="SelectedTool.toolTypeID" @onchange="OnToolTypeChanged">
                     @foreach (var toolType in toolTypes)
                     {
                         <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
@@ -154,14 +154,17 @@
 
     private Tool? OriginalTool { get; set; }
 
-    private IEnumerable<ToolType> toolTypes;
-    private IEnumerable<ToolClass> toolClasses;
+    private IEnumerable<ToolType> toolTypes = Enumerable.Empty<ToolType>();
+    private IEnumerable<ToolClass> toolClasses = Enumerable.Empty<ToolClass>();
+
 
     protected override async Task OnInitializedAsync()
     {
 
         if (SelectedTool != null)
         {
+
+            
             OriginalTool = SelectedTool.Clone();
             OriginalTool.toolID = SelectedTool.toolID;
             OriginalTool.stationID = SelectedTool.stationID;
