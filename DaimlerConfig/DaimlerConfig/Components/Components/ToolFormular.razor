@@ -81,7 +81,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolType" value="SelectedTool.toolTypeID" @onchange="OnToolTypeChanged">
+                <select class="form-select form-select" id="ToolType" value="@SelectedTool.toolTypeID" @onchange="OnToolTypeChanged">
                     @foreach (var toolType in toolTypes)
                     {
                         <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
@@ -158,28 +158,25 @@
     private IEnumerable<ToolClass> toolClasses = Enumerable.Empty<ToolClass>();
 
 
-    protected override async Task OnInitializedAsync()
+  protected override async Task OnParametersSetAsync()
+{
+    if (SelectedTool != null)
     {
+        OriginalTool = SelectedTool.Clone();
+        OriginalTool.toolID = SelectedTool.toolID;
+        OriginalTool.stationID = SelectedTool.stationID;
 
-        if (SelectedTool != null)
+        toolClasses = await Fassade.GetAllToolClasses();
+
+        if (SelectedTool.toolClassID.HasValue)
         {
-
-            
-            OriginalTool = SelectedTool.Clone();
-            OriginalTool.toolID = SelectedTool.toolID;
-            OriginalTool.stationID = SelectedTool.stationID;
-
-            toolClasses = await Fassade.GetAllToolClasses();
-            if (SelectedTool.toolClassID != null)
-            {
-                toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
-            }
-            StateHasChanged();
+            toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
         }
 
-
-
+        StateHasChanged();
     }
+}
+
 
 
     #region CRUD

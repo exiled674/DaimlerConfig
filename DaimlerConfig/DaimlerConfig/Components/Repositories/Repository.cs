@@ -132,10 +132,10 @@ namespace DaimlerConfig.Components.Repositories
 
         public async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate)
         {
-            var all = await GetAll();
-            var func = predicate.Compile();
-            return all.Where(func);
+            var all = await GetAll(); 
+            return all.AsQueryable().Where(predicate); 
         }
+
 
         public async Task<TEntity?> Get(int? id)
         {
