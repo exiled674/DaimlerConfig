@@ -70,20 +70,22 @@
 
         <div class="toolColoumnRight ">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolClass">
-					@foreach (var toolClass in toolClasses)
-					{
+                <select class="form-select form-select" id="ToolClass" @onchange="OnToolClassChanged">
+                    @foreach (var toolClass in toolClasses)
+                    {
                         <option value="@toolClass.toolClassID">@toolClass.toolClassName</option>
-					})
+                    }
                 </select>
+
                 <label for="ToolClass">Tool Class</label>
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolType">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="ToolType" @onchange="OnToolTypeChanged">
+                    @foreach (var toolType in toolTypes)
+                    {
+                        <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
+                    }
                 </select>
                 <label for="ToolType">Tool Type</label>
             </div>
@@ -172,8 +174,8 @@
             StateHasChanged();
         }
 
-        
-        
+
+
     }
 
 
@@ -292,6 +294,26 @@
 
         }
     }
+
+    #region ToolClass/-Type
+    private async Task OnToolClassChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var selectedId))
+        {
+            SelectedTool.toolClassID = selectedId;
+            toolTypes = await Fassade.FindToolTypes(selectedId);
+        }
+    }
+
+    private async Task OnToolTypeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var id))
+        {
+            SelectedTool.toolTypeID = id;
+        }
+    }
+
+    #endregion
 
 
 }
