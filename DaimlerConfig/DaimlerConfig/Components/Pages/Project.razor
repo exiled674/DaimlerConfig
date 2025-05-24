@@ -278,7 +278,7 @@
         {
             if(selectedTool != null)
             {
-                if (selectedTool.lockedBy == currentUser)
+                if (selectedTool.lockedBy == currentUser && selectedTool.toolID != tool.toolID)
                 {
                     selectedTool.isLocked = false;
                     selectedTool.lockedBy = null;
@@ -298,13 +298,13 @@
 
 
             selectedTool = tool;
-            if(selectedTool.isLocked == false)
+            if(selectedTool.isLocked == false || tool.lockedBy == currentUser)
             {
-                selectedTool.isLocked = true;
-                selectedTool.lockedBy = currentUser;
-                await Fassade.UpdateTool(selectedTool);
-                await SignalRService.SendMessageToServer("ToolChanged");
-                await SignalRService.SendMessageToServer("ToolLocked;" + selectedTool.toolID.ToString());
+                //selectedTool.isLocked = true;
+                //selectedTool.lockedBy = currentUser;
+                //await Fassade.UpdateTool(selectedTool);
+                //await SignalRService.SendMessageToServer("ToolChanged");
+                //await SignalRService.SendMessageToServer("ToolLocked;" + selectedTool.toolID.ToString());
                 toolReadOnly = false;
 
             }
