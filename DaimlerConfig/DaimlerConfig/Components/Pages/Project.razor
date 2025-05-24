@@ -3,6 +3,7 @@
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
+@inject AppLifecycleService LifecycleService
 
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
@@ -22,7 +23,12 @@
 
             <ul class="sidebar-nav p-0">
                 <li class="sidebar-item">
-                    <a href="/" class="sidebar-link">
+                    <a href="/" class="sidebar-link" @onclick="() => UnlockTool(new Tool
+{
+    stationID = selectedStation.stationID,
+    toolTypeID = 1,
+    isLocked = false
+})">
                         <span>Home</span>
                     </a>
                 </li>
@@ -335,7 +341,7 @@
             showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
             showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                                                            StateHasChanged();  // Aktualisiere den UI-Status
+                                                                        StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
@@ -419,7 +425,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-
+        LifecycleService.OnAppClosing += HandleAppClosingAsync;
         SignalRService.RegisterResponseHandler(async (string msg) =>
     {
         await InvokeAsync(async () =>
@@ -438,7 +444,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                    toolReadOnly = false;
+                                                    toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -446,8 +452,8 @@
                 var toolID = int.Parse(msg.Split(';')[1]);
                 if (selectedTool?.lockedBy != currentUser)
                 {
-                   
-                   toolReadOnly = true;
+
+                    toolReadOnly = true;
                 }
             }
             else
@@ -476,7 +482,7 @@
                                 selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
                             }
 
-                           
+
 
                         }
                         break;
@@ -495,15 +501,15 @@
 
 
                 }
-           
-                    
+
+
             }
 
             StateHasChanged();
         });
     });
 
-        
+
 
 
         // 2) Starte die Verbindung
@@ -615,6 +621,36 @@
         ToggleOperationFormular(false);
     }
     #endregion
-	
+
+
+    private async Task HandleAppClosingAsync()
+    {
+        // Hier dein UnlockTool() aufrufen oder Warnung anzeigen
+        await UnlockTool(new Tool
+            {
+                stationID = selectedStation.stationID,
+                toolTypeID = 1,
+                isLocked = false
+            });
+    }
+
+    public async Task UnlockTool(Tool tool)
+    {
+
+        if (selectedTool != null)
+        {
+            if (selectedTool.lockedBy == currentUser && selectedTool.toolID != tool.toolID)
+            {
+                selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+
+
+                
+            }
+        }
+    }
     
 }
