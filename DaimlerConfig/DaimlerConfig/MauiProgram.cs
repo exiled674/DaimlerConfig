@@ -62,6 +62,11 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<IStationRepository, StationRepository>();
             builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
             builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
+            builder.Services.AddScoped<IRepository<OperationClass>, Repository<OperationClass>>();
+            builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
+            builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
+            builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
+
 
             builder.Services.AddSingleton<Fassade>(sp =>
             {
