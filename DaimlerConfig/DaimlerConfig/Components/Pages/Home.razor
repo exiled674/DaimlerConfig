@@ -12,24 +12,21 @@
 @using System.IO
 @using System.Text
 @using Microsoft.Maui.Storage
-
 @inject DirtyManagerService DirtyManagerService
-
-
-
 @using DaimlerConfig.Components.Models
 
+
+<!-- Navbar -->
 <nav class="navbar fixed-top bg-white border-bottom">
     <div class="container">
         <span class="navbar-brand mb-0 h2">DaimlerConfig</span>
     </div>
 </nav>
 
-
+<!-- Main Content -->
 <div class="ProjectManager container">
 
-    
-
+   <!-- div with search and sort-->
    <div class="projects">
     <p class="lineLabel">Lines:</p>
     <hr/>
@@ -73,11 +70,15 @@
                 </div>
             </div>
         </div>
+
+	<!-- Lines List -->
     @if (FilteredLines is not null && FilteredLines.Any())
     {
         foreach (var line in FilteredLines)
         {
             <div class="line-div border rounded d-flex align-items-center justify-content-between mb-2 p-0 overflow-visible position-relative">
+
+                <!-- Editing Line -->
                 @if (EditingLines.Contains(line))
                 {
                     <div class="d-flex align-items-center flex-grow-1 p-2">
@@ -100,6 +101,7 @@
                         
                     </div>
                 }
+					// Normal Line Display
                 else
                 {
                         <div class="d-flex align-items-center justify-content-between flex-grow-1 p-2"
