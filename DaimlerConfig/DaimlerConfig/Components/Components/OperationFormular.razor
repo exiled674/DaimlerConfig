@@ -158,18 +158,18 @@
 
     protected override async Task OnParametersSetAsync()
     {
-
         if (SelectedOperation != null)
         {
             OriginalOperation = SelectedOperation.Clone();
             OriginalOperation.operationID = SelectedOperation.operationID;
             OriginalOperation.toolID = SelectedOperation.toolID;
-        }
 
-        currentTool = await Fassade.GetTool(SelectedOperation.toolID);
-        var toolClassId = currentTool.toolClassID;
-        currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
-        InitializeClasses();
+            currentTool = await Fassade.GetTool(SelectedOperation.toolID);
+            var toolClassId = currentTool.toolClassID;
+            currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
+
+            await InitializeClasses();
+        }
         StateHasChanged();
     }
 

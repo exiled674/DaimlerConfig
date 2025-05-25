@@ -144,7 +144,9 @@ namespace DaimlerConfig.Components.Repositories
 
             var type = typeof(TEntity);
             var keyProp = type.GetProperties()
-                .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
+    .FirstOrDefault(p =>
+        p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase) ||  // ← ORIGINAL (bleibt)
+        p.Name.Equals("ID", StringComparison.OrdinalIgnoreCase));
 
             if (keyProp == null)
                 throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
