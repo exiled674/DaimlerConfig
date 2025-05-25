@@ -159,7 +159,7 @@
 
     private bool showPopup = false;
 
-    private void HandleDismiss()
+    private async Task HandleDismiss()
     {
         showPopup = false;
         DirtyManagerService.setClean();
@@ -176,19 +176,50 @@
     }
 
 
-    private void HandleSave()
+    private async Task HandleSave()
     {
         showPopup = false;
         DirtyManagerService.setClean();
 
         if (stationFormular != null)
-            stationFormular.UpdateStationAsync();
+        {
+            if(await stationFormular.ValidateData() == true)
+            {
+                stationFormular.UpdateStationAsync();
+            }
+            else
+            {
+                stationFormular.ResetStation();
+            }
+        }
+
+
 
         if (toolFormular != null)
-            toolFormular.UpdateToolAsync();
+        {
+            if (await toolFormular.ValidateData() == true)
+            {
+                toolFormular.UpdateToolAsync();
+            }
+            else
+            {
+                toolFormular.ResetTool();
+            }
+        }
 
-        if (operationFormular != null)
-            operationFormular.UpdateOperationAsync();
+
+        if (operationFormular != null )
+        {
+			if (await operationFormular.ValidateData() == true)
+			{
+				operationFormular.UpdateOperationAsync();
+			}
+			else
+			{
+				operationFormular.ResetOperation();
+            }
+        }
+       
     }
 
     #region SideBar
@@ -716,4 +747,4 @@
         }
     }
     
-}
+ }
