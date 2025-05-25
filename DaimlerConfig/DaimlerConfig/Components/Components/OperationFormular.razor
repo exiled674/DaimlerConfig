@@ -42,12 +42,12 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" maxlength="16" placeholder=""  @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname" readonly="@ReadOnly">
+                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname" readonly="@ReadOnly">
                 <label>Operation Shortname</label>
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px"  @onblur="CheckIfDirty" @bind="SelectedOperation.operationDescription" readonly="@ReadOnly"></textarea>
+                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.operationDescription" readonly="@ReadOnly"></textarea>
                 <label>Operation Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationDescription?.Length ?? 0}/100")</span>
