@@ -109,7 +109,7 @@
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
                                             <div class="operation-section d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false); }">@operation.operationShortname</span>
+                                                <span class="clickable" @onclick="() => { SelectOperation(operation);  }">@operation.operationShortname</span>
 
                                             </div>
                                         }
@@ -255,7 +255,8 @@
                     savingClassID = 1,             // Setze den Foreign Key auf 1
                     generationClassID = 1,         // Setze den Foreign Key auf 1
                     verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1 
+                    qGateID = 1 ,
+                    isLocked = false,
                 // Setze den Foreign Key auf 1
                 };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
 
@@ -395,8 +396,10 @@
 
 
 
-
-			allOperations = await Fassade.GetAllOperations();
+            showOperationFormular = true;
+            showToolFormular = false;
+            showStationFormular = false;
+			
 
             StateHasChanged();  // Aktualisiere den UI-Status
         }

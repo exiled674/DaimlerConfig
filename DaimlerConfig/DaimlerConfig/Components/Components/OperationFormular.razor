@@ -277,7 +277,7 @@
             SelectedOperation.isLocked = true;
             SelectedOperation.lockedBy = CurrentUser;
             await Fassade.UpdateOperation(SelectedOperation);
-            await OnUpdated.InvokeAsync();
+            
             await SignalRService.SendMessageToServer("OperationChanged");
             await SignalRService.SendMessageToServer("OperationLocked;" + SelectedOperation.operationID.ToString());
             ReadOnly = false;
