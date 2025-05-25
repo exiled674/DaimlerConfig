@@ -56,7 +56,7 @@
         <div class="toolColoumnRight ">
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ProcessingMode">
+                <select class="form-select form-select" id="ProcessingMode" disabled="@ReadOnly">
                     <option value="">select...</option>
                     <option value="Serial">Serial</option>
                     <option value="Parallel">Parallel</option>
@@ -83,7 +83,7 @@
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID">
+                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly">
                     @foreach (var decision in decisionClasses)
                     {
                         <option value="@decision.decisionClassID">@decision.decisionClassName</option>
@@ -93,7 +93,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID">
+                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly">
                     @foreach (var generation in generationClasses)
                     {
                         <option value="@generation.generationClassID">@generation.generationClassName</option>
@@ -102,7 +102,7 @@
                 <label for="GenerationClass">Generation Class</label>
             </div>
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID">
+                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly">
                     @foreach (var verification in verificationClasses)
                     {
                         <option value="@verification.verificationClassID">@verification.verificationClassName</option>
@@ -112,7 +112,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID">
+                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly">
                     @foreach (var saving in savingClasses)
                     {
                         <option value="@saving.savingClassID">@saving.savingClassName</option>
@@ -125,7 +125,7 @@
         <div class="toolColoumnRight">
 
             <div class="form-floating">
-                <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px"></textarea>
+                <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly"></textarea>
                 <label for="DecisionCriteria">Decision Criteria</label>
             </div>
         </div>     
