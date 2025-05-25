@@ -341,7 +341,7 @@
             showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
             showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
 
-                                                                        StateHasChanged();  // Aktualisiere den UI-Status
+                                                                                                StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
@@ -445,7 +445,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                    toolReadOnly = false;
+                                                                                    toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -456,6 +456,20 @@
 
                     toolReadOnly = true;
                 }
+            }
+            else if (msg.StartsWith("ToolClassChanged"))
+            {
+                var id = int.Parse(msg.Split(';')[1]);
+                var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                foreach (var op in operations)
+                {
+                    op.decisionClassID = 1;
+                    op.verificationClassID = 0;
+                    op.savingClassID = 0;
+					op.generationClassID = 0;
+					await Fassade.UpdateOperation(op);
+                }
+				await SignalRService.SendMessageToServer("OperationChanged");
             }
             else
             {
