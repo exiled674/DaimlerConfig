@@ -224,7 +224,7 @@
         if (!SelectedOperation.toolID.HasValue)
             return false;
 
-        if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.toolID.Value))
+        if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.operationID.Value,  SelectedOperation.toolID.Value))
             return false;
 
         //OperationDescription
