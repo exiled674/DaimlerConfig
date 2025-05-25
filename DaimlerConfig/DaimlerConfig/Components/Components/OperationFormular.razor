@@ -86,7 +86,7 @@
                 <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID">
                     @foreach (var decision in decisionClasses)
                     {
-                        <option value="@decision.ID">@decision.name</option>
+                        <option value="@decision.decisionClassID">@decision.decisionClassName</option>
                     }
                 </select>
                 <label for="DecisionClass">Decision Class</label>
@@ -96,7 +96,7 @@
                 <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID">
                     @foreach (var generation in generationClasses)
                     {
-                        <option value="@generation.ID">@generation.name</option>
+                        <option value="@generation.generationClassID">@generation.generationClassName</option>
                     }
                 </select>
                 <label for="GenerationClass">Generation Class</label>
@@ -105,7 +105,7 @@
                 <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID">
                     @foreach (var verification in verificationClasses)
                     {
-                      <option value="@verification.ID">@verification.name</option>
+                      <option value="@verification.verificationClassID">@verification.verificationClassName</option>
                     }
                 </select>
                 <label for="VerificationClass">Verification Class</label>
@@ -115,7 +115,7 @@
                 <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID">
                     @foreach (var saving in savingClasses)
                     {
-                      <option value="@saving.ID">@saving.name</option>
+                      <option value="@saving.savingClassID">@saving.savingClassName</option>
                     }
                 </select>
                 <label for="SavingClass">Saving Class</label>
@@ -263,11 +263,11 @@
     {
         decisionClasses = await Fassade.GetDecisionClasses();
 
-        savingClasses = await Fassade.GetSavingClasses(currentTemplate.templateID);
+        savingClasses = await Fassade.GetSavingClasses(currentTemplate.TemplateId);
 
-        verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.templateID);
+        verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.TemplateId);
 
-        generationClasses = await Fassade.GetGenerationClasses(currentTemplate.templateID);
+        generationClasses = await Fassade.GetGenerationClasses(currentTemplate.TemplateId);
 
         if (verificationClasses == null || !verificationClasses.Any())
         {

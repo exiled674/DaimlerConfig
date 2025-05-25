@@ -8,7 +8,7 @@ namespace DaimlerConfig.Components.Models
 {
     public class Template
     {
-        public int templateID { get; set; }
-        public string templateShortname { get; set; }
+        public int TemplateId { get; init; }
+        public string ShortName { get; init; }
     }
 }

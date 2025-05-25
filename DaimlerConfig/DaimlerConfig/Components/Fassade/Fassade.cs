@@ -375,19 +375,19 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task<IEnumerable<GenerationClass>> GetGenerationClasses(int templateID)
         {
-            return await GenerationClassRepository.Find(t => t.templateID == templateID);
+            return await GenerationClassRepository.Find(t => t.TemplateId == templateID);
             
         }
 
         public async Task<IEnumerable<SavingClass>> GetSavingClasses(int templateID)
         {
-            return await SavingClassRepository.Find(t => t.templateID == templateID);
+            return await SavingClassRepository.Find(t => t.TemplateId == templateID);
 
         }
 
         public async Task<IEnumerable<VerificationClass>> GetVerificationClasses(int templateID)
         {
-            return await VerificationClassRepository.Find(t => t.templateID == templateID);
+            return await VerificationClassRepository.Find(t => t.TemplateId == templateID);
 
         }
 
