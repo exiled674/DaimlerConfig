@@ -50,7 +50,7 @@
         <div class="toolColoumnLeft">     
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder=""   @onblur="CheckIfDirty" @bind="SelectedTool.toolID" readonly>
+                <input type="text" class="form-control form-control" placeholder=""    @bind="SelectedTool.toolID" readonly>
                 <label>Tool ID</label>
             </div>
 
@@ -277,6 +277,7 @@
     }
     #endregion
 
+    #region Lock
     public async Task LockTool()
     {
 
@@ -294,6 +295,7 @@
 
         }
     }
+    #endregion
 
     #region ToolClass/-Type
     private async Task OnToolClassChanged(ChangeEventArgs e)
