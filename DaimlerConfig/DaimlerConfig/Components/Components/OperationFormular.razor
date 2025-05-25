@@ -206,7 +206,7 @@
 
     private async Task DeleteOperationAsync()
     {
-        if(SelectedOperation != null)
+        if(SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser)  )
         {
             await Fassade.DeleteOperation(SelectedOperation);
             await OnUpdated.InvokeAsync();

@@ -459,7 +459,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                    operationReadOnly = false;
+                                                                                                                    operationReadOnly = false;
                 }
             }
             else if (msg.StartsWith("OperationLocked"))
@@ -485,7 +485,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                    operationReadOnly = false;
+                                                                                                                    operationReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -500,7 +500,11 @@
             else if (msg.StartsWith("ToolClassChanged"))
             {
                 var id = int.Parse(msg.Split(';')[1]);
-                var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                if(selectedTool != null)
+                {
+                    var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                }
+               
                 if(operations != null)
                 {
                     foreach (var op in operations)
