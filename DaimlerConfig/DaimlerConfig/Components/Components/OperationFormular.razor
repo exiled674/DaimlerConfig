@@ -281,7 +281,7 @@
             await SignalRService.SendMessageToServer("OperationChanged");
             await SignalRService.SendMessageToServer("OperationLocked;" + SelectedOperation.operationID.ToString());
             ReadOnly = false;
-            StateHasChanged();
+           
 
         }
     }

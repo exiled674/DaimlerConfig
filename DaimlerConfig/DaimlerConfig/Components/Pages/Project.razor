@@ -274,7 +274,7 @@
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
     private bool toolReadOnly = false;
-    
+
 
     private async Task SelectTool(Tool tool)
     {
@@ -355,7 +355,7 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
-	private bool operationReadOnly = false;
+    private bool operationReadOnly = false;
 
     private async Task SelectOperation(Operation operation)
     {
@@ -381,7 +381,7 @@
 
 
             selectedOperation = operation;  // Setze die ausgewählte Operation
-
+            selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
              if(selectedOperation.isLocked == false || operation.lockedBy == currentUser)
             {
