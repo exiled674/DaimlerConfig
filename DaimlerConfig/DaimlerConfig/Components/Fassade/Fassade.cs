@@ -295,11 +295,15 @@ namespace DaimlerConfig.Components.Fassade
             return await OperationRepository.ExistsByName(name);
         }
 
-        public async Task<bool> OperationExistsInTool(string name, int toolID)
+        public async Task<bool> OperationExistsInTool(string name, int operationID, int toolID)
         {
             var operations = await OperationRepository.GetOperationsFromTool(toolID);
-            return operations.Any(operation => operation.operationShortname!.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            return operations
+                .Where(operation => operation.operationID != operationID)
+                .Any(operation => operation.operationShortname!.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
+
 
         public async Task DeleteOperation(Operation operation)
         {

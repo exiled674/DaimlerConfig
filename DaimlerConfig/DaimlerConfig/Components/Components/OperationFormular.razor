@@ -105,7 +105,7 @@
                 <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID">
                     @foreach (var verification in verificationClasses)
                     {
-                      <option value="@verification.verificationClassID">@verification.verificationClassName</option>
+                        <option value="@verification.verificationClassID">@verification.verificationClassName</option>
                     }
                 </select>
                 <label for="VerificationClass">Verification Class</label>
@@ -115,7 +115,7 @@
                 <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID">
                     @foreach (var saving in savingClasses)
                     {
-                      <option value="@saving.savingClassID">@saving.savingClassName</option>
+                        <option value="@saving.savingClassID">@saving.savingClassName</option>
                     }
                 </select>
                 <label for="SavingClass">Saving Class</label>
@@ -263,20 +263,24 @@
     {
         decisionClasses = await Fassade.GetDecisionClasses();
 
-        savingClasses = await Fassade.GetSavingClasses(currentTemplate.TemplateId);
-
-        verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.TemplateId);
-
-        generationClasses = await Fassade.GetGenerationClasses(currentTemplate.TemplateId);
-
-        if (verificationClasses == null || !verificationClasses.Any())
+        if(currentTemplate != null)
         {
-            var list = verificationClasses.ToList();
-            list.AddRange(await Fassade.GetVerificationClass(0));
-            verificationClasses = list.AsEnumerable();
+            savingClasses = await Fassade.GetSavingClasses(currentTemplate.TemplateId);
+
+            verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.TemplateId);
+
+            generationClasses = await Fassade.GetGenerationClasses(currentTemplate.TemplateId);
+
+            if (verificationClasses == null || !verificationClasses.Any())
+            {
+                var list = verificationClasses.ToList();
+                list.AddRange(await Fassade.GetVerificationClass(0));
+                verificationClasses = list.AsEnumerable();
 
 
+            }
         }
+        
 
         
     }
