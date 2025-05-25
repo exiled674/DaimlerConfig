@@ -176,13 +176,24 @@
         DirtyManagerService.setClean();
 
         if (stationFormular != null)
+        {
+            stationFormular.ValidateData();
             stationFormular.UpdateStationAsync();
+        }
 
         if (toolFormular != null)
+        {
+            toolFormular.ValidateData();
             toolFormular.UpdateToolAsync();
+        }
+        
 
         if (operationFormular != null)
+        {
+            operationFormular.ValidateData();
             operationFormular.UpdateOperationAsync();
+        }
+
     }
 
     #region SideBar
