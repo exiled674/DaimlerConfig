@@ -19,14 +19,14 @@
 
 @using DaimlerConfig.Components.Models
 
-<nav class="navbar fixed-top bg-white border-bottom px-5 mx-auto">
-    <div class="container-fluid p-0">
+<nav class="navbar fixed-top bg-white border-bottom">
+    <div class="container">
         <span class="navbar-brand mb-0 h2">DaimlerConfig</span>
     </div>
 </nav>
 
 
-<div class="ProjectManager px-5 mx-auto pb-5">
+<div class="ProjectManager container">
 
     
 
@@ -35,7 +35,7 @@
     <hr/>
         <div class="row g-3 mb-3">
             <!-- Search Input -->
-            <div class="col-md-8">
+            <div class="col">
                 <div class="input-group">
                     <span class="input-group-text bg-body-tertiary border-end-0">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="#6c757d">
@@ -51,7 +51,7 @@
             </div>
 
             <!-- Sort Dropdown -->
-            <div class="col-md-4 position-relative">
+            <div class=" col-md-auto position-relative">
                 <div class="dropdown">
                     <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start overflow-hidden" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false" @onclick="() => ShowDropdown = !ShowDropdown">
                         Sorted by date descending
@@ -85,6 +85,10 @@
                                value="@line.lineName"
                                @onchange="e => ConfirmEdit(line, e)"
                                autofocus />
+                            @if (isDuplicateName)
+                            {
+                                            <div class="invalid-feedback px-2 ms-2">The name already exists.</div>
+                            }
                         <button class="btn btn-secondary ms-2" title="Cancel" @onclick="() => CancelEdit(line)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                  viewBox="0 0 16 16">
@@ -93,10 +97,7 @@
                                    2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
                             </svg>
                         </button>
-                        @if (isDuplicateName)
-                        {
-                            <div class="invalid-feedback ms-2">The name already exists.</div>
-                        }
+                        
                     </div>
                 }
                 else
@@ -149,14 +150,17 @@
     {
         <p class="text-muted">Keine Lines gefunden.</p>
     }
-</div>
+
     <div>
-    <button class="btn btn-block btn-primary" @onclick="CreateNewLine">
+    <button class="btn btn-block btn-primary pt-2" @onclick="CreateNewLine">
                 <span class="plus-icon">+</span>
                 Create Empty Project
     </button>
     </div>
 </div>
+
+</div>
+    
 
 @code {
     private List<Line> AllLines = new();
