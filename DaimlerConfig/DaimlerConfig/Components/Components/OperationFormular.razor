@@ -173,8 +173,12 @@
             OriginalOperation.toolID = SelectedOperation.toolID;
 
             currentTool = await Fassade.GetTool(SelectedOperation.toolID);
-            var toolClassId = currentTool.toolClassID;
-            currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
+            if(currentTool != null)
+            {
+                var toolClassId = currentTool.toolClassID;
+                currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
+            }
+           
 
             await InitializeClasses();
             StateHasChanged();
