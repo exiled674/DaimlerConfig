@@ -70,6 +70,7 @@
                 </div>
             </div>
         </div>
+        </div>
 
     <!-- Lines List -->
         @if (FilteredLines is not null && FilteredLines.Any())
@@ -88,7 +89,7 @@
                                            autofocus />
                             @if (isDuplicateName)
                             {
-                                                            <div class="invalid-feedback px-2 ms-2">The name already exists.</div>
+                                 <div class="invalid-feedback px-2 ms-2">The name already exists.</div>
                             }
                                     <button class="btn btn-secondary ms-2" title="Cancel" @onclick="() => CancelEdit(line)">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -161,9 +162,6 @@
     </div>
 </div>
 
-</div>
-
-
 @code {
     private List<Line> AllLines = new();
     private List<Line> FilteredLines = new();
@@ -172,7 +170,7 @@
     private string selectedSort = "date";
     private bool isDuplicateName = false;
     private Line? ActiveContextMenuLine = null;
-    private bool ShowDropdown = false;
+	private bool ShowDropdown = false;
 
     private void ToggleContextMenu(Line line)
     {

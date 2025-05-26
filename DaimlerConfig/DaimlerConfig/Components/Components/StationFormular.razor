@@ -6,18 +6,21 @@
 @inject DirtyManagerService DirtyManagerService
 @using System.Linq
 
-<div>
+<div class="container-lg px-3 px-md-4 px-lg-5">
 
 	<div class="class-header justify-content-between align-items-center">
 		<h2>Station</h2>
 		<div class="d-flex justify-content-end align-items-center gap-2"> 
+			@if (errorMessages.ContainsKey("General"))
+			{
+				<div class="alert alert-danger mb-3">@errorMessages["General"]</div>
+			}
 			@if (SelectedStation?.stationID == 0)
 			{
 				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm"  @onclick="CreateStationAsync">Create</button>
+					<button class="btn btn-primary btn-sm"   @onclick="CreateStationAsync">Create</button>
 				</div>
 			}
-
 
 
 			@if (SelectedStation?.stationID != 0)
@@ -42,17 +45,27 @@
 		<div class="stationColoumn">
 
 			<div class="form-floating mb-3">
-				<input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedStation.assemblystation">
+				<input type="text" class="form-control @(errorMessages.ContainsKey("Assemblystation") ? "is-invalid" : "")" maxlength="10" placeholder="" @onblur="CheckIfDirty" @bind="SelectedStation.assemblystation">
 				<label>Assemblystation</label>
+				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+					@($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
+				</span>
+				@if (errorMessages.ContainsKey("Assemblystation"))
+				{
+					<div class="invalid-feedback">@errorMessages["Assemblystation"]</div>
+				}
 			</div>
 
 			<div class="form-floating mb-3">
-				<input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedStation.stationName">
+				<input type="text" class="form-control" placeholder="" maxlength="50" @onblur="CheckIfDirty" @bind="SelectedStation.stationName">
 				<label>Assemblystation Description</label>
+				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+					@($"{SelectedStation?.stationName?.Length ?? 0}/50")
+				</span>
 			</div>
 
 			<div class="form-floating mb-3">
-				<select class="form-select form-select" id="StationType" @onblur="CheckIfDirty"  @bind="SelectedStation.stationTypeID">
+				<select class="form-select " id="StationType" @onblur="CheckIfDirty"  @bind="SelectedStation.stationTypeID">
 					@if (stationTypes != null)
 					{
 						@foreach (var stationType in stationTypes)
@@ -81,14 +94,18 @@
 
 	private Station? OriginalStation { get; set; }
 
+	private Dictionary<string, string> errorMessages = new();
+	private bool showErrors = false;
 
 
 
-	protected override async Task OnInitializedAsync()
+
+	protected override async Task OnParametersSetAsync()
 	{
 		stationTypes = await Fassade.GetAllStationTypes();	
 		if (SelectedStation != null)
 		{
+			ResetValidationState();
 			OriginalStation = SelectedStation.Clone();
 			OriginalStation.stationID = SelectedStation.stationID;
 			OriginalStation.lineID = SelectedStation.lineID;
@@ -99,6 +116,7 @@
 	#region CRUD
 	public async Task UpdateStationAsync()
 	{
+		ResetValidationState();
 		if (await ValidateData() == false) return;
 
 		await Fassade.UpdateStation(SelectedStation);
@@ -109,6 +127,7 @@
 
 	public async Task UpdateStationAsync(Station station)
 	{
+		ResetValidationState();
 		if (await ValidateData() == false) return;
 
 		await Fassade.UpdateStation(station);
@@ -141,34 +160,41 @@
 	#region Validate
 	public async Task<bool> ValidateData()
 	{
+		errorMessages.Clear();
+
 		//Objekt
 		if (SelectedStation is null)
+		{
+			errorMessages["General"] = "Station data is missing";
 			return false;
+
+		}
 
 
 
 		//Assemblystation
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
-			return false;
-
-		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation,SelectedStation.stationID.Value, SelectedStation.lineID.Value))
-			return false;
-
-		if (SelectedStation.assemblystation.Length > 10)
-			return false;
-
-
-
-		//StationName
-		if (SelectedStation.stationName != null)
 		{
-			if (SelectedStation.stationName.Length > 50)
-				return false;
+			errorMessages["Assemblystation"] = "Assembly station is required";
+		}
+
+		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.stationID.Value, SelectedStation.lineID.Value)) 
+		{
+			errorMessages["Assemblystation"] = "This station already exists in the line";
 		}
 
 
-		return true;
+		showErrors = errorMessages.Any();
+		return !showErrors;
 
+	}
+
+
+	private void ResetValidationState()
+	{
+		errorMessages.Clear();
+		showErrors = false;
+		StateHasChanged();
 	}
 	#endregion
 
@@ -192,6 +218,5 @@
 	}
 	#endregion
 
-	
 
 }
