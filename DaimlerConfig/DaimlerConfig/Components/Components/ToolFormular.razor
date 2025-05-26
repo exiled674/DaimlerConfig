@@ -234,7 +234,7 @@
         if (!SelectedTool.stationID.HasValue)
             return false;
 
-        if ((await Fassade.ToolExistsInStation(SelectedTool.toolShortname, SelectedTool.toolID.Value, SelectedTool.stationID.Value)) && ((SelectedTool.toolShortname != OriginalTool.toolShortname) && (SelectedTool.toolID.Value != OriginalTool.toolID.Value) && (SelectedTool.stationID.Value != OriginalTool.stationID.Value)))
+        if (await Fassade.ToolExistsInStation(SelectedTool.toolShortname, SelectedTool.toolID.Value, SelectedTool.stationID.Value))
         {
             errorMessages["ToolShortname"] = "A tool with this shortname already exists in this station";
         }

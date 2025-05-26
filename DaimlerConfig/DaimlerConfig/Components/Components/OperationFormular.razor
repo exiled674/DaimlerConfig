@@ -42,11 +42,15 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control @(errorMessages.ContainsKey("ToolShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname">
+                <input type="text" class="form-control @(errorMessages.ContainsKey("OperationShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname">
                 <label>Operation Shortname</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
                 </span>
+                @if (errorMessages.ContainsKey("OperationShortname"))
+                {
+                            <div class="invalid-feedback">@errorMessages["OperationShortname"]</div>
+                }
             </div>
 
             <div class="form-floating mb-3">
@@ -194,6 +198,8 @@
     #region Validate
     public async Task<bool> ValidateData()
     {
+        ResetValidationState();
+
         //Objekt
         if (SelectedOperation == null)
             return false; //??
@@ -207,7 +213,7 @@
         if (!SelectedOperation.toolID.HasValue)
             return false; //??
 
-        if ((await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.toolID.Value)) && ((SelectedOperation.operationShortname != OriginalOperation.operationShortname) && (SelectedOperation.toolID.Value != OriginalOperation.toolID.Value)))
+        if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.operationID.Value, SelectedOperation.toolID.Value))
         {
             errorMessages["OperationShortname"] = "An operation with this shortname already exists in this station";
 
