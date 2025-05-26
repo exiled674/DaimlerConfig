@@ -340,7 +340,14 @@
             }
 
 
-
+            if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
+            {
+                selectedOperation.isLocked = false;
+                selectedOperation.lockedBy = null;
+                await Fassade.UpdateOperation(selectedOperation);
+                await SignalRService.SendMessageToServer("OperationChanged");
+                await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+            }
 
             selectedOperation = new Operation
                 {
