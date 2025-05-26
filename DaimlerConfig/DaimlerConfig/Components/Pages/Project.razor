@@ -486,10 +486,7 @@
                 var operationID = int.Parse(msg.Split(';')[1]);
                 if (selectedOperation?.operationID == operationID)
                 {
-                    /*selectedTool.isLocked = true;
-                    selectedTool.lockedBy = currentUser;
-                    await Fassade.UpdateTool(selectedTool);
-                    await SignalRService.SendMessageToServer("ToolChanged");*/
+                   
                                                                                                                     operationReadOnly = false;
                 }
             }
@@ -503,20 +500,20 @@
                 }
             }
 
-            if (msg.StartsWith("OperationUnlocked"))
+            if (msg.StartsWith("ToolUnlocked"))
             {
 
 
 
 
-                var operationID = int.Parse(msg.Split(';')[1]);
-                if (selectedOperation?.operationID == operationID)
+                var toolID = int.Parse(msg.Split(';')[1]);
+                if (selectedTool?.toolID == toolID)
                 {
                     /*selectedTool.isLocked = true;
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                                    operationReadOnly = false;
+                                                                                                                    toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
