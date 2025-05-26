@@ -37,12 +37,12 @@
         <div class="toolColoumnLeft">
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationID" readonly>
+                <input type="text" class="form-control" placeholder=""  @bind="SelectedOperation.operationID" readonly>
                 <label>Operation ID</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control @(errorMessages.ContainsKey("OperationShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname">
+                <input type="text" class="form-control @(errorMessages.ContainsKey("OperationShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onclick="LockOperation @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname readonly="@ReadOnly">
                 <label>Operation Shortname</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
@@ -54,7 +54,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @onblur="CheckIfDirty" @bind="SelectedOperation.operationDescription"></textarea>
+                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.operationDescription" readonly="@ReadOnly"></textarea>
                 <label>Operation Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationDescription?.Length ?? 0}/100")</span>
@@ -63,7 +63,7 @@
         <div class="toolColoumnRight ">
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ProcessingMode">
+                <select class="form-select form-select" id="ProcessingMode" disabled="@ReadOnly">
                     <option value="">select...</option>
                     <option value="Serial">Serial</option>
                     <option value="Parallel">Parallel</option>
@@ -90,36 +90,40 @@
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="DecisionClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly">
+                    @foreach (var decision in decisionClasses)
+                    {
+                        <option value="@decision.decisionClassID">@decision.decisionClassName</option>
+                    }
                 </select>
                 <label for="DecisionClass">Decision Class</label>
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="GenerationClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly">
+                    @foreach (var generation in generationClasses)
+                    {
+                        <option value="@generation.generationClassID">@generation.generationClassName</option>
+                    }
                 </select>
                 <label for="GenerationClass">Generation Class</label>
             </div>
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="VerificationClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly">
+                    @foreach (var verification in verificationClasses)
+                    {
+                        <option value="@verification.verificationClassID">@verification.verificationClassName</option>
+                    }
                 </select>
                 <label for="VerificationClass">Verification Class</label>
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="SavingClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly">
+                    @foreach (var saving in savingClasses)
+                    {
+                        <option value="@saving.savingClassID">@saving.savingClassName</option>
+                    }
                 </select>
                 <label for="SavingClass">Saving Class</label>
             </div>
@@ -128,7 +132,7 @@
         <div class="toolColoumnRight">
 
             <div class="form-floating">
-                <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px"></textarea>
+                <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly"></textarea>
                 <label for="DecisionCriteria">Decision Criteria</label>
             </div>
         </div>     
@@ -140,7 +144,14 @@
 
 @code {
     [Parameter]
+    public string? CurrentUser { get; set; }
+
+
+    [Parameter]
     public Operation? SelectedOperation { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
 
     [Parameter]
     public EventCallback OnUpdated { get; set; }
@@ -148,6 +159,19 @@
     private Operation? OriginalOperation { get; set; }
     private Dictionary<string, string> errorMessages = new();
     private bool showErrors = false;
+
+
+    private Tool? currentTool;
+
+    private Template? currentTemplate;
+
+    private IEnumerable<DecisionClass> decisionClasses = Enumerable.Empty<DecisionClass>();
+
+    private IEnumerable<SavingClass> savingClasses = Enumerable.Empty<SavingClass>();
+
+    private IEnumerable<VerificationClass> verificationClasses = Enumerable.Empty<VerificationClass>();
+
+    private IEnumerable<GenerationClass> generationClasses = Enumerable.Empty<GenerationClass>();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -157,7 +181,19 @@
             OriginalOperation = SelectedOperation.Clone();
             OriginalOperation.operationID = SelectedOperation.operationID;
             OriginalOperation.toolID = SelectedOperation.toolID;
+
+            currentTool = await Fassade.GetTool(SelectedOperation.toolID);
+            if(currentTool != null)
+            {
+                var toolClassId = currentTool.toolClassID;
+                currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
+            }
+           
+
+            await InitializeClasses();
+            StateHasChanged();
         }
+       
     }
 
     #region CRUD
@@ -170,7 +206,7 @@
         await Fassade.UpdateOperation(SelectedOperation);
         await OnUpdated.InvokeAsync();
         await SignalRService.SendMessageToServer("OperationChanged");
-
+        await DirtyManagerService.setClean();
     }
 
     private async Task AddOperationAsync()
@@ -185,7 +221,7 @@
 
     private async Task DeleteOperationAsync()
     {
-        if(SelectedOperation != null)
+        if(SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser)  )
         {
             await Fassade.DeleteOperation(SelectedOperation);
             await OnUpdated.InvokeAsync();
@@ -245,9 +281,57 @@
         {
             SelectedOperation = OriginalOperation.Clone();
             SelectedOperation.operationID = OriginalOperation.operationID;
-			SelectedOperation.toolID = OriginalOperation.toolID;
+            SelectedOperation.toolID = OriginalOperation.toolID;
         }
         await SignalRService.SendMessageToServer("OperationChanged");
+    }
+    #endregion
+
+    #region Lock
+    public async Task LockOperation()
+    {
+
+        if (SelectedOperation.operationID == 0) return;
+        if (SelectedOperation.isLocked == false)
+        {
+            SelectedOperation.isLocked = true;
+            SelectedOperation.lockedBy = CurrentUser;
+            await Fassade.UpdateOperation(SelectedOperation);
+            
+            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer("OperationLocked;" + SelectedOperation.operationID.ToString());
+            ReadOnly = false;
+           
+
+        }
+    }
+    #endregion
+
+    #region Classes
+    private async Task InitializeClasses()
+    {
+        decisionClasses = await Fassade.GetDecisionClasses();
+
+        if(currentTemplate != null)
+        {
+            savingClasses = await Fassade.GetSavingClasses(currentTemplate.TemplateId);
+
+            verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.TemplateId);
+
+            generationClasses = await Fassade.GetGenerationClasses(currentTemplate.TemplateId);
+
+            if (verificationClasses == null || !verificationClasses.Any())
+            {
+                var list = verificationClasses.ToList();
+                list.AddRange(await Fassade.GetVerificationClass(0));
+                verificationClasses = list.AsEnumerable();
+
+
+            }
+        }
+        
+
+        
     }
     #endregion
 }

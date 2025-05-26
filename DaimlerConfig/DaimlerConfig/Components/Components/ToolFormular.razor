@@ -50,7 +50,7 @@
         <div class="toolColoumnLeft">     
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder=""   @onblur="CheckIfDirty" @bind="SelectedTool.toolID" readonly>
+                <input type="text" class="form-control form-control" placeholder=""    @bind="SelectedTool.toolID" readonly>
                 <label>Tool ID</label>
             </div>
 
@@ -78,19 +78,22 @@
 
         <div class="toolColoumnRight ">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolClass">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="ToolClass" value="@SelectedTool.toolClassID" @onchange="OnToolClassChanged" disabled="@ReadOnly">
+                    @foreach (var toolClass in toolClasses)
+                    {
+                        <option value="@toolClass.toolClassID">@toolClass.toolClassName</option>
+                    }
                 </select>
+
                 <label for="ToolClass">Tool Class</label>
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolType">
-                    <option value="">select...</option>
-                    <option value="Class1">needs</option>
-                    <option value="Class2">binding</option>
+                <select class="form-select form-select" id="ToolType" value="@SelectedTool.toolTypeID" @onchange="OnToolTypeChanged" disabled="@ReadOnly">
+                    @foreach (var toolType in toolTypes)
+                    {
+                        <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
+                    }
                 </select>
                 <label for="ToolType">Tool Type</label>
             </div>
@@ -105,7 +108,7 @@
         <div class="layout position-relative">
             <div class="toolColoumnLeft">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control @(errorMessages.ContainsKey("IP") ? "is-invalid" : "")" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice">
+                    <input type="text" class="form-control @(errorMessages.ContainsKey("IP") ? "is-invalid" : "")" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice" readonly="@ReadOnly>
                     <label>IP-Address Device</label>
                     @if (errorMessages.ContainsKey("IP"))
                     {
@@ -113,30 +116,30 @@
                     }
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="">
+                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly">
                     <label>PLC Name</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="">
+                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly">
                     <label>DBNo Send</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="">
+                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly">
                     <label>DBNo Receive</label>
                 </div>
             </div>
 
             <div class="toolColoumnRight">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="">
+                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly">
                     <label>Address in Send-DB</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="">
+                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly">
                     <label>Address in Receive-DB</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="">
+                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly">
                     <label>Byte Pre Check</label>
                 </div>
             </div>
@@ -166,17 +169,30 @@
     private Dictionary<string, string> errorMessages = new();
     private bool showErrors = false;
 
-    protected override async Task OnParametersSetAsync()
-    {
+    private IEnumerable<ToolType> toolTypes = Enumerable.Empty<ToolType>();
+    private IEnumerable<ToolClass> toolClasses = Enumerable.Empty<ToolClass>();
 
-        if (SelectedTool != null)
+
+  protected override async Task OnParametersSetAsync()
+{
+    if (SelectedTool != null)
+    {
+        ResetValidationState();
+        OriginalTool = SelectedTool.Clone();
+        OriginalTool.toolID = SelectedTool.toolID;
+        OriginalTool.stationID = SelectedTool.stationID;
+
+        toolClasses = await Fassade.GetAllToolClasses();
+
+        if (SelectedTool.toolClassID.HasValue)
         {
-            ResetValidationState();
-            OriginalTool = SelectedTool.Clone();
-            OriginalTool.toolID = SelectedTool.toolID;
-            OriginalTool.stationID = SelectedTool.stationID;
+            toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
         }
+
+        StateHasChanged();
     }
+}
+
 
 
     #region CRUD
@@ -287,6 +303,7 @@
     }
     #endregion
 
+    #region Lock
     public async Task LockTool()
     {
 
@@ -304,6 +321,28 @@
 
         }
     }
+    #endregion
+
+    #region ToolClass/-Type
+    private async Task OnToolClassChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var selectedId))
+        {
+            SelectedTool.toolClassID = selectedId;
+            toolTypes = await Fassade.FindToolTypes(selectedId);
+			await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
+        }
+    }
+
+    private async Task OnToolTypeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var id))
+        {
+            SelectedTool.toolTypeID = id;
+        }
+    }
+
+    #endregion
 
 
 }

@@ -3,6 +3,7 @@
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
+@inject AppLifecycleService LifecycleService
 
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
@@ -22,7 +23,12 @@
 
             <ul class="sidebar-nav p-0">
                 <li class="sidebar-item">
-                    <a href="/" class="sidebar-link">
+                    <a href="/" class="sidebar-link" @onclick="() => UnlockTool(new Tool
+{
+    stationID = 1,
+    toolTypeID = 1,
+    isLocked = false
+})">
                         <span>Home</span>
                     </a>
                 </li>
@@ -94,7 +100,7 @@
                                         <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
                                         <div>
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { ToggleOperationFormular(true); SelectTool(tool); }">+</button>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }">+</button>
 
 
                                         </div>
@@ -103,7 +109,7 @@
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
                                             <div class="operation-section d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="() => SelectOperation(operation)">@operation.operationShortname</span>
+                                                <span class="clickable" @onclick="() => { SelectOperation(operation);  }">@operation.operationShortname</span>
 
                                             </div>
                                         }
@@ -123,7 +129,7 @@
 
                     @if (showOperationFormular && selectedOperation != null)
                     {
-                        <OperationFormular @ref="operationFormular" SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" />
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" CurrentUser="@currentUser" />
                     }
 
                     @if (showStationFormular && selectedStation != null)
@@ -153,7 +159,7 @@
 
     private bool showPopup = false;
 
-    private void HandleDismiss()
+    private async Task HandleDismiss()
     {
         showPopup = false;
         DirtyManagerService.setClean();
@@ -170,30 +176,50 @@
     }
 
 
-    private void HandleSave()
+    private async Task HandleSave()
     {
         showPopup = false;
         DirtyManagerService.setClean();
 
         if (stationFormular != null)
         {
-            stationFormular.ValidateData();
-            stationFormular.UpdateStationAsync();
+            if(await stationFormular.ValidateData() == true)
+            {
+                stationFormular.UpdateStationAsync();
+            }
+            else
+            {
+                stationFormular.ResetStation();
+            }
         }
+
+
 
         if (toolFormular != null)
         {
-            toolFormular.ValidateData();
-            toolFormular.UpdateToolAsync();
+            if (await toolFormular.ValidateData() == true)
+            {
+                toolFormular.UpdateToolAsync();
+            }
+            else
+            {
+                toolFormular.ResetTool();
+            }
         }
-        
 
-        if (operationFormular != null)
+
+        if (operationFormular != null )
         {
-            operationFormular.ValidateData();
-            operationFormular.UpdateOperationAsync();
+			if (await operationFormular.ValidateData() == true)
+			{
+				operationFormular.UpdateOperationAsync();
+			}
+			else
+			{
+				operationFormular.ResetOperation();
+            }
         }
-
+       
     }
 
     #region SideBar
@@ -260,7 +286,8 @@
                     savingClassID = 1,             // Setze den Foreign Key auf 1
                     generationClassID = 1,         // Setze den Foreign Key auf 1
                     verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1 
+                    qGateID = 1 ,
+                    isLocked = false,
                 // Setze den Foreign Key auf 1
                 };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
 
@@ -279,6 +306,7 @@
     private Tool? selectedTool;
     private bool toolReadOnly = false;
 
+
     private async Task SelectTool(Tool tool)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -289,7 +317,7 @@
         {
             if(selectedTool != null)
             {
-                if (selectedTool.lockedBy == currentUser)
+                if (selectedTool.lockedBy == currentUser && selectedTool.toolID != tool.toolID)
                 {
                     selectedTool.isLocked = false;
                     selectedTool.lockedBy = null;
@@ -297,25 +325,12 @@
                     await SignalRService.SendMessageToServer("ToolChanged");
                     await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
 
-
-                    /*if (toolFormular != null && selectedTool != null)
-                    {
-                        await toolFormular.ReloadToolAsync(selectedTool);
-                        }*/
                 }
             }
 
-
-
-
             selectedTool = tool;
-            if(selectedTool.isLocked == false)
+            if(selectedTool.isLocked == false || tool.lockedBy == currentUser)
             {
-                selectedTool.isLocked = true;
-                selectedTool.lockedBy = currentUser;
-                await Fassade.UpdateTool(selectedTool);
-                await SignalRService.SendMessageToServer("ToolChanged");
-                await SignalRService.SendMessageToServer("ToolLocked;" + selectedTool.toolID.ToString());
                 toolReadOnly = false;
 
             }
@@ -334,19 +349,13 @@
                     savingClassID = 1,             
                     generationClassID = 1,         
                     verificationClassID = 1,      
-                    qGateID = 1                    
+                    qGateID = 1,   
+                    isLocked = false,
                 };  
 
             tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  
 
-
-
-            // Zeige das Tool-Formular an
-            /*showToolFormular = true;
-            showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
-            showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
-
-                                                            StateHasChanged();  // Aktualisiere den UI-Status
+            StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
@@ -358,7 +367,8 @@
             selectedTool = new Tool
                 {
                     stationID = selectedStation.stationID,  // Setze stationID
-                    toolTypeID = 1,    
+                    toolTypeID = 0,   
+                    toolClassID = 0,
                     isLocked = false// Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
                 };
         }
@@ -376,6 +386,7 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
+    private bool operationReadOnly = false;
 
     private async Task SelectOperation(Operation operation)
     {
@@ -385,12 +396,41 @@
         }
         else
         {
-            selectedOperation = operation;  // Setze die ausgewählte Operation
 
-            // Zeige das Operation-Formular an
+            if(selectedOperation != null)
+            {
+                if (selectedOperation.lockedBy == currentUser && selectedOperation.operationID != operation.operationID)
+                {
+                    selectedOperation.isLocked = false;
+                    selectedOperation.lockedBy = null;
+                    await Fassade.UpdateOperation(selectedOperation);
+                    await SignalRService.SendMessageToServer("OperationChanged");
+                    await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+
+                }
+            }
+
+
+            selectedOperation = operation;  // Setze die ausgewählte Operation
+            selectedTool = await Fassade.GetTool(selectedOperation.toolID);
+
+            if(selectedOperation.isLocked == false || operation.lockedBy == currentUser)
+            {
+
+                operationReadOnly = false;
+
+            }
+            else
+            {
+                operationReadOnly = true;
+            }
+
+
+
             showOperationFormular = true;
-            showToolFormular = false;  // Schließe das Tool-Formular, wenn das Operation-Formular gezeigt wird
-            showStationFormular = false;   // Schließe das Station-Formular, wenn das Operation-Formular gezeigt wird
+            showToolFormular = false;
+            showStationFormular = false;
+
 
             StateHasChanged();  // Aktualisiere den UI-Status
         }
@@ -409,7 +449,8 @@
                     savingClassID = 1,             // Setze den Foreign Key auf 1
                     generationClassID = 1,         // Setze den Foreign Key auf 1
                     verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1                    // Setze den Foreign Key auf 1
+                    qGateID = 1,
+                    isLocked = false,// Setze den Foreign Key auf 1
                 };
         }
         showOperationFormular = true;
@@ -430,26 +471,52 @@
 
     protected override async Task OnInitializedAsync()
     {
-
+        LifecycleService.OnAppClosing += HandleAppClosingAsync;
         SignalRService.RegisterResponseHandler(async (string msg) =>
     {
         await InvokeAsync(async () =>
         {
 
-            if (msg.StartsWith("ToolUnlocked"))
+            if (msg.StartsWith("OperationUnlocked"))
             {
 
 
 
 
-                var toolID = int.Parse(msg.Split(';')[1]);
-                if (selectedTool?.toolID == toolID)
+                var operationID = int.Parse(msg.Split(';')[1]);
+                if (selectedOperation?.operationID == operationID)
                 {
                     /*selectedTool.isLocked = true;
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                    toolReadOnly = false;
+                                                                                                                    operationReadOnly = false;
+                }
+            }
+            else if (msg.StartsWith("OperationLocked"))
+            {
+                var operationID = int.Parse(msg.Split(';')[1]);
+                if (selectedOperation?.lockedBy != currentUser)
+                {
+
+                    operationReadOnly = true;
+                }
+            }
+
+            if (msg.StartsWith("OperationUnlocked"))
+            {
+
+
+
+
+                var operationID = int.Parse(msg.Split(';')[1]);
+                if (selectedOperation?.operationID == operationID)
+                {
+                    /*selectedTool.isLocked = true;
+                    selectedTool.lockedBy = currentUser;
+                    await Fassade.UpdateTool(selectedTool);
+                    await SignalRService.SendMessageToServer("ToolChanged");*/
+                                                                                                                    operationReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -457,9 +524,31 @@
                 var toolID = int.Parse(msg.Split(';')[1]);
                 if (selectedTool?.lockedBy != currentUser)
                 {
-                   
-                   toolReadOnly = true;
+
+                    toolReadOnly = true;
                 }
+            }
+            else if (msg.StartsWith("ToolClassChanged"))
+            {
+                var id = int.Parse(msg.Split(';')[1]);
+                if(selectedTool != null)
+                {
+                    var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                }
+               
+                if(operations != null)
+                {
+                    foreach (var op in operations)
+                    {
+                        op.decisionClassID = 1;
+                        op.verificationClassID = 0;
+                        op.savingClassID = 0;
+                        op.generationClassID = 0;
+                        await Fassade.UpdateOperation(op);
+                    }
+                    await SignalRService.SendMessageToServer("OperationChanged");
+                }
+                
             }
             else
             {
@@ -487,7 +576,7 @@
                                 selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
                             }
 
-                           
+
 
                         }
                         break;
@@ -506,15 +595,15 @@
 
 
                 }
-           
-                    
+
+
             }
 
             StateHasChanged();
         });
     });
 
-        
+
 
 
         // 2) Starte die Verbindung
@@ -626,6 +715,36 @@
         ToggleOperationFormular(false);
     }
     #endregion
-	
+
+
+    private async Task HandleAppClosingAsync()
+    {
+        // Hier dein UnlockTool() aufrufen oder Warnung anzeigen
+        await UnlockTool(new Tool
+            {
+                stationID = 1,
+                toolTypeID = 1,
+                isLocked = false
+            });
+    }
+
+    public async Task UnlockTool(Tool tool)
+    {
+
+        if (selectedTool != null)
+        {
+            if (selectedTool.lockedBy == currentUser && selectedTool.toolID != tool.toolID)
+            {
+                selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+
+
+                
+            }
+        }
+    }
     
-}
+ }

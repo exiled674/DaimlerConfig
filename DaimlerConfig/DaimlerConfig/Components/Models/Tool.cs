@@ -18,9 +18,11 @@ namespace DaimlerConfig.Components.Models
 
         public string? toolDescription { get; set; }
 
-        public int toolTypeID { get; set; }
+        public int? toolClassID { get; set; }
 
-        public string? ipAddressDevice { get; set; }
+        public int? toolTypeID { get; set; }
+
+        public string? ipAddressDevice { get; set; } = "0.0.0.0";
 
         public string? plcName { get; set; }
 

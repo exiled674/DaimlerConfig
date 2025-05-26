@@ -132,10 +132,10 @@ namespace DaimlerConfig.Components.Repositories
 
         public async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate)
         {
-            var all = await GetAll();
-            var func = predicate.Compile();
-            return all.Where(func);
+            var all = await GetAll(); 
+            return all.AsQueryable().Where(predicate); 
         }
+
 
         public async Task<TEntity?> Get(int? id)
         {
@@ -144,7 +144,9 @@ namespace DaimlerConfig.Components.Repositories
 
             var type = typeof(TEntity);
             var keyProp = type.GetProperties()
-                .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
+    .FirstOrDefault(p =>
+        p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase) ||  // ← ORIGINAL (bleibt)
+        p.Name.Equals("ID", StringComparison.OrdinalIgnoreCase));
 
             if (keyProp == null)
                 throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
