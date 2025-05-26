@@ -178,7 +178,7 @@
 			errorMessages["Assemblystation"] = "Assembly station is required";
 		}
 
-		if ((await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.lineID.Value)) & (SelectedStation.assemblystation != OriginalStation.assemblystation))
+		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.stationID.Value, SelectedStation.lineID.Value)) 
 		{
 			errorMessages["Assemblystation"] = "This station already exists in the line";
 		}

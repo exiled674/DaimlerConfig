@@ -108,11 +108,11 @@
         <div class="layout position-relative">
             <div class="toolColoumnLeft">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control @(errorMessages.ContainsKey("IP") ? "is-invalid" : "")" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice" readonly="@ReadOnly>
+                    <input type="text" class="form-control @(errorMessages.ContainsKey("IP") ? "is-invalid" : "")" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice" readonly="@ReadOnly">
                     <label>IP-Address Device</label>
                     @if (errorMessages.ContainsKey("IP"))
                     {
-                        <div class="invalid-feedback">@errorMessages["IP"]</div>
+                            <div class="invalid-feedback">@errorMessages["IP"]</div>
                     }
                 </div>
                 <div class="form-floating mb-3">

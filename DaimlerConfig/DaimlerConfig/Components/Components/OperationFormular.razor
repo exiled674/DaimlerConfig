@@ -42,7 +42,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control @(errorMessages.ContainsKey("OperationShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onclick="LockOperation @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname readonly="@ReadOnly">
+                <input type="text" class="form-control @(errorMessages.ContainsKey("OperationShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname readonly="@ReadOnly">
                 <label>Operation Shortname</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")

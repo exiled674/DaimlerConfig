@@ -145,7 +145,6 @@
     {
         <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
     }
-
 </body>
 
 @code {
@@ -221,6 +220,7 @@
         }
        
     }
+   
 
     #region SideBar
     private string BadgeColor = "#006700"; //needs to be implemented
@@ -490,7 +490,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                                    operationReadOnly = false;
+                    operationReadOnly = false;
                 }
             }
             else if (msg.StartsWith("OperationLocked"))
