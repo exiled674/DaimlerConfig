@@ -262,6 +262,8 @@
         }
         else
         {
+
+
             selectedStation = new Station
                 {
                     stationID = station.stationID,
@@ -271,12 +273,35 @@
                     stationName = station.stationName
 
                 };
+
+
+
+             if(selectedTool != null && selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
+            {
+                selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+            }
+
             selectedTool = new Tool
                 {
                     stationID = selectedStation.stationID,  // Setze stationID
                     toolTypeID = 1, 
                     isLocked = false// Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
                 };  // Setze das ausgewählte Tool zurück
+
+
+
+             if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
+            {
+                selectedOperation.isLocked = false;
+                selectedOperation.lockedBy = null;
+                await Fassade.UpdateOperation(selectedOperation);
+                await SignalRService.SendMessageToServer("OperationChanged");
+                await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+            }
 
 
             selectedOperation = new Operation
