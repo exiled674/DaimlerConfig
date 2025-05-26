@@ -412,11 +412,15 @@
 
 
             selectedOperation = operation;
-            selectedTool.isLocked = false;
-            selectedTool.lockedBy = null;
-            await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer("ToolChanged");
-			await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+            if(selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
+            {
+                selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+            }
+            
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
             if(selectedOperation.isLocked == false || operation.lockedBy == currentUser)
