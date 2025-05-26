@@ -11,6 +11,7 @@
 @using System.Text.Json
 @using System.IO
 @using System.Text
+@using DaimlerConfig.Components.Export
 @using Microsoft.Maui.Storage
 @inject DirtyManagerService DirtyManagerService
 @using DaimlerConfig.Components.Models
@@ -311,8 +312,36 @@
     {
         Navigation.NavigateTo($"/line/{Uri.EscapeDataString(lineName)}");
     }
-
+    
     private async Task FilePick()
+    {
+        var line = ActiveContextMenuLine;
+        
+        ActiveContextMenuLine = null;
+        var tools = new List<Tool>();
+        var operations = new List<Operation>();
+        var path = "C:\\Users\\jn\\Downloads\\export.excl";
+        var stations = await Fassade.GetStationsFromLine(line.lineID);
+        foreach (var station in stations)
+        {
+            tools.AddRange(await Fassade.GetToolsFromStation(station.stationID));
+        }
+        foreach (var tool in tools)
+        {
+            operations.AddRange(await Fassade.GetOperationsFromTool(tool.toolID));
+        }
+
+        var stationTypes = await Fassade.StationTypeRepository.GetAll();
+        var toolTypes = await Fassade.ToolTypeRepository.GetAll();
+        var toolClasses = await Fassade.ToolClassRepository.GetAll();
+        var decisionClasses = await Fassade.DecisionClassRepository.GetAll();
+        var generationClasses = await Fassade.GenerationClassRepository.GetAll();
+        var verificationClasses = await Fassade.VerificationClassRepository.GetAll();
+        var savingClasses = await Fassade.SavingClassRepository.GetAll();
+        Fassade.ExcelExport.Export(path,line,stations.ToArray(),tools.ToArray(), operations.ToArray(), stationTypes.ToArray(), toolTypes.ToArray(), toolClasses.ToArray(), decisionClasses.ToArray(),generationClasses.ToArray(), verificationClasses.ToArray(), savingClasses.ToArray());
+    }
+    
+    private async Task OldFilePick()
     {
         ActiveContextMenuLine = null;
 

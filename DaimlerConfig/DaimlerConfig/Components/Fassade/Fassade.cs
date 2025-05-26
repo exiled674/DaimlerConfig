@@ -1,7 +1,7 @@
 ﻿using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.JsonHandler;
-
+using DaimlerConfig.Components.Export;
 
 
 namespace DaimlerConfig.Components.Fassade
@@ -25,13 +25,12 @@ namespace DaimlerConfig.Components.Fassade
 
         public IRepository<SavingClass> SavingClassRepository { get; private set; }
         public IRepository<VerificationClass> VerificationClassRepository { get; private set; }
-
-
-
-
+        
+        public ExcelExport ExcelExport { get; private set; }
+        
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, IRepository<Template> templateRepository )
+        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, IRepository<Template> templateRepository, ExcelExport ExcelExport)
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
@@ -45,7 +44,7 @@ namespace DaimlerConfig.Components.Fassade
             ToolClassRepository = toolClassRepository;
             ToolTypeRepository = toolTypeRepository;
             TemplateRepository = templateRepository;
-
+            this.ExcelExport = ExcelExport;
         }
 
         #region Line
