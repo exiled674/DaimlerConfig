@@ -37,13 +37,16 @@
         <div class="toolColoumnLeft">
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationID" readonly>
+                <input type="text" class="form-control" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationID" readonly>
                 <label>Operation ID</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" maxlength="16" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname">
+                <input type="text" class="form-control @(errorMessages.ContainsKey("ToolShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname">
                 <label>Operation Shortname</label>
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
+                </span>
             </div>
 
             <div class="form-floating mb-3">
@@ -139,10 +142,12 @@
     public EventCallback OnUpdated { get; set; }
 
     private Operation? OriginalOperation { get; set; }
+    private Dictionary<string, string> errorMessages = new();
+    private bool showErrors = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-
+        ResetValidationState();
         if (SelectedOperation != null)
         {
             OriginalOperation = SelectedOperation.Clone();
@@ -154,6 +159,7 @@
     #region CRUD
     public async Task UpdateOperationAsync()
     {
+        ResetValidationState();
         if (await ValidateData() == false)
             return;
 
@@ -190,28 +196,31 @@
     {
         //Objekt
         if (SelectedOperation == null)
-            return false;
+            return false; //??
 
         //OperationShortname
         if (string.IsNullOrWhiteSpace(SelectedOperation.operationShortname))
-            return false;
-
-        if (SelectedOperation.operationShortname.Length > 16)
-            return false;
+        {
+            errorMessages["OperationShortname"] = "OperationShortname is missing";
+        }
 
         if (!SelectedOperation.toolID.HasValue)
-            return false;
+            return false; //??
 
-        if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.toolID.Value))
-            return false;
-
-        //OperationDescription
-        if (SelectedOperation.operationDescription != null)
+        if ((await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.toolID.Value)) && ((SelectedOperation.operationShortname != OriginalOperation.operationShortname) && (SelectedOperation.toolID.Value != OriginalOperation.toolID.Value)))
         {
-            if (SelectedOperation.operationDescription.Length > 100)
-                return false;
+            errorMessages["OperationShortname"] = "An operation with this shortname already exists in this station";
+
         }
-        return true;
+
+        showErrors = errorMessages.Any();
+        return !showErrors;
+    }
+
+    private void ResetValidationState()
+    {
+        errorMessages.Clear();
+        showErrors = false;
     }
 
     #endregion

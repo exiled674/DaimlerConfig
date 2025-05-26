@@ -47,6 +47,9 @@
 			<div class="form-floating mb-3">
 				<input type="text" class="form-control @(errorMessages.ContainsKey("Assemblystation") ? "is-invalid" : "")" maxlength="10" placeholder="" @onblur="CheckIfDirty" @bind="SelectedStation.assemblystation">
 				<label>Assemblystation</label>
+				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+					@($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
+				</span>
 				@if (errorMessages.ContainsKey("Assemblystation"))
 				{
 					<div class="invalid-feedback">@errorMessages["Assemblystation"]</div>
@@ -56,6 +59,9 @@
 			<div class="form-floating mb-3">
 				<input type="text" class="form-control" placeholder="" maxlength="50" @onblur="CheckIfDirty" @bind="SelectedStation.stationName">
 				<label>Assemblystation Description</label>
+				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+					@($"{SelectedStation?.stationName?.Length ?? 0}/50")
+				</span>
 			</div>
 
 			<div class="form-floating mb-3">
@@ -177,14 +183,6 @@
 			errorMessages["Assemblystation"] = "This station already exists in the line";
 		}
 
-
-
-		//StationName
-		if (SelectedStation.stationName != null)
-		{
-			if (SelectedStation.stationName.Length > 50)
-				return false; // not needed?
-		}
 
 		showErrors = errorMessages.Any();
 		return !showErrors;
