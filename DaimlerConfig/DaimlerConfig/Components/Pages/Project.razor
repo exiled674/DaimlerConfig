@@ -767,19 +767,15 @@
         ToggleToolFormular(false);
     }
 
-    public void InsertOperation()
+    public async Task InsertOperation()
     {
-        if (selectedOperation != null)
+        if (selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
         {
-            if (selectedOperation.lockedBy == currentUser && selectedOperation.operationID != operation.operationID)
-            {
-                selectedOperation.isLocked = false;
-                selectedOperation.lockedBy = null;
-                await Fassade.UpdateOperation(selectedOperation);
-                await SignalRService.SendMessageToServer("OperationChanged");
-                await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
-
-            }
+            selectedOperation.isLocked = false;
+            selectedOperation.lockedBy = null;
+            await Fassade.UpdateOperation(selectedOperation);
+            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
         }
         selectedOperation = copiedOperation;
         selectedOperation.toolID = selectedTool.toolID;
