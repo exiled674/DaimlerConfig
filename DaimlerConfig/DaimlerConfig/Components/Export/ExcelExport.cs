@@ -2,7 +2,6 @@
 using DaimlerConfig.Components.Models;
 using System.IO;
 using OfficeOpenXml;
-using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace DaimlerConfig.Components.Export;
 
@@ -20,7 +19,6 @@ public class ExcelExport
                        VerificationClass[] verificationClasses,
                        SavingClass[] savingClasses)
     {
-        Environment.SetEnvironmentVariable("EPPlusLicenseContext", "NonCommercial");
         using var package = new ExcelPackage();
         var sheet = package.Workbook.Worksheets.Add(line.lineName);
         var currentRow = 3;//Starts after head
