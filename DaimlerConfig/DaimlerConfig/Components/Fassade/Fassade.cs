@@ -329,11 +329,21 @@ namespace DaimlerConfig.Components.Fassade
         #endregion
 
         #region Export
-        public async Task<string> Export()
+        public async Task<string> Export(Line line)
         {
-            var stations = await StationRepository.GetAll();
-            var tools = await ToolRepository.GetAll();
-            var operations = await OperationRepository.GetAll();
+            var stations = await StationRepository.GetStationsFromLine(line.lineID);
+            var tools = new List<Tool>();
+            var operations = new List<Operation>();
+            foreach (var station in stations)
+            {
+                var stationTools = await ToolRepository.GetToolsFromStation(station.stationID);
+                tools.AddRange(stationTools);
+            }
+            foreach (var tool in tools)
+            {
+                var toolOperations = await OperationRepository.Find(o => o.toolID == tool.toolID);;
+                operations.AddRange(toolOperations);
+            }
 
             var stationList = stations.ToList();
             var toolList = tools.ToList();

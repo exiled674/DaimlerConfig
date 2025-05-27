@@ -130,7 +130,8 @@
                                                     <div class="dropdown-menu show position-absolute end-0" >
                                                         <button class="dropdown-item" @onclick="@(() => StartEditing(line))">Edit</button>
                                                         <button class="dropdown-item" @onclick="@(() => DeleteLine(line))">Delete</button>
-                                                        <button class="dropdown-item" @onclick="FilePick">Export</button>
+                                                        <button class="dropdown-item" @onclick="FilePick">Export to Excel</button>
+                                                        <button class="dropdown-item" @onclick="FilePickJson">Export to Json</button>
                                                     </div>
 
                                     }
@@ -353,7 +354,7 @@
         }
 
         // Standard-Dateispeicherdialog verwenden
-        var fileName = $"{line.lineName ?? "Export"}_{DateTime.Now:yyyyMMdd}.xlsx";
+        var fileName = $"ExcelExport-{line.lineName ?? "line"}_{DateTime.Now:yyyyMMdd}.xlsx";
         var result = await FileSaver.Default.SaveAsync(
             fileName,
             stream,
@@ -362,30 +363,41 @@
 
         if (result.IsSuccessful)
         {
-            // Optional: Erfolgsmeldung anzeigen
-            await Application.Current.MainPage.DisplayAlert("Erfolg", "Die Datei wurde erfolgreich gespeichert.", "OK");
+            await Application.Current.MainPage.DisplayAlert("Success", "The file was saved successfully.", "OK");
         }
     }
     catch (Exception ex)
     {
-        // Fehlerbehandlung
-        await Application.Current.MainPage.DisplayAlert("Fehler", 
-            "Beim Speichern der Datei ist ein Fehler aufgetreten: " + ex.Message, "OK");
+        await Application.Current.MainPage.DisplayAlert("Error", 
+            "An error occurred while saving the file: " + ex.Message, "OK");
     }
     
     }
     
-    private async Task OldFilePick()
+    private async Task FilePickJson()
     {
+        var line = ActiveContextMenuLine;
         ActiveContextMenuLine = null;
 
-
-        var json = await Fassade.Export();
-        var bytes = Encoding.UTF8.GetBytes(json);
-        var result = await FileSaver.Default.SaveAsync(
-                "line.json",
+        try
+        {
+            var json = await Fassade.Export(line);
+            var bytes = Encoding.UTF8.GetBytes(json);
+            var fileName = $"JsonExport-{line.lineName ?? "line"}_{DateTime.Now:yyyyMMdd}.json";
+            var result = await FileSaver.Default.SaveAsync(
+                fileName,
                 new MemoryStream(bytes),
                 new CancellationToken()
             );
+            if (result.IsSuccessful)
+            {
+                await Application.Current.MainPage.DisplayAlert("Success", "The file was saved successfully.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", 
+                "An error occurred while saving the file: " + ex.Message, "OK");
+        }
     }
 }
