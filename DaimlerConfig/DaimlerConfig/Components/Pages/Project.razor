@@ -101,6 +101,14 @@
                                         <div>
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }">+</button>
+                                            @if (selectedTool != null)
+                                            {
+                                                if (copiedOperation != null)
+                                                {
+                                                    <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }">Insert Operation</button>
+                                                }
+                                            }
+
 
 
                                         </div>
@@ -110,7 +118,12 @@
                                         {
                                             <div class="operation-section d-flex justify-content-between align-items-center">
                                                 <span class="clickable" @onclick="() => { SelectOperation(operation);  }">@operation.operationShortname</span>
+                                                <div>
+                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
 
+
+
+                                                </div>
                                             </div>
                                         }
                                     </div>
@@ -220,7 +233,7 @@
         }
 
     }
-   
+
 
     #region SideBar
     private string BadgeColor = "#006700"; //needs to be implemented
@@ -276,7 +289,7 @@
 
 
 
-             if(selectedTool != null && selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
+            if(selectedTool != null && selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
             {
                 selectedTool.isLocked = false;
                 selectedTool.lockedBy = null;
@@ -294,7 +307,7 @@
 
 
 
-             if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
+            if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
             {
                 selectedOperation.isLocked = false;
                 selectedOperation.lockedBy = null;
@@ -452,7 +465,7 @@
                 await SignalRService.SendMessageToServer("ToolChanged");
                 await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
             }
-            
+
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
             if(selectedOperation.isLocked == false || operation.lockedBy == currentUser)
@@ -527,8 +540,8 @@
                 var operationID = int.Parse(msg.Split(';')[1]);
                 if (selectedOperation?.operationID == operationID)
                 {
-                   
-                                                                                                                    operationReadOnly = false;
+
+                    operationReadOnly = false;
                 }
             }
             else if (msg.StartsWith("OperationLocked"))
@@ -554,7 +567,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                                    toolReadOnly = false;
+                                                                                                                                    toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -573,7 +586,7 @@
                 {
                     var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
                 }
-               
+
                 if(operations != null)
                 {
                     foreach (var op in operations)
@@ -586,7 +599,7 @@
                     }
                     await SignalRService.SendMessageToServer("OperationChanged");
                 }
-                
+
             }
             else
             {
@@ -741,6 +754,7 @@
     {
         selectedTool = copiedTool;
         selectedTool.stationID = selectedStation.stationID;
+        selectedTool.toolShortname += "-copy";
         copiedTool = null;
         ToggleToolFormular(false);
     }
