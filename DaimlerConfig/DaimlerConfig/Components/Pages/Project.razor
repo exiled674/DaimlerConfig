@@ -8,6 +8,9 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Components.Models
+@using Microsoft.JSInterop
+@inject IJSRuntime JS;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.19/interact.min.js"></script>
 
 <body>
     <!-- Navbar -->
@@ -19,16 +22,10 @@
 
     <div class="d-flex sidebar bg-white">
         <!-- Sidebar -->
-        <aside id="sidebar" class="@SidebarClass border-end ">
-
-            <ul class="sidebar-nav p-0">
+        <aside id="sidebar" class="@SidebarClass border-end">
+            <ul class="sidebar-nav p-0" id="stationsContainer">
                 <li class="sidebar-item">
-                    <a href="/" class="sidebar-link" @onclick="() => UnlockTool(new Tool
-{
-    stationID = 1,
-    toolTypeID = 1,
-    isLocked = false
-})">
+                    <a href="/" class="sidebar-link">
                         <span>Home</span>
                     </a>
                 </li>
@@ -38,9 +35,9 @@
 
                 @foreach (var station in stations)
                 {
-                    <li class="sidebar-item">
+                    <li class="sidebar-item draggable" draggable="true" data-station-id="@station.stationID">
                         <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
-                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                           @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                             <Badge colour="@BadgeColor" />
                             <span>@station.assemblystation</span>
                         </a>
@@ -339,8 +336,14 @@
                 toolReadOnly = true;
             }
 
-
-
+            if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
+            {
+                selectedOperation.isLocked = false;
+                selectedOperation.lockedBy = null;
+                await Fassade.UpdateOperation(selectedOperation);
+                await SignalRService.SendMessageToServer("OperationChanged");
+                await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+            }
 
             selectedOperation = new Operation
                 {
@@ -412,11 +415,15 @@
 
 
             selectedOperation = operation;
-            selectedTool.isLocked = false;
-            selectedTool.lockedBy = null;
-            await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer("ToolChanged");
-			await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+            if (selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
+            {
+                selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+            }
+ 
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
             if(selectedOperation.isLocked == false || operation.lockedBy == currentUser)
@@ -467,6 +474,152 @@
 
     #endregion
 
+    /*
+    #region DragAndDrop
+
+    private List<Station> displayedStations = new List<Station>();
+    private Station draggedItem;
+    private string draggedItemClass = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Your existing initialization code
+
+        if (line != null)
+        {
+            var stationsFromDb = await Fassade.GetStationsFromLine(line.lineID);
+            displayedStations = stationsFromDb.ToList();
+        }
+    }
+
+    private void HandleDragStart(Station station)
+    {
+        draggedItem = station;
+        draggedItemClass = "dragging";
+    }
+
+    private void HandleDragOver(DragEventArgs e)
+    {
+        e.PreventDefault(); // Necessary to allow dropping
+    }
+
+    private void HandleDragEnd()
+    {
+        draggedItemClass = string.Empty;
+    }
+
+    private void HandleDrop(DragEventArgs e)
+    {
+        e.PreventDefault();
+
+        // Get the drop target
+        var dropTarget = e.CurrentTarget as ElementReference;
+
+        // In a real implementation, you'd want to find the exact position
+        // For simplicity, we'll just move the dragged item to the end
+        if (draggedItem != null)
+        {
+            displayedStations.Remove(draggedItem);
+            displayedStations.Add(draggedItem);
+            StateHasChanged();
+        }
+    }
+    #endregion
+
+    
+  
+private bool dragInitialized = false;
+
+protected override async Task OnAfterRenderAsync(bool firstRender)
+{
+    if (firstRender)
+    {
+            await JS.InvokeVoidAsync("setupDragDrop");
+
+            // Setup event listener for when drag ends to update order
+            await JS.InvokeVoidAsync("eval",
+                    @"document.getElementById('stationsContainer').addEventListener('dragend', async () => {
+                    const stations = Array.from(document.querySelectorAll('.draggable'));
+                    const stationOrder = stations.map(station => parseInt(station.getAttribute('data-station-id')));
+                    await DotNet.invokeMethodAsync('YourAssemblyName', 'UpdateStationOrder', stationOrder);
+                });");
+    }
+}
+    [JSInvokable]
+    public async Task UpdateStationOrder(List<int> newOrder)
+    {
+        try
+        {
+            // Update the station order in your database
+            await Fassade.UpdateStationOrder(line.lineID, newOrder);
+
+            // Refresh the stations list
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+
+            // Notify other clients of the change
+            await SignalRService.SendMessageToServer("StationChanged");
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating station order: {ex.Message}");
+        }
+    }
+
+    // Method to reinitialize drag and drop when stations change
+    private async Task ReloadStations()
+    {
+        if (line != null)
+        {
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+            StateHasChanged();
+
+            // Wait for DOM update then reinitialize drag and drop
+            await Task.Delay(100);
+            dragInitialized = false;
+            await InitializeDragAndDropAsync();
+        }
+    }
+
+
+private async Task InitializeDragAndDropAsync()
+{
+    try
+    {
+        // Add delay to ensure DOM is fully rendered
+        await Task.Delay(300);
+
+        // Check if we have stations to make draggable
+        if (stations != null && stations.Any())
+        {
+            Console.WriteLine("Initializing drag and drop...");
+
+            // Try to initialize drag and drop
+            var result = await JS.InvokeAsync<bool>("initializeDragAndDropSafe", ".draggable");
+            
+            if (result)
+            {
+                dragInitialized = true;
+                Console.WriteLine("Drag and drop initialized successfully");
+            }
+            else
+            {
+                Console.WriteLine("Failed to initialize drag and drop");
+            }
+        }
+        else
+        {
+            Console.WriteLine("No stations available for drag and drop - will retry after station loading");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error initializing drag and drop: {ex.Message}");
+    }
+}
+
+*/
 
 
 
@@ -657,7 +810,7 @@
     }
 
 
-
+    /*
     private async Task ReloadStations()
     {
         if (line != null)
@@ -665,7 +818,7 @@
             stations = await Fassade.GetStationsFromLine(line.lineID);
             StateHasChanged();
         }
-    }
+    }*/
 
     private async Task ReloadTools()
     {
