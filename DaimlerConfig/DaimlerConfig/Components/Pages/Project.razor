@@ -750,8 +750,16 @@
         copiedOperation = Fassade.Clone(copied);
     }
 
-    public void InsertTool()
+    public async Task InsertTool()
     {
+        if (selectedTool != null && selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
+        {
+            selectedTool.isLocked = false;
+            selectedTool.lockedBy = null;
+            await Fassade.UpdateTool(selectedTool);
+            await SignalRService.SendMessageToServer("ToolChanged");
+            await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+        }
         selectedTool = copiedTool;
         selectedTool.stationID = selectedStation.stationID;
         selectedTool.toolShortname += "-copy";
