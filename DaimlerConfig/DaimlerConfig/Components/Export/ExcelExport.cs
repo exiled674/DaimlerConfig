@@ -27,7 +27,36 @@ public class ExcelExport
         sheet.Cells("A1").Value = "Line Name: " + line.lineName;
         #endregion
         
-        // Region Columns bleibt unverändert, da dort keine Array-Zugriffe stattfinden
+        #region Columns
+        sheet.Cells("A2").Value = "Station Name";
+        sheet.Cells("B2").Value = "Station Description";
+        sheet.Cells("C2").Value = "Station Type";
+        sheet.Cells("D2").Value = "Tools ID";
+        sheet.Cells("E2").Value = "Tools Shortname";
+        sheet.Cells("F2").Value = "Tools Description";
+        sheet.Cells("G2").Value = "Tools Class";
+        sheet.Cells("H2").Value = "Tools Type";
+        sheet.Cells("I2").Value = "Operations ID";
+        sheet.Cells("J2").Value = "Operations Sequenz-Group";
+        sheet.Cells("K2").Value = "Operations Sequenz";
+        sheet.Cells("L2").Value = "Operations Shortname";
+        sheet.Cells("M2").Value = "Operations Description";
+        sheet.Cells("N2").Value = "Operations Decision";
+        sheet.Cells("O2").Value = "Decision Class";
+        sheet.Cells("P2").Value = "Generation Class";
+        sheet.Cells("Q2").Value = "Verification Class";
+        sheet.Cells("R2").Value = "Saving Class";
+        sheet.Cells("S2").Value = "Q-Gate relevant";
+        sheet.Cells("T2").Value = "Always perform";
+        sheet.Cells("U2").Value = "Parallel?";
+        sheet.Cells("V2").Value = "IP-Address Device";
+        sheet.Cells("W2").Value = "PLC-Name";
+        sheet.Cells("X2").Value = "DBNo Send";
+        sheet.Cells("Y2").Value = "DBNo Receive";
+        sheet.Cells("Z2").Value = "PreCheck Byte";
+        sheet.Cells("AA2").Value = "Address in send-DB";
+        sheet.Cells("AB2").Value = "Address in receive-DB";
+        #endregion
         
         #region Stations-Tools-Operations
         foreach (var station in stations) 
