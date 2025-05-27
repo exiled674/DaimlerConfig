@@ -55,8 +55,16 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" maxlength="16" placeholder="" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolShortname">
-                <label>Tool Shortname</label>       
+                <input type="text" class="form-control @(errorMessages.ContainsKey("ToolShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolShortname">
+                <label>Tool Shortname</label> 
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedTool?.toolShortname?.Length ?? 0}/16")
+                </span>
+                @if (errorMessages.ContainsKey("ToolShortname"))
+                {
+                                <div class="invalid-feedback">@errorMessages["ToolShortname"]</div>
+
+                }
             </div>
 
             <div class="form-floating mb-3">
@@ -100,8 +108,12 @@
         <div class="layout position-relative">
             <div class="toolColoumnLeft">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice" readonly="@ReadOnly">
+                    <input type="text" class="form-control @(errorMessages.ContainsKey("IP") ? "is-invalid" : "")" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice" readonly="@ReadOnly">
                     <label>IP-Address Device</label>
+                    @if (errorMessages.ContainsKey("IP"))
+                    {
+                            <div class="invalid-feedback">@errorMessages["IP"]</div>
+                    }
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly">
@@ -154,6 +166,9 @@
 
     private Tool? OriginalTool { get; set; }
 
+    private Dictionary<string, string> errorMessages = new();
+    private bool showErrors = false;
+
     private IEnumerable<ToolType> toolTypes = Enumerable.Empty<ToolType>();
     private IEnumerable<ToolClass> toolClasses = Enumerable.Empty<ToolClass>();
 
@@ -162,6 +177,7 @@
 {
     if (SelectedTool != null)
     {
+        ResetValidationState();
         OriginalTool = SelectedTool.Clone();
         OriginalTool.toolID = SelectedTool.toolID;
         OriginalTool.stationID = SelectedTool.stationID;
@@ -182,6 +198,8 @@
     #region CRUD
     public async Task UpdateToolAsync()
     {
+        ResetValidationState();
+
         if (await ValidateData() == false)
             return;
 
@@ -193,6 +211,8 @@
 
     private async Task CreateToolAsync()
     {
+        ResetValidationState();
+
         if (await ValidateData() == false)
             return;
 
@@ -222,37 +242,43 @@
 
         //ToolShortname
         if (string.IsNullOrWhiteSpace(SelectedTool.toolShortname))
-            return false;
+        {
+            errorMessages["ToolShortname"] = "ToolShortname is missing";
 
-        if (SelectedTool.toolShortname.Length > 16)
-            return false;
+        }
 
         if (!SelectedTool.stationID.HasValue)
             return false;
 
         if (await Fassade.ToolExistsInStation(SelectedTool.toolShortname, SelectedTool.toolID.Value, SelectedTool.stationID.Value))
-            return false;
-
-        //ToolDescription
-        if (SelectedTool.toolDescription != null)
         {
-            if (SelectedTool.toolDescription.Length > 100)
-                return false;
+            errorMessages["ToolShortname"] = "A tool with this shortname already exists in this station";
         }
-
 
 
 
         //IP-Adresse
         if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
-            return false;
+        {
+            errorMessages["IP"] = "IP Address is missing";
+
+        }
 
         var regex = new System.Text.RegularExpressions.Regex(@"^(([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
 
-        if (!regex.IsMatch(SelectedTool.ipAddressDevice))
-            return false;
+        if (!string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice) && !regex.IsMatch(SelectedTool.ipAddressDevice))
+        {
+			errorMessages["IP"] = "IP Address is not valid. Please use the format xxx.xxx.xxx.xxx";
+        }
 
-        return true;
+        showErrors = errorMessages.Any();
+        return !showErrors;
+    }
+
+    private void ResetValidationState()
+    {
+        errorMessages.Clear();
+        showErrors = false;
     }
     #endregion
 
