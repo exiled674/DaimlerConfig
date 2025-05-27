@@ -11,6 +11,7 @@
 @using System.Text.Json
 @using System.IO
 @using System.Text
+@using ClosedXML.Excel
 @using DaimlerConfig.Components.Export
 @using Microsoft.Maui.Storage
 @inject DirtyManagerService DirtyManagerService
@@ -315,12 +316,14 @@
     
     private async Task FilePick()
     {
-        var line = ActiveContextMenuLine;
-        
-        ActiveContextMenuLine = null;
+    var line = ActiveContextMenuLine;
+    ActiveContextMenuLine = null;
+
+    try 
+    {
+        // Vorbereiten der Daten
         var tools = new List<Tool>();
         var operations = new List<Operation>();
-        var path = "C:\\Users\\jn\\Downloads\\export.xlsx";
         var stations = await Fassade.GetStationsFromLine(line.lineID);
         foreach (var station in stations)
         {
@@ -338,7 +341,38 @@
         var generationClasses = await Fassade.GenerationClassRepository.GetAll();
         var verificationClasses = await Fassade.VerificationClassRepository.GetAll();
         var savingClasses = await Fassade.SavingClassRepository.GetAll();
-        Fassade.ExcelExport.Export(path,line,stations.ToArray(),tools.ToArray(), operations.ToArray(), stationTypes.ToArray(), toolTypes.ToArray(), toolClasses.ToArray(), decisionClasses.ToArray(),generationClasses.ToArray(), verificationClasses.ToArray(), savingClasses.ToArray());
+
+        // Excel-Datei erstellen und in MemoryStream speichern
+        using var stream = new MemoryStream();
+        using (var workbook = new XLWorkbook())
+        {
+            Fassade.ExcelExport.Export(stream, line, stations.ToArray(), tools.ToArray(), 
+                operations.ToArray(), stationTypes.ToArray(), toolTypes.ToArray(), 
+                toolClasses.ToArray(), decisionClasses.ToArray(), generationClasses.ToArray(), 
+                verificationClasses.ToArray(), savingClasses.ToArray());
+        }
+
+        // Standard-Dateispeicherdialog verwenden
+        var fileName = $"{line.lineName ?? "Export"}_{DateTime.Now:yyyyMMdd}.xlsx";
+        var result = await FileSaver.Default.SaveAsync(
+            fileName,
+            stream,
+            new CancellationToken()
+        );
+
+        if (result.IsSuccessful)
+        {
+            // Optional: Erfolgsmeldung anzeigen
+            await Application.Current.MainPage.DisplayAlert("Erfolg", "Die Datei wurde erfolgreich gespeichert.", "OK");
+        }
+    }
+    catch (Exception ex)
+    {
+        // Fehlerbehandlung
+        await Application.Current.MainPage.DisplayAlert("Fehler", 
+            "Beim Speichern der Datei ist ein Fehler aufgetreten: " + ex.Message, "OK");
+    }
+    
     }
     
     private async Task OldFilePick()
