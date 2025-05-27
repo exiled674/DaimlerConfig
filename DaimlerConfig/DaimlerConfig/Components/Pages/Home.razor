@@ -338,19 +338,12 @@
         var stationTypes = await Fassade.StationTypeRepository.GetAll();
         var toolTypes = await Fassade.ToolTypeRepository.GetAll();
         var toolClasses = await Fassade.ToolClassRepository.GetAll();
-        var decisionClasses = await Fassade.DecisionClassRepository.GetAll();
-        var generationClasses = await Fassade.GenerationClassRepository.GetAll();
-        var verificationClasses = await Fassade.VerificationClassRepository.GetAll();
-        var savingClasses = await Fassade.SavingClassRepository.GetAll();
 
         // Excel-Datei erstellen und in MemoryStream speichern
         using var stream = new MemoryStream();
         using (var workbook = new XLWorkbook())
         {
-            Fassade.ExcelExport.Export(stream, line, stations.ToArray(), tools.ToArray(), 
-                operations.ToArray(), stationTypes.ToArray(), toolTypes.ToArray(), 
-                toolClasses.ToArray(), decisionClasses.ToArray(), generationClasses.ToArray(), 
-                verificationClasses.ToArray(), savingClasses.ToArray());
+            Fassade.ExcelExport.Export(stream, line, stations.ToArray(), tools.ToArray(), stationTypes.ToArray(), toolTypes.ToArray(), toolClasses.ToArray());
         }
 
         // Standard-Dateispeicherdialog verwenden

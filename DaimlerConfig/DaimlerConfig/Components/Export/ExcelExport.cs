@@ -10,14 +10,9 @@ public class ExcelExport
     public void Export(Stream stream, Line line,
                       Station[] stations,
                       Tool[] tools,
-                      Operation[] operations,
                       StationType[] stationTypes,
                       ToolType[] toolTypes,
-                      ToolClass[] toolClasses,
-                      DecisionClass[] decisionClasses,
-                      GenerationClass[] generationClasses,
-                      VerificationClass[] verificationClasses,
-                      SavingClass[] savingClasses)
+                      ToolClass[] toolClasses)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add(line.lineName == null ? "unknown" : line.lineName);
