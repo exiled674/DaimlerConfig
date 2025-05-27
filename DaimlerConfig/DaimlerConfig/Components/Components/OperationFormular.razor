@@ -12,13 +12,13 @@
             @if (SelectedOperation.operationID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync">Create</button>
+                    <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync" >Create</button>
                 </div>
             }
             @if (SelectedOperation.operationID != 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync">Update</button>
+                    <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync" disabled="@ReadOnly">Update</button>
                 </div>
             }
 
@@ -26,7 +26,7 @@
             @if (SelectedOperation.operationID != 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync">Delete</button>
+                    <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync" disabled="@ReadOnly">Delete</button>
                 </div>
             }
         </div>
