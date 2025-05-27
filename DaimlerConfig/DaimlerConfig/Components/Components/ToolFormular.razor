@@ -14,7 +14,7 @@
             @if (SelectedTool?.toolID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm"  @onclick="CreateToolAsync">Create</button>
+                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync" >Create</button>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -25,7 +25,7 @@
             @if (SelectedTool?.toolID != 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync">Update</button>
+                    <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync" disabled="@ReadOnly">Update</button>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -35,7 +35,7 @@
             @if (SelectedTool?.toolID != 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync">Delete</button>
+                    <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync" disabled="@ReadOnly">Delete</button>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
