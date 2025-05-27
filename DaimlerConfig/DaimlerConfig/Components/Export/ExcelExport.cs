@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using DaimlerConfig.Components.Models;
 using System.IO;
-using OfficeOpenXml;
+using ClosedXML.Excel;
 
 namespace DaimlerConfig.Components.Export;
 
@@ -19,84 +19,85 @@ public class ExcelExport
                        VerificationClass[] verificationClasses,
                        SavingClass[] savingClasses)
     {
-        using var package = new ExcelPackage();
-        var sheet = package.Workbook.Worksheets.Add(line.lineName);
+        
+        using var workbook = new XLWorkbook();
+        var sheet = workbook.Worksheets.Add(line.lineName == null ? "unknown" : line.lineName);;
         var currentRow = 3;//Starts after head
         
         #region Head
-        sheet.Cells[1, 1].Value = "Line Name: " + line.lineName;
+        sheet.Cells("A1").Value = "Line Name: " + line.lineName;
         #endregion
         
         #region Columns
-        sheet.Cells[2,1].Value = "Station Name";
-        sheet.Cells[2,2].Value = "Station Description";
-        sheet.Cells[2,3].Value = "Station Type";
-        sheet.Cells[2,4].Value = "Tools ID";
-        sheet.Cells[2,5].Value = "Tools Shortname";
-        sheet.Cells[2,6].Value = "Tools Description";
-        sheet.Cells[2,7].Value = "Tools Class";
-        sheet.Cells[2,8].Value = "Tools Type";
-        sheet.Cells[2,9].Value = "Operations ID";
-        sheet.Cells[2,10].Value = "Operations Sequenz-Group";
-        sheet.Cells[2,11].Value = "Operations Sequenz";
-        sheet.Cells[2,12].Value = "Operations Shortname";
-        sheet.Cells[2,13].Value = "Operations Description";
-        sheet.Cells[2,14].Value = "Operations Decision";
-        sheet.Cells[2,15].Value = "Decision Class";
-        sheet.Cells[2,16].Value = "Generation Class";
-        sheet.Cells[2,17].Value = "Verification Class";
-        sheet.Cells[2,18].Value = "Saving Class";
-        sheet.Cells[2,19].Value = "Q-Gate relevant";
-        sheet.Cells[2,20].Value = "Always perform";
-        sheet.Cells[2,21].Value = "Parallel?";
-        sheet.Cells[2,22].Value = "IP-Address Device";
-        sheet.Cells[2,23].Value = "PLC-Name";
-        sheet.Cells[2,24].Value = "DBNo Send";
-        sheet.Cells[2,25].Value = "DBNo Receive";
-        sheet.Cells[2,26].Value = "PreCheck Byte";
-        sheet.Cells[2,27].Value = "Address in send-DB";
-        sheet.Cells[2,28].Value = "Address in receive-DB";
+        sheet.Cells("A2").Value = "Station Name";
+        sheet.Cells("B2").Value = "Station Description";
+        sheet.Cells("C2").Value = "Station Type";
+        sheet.Cells("D2").Value = "Tools ID";
+        sheet.Cells("E2").Value = "Tools Shortname";
+        sheet.Cells("F2").Value = "Tools Description";
+        sheet.Cells("G2").Value = "Tools Class";
+        sheet.Cells("H2").Value = "Tools Type";
+        sheet.Cells("I2").Value = "Operations ID";
+        sheet.Cells("J2").Value = "Operations Sequenz-Group";
+        sheet.Cells("K2").Value = "Operations Sequenz";
+        sheet.Cells("L2").Value = "Operations Shortname";
+        sheet.Cells("M2").Value = "Operations Description";
+        sheet.Cells("N2").Value = "Operations Decision";
+        sheet.Cells("O2").Value = "Decision Class";
+        sheet.Cells("P2").Value = "Generation Class";
+        sheet.Cells("Q2").Value = "Verification Class";
+        sheet.Cells("R2").Value = "Saving Class";
+        sheet.Cells("S2").Value = "Q-Gate relevant";
+        sheet.Cells("T2").Value = "Always perform";
+        sheet.Cells("U2").Value = "Parallel?";
+        sheet.Cells("V2").Value = "IP-Address Device";
+        sheet.Cells("W2").Value = "PLC-Name";
+        sheet.Cells("X2").Value = "DBNo Send";
+        sheet.Cells("Y2").Value = "DBNo Receive";
+        sheet.Cells("Z2").Value = "PreCheck Byte";
+        sheet.Cells("AA2").Value = "Address in send-DB";
+        sheet.Cells("AB2").Value = "Address in receive-DB";
         #endregion
         
         #region Stations-Tools-Operations
         foreach (var station in stations) 
         {
-            sheet.Cells[currentRow, 1].Value = station.assemblystation;
-            sheet.Cells[currentRow, 2].Value = station.stationName;
-            sheet.Cells[currentRow, 3].Value = stationTypes[station.stationTypeID].stationTypeName;
+            sheet.Cells("A"+currentRow).Value = station.assemblystation;
+            sheet.Cells("B"+currentRow).Value = station.stationName;
+            sheet.Cells("C"+currentRow).Value = stationTypes[station.stationTypeID].stationTypeName;
             foreach (var operation in operations)
             {
                 currentRow++;
-                sheet.Cells[currentRow, 4].Value = operation.toolID == null ? "" : operation.toolID.Value;
-                sheet.Cells[currentRow, 5].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].toolShortname;
-                sheet.Cells[currentRow, 6].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].toolDescription;
+                sheet.Cells("D"+currentRow).Value = operation.toolID == null ? "" : operation.toolID.Value;
+                sheet.Cells("E"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].toolShortname;
+                sheet.Cells("F"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].toolDescription;
                 // IDE warning is incorrect here – null checks are properly handled underneath
-                sheet.Cells[currentRow, 7].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].toolClassID == null ? "" : toolClasses[tools[operation.toolID.Value].toolClassID.Value].toolClassName;
-                sheet.Cells[currentRow, 8].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].toolTypeID == null ? "" : toolTypes[tools[operation.toolID.Value].toolTypeID.Value].toolTypeName;
+                sheet.Cells("G"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].toolClassID == null ? "" : toolClasses[tools[operation.toolID.Value].toolClassID.Value].toolClassName;
+                sheet.Cells("H"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].toolTypeID == null ? "" : toolTypes[tools[operation.toolID.Value].toolTypeID.Value].toolTypeName;
                 
-                sheet.Cells[currentRow, 9].Value = operation.operationID;
-                sheet.Cells[currentRow, 10].Value = operation.operationSequenceGroup;
-                sheet.Cells[currentRow, 11].Value = operation.operationSequence;
-                sheet.Cells[currentRow, 12].Value = operation.operationShortname;
-                sheet.Cells[currentRow, 13].Value = operation.operationDescription;
-                sheet.Cells[currentRow, 14].Value = operation.operationDecisionCriteria;
-                sheet.Cells[currentRow, 15].Value = decisionClasses[operation.decisionClassID].decisionClassName;
-                sheet.Cells[currentRow, 16].Value = generationClasses[operation.generationClassID].generationClassName;
-                sheet.Cells[currentRow, 17].Value = verificationClasses[operation.verificationClassID].verificationClassName;
-                sheet.Cells[currentRow, 18].Value = savingClasses[operation.savingClassID].savingClassName;
-                sheet.Cells[currentRow, 19].Value = operation.qGateID;
-                sheet.Cells[currentRow, 20].Value = operation.alwaysPerform;
-                sheet.Cells[currentRow, 21].Value = operation.parallel;
-                sheet.Cells[currentRow, 22].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].ipAddressDevice;
-                sheet.Cells[currentRow, 23].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].plcName;
-                sheet.Cells[currentRow, 24].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].dbNoSend;
-                sheet.Cells[currentRow, 25].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].dbNoReceive;
-                sheet.Cells[currentRow, 26].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].preCheckByte;
-                sheet.Cells[currentRow, 26].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].addressSendDB;
-                sheet.Cells[currentRow, 27].Value = operation.toolID == null ? "" : tools[operation.toolID.Value].addressReceiveDB;
+                sheet.Cells("I"+currentRow).Value = operation.operationID;
+                sheet.Cells("J"+currentRow).Value = operation.operationSequenceGroup;
+                sheet.Cells("K"+currentRow).Value = operation.operationSequence;
+                sheet.Cells("L"+currentRow).Value = operation.operationShortname;
+                sheet.Cells("M"+currentRow).Value = operation.operationDescription;
+                sheet.Cells("N"+currentRow).Value = operation.operationDecisionCriteria;
+                sheet.Cells("O"+currentRow).Value = decisionClasses[operation.decisionClassID].decisionClassName;
+                sheet.Cells("P"+currentRow).Value = generationClasses[operation.generationClassID].generationClassName;
+                sheet.Cells("Q"+currentRow).Value = verificationClasses[operation.verificationClassID].verificationClassName;
+                sheet.Cells("R"+currentRow).Value = savingClasses[operation.savingClassID].savingClassName;
+                sheet.Cells("S"+currentRow).Value = operation.qGateID;
+                sheet.Cells("T"+currentRow).Value = operation.alwaysPerform;
+                sheet.Cells("U"+currentRow).Value = operation.parallel;
+                sheet.Cells("V"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].ipAddressDevice;
+                sheet.Cells("W"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].plcName;
+                sheet.Cells("X"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].dbNoSend;
+                sheet.Cells("Y"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].dbNoReceive;
+                sheet.Cells("Z"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].preCheckByte;
+                sheet.Cells("AA"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].addressSendDB;
+                sheet.Cells("AB"+currentRow).Value = operation.toolID == null ? "" : tools[operation.toolID.Value].addressReceiveDB;
             }
         }
         #endregion
-        package.SaveAs(new FileInfo(path));
+        workbook.SaveAs(path);
     }
 }

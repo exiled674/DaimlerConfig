@@ -16,8 +16,6 @@ using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Fassade;
 using DaimlerConfig.Services;
 using Microsoft.Maui.LifecycleEvents;
-using OfficeOpenXml;
-using LicenseContext = System.ComponentModel.LicenseContext;
 
 #if WINDOWS
 using Microsoft.UI.Xaml;
@@ -45,17 +43,6 @@ namespace DaimlerConfig
             string benutzerOrdner = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             string dateiPfad = Path.Combine(benutzerOrdner, "appsettings.json");
             builder.Configuration.AddJsonFile(dateiPfad, optional: false, reloadOnChange: true);
-            var licenseContext = builder.Configuration["EPPlusLicenseContext"];
-            if (!string.IsNullOrEmpty(licenseContext) && licenseContext.Equals("NonCommercial", StringComparison.OrdinalIgnoreCase))
-            {
-                // Methode 1: Über Umgebungsvariable (funktioniert meist)
-                Environment.SetEnvironmentVariable("EPPlusLicenseContext", "NonCommercial");
-            }
-            else
-            {
-                // Fallback: Direkt setzen
-                Environment.SetEnvironmentVariable("EPPlusLicenseContext", "NonCommercial");
-            }
             
             // 2. Services registrieren
             builder.Services.AddMauiBlazorWebView();

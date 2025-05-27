@@ -61,6 +61,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="ClosedXML" Version="0.105.0" />
         <PackageReference Include="CommunityToolkit.Maui.Core" Version="11.2.0" />
         <PackageReference Include="Dapper" Version="2.1.66" />
         <PackageReference Include="EPPlus" Version="8.0.5" />
