@@ -17,7 +17,7 @@
             base.OnAppearing();
 
 
-            this.Window.MinimumWidth = 800;
+            this.Window.MinimumWidth = 750;
 
 
 

@@ -1,16 +1,15 @@
-
-
-window.initializeDragAndDropSafe = function (className) 
-    {
+// Generic drag and drop initialization function
+window.initializeDragAndDropSafe = function (className, containerSelector) {
+    // Clear any existing interactions first
     interact(className).unset();
 
     interact(className)
         .draggable({
             inertia: false,
             modifiers: [
-                // Restrict movement to the sidebar
+                // Restrict movement to the specified container
                 interact.modifiers.restrictRect({
-                    restriction: '#sidebar',
+                    restriction: containerSelector || 'parent',
                     elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
                 })
             ],
@@ -26,9 +25,10 @@ window.initializeDragAndDropSafe = function (className)
                     event.target.setAttribute('data-original-transform',
                         event.target.style.transform || 'translate(0px, 0px)');
 
-                    // Get all draggable siblings for reordering
-                    const siblings = Array.from(event.target.parentNode.children)
-                        .filter(el => el.classList.contains('draggable') && el !== event.target);
+                    // Get the container and draggable siblings
+                    const container = event.target.closest(containerSelector) || event.target.parentNode;
+                    const siblings = Array.from(container.querySelectorAll(className))
+                        .filter(el => el !== event.target);
 
                     // Store original positions of all siblings
                     siblings.forEach(sibling => {
@@ -42,18 +42,15 @@ window.initializeDragAndDropSafe = function (className)
                     const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                     const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-                    // Only allow vertical movement (comment out the x = 0 line if you want horizontal movement too)
-                    // x = 0; // Uncomment this line to restrict to vertical-only movement
-
-                    // Apply transform
-                    target.style.transform = `translate(${x}px, ${y}px)`;
+                    // Apply transform (restrict to vertical movement only)
+                    target.style.transform = `translate(0px, ${y}px)`;
 
                     // Store position in data attributes
-                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-x', 0);
                     target.setAttribute('data-y', y);
 
                     // Handle reordering of siblings
-                    handleReordering(target, event.clientY);
+                    handleReordering(target, event.clientY, className, containerSelector);
                 },
 
                 end(event) {
@@ -71,28 +68,31 @@ window.initializeDragAndDropSafe = function (className)
                     target.removeAttribute('data-original-transform');
 
                     // Clean up all siblings
-                    const siblings = Array.from(target.parentNode.children)
-                        .filter(el => el.classList.contains('draggable'));
+                    const container = target.closest(containerSelector) || target.parentNode;
+                    const siblings = Array.from(container.querySelectorAll(className));
 
                     siblings.forEach(sibling => {
                         sibling.removeAttribute('data-original-y');
                         sibling.style.transform = '';
                     });
 
-                    // Optional: Call a callback to notify the Blazor component about the new order
-                    if (window.onStationReordered) {
-                        const newOrder = getStationOrder();
-                        window.onStationReordered(newOrder);
+                    // Call appropriate callback based on the dragged element type
+                    const elementType = getElementType(target, className);
+                    const newOrder = getElementOrder(container, className, elementType);
+
+                    if (window.onElementReordered) {
+                        window.onElementReordered(elementType, newOrder);
                     }
                 }
             }
         });
 };
 
-function handleReordering(draggedElement, mouseY) {
-    const container = draggedElement.parentNode;
-    const siblings = Array.from(container.children)
-        .filter(el => el.classList.contains('draggable') && el !== draggedElement);
+// Enhanced reordering function that works with any container
+function handleReordering(draggedElement, mouseY, className, containerSelector) {
+    const container = draggedElement.closest(containerSelector) || draggedElement.parentNode;
+    const siblings = Array.from(container.querySelectorAll(className))
+        .filter(el => el !== draggedElement);
 
     // Find the element that should come after the dragged element
     let targetElement = null;
@@ -126,74 +126,51 @@ function handleReordering(draggedElement, mouseY) {
     }
 }
 
-function getStationOrder() {
-    const container = document.querySelector('.sidebar-nav');
-    const stationElements = Array.from(container.querySelectorAll('.draggable'));
+// Determine element type based on class names and structure
+function getElementType(element, className) {
+    if (element.closest('.sidebar-item') && className.includes('draggable')) {
+        return 'station';
+    } else if (element.closest('.tool-section') || element.classList.contains('tool-draggable')) {
+        return 'tool';
+    } else if (element.closest('.operation-section') || element.classList.contains('operation-draggable')) {
+        return 'operation';
+    }
+    return 'unknown';
+}
 
-    // Extract station IDs or names from the elements
-    return stationElements.map(el => {
-        // Try to get station ID from data attribute or extract from content
-        const stationLink = el.querySelector('.sidebar-link');
-        if (stationLink) {
-            // You might need to adjust this based on how you store station identifiers
-            const stationText = stationLink.textContent.trim();
-            return stationText;
+// Get the order of elements based on their type
+function getElementOrder(container, className, elementType) {
+    const elements = Array.from(container.querySelectorAll(className));
+
+    return elements.map(el => {
+        switch (elementType) {
+            case 'station':
+                const stationLink = el.querySelector('.sidebar-link');
+                return stationLink ? stationLink.textContent.trim() : null;
+
+            case 'tool':
+                const toolHeader = el.querySelector('.tool-header span');
+                return toolHeader ? toolHeader.textContent.trim() : null;
+
+            case 'operation':
+                const operationSpan = el.querySelector('.operation-section span');
+                return operationSpan ? operationSpan.textContent.trim() : null;
+
+            default:
+                return el.textContent.trim();
         }
-        return null;
     }).filter(id => id !== null);
 }
 
-// Enhanced setup function (keeping your existing one as backup)
-function setupDragDropEnhanced() {
-    const draggables = document.querySelectorAll('.draggable');
-    const container = document.querySelector('.sidebar-nav');
+// Specific initialization functions for each type
+window.initializeStationDragDrop = function () {
+    window.initializeDragAndDropSafe('.draggable', '.sidebar-nav');
+};
 
-    if (!container) return;
+window.initializeToolDragDrop = function () {
+    window.initializeDragAndDropSafe('.tool-draggable', '#toolsList');
+};
 
-    draggables.forEach(draggable => {
-        draggable.draggable = true;
-
-        draggable.addEventListener('dragstart', (e) => {
-            draggable.classList.add('dragging');
-            // Store the dragged element reference
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', draggable.outerHTML);
-        });
-
-        draggable.addEventListener('dragend', () => {
-            draggable.classList.remove('dragging');
-        });
-    });
-
-    container.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-
-        const afterElement = getDragAfterElement(container, e.clientY);
-        const draggable = document.querySelector('.dragging');
-
-        if (draggable) {
-            if (afterElement == null) {
-                container.appendChild(draggable);
-            } else {
-                container.insertBefore(draggable, afterElement);
-            }
-        }
-    });
-
-    function getDragAfterElement(container, y) {
-        const draggableElements = [...container.querySelectorAll('.draggable:not(.dragging)')];
-
-        return draggableElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            const offset = y - box.top - box.height / 2;
-
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
-}
-
+window.initializeOperationDragDrop = function () {
+    window.initializeDragAndDropSafe('.operation-draggable', '.operation-list');
+};

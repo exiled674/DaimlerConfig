@@ -173,7 +173,7 @@ h6 {
     /* Enhanced drag states */
     .draggable.dragging {
         opacity: 0.7;
-        background-color: #e3f2fd;
+        background-color: #8dafd4;
         border: 2px dashed #2196f3;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         transform: rotate(2deg); /* Slight rotation for visual feedback */
@@ -259,5 +259,147 @@ li.sidebar-item {
 @media (max-width: 768px) {
     .draggable {
         touch-action: none; /* Better touch support */
+    }
+}
+
+.tool-draggable {
+    cursor: move;
+    user-select: none;
+    transition: all 0.2s ease;
+    position: relative;
+    margin: 2px 0;
+}
+
+    .tool-draggable:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .tool-draggable.is-dragging {
+        opacity: 0.8;
+        background-color: #fff3e0 !important;
+        border: 2px solid #ff9800 !important;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3) !important;
+        z-index: 1000 !important;
+        transform: scale(1.02);
+        border-radius: 6px;
+    }
+
+/* Operation dragging styles */
+.operation-draggable {
+    cursor: move;
+    user-select: none;
+    transition: all 0.2s ease;
+    position: relative;
+    margin: 1px 0;
+}
+
+    .operation-draggable:hover {
+        background-color: #f0f8ff;
+    }
+
+    .operation-draggable.is-dragging {
+        opacity: 0.8;
+        background-color: #e8f5e8 !important;
+        border: 2px solid #4caf50 !important;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.25) !important;
+        z-index: 999 !important;
+        transform: scale(1.01);
+        border-radius: 4px;
+    }
+
+/* Drag handle styles */
+.drag-handle {
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+    cursor: grab;
+    margin-left: 8px;
+}
+
+    .drag-handle:hover {
+        opacity: 0.8;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+.drag-handle-small {
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+    cursor: grab;
+}
+
+    .drag-handle-small:hover {
+        opacity: 0.7;
+    }
+
+/* Container specific styles */
+#toolsList {
+    position: relative;
+    min-height: 50px;
+}
+
+.operation-list {
+    position: relative;
+    margin-left: 20px;
+    min-height: 20px;
+}
+
+/* Smooth transitions for all draggable elements */
+.tool-draggable:not(.is-dragging),
+.operation-draggable:not(.is-dragging) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Prevent text selection during drag operations */
+#toolsList,
+.operation-list {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+    /* Visual feedback for drop zones */
+    #toolsList.drag-active {
+        background-color: rgba(255, 152, 0, 0.05);
+        border: 2px dashed #ff9800;
+        border-radius: 4px;
+    }
+
+    .operation-list.drag-active {
+        background-color: rgba(76, 175, 80, 0.05);
+        border: 1px dashed #4caf50;
+        border-radius: 4px;
+    }
+
+/* Ensure proper spacing and hierarchy */
+.tool-section {
+    margin-bottom: 8px;
+}
+
+    .tool-section:last-child {
+        margin-bottom: 0;
+    }
+
+.operation-section {
+    margin-bottom: 2px;
+}
+
+    .operation-section:last-child {
+        margin-bottom: 0;
+    }
+
+/* Responsive adjustments for touch devices */
+@media (max-width: 768px) {
+    .tool-draggable,
+    .operation-draggable {
+        touch-action: none;
+    }
+
+    .drag-handle,
+    .drag-handle-small {
+        opacity: 0.8; /* More visible on touch devices */
     }
 }

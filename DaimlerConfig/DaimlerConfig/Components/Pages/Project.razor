@@ -108,35 +108,29 @@
                         {
                             @foreach (var tool in tools)
                             {
-                                <div class="tool-section" data-tool-id="@tool.toolID">
+                                <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
                                     <div class="tool-header d-flex justify-content-between align-items-center">
                                         <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
-                                        <div>
+                                        <div class="d-flex align-items-center">
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }">+</button>
-                                            @if (selectedTool != null)
-                                            {
-                                                if (copiedOperation != null)
-                                                {
-                                                    <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }">Insert Operation</button>
-                                                }
-                                            }
-
-
-
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
+                                            <!-- Drag handle for tools -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                 class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
+                                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                            </svg>
                                         </div>
                                     </div>
                                     <div class="operation-list">
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
-                                            <div class="operation-section d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="() => { SelectOperation(operation);  }">@operation.operationShortname</span>
-                                                <div>
-                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
-
-
-
-                                                </div>
+                                            <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
+                                                <span class="clickable" @onclick="() => { SelectOperation(operation); }">@operation.operationShortname</span>
+                                                <!-- Drag handle for operations -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
+                                                     class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
+                                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                                </svg>
                                             </div>
                                         }
                                     </div>
@@ -539,16 +533,39 @@
         if (firstRender && !_initialized)
         {
             _initialized = true;
-            await JS.InvokeVoidAsync("initializeDragAndDropSafe", ".draggable");
 
-            // Set up the callback for when stations are reordered
+            // Initialize drag and drop for stations
+            await JS.InvokeVoidAsync("initializeStationDragDrop");
+
+            // Set up the callback for when elements are reordered
             await JS.InvokeVoidAsync("eval", @"
-            window.onStationReordered = function(newOrder) {
-                console.log('New station order:', newOrder);
-                // You can call a Blazor method here if you need to persist the new order
-                // DotNet.invokeMethodAsync('YourNamespace', 'HandleStationReorder', newOrder);
+            window.onElementReordered = function(elementType, newOrder) {
+                console.log('New ' + elementType + ' order:', newOrder);
+
+                // Call appropriate Blazor method based on element type
+                switch(elementType) {
+                    case 'station':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleStationReorder', newOrder);
+                        break;
+                    case 'tool':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleToolReorder', newOrder);
+                        break;
+                    case 'operation':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleOperationReorder', newOrder);
+                        break;
+                }
             };
         ");
+        }
+        // Initialize tool and operation drag and drop when they become available
+        if (selectedStation != null && tools.Any())
+        {
+            await JS.InvokeVoidAsync("initializeToolDragDrop");
+        }
+
+        if (selectedTool != null && allOperations.Any(op => op.toolID == selectedTool.toolID))
+        {
+            await JS.InvokeVoidAsync("initializeOperationDragDrop");
         }
     }
     [JSInvokable]
@@ -559,6 +576,23 @@
 
         // Example: Update your stations collection based on the new order
         // You would need to implement this based on your specific requirements
+    }
+
+
+    [JSInvokable]
+    public static async Task HandleToolReorder(string[] newOrder)
+    {
+        Console.WriteLine($"Tools reordered: {string.Join(", ", newOrder)}");
+        // Implement your tool reordering logic here
+        // Example: Update tool order in database
+    }
+
+    [JSInvokable]
+    public static async Task HandleOperationReorder(string[] newOrder)
+    {
+        Console.WriteLine($"Operations reordered: {string.Join(", ", newOrder)}");
+        // Implement your operation reordering logic here
+        // Example: Update operation sequence in database
     }
 
     #endregion
