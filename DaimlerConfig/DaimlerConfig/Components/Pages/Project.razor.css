@@ -1,9 +1,10 @@
-li{
+/* Your existing CSS with improvements */
+li {
     list-style: none;
 }
 
-a{
-    text-decoration:none;
+a {
+    text-decoration: none;
 }
 
 .main {
@@ -12,7 +13,6 @@ a{
     overflow: hidden;
     background: white;
     padding-top: 55px;
-    /*padding-top: -1.1rem;*/
 }
 
 #sidebar {
@@ -23,6 +23,8 @@ a{
     display: flex;
     flex-direction: column;
     padding-top: 55px;
+    position: relative; /* Important for drag containment */
+    overflow: visible; /* Allow drag elements to be visible */
 }
 
     #sidebar.collapsed {
@@ -36,15 +38,16 @@ a{
     z-index: 1;
 }
 
-.toggler-btn i {
-    font-size: 1.5rem;
-    color: black;
-    font-weight: bold;
+    .toggler-btn i {
+        font-size: 1.5rem;
+        color: black;
+        font-weight: bold;
     }
-
 
 .sidebar-nav {
     flex: 1 1 auto;
+    position: relative; /* Important for drag containment */
+    padding: 0; /* Remove default padding */
 }
 
 .sidebar-header {
@@ -52,7 +55,6 @@ a{
     font-size: .75rem;
     padding: 1.5rem 1.5rem .375rem;
 }
-
 
 a.sidebar-link {
     padding: .2rem 1.5rem;
@@ -63,11 +65,9 @@ a.sidebar-link {
     display: block;
 }
 
-
-a.sidebar-link:hover{
-    background-color: lightgray;
-}
-
+    a.sidebar-link:hover {
+        background-color: lightgray;
+    }
 
 .stationSelected {
     background-color: lightgray;
@@ -96,7 +96,6 @@ main {
     min-height: 89vh;
 }
 
-
 .clickable {
     cursor: pointer;
 }
@@ -104,7 +103,6 @@ main {
     .clickable:hover {
         text-decoration: none;
     }
-
 
 h6 {
     font-size: 1.2rem;
@@ -121,9 +119,11 @@ h6 {
     cursor: pointer;
     margin-bottom: 5px;
 }
+
     .tool-header:hover {
         background-color: #dee2e6;
     }
+
     .tool-header.active {
         background-color: #007bff;
         color: #fff;
@@ -149,3 +149,116 @@ h6 {
         background-color: #cfe2ff;
         border-left: 3px solid #0d6efd;
     }
+
+/* Enhanced draggable styles */
+.draggable {
+    cursor: move;
+    user-select: none;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+    background-color: white; /* Ensure background is visible */
+    border-radius: 4px;
+    margin: 2px 0; /* Add some spacing */
+}
+
+    .draggable:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .draggable:active {
+        cursor: grabbing;
+    }
+
+    /* Enhanced drag states */
+    .draggable.dragging {
+        opacity: 0.7;
+        background-color: #e3f2fd;
+        border: 2px dashed #2196f3;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transform: rotate(2deg); /* Slight rotation for visual feedback */
+    }
+
+.is-dragging {
+    opacity: 0.8;
+    background-color: #5E97EC !important;
+    border: 2px solid #0452C6 !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3) !important;
+    z-index: 1000 !important;
+    transform: scale(1.02); /* Slightly larger while dragging */
+    border-radius: 6px;
+}
+
+/* Drag preview styles */
+.draggable[data-x] {
+    z-index: 999;
+}
+
+/* Enhanced sidebar item positioning */
+li.sidebar-item {
+    position: relative;
+    margin: 1px 0; /* Small margin for better separation */
+    border-radius: 4px;
+    overflow: hidden; /* Contain any child elements */
+}
+
+/* Drop zone indicators */
+.sidebar-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    border: 2px dashed transparent;
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+}
+
+.sidebar-nav.drag-active::before {
+    border-color: #2196f3;
+    background-color: #2196F3;
+}
+
+/* Smooth transitions for reordering */
+.draggable:not(.is-dragging) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Prevent text selection during drag */
+.sidebar-nav {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Handle grip icon styling */
+.bi-grip-vertical {
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.draggable:hover .bi-grip-vertical {
+    opacity: 1;
+}
+
+/* Ensure proper stacking context */
+.d-flex.sidebar {
+    position: relative;
+    z-index: 1;
+}
+
+/* Prevent horizontal scrolling in sidebar */
+#sidebar {
+    overflow-x: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .draggable {
+        touch-action: none; /* Better touch support */
+    }
+}
