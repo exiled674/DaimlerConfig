@@ -8,6 +8,8 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Components.Models
+@using Microsoft.JSInterop
+@inject IJSRuntime JS;
 
 <body>
     <!-- Navbar -->
@@ -38,13 +40,24 @@
 
                 @foreach (var station in stations)
                 {
-                    <li class="sidebar-item">
-                        <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
-                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                            <Badge colour="@BadgeColor" />
-                            <span>@station.assemblystation</span>
+                    <li class="sidebar-item justify-content-between draggable">
+                        <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
+                           @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+
+                            <div class="d-flex align-items-center">
+                                <Badge colour="@BadgeColor" />
+                                <span class="ms-2">@station.assemblystation</span>
+                            </div>
+
+                            <div class=" ms-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-grip-vertical" viewBox="0 0 16 16">
+                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                </svg>
+                            </div>
                         </a>
                     </li>
+
                 }
 
                 <li class="sidebar-item">
@@ -137,7 +150,7 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool" OnUpdated="ReloadTools" CurrentUser=@currentUser/>
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool" OnUpdated="ReloadTools" CurrentUser=@currentUser />
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
@@ -147,7 +160,7 @@
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular @ref="stationFormular" SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
+                        <StationFormular @ref="stationFormular" SelectedStation="selectedStation" OnUpdated="ReloadStations" />
                     }
                 </div>
             </main>
@@ -161,6 +174,7 @@
 </body>
 
 @code {
+
     private readonly string currentUser = Guid.NewGuid().ToString();
 
 
@@ -195,7 +209,7 @@
 
         if (stationFormular != null)
         {
-            if(await stationFormular.ValidateData() == true)
+            if (await stationFormular.ValidateData() == true)
             {
                 stationFormular.UpdateStationAsync();
             }
@@ -220,7 +234,7 @@
         }
 
 
-        if (operationFormular != null )
+        if (operationFormular != null)
         {
             if (await operationFormular.ValidateData() == true)
             {
@@ -301,7 +315,7 @@
             selectedTool = new Tool
                 {
                     stationID = selectedStation.stationID,  // Setze stationID
-                    toolTypeID = 1, 
+                    toolTypeID = 1,
                     isLocked = false// Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
                 };  // Setze das ausgewählte Tool zurück
 
@@ -324,7 +338,7 @@
                     savingClassID = 1,             // Setze den Foreign Key auf 1
                     generationClassID = 1,         // Setze den Foreign Key auf 1
                     verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1 ,
+                    qGateID = 1,
                     isLocked = false,
                 // Setze den Foreign Key auf 1
                 };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
@@ -353,7 +367,7 @@
         }
         else
         {
-            if(selectedTool != null)
+            if (selectedTool != null)
             {
                 if (selectedTool.lockedBy == currentUser && selectedTool.toolID != tool.toolID)
                 {
@@ -367,7 +381,7 @@
             }
 
             selectedTool = tool;
-            if(selectedTool.isLocked == false || tool.lockedBy == currentUser)
+            if (selectedTool.isLocked == false || tool.lockedBy == currentUser)
             {
                 toolReadOnly = false;
 
@@ -389,16 +403,16 @@
 
             selectedOperation = new Operation
                 {
-                    toolID = selectedTool.toolID,  
-                    decisionClassID = 1,           
-                    savingClassID = 1,             
-                    generationClassID = 1,         
-                    verificationClassID = 1,      
-                    qGateID = 1,   
+                    toolID = selectedTool.toolID,
+                    decisionClassID = 1,
+                    savingClassID = 1,
+                    generationClassID = 1,
+                    verificationClassID = 1,
+                    qGateID = 1,
                     isLocked = false,
-                };  
+                };
 
-            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
 
             StateHasChanged();  // Aktualisiere den UI-Status
         }
@@ -412,7 +426,7 @@
             selectedTool = new Tool
                 {
                     stationID = selectedStation.stationID,  // Setze stationID
-                    toolTypeID = 0,   
+                    toolTypeID = 0,
                     toolClassID = 0,
                     isLocked = false// Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
                 };
@@ -442,7 +456,7 @@
         else
         {
 
-            if(selectedOperation != null)
+            if (selectedOperation != null)
             {
                 if (selectedOperation.lockedBy == currentUser && selectedOperation.operationID != operation.operationID)
                 {
@@ -468,7 +482,7 @@
 
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
-            if(selectedOperation.isLocked == false || operation.lockedBy == currentUser)
+            if (selectedOperation.isLocked == false || operation.lockedBy == currentUser)
             {
 
                 operationReadOnly = false;
@@ -512,6 +526,39 @@
         showStationFormular = false;
 
         StateHasChanged();  // Aktualisiere den UI-Status
+    }
+
+    #endregion
+
+
+    #region Drag
+    private bool _initialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+            await JS.InvokeVoidAsync("initializeDragAndDropSafe", ".draggable");
+
+            // Set up the callback for when stations are reordered
+            await JS.InvokeVoidAsync("eval", @"
+            window.onStationReordered = function(newOrder) {
+                console.log('New station order:', newOrder);
+                // You can call a Blazor method here if you need to persist the new order
+                // DotNet.invokeMethodAsync('YourNamespace', 'HandleStationReorder', newOrder);
+            };
+        ");
+        }
+    }
+    [JSInvokable]
+    public static async Task HandleStationReorder(string[] newOrder)
+    {
+        // Handle the new order - save to database, update state, etc.
+        Console.WriteLine($"Stations reordered: {string.Join(", ", newOrder)}");
+
+        // Example: Update your stations collection based on the new order
+        // You would need to implement this based on your specific requirements
     }
 
     #endregion
@@ -582,7 +629,7 @@
             else if (msg.StartsWith("ToolClassChanged"))
             {
                 var id = int.Parse(msg.Split(';')[1]);
-                if(selectedTool != null)
+                if (selectedTool != null)
                 {
                     var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
                 }
@@ -810,9 +857,8 @@
                 await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
 
 
-                
+
             }
         }
     }
-    
- }
+}

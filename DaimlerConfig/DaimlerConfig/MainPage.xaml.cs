@@ -20,7 +20,6 @@
             this.Window.MinimumWidth = 800;
 
 
-            this.Window.MinimumHeight = 600;
 
 
         }
