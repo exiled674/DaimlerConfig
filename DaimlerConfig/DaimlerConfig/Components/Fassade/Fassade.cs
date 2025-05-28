@@ -147,6 +147,23 @@ namespace DaimlerConfig.Components.Fassade
                 .Any(station => station.assemblystation!.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
+        public async Task UpdateStationOrder(int lineId, List<int> newOrder)
+        {
+            // Get all stations for this line
+            var stations = await GetStationsFromLine(lineId);
+
+            // Update the order based on the newOrder list
+            for (int i = 0; i < newOrder.Count; i++)
+            {
+                var station = stations.FirstOrDefault(s => s.stationID == newOrder[i]);
+                if (station != null)
+                {
+                    station.Order = i + 1; // Assuming you have an Order property
+                    await UpdateStation(station);
+                }
+            }
+        }
+
         #endregion
 
         #region Tool

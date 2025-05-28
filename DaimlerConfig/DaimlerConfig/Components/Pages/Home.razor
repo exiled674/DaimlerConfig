@@ -159,10 +159,19 @@
                 <span class="plus-icon">+</span>
                 Create Empty Project
     </button>
+		<button class="btn btn-block btn-secondary pt-2" @onclick="Test">
+			<span class="plus-icon">📥</span>
+			test
+            </button>
     </div>
 </div>
 
 @code {
+
+	public void Test()
+	{
+		Navigation.NavigateTo("/test");
+	}
     private List<Line> AllLines = new();
     private List<Line> FilteredLines = new();
     private HashSet<Line> EditingLines = new();
