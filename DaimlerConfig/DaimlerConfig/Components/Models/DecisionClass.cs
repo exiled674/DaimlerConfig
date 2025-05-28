@@ -1,9 +1,16 @@
-﻿namespace DaimlerConfig.Components.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class DecisionClass
+namespace DaimlerConfig.Components.Models
 {
-    public int decisionClassID { get; init; }
-    public string decisionClassName { get; init; }
-    public int TemplateId { get; init; }
-    public string HelpText { get; init; }
+    public class DecisionClass 
+    {
+        public int decisionClassID { get; init; }
+        public string decisionClassName { get; init; }
+        public int TemplateId { get; init; }
+        public string HelpText { get; init; }
+    }
 }

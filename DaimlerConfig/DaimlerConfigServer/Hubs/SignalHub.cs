@@ -14,5 +14,9 @@ namespace DaimlerConfigServer.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", message);
         }
+
+      
+
+        
     }
 }

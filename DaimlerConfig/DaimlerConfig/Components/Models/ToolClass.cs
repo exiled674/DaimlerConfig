@@ -1,7 +1,14 @@
-﻿namespace DaimlerConfig.Components.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class ToolClass
+namespace DaimlerConfig.Components.Models
 {
-    public int toolClassID { get; init; }
-    public string toolClassName { get; init; }
+    public class ToolClass
+    {
+        public int toolClassID { get; set; }
+        public string toolClassName { get; set; }
+    }
 }

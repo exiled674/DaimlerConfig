@@ -3,10 +3,13 @@
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
+@inject AppLifecycleService LifecycleService
 
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Components.Models
+@using Microsoft.JSInterop
+@inject IJSRuntime JS;
 
 <body>
     <!-- Navbar -->
@@ -22,7 +25,12 @@
 
             <ul class="sidebar-nav p-0">
                 <li class="sidebar-item">
-                    <a href="/" class="sidebar-link">
+                    <a href="/" class="sidebar-link" @onclick="() => UnlockTool(new Tool
+{
+    stationID = 1,
+    toolTypeID = 1,
+    isLocked = false
+})">
                         <span>Home</span>
                     </a>
                 </li>
@@ -32,13 +40,24 @@
 
                 @foreach (var station in stations)
                 {
-                    <li class="sidebar-item">
-                        <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
-                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                            <Badge colour="@BadgeColor" />
-                            <span>@station.assemblystation</span>
+                    <li class="sidebar-item justify-content-between draggable">
+                        <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
+                           @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+
+                            <div class="d-flex align-items-center">
+                                <Badge colour="@BadgeColor" />
+                                <span class="ms-2">@station.assemblystation</span>
+                            </div>
+
+                            <div class=" ms-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-grip-vertical" viewBox="0 0 16 16">
+                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                </svg>
+                            </div>
                         </a>
                     </li>
+
                 }
 
                 <li class="sidebar-item">
@@ -62,7 +81,7 @@
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
-                <div class="tool-operation-panel p-5" style="width: 500px;">
+                <div class="tool-operation-panel" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
                         @if (selectedStation != null)
@@ -89,22 +108,29 @@
                         {
                             @foreach (var tool in tools)
                             {
-                                <div class="tool-section" data-tool-id="@tool.toolID">
+                                <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
                                     <div class="tool-header d-flex justify-content-between align-items-center">
                                         <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
-                                        <div>
+                                        <div class="d-flex align-items-center">
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { ToggleOperationFormular(true); SelectTool(tool); }">+</button>
-
-
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
+                                            <!-- Drag handle for tools -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                 class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
+                                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                            </svg>
                                         </div>
                                     </div>
                                     <div class="operation-list">
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
-                                            <div class="operation-section d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="() => SelectOperation(operation)">@operation.operationShortname</span>
-
+                                            <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
+                                                <span class="clickable" @onclick="() => { SelectOperation(operation); }">@operation.operationShortname</span>
+                                                <!-- Drag handle for operations -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
+                                                     class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
+                                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                                </svg>
                                             </div>
                                         }
                                     </div>
@@ -118,17 +144,17 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool" OnUpdated="ReloadTools"/>
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool" OnUpdated="ReloadTools" CurrentUser=@currentUser />
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
                     {
-                        <OperationFormular @ref="operationFormular" SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" />
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" CurrentUser="@currentUser" />
                     }
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular @ref="stationFormular" SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
+                        <StationFormular @ref="stationFormular" SelectedStation="selectedStation" OnUpdated="ReloadStations" />
                     }
                 </div>
             </main>
@@ -139,11 +165,11 @@
     {
         <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
     }
-
 </body>
 
 @code {
-    private readonly string? currentUser = Guid.NewGuid().ToString();
+
+    private readonly string currentUser = Guid.NewGuid().ToString();
 
 
     private StationFormular? stationFormular;
@@ -153,7 +179,7 @@
 
     private bool showPopup = false;
 
-    private void HandleDismiss()
+    private async Task HandleDismiss()
     {
         showPopup = false;
         DirtyManagerService.setClean();
@@ -170,20 +196,52 @@
     }
 
 
-    private void HandleSave()
+    private async Task HandleSave()
     {
         showPopup = false;
         DirtyManagerService.setClean();
 
         if (stationFormular != null)
-            stationFormular.UpdateStationAsync();
+        {
+            if (await stationFormular.ValidateData() == true)
+            {
+                stationFormular.UpdateStationAsync();
+            }
+            else
+            {
+                stationFormular.ResetStation();
+            }
+        }
+
+
 
         if (toolFormular != null)
-            toolFormular.UpdateToolAsync();
+        {
+            if (await toolFormular.ValidateData() == true)
+            {
+                toolFormular.UpdateToolAsync();
+            }
+            else
+            {
+                toolFormular.ResetTool();
+            }
+        }
+
 
         if (operationFormular != null)
-            operationFormular.UpdateOperationAsync();
+        {
+            if (await operationFormular.ValidateData() == true)
+            {
+                operationFormular.UpdateOperationAsync();
+            }
+            else
+            {
+                operationFormular.ResetOperation();
+            }
+        }
+
     }
+
 
     #region SideBar
     private string BadgeColor = "#006700"; //needs to be implemented
@@ -225,6 +283,8 @@
         }
         else
         {
+
+
             selectedStation = new Station
                 {
                     stationID = station.stationID,
@@ -234,12 +294,35 @@
                     stationName = station.stationName
 
                 };
+
+
+
+            if(selectedTool != null && selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
+            {
+                selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+            }
+
             selectedTool = new Tool
                 {
                     stationID = selectedStation.stationID,  // Setze stationID
-                    toolTypeID = 1, 
+                    toolTypeID = 1,
                     isLocked = false// Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
                 };  // Setze das ausgewählte Tool zurück
+
+
+
+            if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
+            {
+                selectedOperation.isLocked = false;
+                selectedOperation.lockedBy = null;
+                await Fassade.UpdateOperation(selectedOperation);
+                await SignalRService.SendMessageToServer("OperationChanged");
+                await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+            }
 
 
             selectedOperation = new Operation
@@ -249,7 +332,8 @@
                     savingClassID = 1,             // Setze den Foreign Key auf 1
                     generationClassID = 1,         // Setze den Foreign Key auf 1
                     verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1 
+                    qGateID = 1,
+                    isLocked = false,
                 // Setze den Foreign Key auf 1
                 };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
 
@@ -268,6 +352,7 @@
     private Tool? selectedTool;
     private bool toolReadOnly = false;
 
+
     private async Task SelectTool(Tool tool)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -276,26 +361,22 @@
         }
         else
         {
-            if(selectedTool.lockedBy == currentUser)
+            if (selectedTool != null)
             {
-                selectedTool.isLocked = false;
-                await Fassade.UpdateTool(selectedTool);
-                await SignalRService.SendMessageToServer("ToolChanged");
-                if (toolFormular != null && selectedTool != null)
+                if (selectedTool.lockedBy == currentUser && selectedTool.toolID != tool.toolID)
                 {
-                    await toolFormular.ReloadToolAsync(selectedTool);
+                    selectedTool.isLocked = false;
+                    selectedTool.lockedBy = null;
+                    await Fassade.UpdateTool(selectedTool);
+                    await SignalRService.SendMessageToServer("ToolChanged");
+                    await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+
                 }
             }
 
-
-
             selectedTool = tool;
-            if(selectedTool.isLocked == false)
+            if (selectedTool.isLocked == false || tool.lockedBy == currentUser)
             {
-                selectedTool.isLocked = true;
-                selectedTool.lockedBy = currentUser;
-                await Fassade.UpdateTool(selectedTool);
-                await SignalRService.SendMessageToServer("ToolChanged");
                 toolReadOnly = false;
 
             }
@@ -305,28 +386,29 @@
             }
 
 
-
+            if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
+            {
+                selectedOperation.isLocked = false;
+                selectedOperation.lockedBy = null;
+                await Fassade.UpdateOperation(selectedOperation);
+                await SignalRService.SendMessageToServer("OperationChanged");
+                await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+            }
 
             selectedOperation = new Operation
                 {
-                    toolID = selectedTool.toolID,  
-                    decisionClassID = 1,           
-                    savingClassID = 1,             
-                    generationClassID = 1,         
-                    verificationClassID = 1,      
-                    qGateID = 1                    
-                };  
+                    toolID = selectedTool.toolID,
+                    decisionClassID = 1,
+                    savingClassID = 1,
+                    generationClassID = 1,
+                    verificationClassID = 1,
+                    qGateID = 1,
+                    isLocked = false,
+                };
 
-            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
 
-
-
-            // Zeige das Tool-Formular an
-            /*showToolFormular = true;
-            showOperationFormular = false;  // Schließe das Operation-Formular, wenn das Tool-Formular gezeigt wird
-            showStationFormular = false; */  // Schließe das Station-Formular, wenn das Tool-Formular gezeigt wird
-
-                        StateHasChanged();  // Aktualisiere den UI-Status
+            StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
@@ -338,7 +420,8 @@
             selectedTool = new Tool
                 {
                     stationID = selectedStation.stationID,  // Setze stationID
-                    toolTypeID = 1,    
+                    toolTypeID = 0,
+                    toolClassID = 0,
                     isLocked = false// Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
                 };
         }
@@ -356,6 +439,7 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
+    private bool operationReadOnly = false;
 
     private async Task SelectOperation(Operation operation)
     {
@@ -365,12 +449,50 @@
         }
         else
         {
-            selectedOperation = operation;  // Setze die ausgewählte Operation
 
-            // Zeige das Operation-Formular an
+            if (selectedOperation != null)
+            {
+                if (selectedOperation.lockedBy == currentUser && selectedOperation.operationID != operation.operationID)
+                {
+                    selectedOperation.isLocked = false;
+                    selectedOperation.lockedBy = null;
+                    await Fassade.UpdateOperation(selectedOperation);
+                    await SignalRService.SendMessageToServer("OperationChanged");
+                    await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+
+                }
+            }
+
+
+            selectedOperation = operation;
+            if(selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
+            {
+                selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+            }
+
+            selectedTool = await Fassade.GetTool(selectedOperation.toolID);
+
+            if (selectedOperation.isLocked == false || operation.lockedBy == currentUser)
+            {
+
+                operationReadOnly = false;
+
+            }
+            else
+            {
+                operationReadOnly = true;
+            }
+
+
+
             showOperationFormular = true;
-            showToolFormular = false;  // Schließe das Tool-Formular, wenn das Operation-Formular gezeigt wird
-            showStationFormular = false;   // Schließe das Station-Formular, wenn das Operation-Formular gezeigt wird
+            showToolFormular = false;
+            showStationFormular = false;
+
 
             StateHasChanged();  // Aktualisiere den UI-Status
         }
@@ -389,7 +511,8 @@
                     savingClassID = 1,             // Setze den Foreign Key auf 1
                     generationClassID = 1,         // Setze den Foreign Key auf 1
                     verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1                    // Setze den Foreign Key auf 1
+                    qGateID = 1,
+                    isLocked = false,// Setze den Foreign Key auf 1
                 };
         }
         showOperationFormular = true;
@@ -402,58 +525,218 @@
     #endregion
 
 
+    #region Drag
+    private bool _initialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+
+            // Initialize drag and drop for stations
+            await JS.InvokeVoidAsync("initializeStationDragDrop");
+
+            // Set up the callback for when elements are reordered
+            await JS.InvokeVoidAsync("eval", @"
+            window.onElementReordered = function(elementType, newOrder) {
+                console.log('New ' + elementType + ' order:', newOrder);
+
+                // Call appropriate Blazor method based on element type
+                switch(elementType) {
+                    case 'station':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleStationReorder', newOrder);
+                        break;
+                    case 'tool':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleToolReorder', newOrder);
+                        break;
+                    case 'operation':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleOperationReorder', newOrder);
+                        break;
+                }
+            };
+        ");
+        }
+        // Initialize tool and operation drag and drop when they become available
+        if (selectedStation != null && tools.Any())
+        {
+            await JS.InvokeVoidAsync("initializeToolDragDrop");
+        }
+
+        if (selectedTool != null && allOperations.Any(op => op.toolID == selectedTool.toolID))
+        {
+            await JS.InvokeVoidAsync("initializeOperationDragDrop");
+        }
+    }
+    [JSInvokable]
+    public static async Task HandleStationReorder(string[] newOrder)
+    {
+        // Handle the new order - save to database, update state, etc.
+        Console.WriteLine($"Stations reordered: {string.Join(", ", newOrder)}");
+
+        // Example: Update your stations collection based on the new order
+        // You would need to implement this based on your specific requirements
+    }
+
+
+    [JSInvokable]
+    public static async Task HandleToolReorder(string[] newOrder)
+    {
+        Console.WriteLine($"Tools reordered: {string.Join(", ", newOrder)}");
+        // Implement your tool reordering logic here
+        // Example: Update tool order in database
+    }
+
+    [JSInvokable]
+    public static async Task HandleOperationReorder(string[] newOrder)
+    {
+        Console.WriteLine($"Operations reordered: {string.Join(", ", newOrder)}");
+        // Implement your operation reordering logic here
+        // Example: Update operation sequence in database
+    }
+
+    #endregion
+
+
+
+
+
+
+
 
     protected override async Task OnInitializedAsync()
     {
-
+        LifecycleService.OnAppClosing += HandleAppClosingAsync;
         SignalRService.RegisterResponseHandler(async (string msg) =>
     {
         await InvokeAsync(async () =>
         {
-            switch (msg)
+
+            if (msg.StartsWith("OperationUnlocked"))
             {
-                case "StationChanged":
-                    if (line != null)
+
+
+
+
+                var operationID = int.Parse(msg.Split(';')[1]);
+                if (selectedOperation?.operationID == operationID)
+                {
+
+                    operationReadOnly = false;
+                }
+            }
+            else if (msg.StartsWith("OperationLocked"))
+            {
+                var operationID = int.Parse(msg.Split(';')[1]);
+                if (selectedOperation?.lockedBy != currentUser)
+                {
+
+                    operationReadOnly = true;
+                }
+            }
+
+            if (msg.StartsWith("ToolUnlocked"))
+            {
+
+
+
+
+                var toolID = int.Parse(msg.Split(';')[1]);
+                if (selectedTool?.toolID == toolID)
+                {
+                    /*selectedTool.isLocked = true;
+                    selectedTool.lockedBy = currentUser;
+                    await Fassade.UpdateTool(selectedTool);
+                    await SignalRService.SendMessageToServer("ToolChanged");*/
+                                                                                                                                    toolReadOnly = false;
+                }
+            }
+            else if (msg.StartsWith("ToolLocked"))
+            {
+                var toolID = int.Parse(msg.Split(';')[1]);
+                if (selectedTool?.lockedBy != currentUser)
+                {
+
+                    toolReadOnly = true;
+                }
+            }
+            else if (msg.StartsWith("ToolClassChanged"))
+            {
+                var id = int.Parse(msg.Split(';')[1]);
+                if (selectedTool != null)
+                {
+                    var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                }
+
+                if(operations != null)
+                {
+                    foreach (var op in operations)
                     {
-                        stations = await Fassade.GetStationsFromLine(line.lineID);
+                        op.decisionClassID = 1;
+                        op.verificationClassID = 0;
+                        op.savingClassID = 0;
+                        op.generationClassID = 0;
+                        await Fassade.UpdateOperation(op);
+                    }
+                    await SignalRService.SendMessageToServer("OperationChanged");
+                }
+
+            }
+            else
+            {
+                switch (msg)
+                {
+                    case "StationChanged":
+                        if (line != null)
+                        {
+                            stations = await Fassade.GetStationsFromLine(line.lineID);
+                            if (selectedStation != null)
+                            {
+                                // Hole die aktualisierte Station aus der Datenbank
+                                selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
+                            }
+
+                        }
+                        break;
+                    case "ToolChanged":
                         if (selectedStation != null)
                         {
-                            // Hole die aktualisierte Station aus der Datenbank
-                            selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
-                        }
+                            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+                            if (selectedTool != null)
+                            {
+                                // Aktualisiere das ausgewählte Tool aus der neuen Liste
+                                selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
+                            }
 
-                    }
-                    break;
-                case "ToolChanged":
-                    if (selectedStation != null)
-                    {
-                        tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+
+
+                        }
+                        break;
+                    case "OperationChanged":
                         if (selectedTool != null)
                         {
-                            // Aktualisiere das ausgewählte Tool aus der neuen Liste
-                            selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
+                            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                            if (selectedOperation != null)
+                            {
+                                // Aktualisiere die ausgewählte Operation aus der neuen Liste
+                                selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
+                            }
+                            allOperations = await Fassade.GetAllOperations();
                         }
-                       
-                       
-                    }
-                    break;
-                case "OperationChanged":
-                    if (selectedTool != null)
-                    {
-                        operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                        if (selectedOperation != null)
-                        {
-                            // Aktualisiere die ausgewählte Operation aus der neuen Liste
-                            selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
-                        }
-                        allOperations = await Fassade.GetAllOperations();
-                    }
-                    break;
+                        break;
+
+
+                }
+
+
             }
 
             StateHasChanged();
         });
     });
+
+
+
 
         // 2) Starte die Verbindung
         await SignalRService.StartConnectionAsync();
@@ -548,22 +831,68 @@
         copiedOperation = Fassade.Clone(copied);
     }
 
-    public void InsertTool()
+    public async Task InsertTool()
     {
+        if (selectedTool != null && selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
+        {
+            selectedTool.isLocked = false;
+            selectedTool.lockedBy = null;
+            await Fassade.UpdateTool(selectedTool);
+            await SignalRService.SendMessageToServer("ToolChanged");
+            await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+        }
         selectedTool = copiedTool;
         selectedTool.stationID = selectedStation.stationID;
+        selectedTool.toolShortname += "-copy";
         copiedTool = null;
         ToggleToolFormular(false);
     }
 
-    public void InsertOperation()
+    public async Task InsertOperation()
     {
+        if (selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
+        {
+            selectedOperation.isLocked = false;
+            selectedOperation.lockedBy = null;
+            await Fassade.UpdateOperation(selectedOperation);
+            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+        }
         selectedOperation = copiedOperation;
         selectedOperation.toolID = selectedTool.toolID;
         copiedOperation = null;
         ToggleOperationFormular(false);
     }
     #endregion
-	
-    
+
+
+    private async Task HandleAppClosingAsync()
+    {
+        // Hier dein UnlockTool() aufrufen oder Warnung anzeigen
+        await UnlockTool(new Tool
+            {
+                stationID = 1,
+                toolTypeID = 1,
+                isLocked = false
+            });
+    }
+
+    public async Task UnlockTool(Tool tool)
+    {
+
+        if (selectedTool != null)
+        {
+            if (selectedTool.lockedBy == currentUser && selectedTool.toolID != tool.toolID)
+            {
+                selectedTool.isLocked = false;
+                selectedTool.lockedBy = null;
+                await Fassade.UpdateTool(selectedTool);
+                await SignalRService.SendMessageToServer("ToolChanged");
+                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+
+
+
+            }
+        }
+    }
 }

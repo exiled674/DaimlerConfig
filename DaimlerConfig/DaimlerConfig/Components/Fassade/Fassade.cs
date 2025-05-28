@@ -1,41 +1,36 @@
 ﻿using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.JsonHandler;
-
+using DaimlerConfig.Components.Export;
 
 
 namespace DaimlerConfig.Components.Fassade
 {
     public class Fassade
     {
-        public IToolRepository ToolRepository { get;}
-        public IOperationRepository OperationRepository { get;}
-        public IStationRepository StationRepository { get;}
-        public IRepository<Line> LineRepository { get; }
-        public IRepository<DecisionClass> DecisionClassRepository { get;}
-        public IRepository<GenerationClass> GenerationClassRepository { get;}
-        public IRepository<SavingClass> SavingClassRepository { get;}
-        public IRepository<VerificationClass> VerificationClassRepository { get;}
-        public IRepository<Template> TemplateRepository { get;}
-        public IRepository<ToolClass> ToolClassRepository { get;}
-        public IRepository<ToolType> ToolTypeRepository { get;}
+        public IToolRepository ToolRepository { get; private set; }
+        public IOperationRepository OperationRepository { get; private set; }
+        public IStationRepository StationRepository { get; private set; }
+        public IRepository<Line> LineRepository { get; private set; }
 
-        public IRepository<StationType> StationTypeRepository { get;}
+        public IRepository<StationType> StationTypeRepository { get; private set; }
 
+        public IRepository<Template> TemplateRepository { get; private set; }
+        public IRepository<ToolClass> ToolClassRepository { get; private set; }
+        public IRepository<ToolType> ToolTypeRepository { get; private set; }
+
+        public IRepository<DecisionClass> DecisionClassRepository { get; private set; }
+
+        public IRepository<GenerationClass> GenerationClassRepository { get; private set; }
+
+        public IRepository<SavingClass> SavingClassRepository { get; private set; }
+        public IRepository<VerificationClass> VerificationClassRepository { get; private set; }
+        
+        public ExcelExport ExcelExport { get; private set; }
+        
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository,
-                       IOperationRepository operationRepository,
-                       IStationRepository stationRepository,
-                       IRepository<Line> lineRepository,
-                       IRepository<StationType> stationTypeRepository,
-                       IRepository<DecisionClass> decisionClassRepository,
-                       IRepository<GenerationClass> generationClassRepository,
-                       IRepository<SavingClass> savingClassRepository,
-                       IRepository<VerificationClass> verificationClassRepository,
-                       IRepository<Template> templateRepository,
-                       IRepository<ToolClass> toolClassRepository,
-                       IRepository<ToolType> toolTypeRepository)
+        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, IRepository<Template> templateRepository, ExcelExport ExcelExport)
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
@@ -46,9 +41,10 @@ namespace DaimlerConfig.Components.Fassade
             GenerationClassRepository = generationClassRepository;
             SavingClassRepository = savingClassRepository;
             VerificationClassRepository = verificationClassRepository;
-            TemplateRepository = templateRepository;
             ToolClassRepository = toolClassRepository;
             ToolTypeRepository = toolTypeRepository;
+            TemplateRepository = templateRepository;
+            this.ExcelExport = ExcelExport;
         }
 
         #region Line
@@ -141,11 +137,17 @@ namespace DaimlerConfig.Components.Fassade
             }
         }
 
-        public async Task<bool> StationExistsInLine(string name, int lineID)
+        public async Task<bool> StationExistsInLine(string name, int stationID, int lineID)
         {
             var stations = await StationRepository.GetStationsFromLine(lineID);
-            return stations.Any(station => station.assemblystation!.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            return stations
+                .Where(station => station.stationID != stationID)
+                .Any(station => station.assemblystation!.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
+
+      
+
         #endregion
 
         #region Tool
@@ -195,11 +197,15 @@ namespace DaimlerConfig.Components.Fassade
             return await ToolRepository.ExistsByName(name);
         }
 
-        public async Task<bool> ToolExistsInStation(string name, int stationID)
+        public async Task<bool> ToolExistsInStation(string name, int toolID, int stationID)
         {
             var tools = await ToolRepository.GetToolsFromStation(stationID);
-            return tools.Any(tool => tool.toolShortname!.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            return tools
+                .Where(tool => tool.toolID != toolID) 
+                .Any(tool => tool.toolShortname!.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
+
 
         public async Task DeleteTool(Tool tool)
         {
@@ -216,6 +222,11 @@ namespace DaimlerConfig.Components.Fassade
                 line.lastModified = DateTime.Now;
                 await LineRepository.Update(line);
             }
+        }
+
+        public async Task<Tool> GetTool(int? toolID)
+        {
+            return await ToolRepository.Get(toolID);
         }
 
       
@@ -285,11 +296,15 @@ namespace DaimlerConfig.Components.Fassade
             return await OperationRepository.ExistsByName(name);
         }
 
-        public async Task<bool> OperationExistsInTool(string name, int toolID)
+        public async Task<bool> OperationExistsInTool(string name, int operationID, int toolID)
         {
             var operations = await OperationRepository.GetOperationsFromTool(toolID);
-            return operations.Any(operation => operation.operationShortname!.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            return operations
+                .Where(operation => operation.operationID != operationID)
+                .Any(operation => operation.operationShortname!.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
+
 
         public async Task DeleteOperation(Operation operation)
         {
@@ -316,11 +331,21 @@ namespace DaimlerConfig.Components.Fassade
         #endregion
 
         #region Export
-        public async Task<string> Export()
+        public async Task<string> Export(Line line)
         {
-            var stations = await StationRepository.GetAll();
-            var tools = await ToolRepository.GetAll();
-            var operations = await OperationRepository.GetAll();
+            var stations = await StationRepository.GetStationsFromLine(line.lineID);
+            var tools = new List<Tool>();
+            var operations = new List<Operation>();
+            foreach (var station in stations)
+            {
+                var stationTools = await ToolRepository.GetToolsFromStation(station.stationID);
+                tools.AddRange(stationTools);
+            }
+            foreach (var tool in tools)
+            {
+                var toolOperations = await OperationRepository.Find(o => o.toolID == tool.toolID);;
+                operations.AddRange(toolOperations);
+            }
 
             var stationList = stations.ToList();
             var toolList = tools.ToList();
@@ -336,6 +361,62 @@ namespace DaimlerConfig.Components.Fassade
         {
             return obj.Clone();
         }
+        #endregion
+
+        #region ToolClass/-Type
+        public async Task<IEnumerable<ToolClass>> GetAllToolClasses()
+        {
+            return await ToolClassRepository.GetAll();
+        }
+
+        public async Task<IEnumerable<ToolType>> FindToolTypes(int toolClassID)
+        {
+            var result = await ToolTypeRepository.Find(t => t.toolClassID == toolClassID);
+             return result.OrderBy(t => t.toolTypeName);
+
+        }
+
+        #endregion
+
+        #region OperationClasses 
+
+        public async Task<Template> GetTemplate(int toolClassID)
+        {
+            return await TemplateRepository.Get(toolClassID);
+        }
+
+
+        public async Task<IEnumerable<DecisionClass>> GetDecisionClasses()
+        {
+            return await DecisionClassRepository.GetAll();
+            
+        }
+
+        public async Task<IEnumerable<GenerationClass>> GetGenerationClasses(int templateID)
+        {
+            return await GenerationClassRepository.Find(t => t.TemplateId == templateID);
+            
+        }
+
+        public async Task<IEnumerable<SavingClass>> GetSavingClasses(int templateID)
+        {
+            return await SavingClassRepository.Find(t => t.TemplateId == templateID);
+
+        }
+
+        public async Task<IEnumerable<VerificationClass>> GetVerificationClasses(int templateID)
+        {
+            return await VerificationClassRepository.Find(t => t.TemplateId == templateID);
+
+        }
+
+        public async Task<VerificationClass> GetVerificationClass(int id)
+        {
+            return await VerificationClassRepository.Get(id);
+        }
+
+
+
         #endregion
     }
 }

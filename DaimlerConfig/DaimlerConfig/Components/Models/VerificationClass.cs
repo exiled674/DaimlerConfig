@@ -1,9 +1,16 @@
-﻿namespace DaimlerConfig.Components.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class VerificationClass
+namespace DaimlerConfig.Components.Models
 {
-    public int verificationClassID { get; init; }
-    public string verificationClassName { get; init; }
-    public int TemplateId { get; init; }
-    public string HelpText { get; init; }
+    public class VerificationClass 
+    {
+        public int verificationClassID { get; init; }
+        public string verificationClassName { get; init; }
+        public int TemplateId { get; init; }
+        public string HelpText { get; init; }
+    }
 }

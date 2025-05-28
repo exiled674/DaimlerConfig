@@ -1,25 +1,37 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
+using DaimlerConfig.Components.Export;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.SignalR.Client;
+
 using DaimlerConfig.Components.Infrastructure;
 using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Fassade;
 using DaimlerConfig.Services;
-using Microsoft.AspNetCore.SignalR.Client;
-using System.Text.Json;
+using Microsoft.Maui.LifecycleEvents;
+
+#if WINDOWS
+using Microsoft.UI.Xaml;
+#endif
 
 namespace DaimlerConfig
 {
     public static class MauiProgram
     {
+        // Statischer Zugriff auf die Services
+        public static IServiceProvider Services { get; private set; }
+
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
             builder
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
@@ -27,69 +39,66 @@ namespace DaimlerConfig
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
-            // 1. Konfigurationsdatei einbinden
+            // 1. Konfiguration laden
             string benutzerOrdner = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             string dateiPfad = Path.Combine(benutzerOrdner, "appsettings.json");
-            builder.Configuration
-                   .AddJsonFile(dateiPfad, optional: false, reloadOnChange: true);
-
+            builder.Configuration.AddJsonFile(dateiPfad, optional: false, reloadOnChange: true);
+            
+            // 2. Services registrieren
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
-#endif      
+#endif
             builder.Services.AddSingleton<SignalRService>();
             builder.Services.AddSingleton<DirtyManagerService>();
+            builder.Services.AddSingleton<AppLifecycleService>();
 
-
-            // 2. Azure SQL Server ConnectionFactory registrieren
             var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
                 new SqlServerConnectionFactory(sqlConnectionString));
 
-            // 3. Initializer und Repositories
-           
             builder.Services.AddSingleton<IToolRepository, ToolRepository>();
             builder.Services.AddSingleton<IOperationRepository, OperationRepository>();
             builder.Services.AddSingleton<IStationRepository, StationRepository>();
             builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
             builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
-            builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
             builder.Services.AddScoped<IRepository<GenerationClass>, Repository<GenerationClass>>();
             builder.Services.AddScoped<IRepository<SavingClass>, Repository<SavingClass>>();
             builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
-            builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
+            builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
+            
             builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
             builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
-
+            builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
+            
+            builder.Services.AddScoped<ExcelExport, ExcelExport>();
+            
             builder.Services.AddSingleton<Fassade>(sp =>
             {
-                
                 var toolRepo = sp.GetRequiredService<IToolRepository>();
                 var operationRepo = sp.GetRequiredService<IOperationRepository>();
                 var stationRepo = sp.GetRequiredService<IStationRepository>();
                 var lineRepo = sp.GetRequiredService<IRepository<Line>>();
                 var stationType = sp.GetRequiredService<IRepository<StationType>>();
-                var decisionClass = sp.GetRequiredService<IRepository<DecisionClass>>();
-                var generationClass = sp.GetRequiredService<IRepository<GenerationClass>>();
-                var savingClass = sp.GetRequiredService<IRepository<SavingClass>>();
-                var verificationClass = sp.GetRequiredService<IRepository<VerificationClass>>();
-                var template = sp.GetRequiredService<IRepository<Template>>();
-                var toolClass = sp.GetRequiredService<IRepository<ToolClass>>();
-                var toolType = sp.GetRequiredService<IRepository<ToolType>>();
-
-                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType,decisionClass, generationClass, savingClass, verificationClass, template, toolClass, toolType);
+                var decisionClassRepo = sp.GetRequiredService<IRepository<DecisionClass>>();
+                var generationClassRepo = sp.GetRequiredService<IRepository<GenerationClass>>();
+                var savingClassRepo = sp.GetRequiredService<IRepository<SavingClass>>();
+                var verificationClassRepo = sp.GetRequiredService<IRepository<VerificationClass>>();
+                var toolClassRepo = sp.GetRequiredService<IRepository<ToolClass>>();
+                var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
+                var templateRepo = sp.GetRequiredService<IRepository<Template>>();
+                var export = sp.GetRequiredService<ExcelExport>();
+                
+                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, templateRepo, export);
             });
 
-
-            //SignalR
-            var configPfad = Path.Combine(benutzerOrdner, "signalRVPS.json");
+            // 3. SignalR konfigurieren
+            var signalRConfigPfad = Path.Combine(benutzerOrdner, "signalRVPS.json");
             string hubURL = null;
-
-            // JSON-Datei einlesen und SignalR-URL extrahieren
-            if (File.Exists(configPfad))
+            if (File.Exists(signalRConfigPfad))
             {
-                var jsonInhalt = File.ReadAllText(configPfad);
+                var jsonInhalt = File.ReadAllText(signalRConfigPfad);
                 using var jsonDoc = JsonDocument.Parse(jsonInhalt);
                 if (jsonDoc.RootElement.TryGetProperty("SignalRHubUrl", out var urlElement))
                 {
@@ -98,18 +107,41 @@ namespace DaimlerConfig
             }
 
             if (string.IsNullOrWhiteSpace(hubURL))
-            {
                 throw new Exception("SignalR-URL konnte nicht aus der Konfiguration geladen werden.");
-            }
 
             var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
             builder.Services.AddSingleton(connection);
 
+            // 4. Lifecycle Event: App schließen abfangen (nur Windows)
+            builder.ConfigureLifecycleEvents(events =>
+            {
+#if WINDOWS
+                events.AddWindows(windows =>
+                {
+                    windows.OnWindowCreated(window =>
+                    {
+                        // The window parameter is already the native Microsoft.UI.Xaml.Window
+                        if (window != null)
+                        {
+                            window.Closed += async (sender, args) =>
+                            {
+                                var serviceProvider = Services;
+                                var lifecycleService = serviceProvider.GetService<AppLifecycleService>();
+                                if (lifecycleService != null)
+                                {
+                                    await lifecycleService.RaiseAppClosingAsync();
+                                }
+                            };
+                        }
+                    });
+                });
+#endif
+            });
+
             var app = builder.Build();
 
-
-            
-            
+            // Services-Provider speichern für globalen Zugriff
+            Services = app.Services;
 
             return app;
         }

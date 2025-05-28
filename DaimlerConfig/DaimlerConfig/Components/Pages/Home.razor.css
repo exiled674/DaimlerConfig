@@ -4,29 +4,29 @@
 
 .ProjectManager {
     background-color: #FEFEFE;
-    padding: 20%;
     border-radius: 8px;
-    border: 2px solid #E0E0E0;
     padding-top: 60px;
 }
 
-.projects {
-    margin-bottom: 50px;
+p {
+    margin-bottom: 0px;
 }
 
-.import-button {
-    background-color: #343a40;
-    color: white;
-    border-radius: 6px;
-    font-weight: 500;
-    border: none;
-    padding: 12px 20px;
-    transition: background-color 0.3s ease;
+hr {
+    margin-top: 0px;
 }
 
-    .import-button:hover {
-        background-color: #23272b;
+    hr:not([size]) {
+        height: 0.3px;
     }
+
+.line-div:hover {
+    background-color: #f8f9fa;
+}
+
+.projects {
+    margin-bottom: 20px;
+}
 
 .plus-icon {
     margin-right: 8px;
@@ -36,72 +36,6 @@
     top: 2px;
 }
 
-.search-form {
-    position: relative;
-    width: 100%;
-}
-
-.search-input {
-    width: 100%;
-    padding: 12px 12px 12px 45px;
-    background-color: #F5F5F7;
-    border: none;
-    border-bottom: 1px solid #dee2e6;
-    border-radius: 8px;
-    font-size: 20px;
-    color: #333;
-    outline: none;
-}
-
-.search-icon {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    pointer-events: none;
-}
-
-    .search-icon svg {
-        width: 100%;
-        height: 100%;
-        fill: #666;
-    }
-
-.search-input::placeholder {
-    color: #666;
-    font-size: 18px;
-    font-weight: 400;
-}
-
-
-.area-header {
-    display: flex;
-    padding: 15px;
-    border-bottom: 1px solid #dee2e6;
-    background-color: #FFFAFF;
-    margin-bottom: 10px;
-    justify-content: space-between; /* Fügt Platz zwischen den Elementen hinzu */
-}
-
-.area-title {
-    font-weight: 500;
-    font-size: 20px;
-    margin: 0;
-    border: none;
-    background-color: #FFFAFF;
-}
-
-.three-dots-btn {
-    background: transparent;
-    border: none;
-    padding: 5px;
-    font-size: 20px;
-    line-height: 1;
-    margin-left: auto; /* Dies sorgt dafür, dass die Schaltfläche nach rechts verschoben wird */
-}
-
 .lineLabel {
     margin-top: 10px;
     font-size: 18px;
@@ -109,52 +43,3 @@
     color: #333;
 }
 
-.context-container {
-    position: relative;
-    display: flex;
-    justify-content: flex-end; /* Das Kontextmenü nach rechts verschieben */
-}
-
-
-.context-menu {
-    position: absolute;
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    padding: 5px 0;
-    z-index: 1000;
-    width: 120px;
-    right: 0; /* Positioniert das Dropdown-Menü rechts */
-    top: 30px; /* Abstand nach oben */
-}
-
-.context-menu button {
-        background: none;
-        border: none;
-        width: 100%;
-        text-align: left;
-        padding: 10px 15px;
-        font-size: 14px;
-        color: #333;
-        cursor: pointer;
-
-}
-
-.context-menu button:hover {
-            background-color: #f0f0f0;
-}
-
-
-.edit-line-container {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.cancel-edit-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-}

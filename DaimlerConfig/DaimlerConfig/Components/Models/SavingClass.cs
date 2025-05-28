@@ -1,9 +1,16 @@
-﻿namespace DaimlerConfig.Components.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class SavingClass
+namespace DaimlerConfig.Components.Models
 {
-    public int savingClassID { get; init; }
-    public string savingClassName { get; init; }
-    public int TemplateId { get; init; }
-    public string HelpText { get; init; }
+    public class SavingClass 
+    {
+        public int savingClassID { get; init; }
+        public string savingClassName { get; init; }
+        public int TemplateId { get; init; }
+        public string HelpText { get; init; }
+    }
 }
