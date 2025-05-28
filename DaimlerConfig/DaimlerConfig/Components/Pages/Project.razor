@@ -162,34 +162,6 @@
 
 @code {
 
-    private bool _initialized = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !_initialized)
-        {
-            _initialized = true;
-            await JS.InvokeVoidAsync("initializeDragAndDropSafe", ".draggable");
-
-            // Set up the callback for when stations are reordered
-            await JS.InvokeVoidAsync("eval", @"
-            window.onStationReordered = function(newOrder) {
-                console.log('New station order:', newOrder);
-                // You can call a Blazor method here if you need to persist the new order
-                // DotNet.invokeMethodAsync('YourNamespace', 'HandleStationReorder', newOrder);
-            };
-        ");
-        }
-    }
-    [JSInvokable]
-    public static async Task HandleStationReorder(string[] newOrder)
-    {
-        // Handle the new order - save to database, update state, etc.
-        Console.WriteLine($"Stations reordered: {string.Join(", ", newOrder)}");
-
-        // Example: Update your stations collection based on the new order
-        // You would need to implement this based on your specific requirements
-    }
     private readonly string currentUser = Guid.NewGuid().ToString();
 
 
@@ -505,6 +477,39 @@
         showStationFormular = false;
 
         StateHasChanged();  // Aktualisiere den UI-Status
+    }
+
+    #endregion
+
+
+    #region Drag
+    private bool _initialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+            await JS.InvokeVoidAsync("initializeDragAndDropSafe", ".draggable");
+
+            // Set up the callback for when stations are reordered
+            await JS.InvokeVoidAsync("eval", @"
+            window.onStationReordered = function(newOrder) {
+                console.log('New station order:', newOrder);
+                // You can call a Blazor method here if you need to persist the new order
+                // DotNet.invokeMethodAsync('YourNamespace', 'HandleStationReorder', newOrder);
+            };
+        ");
+        }
+    }
+    [JSInvokable]
+    public static async Task HandleStationReorder(string[] newOrder)
+    {
+        // Handle the new order - save to database, update state, etc.
+        Console.WriteLine($"Stations reordered: {string.Join(", ", newOrder)}");
+
+        // Example: Update your stations collection based on the new order
+        // You would need to implement this based on your specific requirements
     }
 
     #endregion
