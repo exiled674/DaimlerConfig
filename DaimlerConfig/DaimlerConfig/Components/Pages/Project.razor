@@ -640,8 +640,9 @@
                                 // Aktualisiere die ausgewählte Operation aus der neuen Liste
                                 selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
                             }
-                            allOperations = await Fassade.GetAllOperations();
+                            
                         }
+                        allOperations = await Fassade.GetAllOperations();
                         break;
 
 
