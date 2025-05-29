@@ -262,16 +262,14 @@
 
     private async Task SelectStation(Station station)
     {
-
-
         if (DirtyManagerService.IsDirty().Result == true)
         {
             showPopup = true;
+            return;
         }
         else
         {
-
-
+            //Braucht man das so ? 
             selectedStation = new Station
                 {
                     stationID = station.stationID,
@@ -282,49 +280,14 @@
 
                 };
 
+            await UnlockTool();
+            selectedTool = await CreateDummyTool();
 
-
-            if(selectedTool != null && selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
-            {
-                selectedTool.isLocked = false;
-                selectedTool.lockedBy = null;
-                await Fassade.UpdateTool(selectedTool);
-                await SignalRService.SendMessageToServer("ToolChanged");
-                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
-            }
-
-            selectedTool = new Tool
-                {
-                    stationID = selectedStation.stationID,  // Setze stationID
-                    toolTypeID = 1, 
-                    isLocked = false// Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
-                };  // Setze das ausgewählte Tool zurück
-
-
-
-            if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
-            {
-                selectedOperation.isLocked = false;
-                selectedOperation.lockedBy = null;
-                await Fassade.UpdateOperation(selectedOperation);
-                await SignalRService.SendMessageToServer("OperationChanged");
-                await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
-            }
-
-
-            selectedOperation = new Operation
-                {
-                    toolID = selectedTool.toolID,  // Setze die toolID
-                    decisionClassID = 1,           // Setze den Foreign Key auf 1
-                    savingClassID = 1,             // Setze den Foreign Key auf 1
-                    generationClassID = 1,         // Setze den Foreign Key auf 1
-                    verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1 ,
-                    isLocked = false,
-                // Setze den Foreign Key auf 1
-                };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
+            await UnlockOperation();
+            selectedOperation = await CreateDummyOP();
 
             tools = await Fassade.GetToolsFromStation(station.stationID);
+			allOperations = await Fassade.GetAllOperations();
 
             StateHasChanged();
         }
@@ -364,23 +327,15 @@
 
     }
 
-    private void ToggleToolFormular(bool isNewTool)
+    private async Task ToggleToolFormular(bool isNewTool)
     {
-        if (isNewTool)
-        {
-            selectedTool = new Tool
-                {
-                    stationID = selectedStation.stationID,  // Setze stationID
-                    toolTypeID = 0,   
-                    toolClassID = 0,
-                    isLocked = false// Setze den Foreign Key auf 1 (oder einen anderen Wert je nach Bedarf)
-                };
-        }
+        if (isNewTool) selectedTool = await CreateDummyTool();
+
         showToolFormular = true;
         showOperationFormular = false;
         showStationFormular = false;
 
-        StateHasChanged();  // Aktualisiere den UI-Status
+        StateHasChanged();  
 
     }
 
@@ -493,7 +448,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                                                                                                                                                                    toolReadOnly = false;
+                                                                                                                                                                                                                                                                    toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -720,29 +675,29 @@
 
     public async Task UnlockTool()
     {
-            if (selectedTool!=null && selectedTool.lockedBy == currentUser && selectedTool.isLocked == true)
-            {
-                selectedTool.isLocked = false;
-                selectedTool.lockedBy = null;
-                await Fassade.UpdateTool(selectedTool);
-                await SignalRService.SendMessageToServer("ToolChanged");
-                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+        if (selectedTool!=null && selectedTool.lockedBy == currentUser && selectedTool.isLocked == true)
+        {
+            selectedTool.isLocked = false;
+            selectedTool.lockedBy = null;
+            await Fassade.UpdateTool(selectedTool);
+            await SignalRService.SendMessageToServer("ToolChanged");
+            await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
 
 
 
-            }
+        }
     }
 
     public async Task UnlockOperation()
     {
-            if (selectedOperation != null && selectedOperation.lockedBy == currentUser && selectedOperation.isLocked == true )
-            {
-                selectedOperation.isLocked = false;
-                selectedOperation.lockedBy = null;
-                await Fassade.UpdateOperation(selectedOperation);
-                await SignalRService.SendMessageToServer("OperationChanged");
-                await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
-            }
+        if (selectedOperation != null && selectedOperation.lockedBy == currentUser && selectedOperation.isLocked == true )
+        {
+            selectedOperation.isLocked = false;
+            selectedOperation.lockedBy = null;
+            await Fassade.UpdateOperation(selectedOperation);
+            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+        }
     }
 
     public async Task<Operation> CreateDummyOP()
@@ -756,6 +711,17 @@
                 verificationClassID = 1,
                 qGateID = 1,
                 isLocked = false,
+            };
+    }
+
+    public async Task<Tool> CreateDummyTool()
+    {
+        return new Tool
+            {
+                stationID = selectedStation.stationID,  
+                toolTypeID = 0,
+                toolClassID = 0,
+                isLocked = false
             };
     }
 
