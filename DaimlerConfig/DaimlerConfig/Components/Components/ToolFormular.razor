@@ -156,8 +156,7 @@
     [Parameter]
     public string? CurrentUser { get; set; }
 
-    [Parameter]
-    public EventCallback OnUpdated { get; set; }
+   
 
     [Parameter]
     public bool ReadOnly { get; set; } 
@@ -204,7 +203,7 @@
             return;
 
         await Fassade.UpdateTool(SelectedTool);
-        await OnUpdated.InvokeAsync();
+        
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
     }
@@ -218,7 +217,7 @@
 
 
         await Fassade.AddTool(SelectedTool);
-        await OnUpdated.InvokeAsync();
+       
         await SignalRService.SendMessageToServer("ToolChanged");
     }
 
@@ -227,7 +226,7 @@
         if(SelectedTool != null)
         {
             await Fassade.DeleteTool(SelectedTool);
-            await OnUpdated.InvokeAsync();
+           
             await SignalRService.SendMessageToServer("ToolChanged");
         }
     }
@@ -313,7 +312,7 @@
             SelectedTool.isLocked = true;
             SelectedTool.lockedBy = CurrentUser;
             await Fassade.UpdateTool(SelectedTool);
-            await OnUpdated.InvokeAsync();
+            
             await SignalRService.SendMessageToServer("ToolChanged");
             await SignalRService.SendMessageToServer("ToolLocked;" + SelectedTool.toolID.ToString());
             ReadOnly = false;

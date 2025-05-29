@@ -153,8 +153,7 @@
     [Parameter]
     public bool ReadOnly { get; set; }
 
-    [Parameter]
-    public EventCallback OnUpdated { get; set; }
+   
 
     private Operation? OriginalOperation { get; set; }
     private Dictionary<string, string> errorMessages = new();
@@ -204,7 +203,7 @@
             return;
 
         await Fassade.UpdateOperation(SelectedOperation);
-        await OnUpdated.InvokeAsync();
+        
         await SignalRService.SendMessageToServer("OperationChanged");
         await DirtyManagerService.setClean();
     }
@@ -215,7 +214,7 @@
             return;
 
         await Fassade.AddOperation(SelectedOperation);
-        await OnUpdated.InvokeAsync();
+        
         await SignalRService.SendMessageToServer("OperationChanged");
     }
 
@@ -224,7 +223,7 @@
         if(SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser)  )
         {
             await Fassade.DeleteOperation(SelectedOperation);
-            await OnUpdated.InvokeAsync();
+           
             await SignalRService.SendMessageToServer("OperationChanged");
 
         }

@@ -87,8 +87,7 @@
 	[Parameter]
 	public Station? SelectedStation { get; set; }
 
-	[Parameter]
-	public EventCallback OnUpdated { get; set; }
+	
 
 	IEnumerable<StationType> stationTypes;
 
@@ -120,7 +119,7 @@
 		if (await ValidateData() == false) return;
 
 		await Fassade.UpdateStation(SelectedStation);
-		await OnUpdated.InvokeAsync();
+		
 		await SignalRService.SendMessageToServer("StationChanged");
 
 	}
@@ -131,7 +130,7 @@
 		if (await ValidateData() == false) return;
 
 		await Fassade.UpdateStation(station);
-		await OnUpdated.InvokeAsync();
+		
 		await SignalRService.SendMessageToServer("StationChanged");
 	}
 
@@ -140,7 +139,7 @@
 		if (await ValidateData() == false) return;
 
 		await Fassade.AddStation(SelectedStation);
-		await OnUpdated.InvokeAsync();
+		
 		await SignalRService.SendMessageToServer("StationChanged");
 
 	}
@@ -150,7 +149,7 @@
 		if (SelectedStation != null)
 		{
 			await Fassade.DeleteStation(SelectedStation);
-			await OnUpdated.InvokeAsync();
+			
 			await SignalRService.SendMessageToServer("StationChanged");
 		}
 	}

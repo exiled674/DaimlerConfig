@@ -112,7 +112,7 @@
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
                                             <div class="operation-section d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="() => { SelectOperation(operation);  }">@operation.operationShortname</span>
+                                                <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }">@operation.operationShortname</span>
                                                 <div>
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
 
@@ -132,17 +132,17 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool" OnUpdated="ReloadTools" CurrentUser=@currentUser/>
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool"  CurrentUser=@currentUser/>
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
                     {
-                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="selectedOperation" OnUpdated="ReloadOperations" CurrentUser="@currentUser" />
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="selectedOperation"  CurrentUser="@currentUser" />
                     }
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular @ref="stationFormular" SelectedStation="selectedStation" OnUpdated="ReloadStations"  />
+                        <StationFormular @ref="stationFormular" SelectedStation="selectedStation"   />
                     }
                 </div>
             </main>
@@ -245,21 +245,13 @@
     #region Line
     [Parameter]
     public string lineName { get; set; } = "";
-
     private Line? line;
     #endregion
-
-
-
 
     #region Stations
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
     private Station? selectedStation;
-
-
-
-
-
+    private bool showStationFormular = false;
     private async Task SelectStation(Station station)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -287,11 +279,29 @@
             selectedOperation = await CreateDummyOP();
 
             tools = await Fassade.GetToolsFromStation(station.stationID);
-			allOperations = await Fassade.GetAllOperations();
+            allOperations = await Fassade.GetAllOperations();
 
             StateHasChanged();
         }
 
+    }
+    private void ToggleStationFormular(bool isNewStation)
+    {
+        if (isNewStation)
+        {
+            selectedStation = new Station
+                {
+                    lineID = line.lineID,
+                    stationTypeID = 1
+                };
+            selectedTool = null;
+            selectedOperation = null;
+            tools = Enumerable.Empty<Tool>();
+            allOperations = Enumerable.Empty<Operation>();
+        }
+        showStationFormular = true;
+        showToolFormular = false;
+        showOperationFormular = false;
     }
     #endregion
 
@@ -301,8 +311,7 @@
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
     private bool toolReadOnly = false;
-
-
+    private bool showToolFormular = false;
     private async Task SelectTool(Tool tool)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -326,7 +335,6 @@
         }
 
     }
-
     private async Task ToggleToolFormular(bool isNewTool)
     {
         if (isNewTool) selectedTool = await CreateDummyTool();
@@ -338,7 +346,30 @@
         StateHasChanged();  
 
     }
+    public async Task UnlockTool()
+    {
+        if (selectedTool != null && selectedTool.lockedBy == currentUser && selectedTool.isLocked == true)
+        {
+            selectedTool.isLocked = false;
+            selectedTool.lockedBy = null;
+            await Fassade.UpdateTool(selectedTool);
+            await SignalRService.SendMessageToServer("ToolChanged");
+            await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
 
+
+
+        }
+    }
+    public async Task<Tool> CreateDummyTool()
+    {
+        return new Tool
+            {
+                stationID = selectedStation.stationID,
+                toolTypeID = 0,
+                toolClassID = 0,
+                isLocked = false
+            };
+    }
     #endregion
 
     #region Operation
@@ -346,7 +377,7 @@
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
     private bool operationReadOnly = false;
-
+    private bool showOperationFormular = false;
     private async Task SelectOperation(Operation operation)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -363,46 +394,46 @@
             await UnlockTool();
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
-            showOperationFormular = true;
-            showToolFormular = false;
-            showStationFormular = false;
-
             StateHasChanged();  // Aktualisiere den UI-Status
         }
 
     }
-
-    private void ToggleOperationFormular(bool isNewOperation)
+    private async Task ToggleOperationFormular(bool isNewOperation)
     {
 
-        if (isNewOperation)
-        {
-            selectedOperation = new Operation
-                {
-                    toolID = selectedTool.toolID,  // Setze die toolID
-                    decisionClassID = 1,           // Setze den Foreign Key auf 1
-                    savingClassID = 1,             // Setze den Foreign Key auf 1
-                    generationClassID = 1,         // Setze den Foreign Key auf 1
-                    verificationClassID = 1,       // Setze den Foreign Key auf 1
-                    qGateID = 1,
-                    isLocked = false,// Setze den Foreign Key auf 1
-                };
-        }
+        if (isNewOperation) selectedOperation = await CreateDummyOP();
+
         showOperationFormular = true;
         showToolFormular = false;
         showStationFormular = false;
 
         StateHasChanged();  // Aktualisiere den UI-Status
     }
-
+    public async Task UnlockOperation()
+    {
+        if (selectedOperation != null && selectedOperation.lockedBy == currentUser && selectedOperation.isLocked == true)
+        {
+            selectedOperation.isLocked = false;
+            selectedOperation.lockedBy = null;
+            await Fassade.UpdateOperation(selectedOperation);
+            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+        }
+    }
+    public async Task<Operation> CreateDummyOP()
+    {
+        return new Operation
+            {
+                toolID = selectedTool.toolID,
+                decisionClassID = 1,
+                savingClassID = 1,
+                generationClassID = 1,
+                verificationClassID = 1,
+                qGateID = 1,
+                isLocked = false,
+            };
+    }
     #endregion
-
-
-
-
-
-
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -561,62 +592,6 @@
         }
     }
 
-    private bool showToolFormular = false;
-    private bool showOperationFormular = false;
-    private bool showStationFormular = false;
-
-    private void ToggleStationFormular(bool isNewStation)
-    {
-        if (isNewStation)
-        {
-            selectedStation = new Station
-                {
-                    lineID = line.lineID,
-                    stationTypeID = 1
-                };
-            selectedTool = null;
-            selectedOperation = null;
-            tools = Enumerable.Empty<Tool>();
-            allOperations = Enumerable.Empty<Operation>();
-        }
-        showStationFormular = true;
-        showToolFormular = false;
-        showOperationFormular = false;
-
-
-
-    }
-
-
-
-    private async Task ReloadStations()
-    {
-        if (line != null)
-        {
-            stations = await Fassade.GetStationsFromLine(line.lineID);
-            StateHasChanged();
-        }
-    }
-
-    private async Task ReloadTools()
-    {
-        if (line != null && selectedStation != null)
-        {
-            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
-            StateHasChanged();
-        }
-    }
-
-    private async Task ReloadOperations()
-    {
-        if (line != null && selectedStation != null && selectedTool != null)
-        {
-            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-            allOperations = await Fassade.GetAllOperations();
-            StateHasChanged();
-        }
-    }
-
     #region Clone
     private Tool? copiedTool;
     private Operation? copiedOperation;
@@ -672,57 +647,4 @@
         // Hier dein UnlockTool() aufrufen oder Warnung anzeigen
         await UnlockTool();
     }
-
-    public async Task UnlockTool()
-    {
-        if (selectedTool!=null && selectedTool.lockedBy == currentUser && selectedTool.isLocked == true)
-        {
-            selectedTool.isLocked = false;
-            selectedTool.lockedBy = null;
-            await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer("ToolChanged");
-            await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
-
-
-
-        }
-    }
-
-    public async Task UnlockOperation()
-    {
-        if (selectedOperation != null && selectedOperation.lockedBy == currentUser && selectedOperation.isLocked == true )
-        {
-            selectedOperation.isLocked = false;
-            selectedOperation.lockedBy = null;
-            await Fassade.UpdateOperation(selectedOperation);
-            await SignalRService.SendMessageToServer("OperationChanged");
-            await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
-        }
-    }
-
-    public async Task<Operation> CreateDummyOP()
-    {
-        return new Operation
-            {
-                toolID = selectedTool.toolID,
-                decisionClassID = 1,
-                savingClassID = 1,
-                generationClassID = 1,
-                verificationClassID = 1,
-                qGateID = 1,
-                isLocked = false,
-            };
-    }
-
-    public async Task<Tool> CreateDummyTool()
-    {
-        return new Tool
-            {
-                stationID = selectedStation.stationID,  
-                toolTypeID = 0,
-                toolClassID = 0,
-                isLocked = false
-            };
-    }
-
  }
