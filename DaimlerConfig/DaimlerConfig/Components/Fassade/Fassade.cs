@@ -68,9 +68,9 @@ namespace DaimlerConfig.Components.Fassade
             await LineRepository.Add(line);
         }
 
-        public async Task DeleteLine(Line line)
+        public async Task<bool> DeleteLine(Line line)
         {
-            await LineRepository.Delete(line);
+            return await LineRepository.Delete(line);
         }
 
         public async Task<bool> LineExistsByName(string name)
@@ -126,16 +126,19 @@ namespace DaimlerConfig.Components.Fassade
             return await StationRepository.ExistsByName(name);
         }
 
-        public async Task DeleteStation(Station station)
+        public async Task<bool> DeleteStation(Station station)
         {
-            await StationRepository.Delete(station);
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
+            if (!await StationRepository.Delete(station)) return false;
+
+            if (await LineRepository.Get(station.lineID) is { } line)
             {
                 line.lastModified = DateTime.Now;
                 await LineRepository.Update(line);
             }
+
+            return true;
         }
+
 
         public async Task<bool> StationExistsInLine(string name, int stationID, int lineID)
         {
