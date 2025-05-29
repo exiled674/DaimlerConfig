@@ -350,21 +350,11 @@
         if (DirtyManagerService.IsDirty().Result == true)
         {
             showPopup = true;
+            return;
         }
         else
         {
-            if(selectedTool != null)
-            {
-                if (selectedTool.lockedBy == currentUser && selectedTool.toolID != tool.toolID)
-                {
-                    selectedTool.isLocked = false;
-                    selectedTool.lockedBy = null;
-                    await Fassade.UpdateTool(selectedTool);
-                    await SignalRService.SendMessageToServer("ToolChanged");
-                    await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
-
-                }
-            }
+            await UnlockTool(tool);
 
             selectedTool = tool;
             if(selectedTool.isLocked == false || tool.lockedBy == currentUser)
