@@ -99,36 +99,47 @@ namespace DaimlerConfig.Components.Repositories
             }
         }
 
-        public async Task Delete(TEntity entity)
+        public async Task<bool> Delete(TEntity entity)
         {
-            using var conn = _dbConnectionFactory.CreateConnection();
-            conn.Open();
+            try
+            {
+                using var conn = _dbConnectionFactory.CreateConnection();
+                conn.Open();
 
-            var keyProp = typeof(TEntity)
-                .GetProperties()
-                .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
+                var keyProp = typeof(TEntity)
+                    .GetProperties()
+                    .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
 
-            if (keyProp == null)
-                throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
+                if (keyProp == null)
+                    throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
 
-            var keyName = keyProp.Name;
-            var keyValue = keyProp.GetValue(entity);
+                var keyName = keyProp.Name;
+                var keyValue = keyProp.GetValue(entity);
 
-            var sql = $"DELETE FROM [{_tableName}] WHERE [{keyName}] = @{keyName}";
+                var sql = $"DELETE FROM [{_tableName}] WHERE [{keyName}] = @{keyName}";
 
-            var dp = new DynamicParameters();
-            dp.Add(keyName, keyValue);
+                var dp = new DynamicParameters();
+                dp.Add(keyName, keyValue);
 
-            await conn.ExecuteAsync(sql, dp);
+                var number = await conn.ExecuteAsync(sql, dp);
+                return number > 0;
+            }
+            catch 
+            {
+                return false;
+            }
+           
         }
 
-        public async Task DeleteRange(IEnumerable<TEntity> entities)
+        public async Task<bool> DeleteRange(IEnumerable<TEntity> entities)
         {
             foreach (var entity in entities)
-            {
-                await Delete(entity);
-            }
+                if (!await Delete(entity)) return false;
+
+            return true;
         }
+
+
 
         public async Task<IEnumerable<TEntity>> Find(Expression<Func<TEntity, bool>> predicate)
         {

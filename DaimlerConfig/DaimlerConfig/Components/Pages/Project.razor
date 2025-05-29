@@ -424,10 +424,6 @@
 
             if (msg.StartsWith("OperationUnlocked"))
             {
-
-
-
-
                 var operationID = int.Parse(msg.Split(';')[1]);
                 if (selectedOperation?.operationID == operationID)
                 {
@@ -447,18 +443,13 @@
 
             if (msg.StartsWith("ToolUnlocked"))
             {
-
-
-
-
                 var toolID = int.Parse(msg.Split(';')[1]);
                 if (selectedTool?.toolID == toolID)
                 {
                     /*selectedTool.isLocked = true;
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
-                    await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                                                                                                                                                                                    toolReadOnly = false;
+                    await SignalRService.SendMessageToServer("ToolChanged");*/                                                                                                                                                                                                                                               toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -466,7 +457,6 @@
                 var toolID = int.Parse(msg.Split(';')[1]);
                 if (selectedTool?.lockedBy != currentUser && selectedTool.toolID == toolID)
                 {
-
                     toolReadOnly = true;
                 }
             }
@@ -490,7 +480,6 @@
                     }
                     await SignalRService.SendMessageToServer("OperationChanged");
                 }
-
             }
             else
             {
@@ -505,7 +494,6 @@
                                 // Hole die aktualisierte Station aus der Datenbank
                                 selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
                             }
-
                         }
                         break;
                     case "ToolChanged":
@@ -517,9 +505,6 @@
                                 // Aktualisiere das ausgewählte Tool aus der neuen Liste
                                 selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
                             }
-
-
-
                         }
                         break;
                     case "OperationChanged":
@@ -531,33 +516,16 @@
                                 // Aktualisiere die ausgewählte Operation aus der neuen Liste
                                 selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
                             }
-
                         }
                         allOperations = await Fassade.GetAllOperations();
                         break;
-
-
                 }
-
-
             }
-
             StateHasChanged();
         });
     });
-
-
-
-
         // 2) Starte die Verbindung
         await SignalRService.StartConnectionAsync();
-
-
-
-
-
-
-
 
         line = await Fassade.GetLineByName(lineName);
 

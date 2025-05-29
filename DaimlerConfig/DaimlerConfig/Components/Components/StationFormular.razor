@@ -139,11 +139,12 @@
 
 	private async Task DeleteStationAsync()
 	{
-		if (SelectedStation == null) return;
-		await Fassade.DeleteStation(SelectedStation);
+		if (SelectedStation == null || !await Fassade.DeleteStation(SelectedStation)) return;
+
 		await SignalRService.SendMessageToServer("StationChanged");
 		await DirtyManagerService.setClean();
 	}
+
 	#endregion
 
 
