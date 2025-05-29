@@ -216,6 +216,7 @@
         await Fassade.AddOperation(SelectedOperation);
         
         await SignalRService.SendMessageToServer("OperationChanged");
+        await DirtyManagerService.setClean();
     }
 
     private async Task DeleteOperationAsync()
@@ -225,6 +226,7 @@
             await Fassade.DeleteOperation(SelectedOperation);
            
             await SignalRService.SendMessageToServer("OperationChanged");
+            await DirtyManagerService.setClean();
 
         }
     }

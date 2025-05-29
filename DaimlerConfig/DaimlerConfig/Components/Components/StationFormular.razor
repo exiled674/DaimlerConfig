@@ -121,6 +121,7 @@
 		await Fassade.UpdateStation(SelectedStation);
 		
 		await SignalRService.SendMessageToServer("StationChanged");
+		await DirtyManagerService.setClean();
 
 	}
 
@@ -132,6 +133,7 @@
 		await Fassade.UpdateStation(station);
 		
 		await SignalRService.SendMessageToServer("StationChanged");
+		await DirtyManagerService.setClean();
 	}
 
 	private async Task CreateStationAsync()
@@ -141,6 +143,7 @@
 		await Fassade.AddStation(SelectedStation);
 		
 		await SignalRService.SendMessageToServer("StationChanged");
+		await DirtyManagerService.setClean();
 
 	}
 
@@ -151,6 +154,7 @@
 			await Fassade.DeleteStation(SelectedStation);
 			
 			await SignalRService.SendMessageToServer("StationChanged");
+			await DirtyManagerService.setClean();
 		}
 	}
 	#endregion

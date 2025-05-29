@@ -219,6 +219,7 @@
         await Fassade.AddTool(SelectedTool);
        
         await SignalRService.SendMessageToServer("ToolChanged");
+        await DirtyManagerService.setClean();
     }
 
     private async Task DeleteToolAsync()
@@ -228,6 +229,7 @@
             await Fassade.DeleteTool(SelectedTool);
            
             await SignalRService.SendMessageToServer("ToolChanged");
+            await DirtyManagerService.setClean();
         }
     }
     #endregion
