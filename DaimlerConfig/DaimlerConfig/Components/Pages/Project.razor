@@ -397,53 +397,20 @@
         if (DirtyManagerService.IsDirty().Result == true)
         {
             showPopup = true;
+            return;
         }
         else
         {
-
-            if(selectedOperation != null)
-            {
-                if (selectedOperation.lockedBy == currentUser && selectedOperation.operationID != operation.operationID)
-                {
-                    selectedOperation.isLocked = false;
-                    selectedOperation.lockedBy = null;
-                    await Fassade.UpdateOperation(selectedOperation);
-                    await SignalRService.SendMessageToServer("OperationChanged");
-                    await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
-
-                }
-            }
-
-
+            if (selectedOperation != null && selectedOperation.operationID != operation.operationID) await UnlockOperation();
             selectedOperation = operation;
-            if(selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
-            {
-                selectedTool.isLocked = false;
-                selectedTool.lockedBy = null;
-                await Fassade.UpdateTool(selectedTool);
-                await SignalRService.SendMessageToServer("ToolChanged");
-                await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
-            }
+            operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
 
+            await UnlockTool();
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
-
-            if(selectedOperation.isLocked == false || operation.lockedBy == currentUser)
-            {
-
-                operationReadOnly = false;
-
-            }
-            else
-            {
-                operationReadOnly = true;
-            }
-
-
 
             showOperationFormular = true;
             showToolFormular = false;
             showStationFormular = false;
-
 
             StateHasChanged();  // Aktualisiere den UI-Status
         }
@@ -768,9 +735,7 @@
 
     public async Task UnlockOperation()
     {
-        if (selectedOperation != null)
-        {
-            if (selectedOperation.lockedBy == currentUser && selectedOperation.isLocked == true )
+            if (selectedOperation != null && selectedOperation.lockedBy == currentUser && selectedOperation.isLocked == true )
             {
                 selectedOperation.isLocked = false;
                 selectedOperation.lockedBy = null;
@@ -778,7 +743,6 @@
                 await SignalRService.SendMessageToServer("OperationChanged");
                 await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
             }
-        }
     }
 
     public async Task<Operation> CreateDummyOP()
