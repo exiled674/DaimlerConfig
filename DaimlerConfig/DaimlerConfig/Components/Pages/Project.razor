@@ -459,7 +459,7 @@
             else if (msg.StartsWith("OperationLocked"))
             {
                 var operationID = int.Parse(msg.Split(';')[1]);
-                if (selectedOperation?.lockedBy != currentUser)
+                if (selectedOperation?.lockedBy != currentUser && selectedOperation.operationID == operationID)
                 {
 
                     operationReadOnly = true;
@@ -485,7 +485,7 @@
             else if (msg.StartsWith("ToolLocked"))
             {
                 var toolID = int.Parse(msg.Split(';')[1]);
-                if (selectedTool?.lockedBy != currentUser)
+                if (selectedTool?.lockedBy != currentUser && selectedTool.toolID == toolID)
                 {
 
                     toolReadOnly = true;
