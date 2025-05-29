@@ -252,16 +252,7 @@
         }
         else
         {
-            //Braucht man das so ? 
-            selectedStation = new Station
-                {
-                    stationID = station.stationID,
-                    lineID = station.lineID,
-                    stationTypeID = station.stationTypeID,
-                    assemblystation = station.assemblystation,
-                    stationName = station.stationName
-
-                };
+            selectedStation = station;
 
             await UnlockTool();
             selectedTool = await CreateDummyTool();
@@ -280,11 +271,8 @@
     {
         if (isNewStation)
         {
-            selectedStation = new Station
-                {
-                    lineID = line.lineID,
-                    stationTypeID = 1
-                };
+            selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
+           
             selectedTool = null;
             selectedOperation = null;
             tools = Enumerable.Empty<Tool>();
