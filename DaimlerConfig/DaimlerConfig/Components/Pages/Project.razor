@@ -163,25 +163,16 @@
     private ToolFormular? toolFormular;
     private OperationFormular? operationFormular;
 
-
+    #region SavePopup
     private bool showPopup = false;
-
     private async Task HandleDismiss()
     {
         showPopup = false;
         DirtyManagerService.setClean();
-
-        if (stationFormular != null)
-            stationFormular.ResetStation();
-
-        if (toolFormular != null)
-            toolFormular.ResetTool();
-
-        if (operationFormular != null)
-            operationFormular.ResetOperation();
-
+        if (stationFormular != null) stationFormular.ResetStation();
+        if (toolFormular != null) toolFormular.ResetTool();
+        if (operationFormular != null) operationFormular.ResetOperation();
     }
-
 
     private async Task HandleSave()
     {
@@ -228,7 +219,7 @@
         }
 
     }
-
+    #endregion
 
     #region SideBar
     private string BadgeColor = "#006700"; //needs to be implemented
