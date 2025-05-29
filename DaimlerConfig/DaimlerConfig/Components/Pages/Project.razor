@@ -355,17 +355,11 @@
         else
         {
             await UnlockTool(tool);
-
             selectedTool = tool;
-            if(selectedTool.isLocked == false || tool.lockedBy == currentUser)
-            {
-                toolReadOnly = false;
+            toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != currentUser;
 
-            }
-            else
-            {
-                toolReadOnly = true;
-            }
+
+
 
 
             if(selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
@@ -557,7 +551,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                                                    toolReadOnly = false;
+                                                                                                                                                                                                                    toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -630,7 +624,7 @@
                                 // Aktualisiere die ausgewählte Operation aus der neuen Liste
                                 selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
                             }
-                            
+
                         }
                         allOperations = await Fassade.GetAllOperations();
                         break;
@@ -801,9 +795,24 @@
                 await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
 
 
-                
+
             }
         }
     }
-    
+
+    public async Task UnlockOperation(Operation operation)
+    {
+        if (selectedOperation != null)
+        {
+            if (selectedOperation.lockedBy == currentUser && selectedOperation.operationID != operation.operationID)
+            {
+                selectedOperation.isLocked = false;
+                selectedOperation.lockedBy = null;
+                await Fassade.UpdateOperation(selectedOperation);
+                await SignalRService.SendMessageToServer("OperationChanged");
+				await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+            }
+        }
+    }
+
  }
