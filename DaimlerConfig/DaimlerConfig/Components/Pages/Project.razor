@@ -70,7 +70,7 @@
                         {
                             if (copiedTool != null)
                             {
-                                <button class="btn btn-primary btn-sm" @onclick="() => { InsertTool(); ToggleToolFormular(false); }">Insert Tool</button>
+                                <button class="btn btn-primary btn-sm" @onclick="() => InsertTool()">Insert Tool</button>
                             }
                             <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
                         }
@@ -318,7 +318,7 @@
     {
         if (isNewTool) selectedTool = await CreateDummyTool();
 
-        showToolFormular = true;
+        if (showToolFormular != true) showToolFormular = true;
         showOperationFormular = false;
         showStationFormular = false;
 
@@ -561,7 +561,7 @@
         selectedTool.stationID = selectedStation.stationID;
         selectedTool.toolShortname += "-copy";
         copiedTool = null;
-       
+        ToggleToolFormular(false);
     }
 
     public async Task InsertOperation()
