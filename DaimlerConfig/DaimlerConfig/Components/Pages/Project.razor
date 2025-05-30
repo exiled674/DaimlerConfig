@@ -121,19 +121,22 @@
                                             </svg>
                                         </div>
                                     </div>
-                                    <div class="operation-list">
-                                        @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
-                                        {
-                                            <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
-                                                <span class="clickable" @onclick="() => { SelectOperation(operation); }">@operation.operationShortname</span>
-                                                <!-- Drag handle for operations -->
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
-                                                     class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
-                                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                                                </svg>
-                                            </div>
-                                        }
-                                    </div>
+                                    @if (allOperations.Where(op => op.toolID == tool.toolID).Any())
+                                    {
+                                        <div class="operation-list">
+                                            @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
+                                            {
+                                                <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
+                                                    <span class="clickable" @onclick="() => { SelectOperation(operation); }">@operation.operationShortname</span>
+                                                    <!-- Drag handle for operations -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
+                                                         class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
+                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                                                    </svg>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
                             }
                         }

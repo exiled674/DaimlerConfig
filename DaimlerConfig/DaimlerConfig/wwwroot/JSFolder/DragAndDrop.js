@@ -40,7 +40,7 @@ window.initializeDragAndDropSafe = function (className, containerSelector) {
                 move(event) {
                     const target = event.target;
                     const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                    const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                    const y = (parseFloat(target.getAttribute('data-y')) || 0);
 
                     // Apply transform (restrict to vertical movement only)
                     target.style.transform = `translate(0px, ${y}px)`;
