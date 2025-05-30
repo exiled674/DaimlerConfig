@@ -79,7 +79,7 @@
         <div class="toolColoumnRight ">
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="ToolClass" value="@SelectedTool.toolClassID" @onchange="OnToolClassChanged" disabled="@ReadOnly">
-                    @foreach (var toolClass in toolClasses)
+                    @foreach (var toolClass in toolClasses.OrderBy(t =>t.toolClassName))
                     {
                         <option value="@toolClass.toolClassID">@toolClass.toolClassName</option>
                     }
@@ -90,7 +90,7 @@
 
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="ToolType" value="@SelectedTool.toolTypeID" @onchange="OnToolTypeChanged" disabled="@ReadOnly">
-                    @foreach (var toolType in toolTypes)
+                    @foreach (var toolType in toolTypes.OrderBy(t=>t.toolTypeName))
                     {
                         <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
                     }
@@ -330,6 +330,7 @@
         {
             SelectedTool.toolClassID = selectedId;
             toolTypes = await Fassade.FindToolTypes(selectedId);
+            SelectedTool.toolTypeID = toolTypes.FirstOrDefault()?.toolTypeID ?? 0;
 			await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
         }
     }

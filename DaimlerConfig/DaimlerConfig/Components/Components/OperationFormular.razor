@@ -91,7 +91,7 @@
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly">
-                    @foreach (var decision in decisionClasses)
+                    @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
                     {
                         <option value="@decision.decisionClassID">@decision.decisionClassName</option>
                     }
@@ -101,7 +101,7 @@
 
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly">
-                    @foreach (var generation in generationClasses)
+                    @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
                     {
                         <option value="@generation.generationClassID">@generation.generationClassName</option>
                     }
@@ -110,7 +110,7 @@
             </div>
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly">
-                    @foreach (var verification in verificationClasses)
+                    @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
                     {
                         <option value="@verification.verificationClassID">@verification.verificationClassName</option>
                     }
@@ -120,7 +120,7 @@
 
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly">
-                    @foreach (var saving in savingClasses)
+                    @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
                     {
                         <option value="@saving.savingClassID">@saving.savingClassName</option>
                     }
@@ -320,7 +320,7 @@
 
             generationClasses = await Fassade.GetGenerationClasses(currentTemplate.TemplateId);
 
-            if (verificationClasses == null || !verificationClasses.Any())
+            if (!verificationClasses.Any())
             {
                 var list = verificationClasses.ToList();
                 list.AddRange(await Fassade.GetVerificationClass(0));
