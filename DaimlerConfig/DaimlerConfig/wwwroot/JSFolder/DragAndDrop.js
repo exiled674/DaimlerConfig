@@ -116,7 +116,7 @@ function handleReordering(draggedElement, mouseY, className, containerSelector) 
         if (insertBefore) {
             container.insertBefore(draggedElement, targetElement);
         } else {
-            // Insert after the target element
+            //Insert after the target element
             if (targetElement.nextSibling) {
                 container.insertBefore(draggedElement, targetElement.nextSibling);
             } else {

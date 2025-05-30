@@ -2,6 +2,7 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Services
+@using Microsoft.IdentityModel.Tokens
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
 
@@ -163,7 +164,7 @@
 
     private Tool? currentTool;
 
-    private Template? currentTemplate;
+    private List<int> currentTemplates = new List<int>();
 
     private IEnumerable<DecisionClass> decisionClasses = Enumerable.Empty<DecisionClass>();
 
@@ -172,6 +173,8 @@
     private IEnumerable<VerificationClass> verificationClasses = Enumerable.Empty<VerificationClass>();
 
     private IEnumerable<GenerationClass> generationClasses = Enumerable.Empty<GenerationClass>();
+    
+    private IEnumerable<ToolTypeHasTemplate> toolTypeHasTemplates = Enumerable.Empty<ToolTypeHasTemplate>();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -185,8 +188,16 @@
             currentTool = await Fassade.GetTool(SelectedOperation.toolID);
             if(currentTool != null)
             {
-                var toolClassId = currentTool.toolClassID;
-                currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
+                var toolTypeId = currentTool?.toolTypeID ?? 0;
+                
+                toolTypeHasTemplates = await Fassade.ToolTypeHasTemplateRepository.Find(t=>t.ToolTypeId ==toolTypeId);
+                
+                currentTemplates.Clear();
+                foreach (var toolTypeHasTemplate in toolTypeHasTemplates)
+                {
+                    currentTemplates.Add(toolTypeHasTemplate.TemplateId);
+                }
+
             }
            
 
@@ -312,26 +323,24 @@
     {
         decisionClasses = await Fassade.GetDecisionClasses();
 
-        if(currentTemplate != null)
+        if (!currentTemplates.IsNullOrEmpty())
         {
-            savingClasses = await Fassade.GetSavingClasses(currentTemplate.TemplateId);
+            var savingClassesList = new List<SavingClass>();
+            var verificationClassesList = new List<VerificationClass>();
+            var generationClassesList = new List<GenerationClass>();
 
-            verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.TemplateId);
-
-            generationClasses = await Fassade.GetGenerationClasses(currentTemplate.TemplateId);
-
-            if (!verificationClasses.Any())
+            foreach (var currentTemplate in currentTemplates)
             {
-                var list = verificationClasses.ToList();
-                list.AddRange(await Fassade.GetVerificationClass(0));
-                verificationClasses = list.AsEnumerable();
-
-
+                savingClassesList.AddRange(await Fassade.GetSavingClasses(currentTemplate));
+                verificationClassesList.AddRange(await Fassade.GetVerificationClasses(currentTemplate));
+                generationClassesList.AddRange(await Fassade.GetGenerationClasses(currentTemplate));
             }
-        }
-        
 
-        
+            savingClasses = savingClassesList;
+            verificationClasses = verificationClassesList;
+            generationClasses = generationClassesList;
+        }
     }
+
     #endregion
 }

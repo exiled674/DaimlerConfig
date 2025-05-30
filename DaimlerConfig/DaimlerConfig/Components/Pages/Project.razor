@@ -335,7 +335,7 @@
                     qGateID = 1,
                     isLocked = false,
                 // Setze den Foreign Key auf 1
-                };  // Setze die ausgewählte Operation zurück;  // Setze die ausgewählte Operation zurück
+                };  // Setze die ausgewählte Operation zurück; // Setze die ausgewählte Operation zurück
 
             tools = await Fassade.GetToolsFromStation(station.stationID);
 
@@ -523,8 +523,7 @@
     }
 
     #endregion
-
-
+    
     #region Drag
     private bool _initialized = false;
 
@@ -578,7 +577,6 @@
         // You would need to implement this based on your specific requirements
     }
 
-
     [JSInvokable]
     public static async Task HandleToolReorder(string[] newOrder)
     {
@@ -594,15 +592,7 @@
         // Implement your operation reordering logic here
         // Example: Update operation sequence in database
     }
-
     #endregion
-
-
-
-
-
-
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -611,17 +601,11 @@
     {
         await InvokeAsync(async () =>
         {
-
             if (msg.StartsWith("OperationUnlocked"))
             {
-
-
-
-
                 var operationID = int.Parse(msg.Split(';')[1]);
                 if (selectedOperation?.operationID == operationID)
                 {
-
                     operationReadOnly = false;
                 }
             }
@@ -630,17 +614,11 @@
                 var operationID = int.Parse(msg.Split(';')[1]);
                 if (selectedOperation?.lockedBy != currentUser)
                 {
-
                     operationReadOnly = true;
                 }
             }
-
             if (msg.StartsWith("ToolUnlocked"))
             {
-
-
-
-
                 var toolID = int.Parse(msg.Split(';')[1]);
                 if (selectedTool?.toolID == toolID)
                 {
@@ -648,7 +626,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/
-                                                                                                                                    toolReadOnly = false;
+                    toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -656,7 +634,6 @@
                 var toolID = int.Parse(msg.Split(';')[1]);
                 if (selectedTool?.lockedBy != currentUser)
                 {
-
                     toolReadOnly = true;
                 }
             }
@@ -667,7 +644,6 @@
                 {
                     var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
                 }
-
                 if(operations != null)
                 {
                     foreach (var op in operations)
@@ -680,7 +656,6 @@
                     }
                     await SignalRService.SendMessageToServer("OperationChanged");
                 }
-
             }
             else
             {
@@ -707,9 +682,6 @@
                                 // Aktualisiere das ausgewählte Tool aus der neuen Liste
                                 selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
                             }
-
-
-
                         }
                         break;
                     case "OperationChanged":
@@ -724,29 +696,13 @@
                             allOperations = await Fassade.GetAllOperations();
                         }
                         break;
-
-
                 }
-
-
             }
-
             StateHasChanged();
         });
     });
-
-
-
-
         // 2) Starte die Verbindung
         await SignalRService.StartConnectionAsync();
-
-
-
-
-
-
-
 
         line = await Fassade.GetLineByName(lineName);
 
@@ -781,12 +737,7 @@
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
-
-
-
     }
-
-
 
     private async Task ReloadStations()
     {
