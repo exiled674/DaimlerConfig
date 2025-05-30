@@ -199,37 +199,43 @@
     public async Task UpdateOperationAsync()
     {
         ResetValidationState();
+
         if (await ValidateData() == false)
             return;
 
-        await Fassade.UpdateOperation(SelectedOperation);
-        
+        if (!await Fassade.UpdateOperation(SelectedOperation))
+            return;
+
         await SignalRService.SendMessageToServer("OperationChanged");
         await DirtyManagerService.setClean();
     }
+
 
     private async Task AddOperationAsync()
     {
         if (await ValidateData() == false)
             return;
 
-        await Fassade.AddOperation(SelectedOperation);
-        
+        if (!await Fassade.AddOperation(SelectedOperation))
+            return;
+
         await SignalRService.SendMessageToServer("OperationChanged");
         await DirtyManagerService.setClean();
     }
 
+
     private async Task DeleteOperationAsync()
     {
-        if(SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser)  )
+        if (SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser))
         {
-            await Fassade.DeleteOperation(SelectedOperation);
-           
+            if (!await Fassade.DeleteOperation(SelectedOperation))
+                return;
+
             await SignalRService.SendMessageToServer("OperationChanged");
             await DirtyManagerService.setClean();
-
         }
     }
+
     #endregion
 
     #region Validate

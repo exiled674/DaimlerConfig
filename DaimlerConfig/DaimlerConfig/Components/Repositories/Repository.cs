@@ -42,62 +42,73 @@ namespace DaimlerConfig.Components.Repositories
             return result > 0;
         }
 
-        public async Task Add(TEntity entity)
+        public async Task<bool> Add(TEntity entity)
         {
-            using var conn = _dbConnectionFactory.CreateConnection();
-            conn.Open();
-
-            var type = typeof(TEntity);
-            var primaryKey = type.Name + "ID";
-
-            var properties = type
-                .GetProperties()
-                .Where(p => !string.Equals(p.Name, primaryKey, StringComparison.OrdinalIgnoreCase));
-
-            // Bestimme den Namen, der überprüft werden muss
-            var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
-            var nameValue = type.GetProperty(nameProperty)?.GetValue(entity)?.ToString();
-
-            if (nameValue != null && await ExistsByName(nameValue))
+            try
             {
-                throw new InvalidOperationException($"{nameProperty} '{nameValue}' existiert bereits.");
+                using var conn = _dbConnectionFactory.CreateConnection();
+                conn.Open();
+
+                var type = typeof(TEntity);
+                var primaryKey = type.Name + "ID";
+
+                var properties = type
+                    .GetProperties()
+                    .Where(p => !string.Equals(p.Name, primaryKey, StringComparison.OrdinalIgnoreCase));
+
+                var nameProperty = char.ToLowerInvariant(_tableName[0]) + _tableName.Substring(1) + "Name";
+                var nameValue = type.GetProperty(nameProperty)?.GetValue(entity)?.ToString();
+
+                if (nameValue != null && await ExistsByName(nameValue))
+                {
+                    throw new InvalidOperationException($"{nameProperty} '{nameValue}' existiert bereits.");
+                }
+
+                var columnNames = properties.Select(p => p.Name);
+                var columns = string.Join(", ", columnNames.Select(c => $"[{c}]"));
+                var paramNames = string.Join(", ", columnNames.Select(n => "@" + n));
+
+                var sql = $@"
+                            INSERT INTO [{_tableName}]
+                            ({columns})
+                            VALUES
+                            ({paramNames});
+                            ";
+
+                var dp = new DynamicParameters();
+                foreach (var p in properties)
+                {
+                    var val = p.GetValue(entity);
+                    if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
+                        && p.PropertyType == typeof(DateTime) && val != null)
+                    {
+                        dp.Add(p.Name, (DateTime)val);
+                    }
+                    else
+                    {
+                        dp.Add(p.Name, val);
+                    }
+                }
+
+                var rowsAffected = await conn.ExecuteAsync(sql, dp);
+                return rowsAffected > 0;
             }
-
-            var columnNames = properties.Select(p => p.Name);
-            var columns = string.Join(", ", columnNames.Select(c => $"[{c}]"));
-            var paramNames = string.Join(", ", columnNames.Select(n => "@" + n));
-            var sql = $@"
-            INSERT INTO [{_tableName}]
-            ({columns})
-            VALUES
-            ({paramNames});
-            ";
-
-            var dp = new DynamicParameters();
-            foreach (var p in properties)
+            catch
             {
-                var val = p.GetValue(entity);
-                if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
-                    && p.PropertyType == typeof(DateTime))
-                {
-                    dp.Add(p.Name, (DateTime)val);
-                }
-                else
-                {
-                    dp.Add(p.Name, val);
-                }
+                return false;
             }
-
-            await conn.ExecuteAsync(sql, dp);
         }
 
-        public async Task AddRange(IEnumerable<TEntity> entities)
+
+
+        public async Task<bool> AddRange(IEnumerable<TEntity> entities)
         {
             foreach (var entity in entities)
-            {
-                await Add(entity);
-            }
+                if (!await Add(entity)) return false;
+
+            return true;
         }
+
 
         public async Task<bool> Delete(TEntity entity)
         {
@@ -212,50 +223,60 @@ namespace DaimlerConfig.Components.Repositories
             return await conn.QueryAsync<TEntity>(sql);
         }
 
-        public async Task Update(TEntity entity)
+        public async Task<bool> Update(TEntity entity)
         {
-            using var conn = _dbConnectionFactory.CreateConnection();
-            conn.Open();
+            try
+            {
+                using var conn = _dbConnectionFactory.CreateConnection();
+                conn.Open();
 
-            var type = typeof(TEntity);
-            var keyProp = type.GetProperties()
-                .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
+                var type = typeof(TEntity);
+                var keyProp = type.GetProperties()
+                    .FirstOrDefault(p => p.Name.Equals($"{_tableName}ID", StringComparison.OrdinalIgnoreCase));
 
-            if (keyProp == null)
-                throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
+                if (keyProp == null)
+                    throw new InvalidOperationException($"Keine Primärschlüssel-Property für {_tableName} gefunden.");
 
-            var keyName = keyProp.Name;
-            var keyValue = keyProp.GetValue(entity);
+                var keyName = keyProp.Name;
+                var keyValue = keyProp.GetValue(entity);
 
-            var props = type.GetProperties()
-                .Where(p => !string.Equals(p.Name, keyName, StringComparison.OrdinalIgnoreCase));
+                var props = type.GetProperties()
+                    .Where(p => !string.Equals(p.Name, keyName, StringComparison.OrdinalIgnoreCase));
 
-            var setClause = string.Join(", ", props.Select(p => $"[{p.Name}] = @{p.Name}"));
+                var setClause = string.Join(", ", props.Select(p => $"[{p.Name}] = @{p.Name}"));
 
-            var sql = $@"
+                var sql = $@"
 UPDATE [{_tableName}]
 SET {setClause}
 WHERE [{keyName}] = @{keyName};
 ";
 
-            var dp = new DynamicParameters();
-            foreach (var p in props)
-            {
-                var val = p.GetValue(entity);
-                if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
-                    && p.PropertyType == typeof(DateTime))
+                var dp = new DynamicParameters();
+                foreach (var p in props)
                 {
-                    dp.Add(p.Name, (DateTime)val);
+                    var val = p.GetValue(entity);
+                    if (p.Name.Equals("lastModified", StringComparison.OrdinalIgnoreCase)
+                        && p.PropertyType == typeof(DateTime) && val != null)
+                    {
+                        dp.Add(p.Name, (DateTime)val);
+                    }
+                    else
+                    {
+                        dp.Add(p.Name, val);
+                    }
                 }
-                else
-                {
-                    dp.Add(p.Name, val);
-                }
-            }
-            dp.Add(keyName, keyValue);
 
-            await conn.ExecuteAsync(sql, dp);
+                dp.Add(keyName, keyValue);
+
+                var rowsAffected = await conn.ExecuteAsync(sql, dp);
+                return rowsAffected > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
+
 
         public async Task<TEntity?> GetByName(string name)
         {

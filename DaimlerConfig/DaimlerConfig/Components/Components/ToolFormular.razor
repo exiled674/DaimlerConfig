@@ -202,11 +202,13 @@
         if (await ValidateData() == false)
             return;
 
-        await Fassade.UpdateTool(SelectedTool);
-        
+        if (!await Fassade.UpdateTool(SelectedTool))
+            return;
+
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
     }
+
 
     private async Task CreateToolAsync()
     {
@@ -215,23 +217,23 @@
         if (await ValidateData() == false)
             return;
 
+        if (!await Fassade.AddTool(SelectedTool))
+            return;
 
-        await Fassade.AddTool(SelectedTool);
-       
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
     }
 
+
     private async Task DeleteToolAsync()
     {
-        if(SelectedTool != null)
-        {
-            await Fassade.DeleteTool(SelectedTool);
-           
-            await SignalRService.SendMessageToServer("ToolChanged");
-            await DirtyManagerService.setClean();
-        }
+        if (SelectedTool == null) return;
+        if (!await Fassade.DeleteTool(SelectedTool)) return;
+
+        await SignalRService.SendMessageToServer("ToolChanged");
+        await DirtyManagerService.setClean();
     }
+
     #endregion
 
     #region Validate

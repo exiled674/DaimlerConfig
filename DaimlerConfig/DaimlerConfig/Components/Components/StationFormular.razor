@@ -110,15 +110,16 @@
 
 
 	#region CRUD
-	public async Task UpdateStationAsync()
+	public async Task UpdateStationAsync(Station station)
 	{
 		ResetValidationState();
 		if (await ValidateData() == false) return;
-		await Fassade.UpdateStation(SelectedStation);
+		if (!await Fassade.UpdateStation(station)) return;
+
 		await SignalRService.SendMessageToServer("StationChanged");
 		await DirtyManagerService.setClean();
-
 	}
+
 
 	public async Task UpdateStationAsync(Station station)
 	{
@@ -132,10 +133,12 @@
 	private async Task CreateStationAsync()
 	{
 		if (await ValidateData() == false) return;
-		await Fassade.AddStation(SelectedStation);
+		if (!await Fassade.AddStation(SelectedStation)) return;
+
 		await SignalRService.SendMessageToServer("StationChanged");
 		await DirtyManagerService.setClean();
 	}
+
 
 	private async Task DeleteStationAsync()
 	{
