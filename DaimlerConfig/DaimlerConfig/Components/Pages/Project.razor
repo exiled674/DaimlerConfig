@@ -546,7 +546,8 @@
     {
 
         copiedTool = Fassade.Clone(copied);
-
+        copiedTool.isLocked = false;
+        copiedTool.lockedBy = null;
     }
 
     public void CloneOperation(Operation copied)
@@ -557,14 +558,12 @@
     public async Task InsertTool()
     {
         copiedTool.stationID = selectedStation.stationID;
-        selectedTool = copiedTool;
-
-
-
-        tools = await Fassade.GetToolsFromStation(selectedTool.stationID);
-        if (tools.Any(t => t.toolShortname == selectedTool.toolShortname))
+        
+        
+        tools = await Fassade.GetToolsFromStation(copiedTool.stationID);
+        if (tools.Any(t => t.toolShortname == copiedTool.toolShortname))
         {
-            string baseName = selectedTool.toolShortname;
+            string baseName = copiedTool.toolShortname;
             int copyIndex = 1;
             string newName;
 
@@ -575,10 +574,10 @@
             }
             while (tools.Any(t => t.toolShortname == newName));
 
-            selectedTool.toolShortname = newName;
+            copiedTool.toolShortname = newName;
         }
 
-		await Fassade.AddTool(selectedTool);
+		await Fassade.AddTool(copiedTool);
         await SignalRService.SendMessageToServer("ToolChanged");
 		await DirtyManagerService.setClean();
 			
