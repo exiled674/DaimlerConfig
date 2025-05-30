@@ -13,10 +13,10 @@ namespace DaimlerConfig.Components.Repositories
         public Task<bool> DeleteRange(IEnumerable<TEntity> entities);
 
 
-        public Task Add(TEntity entity);
-        public Task AddRange(IEnumerable<TEntity> entities);
+        public Task<bool> Add(TEntity entity);
+        public Task<bool> AddRange(IEnumerable<TEntity> entities);
 
-        public Task Update(TEntity entity);
+        public Task<bool> Update(TEntity entity);
 
 
 

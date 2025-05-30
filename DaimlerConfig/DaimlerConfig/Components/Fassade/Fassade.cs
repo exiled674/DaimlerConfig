@@ -63,9 +63,9 @@ namespace DaimlerConfig.Components.Fassade
             return await LineRepository.GetByName(lineName);
         }
 
-        public async Task AddLine(Line line)
+        public async Task<bool> AddLine(Line line)
         {
-            await LineRepository.Add(line);
+            return await LineRepository.Add(line);
         }
 
         public async Task<bool> DeleteLine(Line line)
@@ -78,9 +78,9 @@ namespace DaimlerConfig.Components.Fassade
             return await LineRepository.ExistsByName(name);
         }
 
-        public async Task UpdateLine(Line line)
+        public async Task<bool> UpdateLine(Line line)
         {
-            await LineRepository.Update(line);
+            return await LineRepository.Update(line);
         }
         #endregion
 
@@ -97,29 +97,35 @@ namespace DaimlerConfig.Components.Fassade
             return await StationRepository.GetStationsFromLine(lineID);
         }
 
-        public async Task UpdateStation(Station station)
+        public async Task<bool> UpdateStation(Station station)
         {
             station.lastModified = DateTime.Now;
-            await StationRepository.Update(station);
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
+            if (!await StationRepository.Update(station)) return false;
+
+            if (await LineRepository.Get(station.lineID) is { } line)
             {
                 line.lastModified = DateTime.Now;
                 await LineRepository.Update(line);
             }
+
+            return true;
         }
 
-        public async Task AddStation(Station station)
+
+        public async Task<bool> AddStation(Station station)
         {
             station.lastModified = DateTime.Now;
-            await StationRepository.Add(station);
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
+            if (!await StationRepository.Add(station)) return false;
+
+            if (await LineRepository.Get(station.lineID) is { } line)
             {
                 line.lastModified = DateTime.Now;
                 await LineRepository.Update(line);
             }
+
+            return true;
         }
+
 
         public async Task<bool> StationExistsByName(string name)
         {
@@ -157,41 +163,51 @@ namespace DaimlerConfig.Components.Fassade
             return await ToolRepository.GetToolsFromStation(stationID);
         }
 
-        public async Task UpdateTool(Tool tool)
+        public async Task<bool> UpdateTool(Tool tool)
         {
             tool.lastModified = DateTime.Now;
-            await ToolRepository.Update(tool);
+            if (!await ToolRepository.Update(tool)) return false;
+
             var station = await StationRepository.Get(tool.stationID);
             if (station != null)
             {
                 station.lastModified = DateTime.Now;
-                await StationRepository.Update(station);
+                if (!await StationRepository.Update(station)) return false;
+
+                var line = await LineRepository.Get(station.lineID);
+                if (line != null)
+                {
+                    line.lastModified = DateTime.Now;
+                    if (!await LineRepository.Update(line)) return false;
+                }
             }
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
-            {
-                line.lastModified = DateTime.Now;
-                await LineRepository.Update(line);
-            }
+
+            return true;
         }
 
-        public async Task AddTool(Tool tool)
+
+        public async Task<bool> AddTool(Tool tool)
         {
             tool.lastModified = DateTime.Now;
-            await ToolRepository.Add(tool);
+            if (!await ToolRepository.Add(tool)) return false;
+
             var station = await StationRepository.Get(tool.stationID);
             if (station != null)
             {
                 station.lastModified = DateTime.Now;
-                await StationRepository.Update(station);
+                if (!await StationRepository.Update(station)) return false;
+
+                var line = await LineRepository.Get(station.lineID);
+                if (line != null)
+                {
+                    line.lastModified = DateTime.Now;
+                    if (!await LineRepository.Update(line)) return false;
+                }
             }
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
-            {
-                line.lastModified = DateTime.Now;
-                await LineRepository.Update(line);
-            }
+
+            return true;
         }
+
 
         public async Task<bool> ToolExistsByName(string name)
         {
@@ -208,22 +224,27 @@ namespace DaimlerConfig.Components.Fassade
         }
 
 
-        public async Task DeleteTool(Tool tool)
+        public async Task<bool> DeleteTool(Tool tool)
         {
-            await ToolRepository.Delete(tool);
+            if (!await ToolRepository.Delete(tool)) return false;
+
             var station = await StationRepository.Get(tool.stationID);
             if (station != null)
             {
                 station.lastModified = DateTime.Now;
-                await StationRepository.Update(station);
+                if (!await StationRepository.Update(station)) return false;
+
+                var line = await LineRepository.Get(station.lineID);
+                if (line != null)
+                {
+                    line.lastModified = DateTime.Now;
+                    if (!await LineRepository.Update(line)) return false;
+                }
             }
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
-            {
-                line.lastModified = DateTime.Now;
-                await LineRepository.Update(line);
-            }
+
+            return true;
         }
+
 
         public async Task<Tool> GetTool(int? toolID)
         {
@@ -244,53 +265,64 @@ namespace DaimlerConfig.Components.Fassade
             return await OperationRepository.GetAll();
         }
 
-        public async Task UpdateOperation(Operation operation)
+        public async Task<bool> UpdateOperation(Operation operation)
         {
             operation.lastModified = DateTime.Now;
-            await OperationRepository.Update(operation);
+            if (!await OperationRepository.Update(operation)) return false;
+
             var tool = await ToolRepository.Get(operation.toolID);
             if (tool != null)
             {
                 tool.lastModified = DateTime.Now;
-                await ToolRepository.Update(tool);
+                if (!await ToolRepository.Update(tool)) return false;
+
+                var station = await StationRepository.Get(tool.stationID);
+                if (station != null)
+                {
+                    station.lastModified = DateTime.Now;
+                    if (!await StationRepository.Update(station)) return false;
+
+                    var line = await LineRepository.Get(station.lineID);
+                    if (line != null)
+                    {
+                        line.lastModified = DateTime.Now;
+                        if (!await LineRepository.Update(line)) return false;
+                    }
+                }
             }
-            var station = await StationRepository.Get(tool.stationID);
-            if (station != null)
-            {
-                station.lastModified = DateTime.Now;
-                await StationRepository.Update(station);
-            }
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
-            {
-                line.lastModified = DateTime.Now;
-                await LineRepository.Update(line);
-            }
+
+            return true;
         }
 
-        public async Task AddOperation(Operation operation)
+        public async Task<bool> AddOperation(Operation operation)
         {
             operation.lastModified = DateTime.Now;
-            await OperationRepository.Add(operation);
+            if (!await OperationRepository.Add(operation)) return false;
+
             var tool = await ToolRepository.Get(operation.toolID);
             if (tool != null)
             {
                 tool.lastModified = DateTime.Now;
-                await ToolRepository.Update(tool);
+                if (!await ToolRepository.Update(tool)) return false;
+
+                var station = await StationRepository.Get(tool.stationID);
+                if (station != null)
+                {
+                    station.lastModified = DateTime.Now;
+                    if (!await StationRepository.Update(station)) return false;
+
+                    var line = await LineRepository.Get(station.lineID);
+                    if (line != null)
+                    {
+                        line.lastModified = DateTime.Now;
+                        if (!await LineRepository.Update(line)) return false;
+                    }
+                }
             }
-            var station = await StationRepository.Get(tool.stationID);
-            if (station != null)
-            {
-                station.lastModified = DateTime.Now;
-                await StationRepository.Update(station);
-            }
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
-            {
-                line.lastModified = DateTime.Now;
-                await LineRepository.Update(line);
-            }
+
+            return true;
         }
+
 
         public async Task<bool> OperationExistsByName(string name)
         {
@@ -307,28 +339,34 @@ namespace DaimlerConfig.Components.Fassade
         }
 
 
-        public async Task DeleteOperation(Operation operation)
+        public async Task<bool> DeleteOperation(Operation operation)
         {
-            await OperationRepository.Delete(operation);
+            if (!await OperationRepository.Delete(operation)) return false;
+
             var tool = await ToolRepository.Get(operation.toolID);
             if (tool != null)
             {
                 tool.lastModified = DateTime.Now;
-                await ToolRepository.Update(tool);
+                if (!await ToolRepository.Update(tool)) return false;
+
+                var station = await StationRepository.Get(tool.stationID);
+                if (station != null)
+                {
+                    station.lastModified = DateTime.Now;
+                    if (!await StationRepository.Update(station)) return false;
+
+                    var line = await LineRepository.Get(station.lineID);
+                    if (line != null)
+                    {
+                        line.lastModified = DateTime.Now;
+                        if (!await LineRepository.Update(line)) return false;
+                    }
+                }
             }
-            var station = await StationRepository.Get(tool.stationID);
-            if (station != null)
-            {
-                station.lastModified = DateTime.Now;
-                await StationRepository.Update(station);
-            }
-            var line = await LineRepository.Get(station.lineID);
-            if (line != null)
-            {
-                line.lastModified = DateTime.Now;
-                await LineRepository.Update(line);
-            }
+
+            return true;
         }
+
         #endregion
 
         #region Export

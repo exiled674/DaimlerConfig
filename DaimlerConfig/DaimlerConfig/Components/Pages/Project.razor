@@ -70,7 +70,7 @@
                         {
                             if (copiedTool != null)
                             {
-                                <button class="btn btn-primary btn-sm" @onclick="() => InsertTool()">Insert Tool</button>
+                                <button class="btn btn-primary btn-sm" @onclick="() => { InsertTool(); ToggleToolFormular(false); }">Insert Tool</button>
                             }
                             <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
                         }
@@ -272,7 +272,7 @@
         if (isNewStation)
         {
             selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
-           
+
             selectedTool = null;
             selectedOperation = null;
             tools = Enumerable.Empty<Tool>();
@@ -556,31 +556,17 @@
 
     public async Task InsertTool()
     {
-        if (selectedTool != null && selectedTool.isLocked == true && selectedTool.lockedBy == currentUser)
-        {
-            selectedTool.isLocked = false;
-            selectedTool.lockedBy = null;
-            await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer("ToolChanged");
-            await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
-        }
+        await UnlockTool();
         selectedTool = copiedTool;
         selectedTool.stationID = selectedStation.stationID;
         selectedTool.toolShortname += "-copy";
         copiedTool = null;
-        ToggleToolFormular(false);
+       
     }
 
     public async Task InsertOperation()
     {
-        if (selectedOperation != null && selectedOperation.isLocked == true && selectedOperation.lockedBy == currentUser)
-        {
-            selectedOperation.isLocked = false;
-            selectedOperation.lockedBy = null;
-            await Fassade.UpdateOperation(selectedOperation);
-            await SignalRService.SendMessageToServer("OperationChanged");
-            await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
-        }
+        await UnlockOperation();
         selectedOperation = copiedOperation;
         selectedOperation.toolID = selectedTool.toolID;
         copiedOperation = null;
