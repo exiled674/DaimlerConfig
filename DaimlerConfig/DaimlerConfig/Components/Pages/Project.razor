@@ -591,11 +591,33 @@
 
     public async Task InsertOperation()
     {
-        await UnlockOperation();
-        selectedOperation = copiedOperation;
-        selectedOperation.toolID = selectedTool.toolID;
+        copiedOperation.toolID = selectedTool.toolID;
+
+
+        operations = await Fassade.GetOperationsFromTool(copiedOperation.toolID);
+        if (operations.Any(t => t.operationShortname == copiedOperation.operationShortname))
+        {
+            string baseName = copiedOperation.operationShortname;
+            int copyIndex = 1;
+            string newName;
+
+            do
+            {
+                newName = $"{baseName}({copyIndex})";
+                copyIndex++;
+            }
+            while (operations.Any(t => t.operationShortname == newName));
+
+            copiedOperation.operationShortname = newName;
+        }
+
+        await Fassade.AddOperation(copiedOperation);
+        await SignalRService.SendMessageToServer("OperationChanged");
+        await DirtyManagerService.setClean();
+
+
+
         copiedOperation = null;
-        ToggleOperationFormular(false);
     }
     #endregion
 
