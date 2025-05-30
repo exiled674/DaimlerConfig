@@ -97,6 +97,11 @@ namespace DaimlerConfig.Components.Fassade
             return await StationRepository.GetStationsFromLine(lineID);
         }
 
+        public async Task<Station> GetStation(int stationID)
+        {
+            return await StationRepository.Get(stationID);
+        }
+
         public async Task<bool> UpdateStation(Station station)
         {
             station.lastModified = DateTime.Now;

@@ -132,17 +132,17 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="selectedTool"  CurrentUser=@currentUser/>
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@selectedTool"  CurrentUser=@currentUser/>
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
                     {
-                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="selectedOperation"  CurrentUser="@currentUser" />
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@selectedOperation"  CurrentUser="@currentUser" />
                     }
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular @ref="stationFormular" SelectedStation="selectedStation"   />
+                        <StationFormular @ref="stationFormular" SelectedStation="@selectedStation"   />
                     }
                 </div>
             </main>
@@ -556,13 +556,39 @@
 
     public async Task InsertTool()
     {
-        await UnlockTool();
+        copiedTool.stationID = selectedStation.stationID;
         selectedTool = copiedTool;
-        selectedTool.stationID = selectedStation.stationID;
-        selectedTool.toolShortname += "-copy";
+
+
+
+        tools = await Fassade.GetToolsFromStation(selectedTool.stationID);
+        if (tools.Any(t => t.toolShortname == selectedTool.toolShortname))
+        {
+            string baseName = selectedTool.toolShortname;
+            int copyIndex = 1;
+            string newName;
+
+            do
+            {
+                newName = $"{baseName}({copyIndex})";
+                copyIndex++;
+            }
+            while (tools.Any(t => t.toolShortname == newName));
+
+            selectedTool.toolShortname = newName;
+        }
+
+		await Fassade.AddTool(selectedTool);
+        await SignalRService.SendMessageToServer("ToolChanged");
+		await DirtyManagerService.setClean();
+			
+        
+
         copiedTool = null;
-        ToggleToolFormular(false);
+
+       
     }
+
 
     public async Task InsertOperation()
     {
