@@ -558,8 +558,8 @@
     public async Task InsertTool()
     {
         copiedTool.stationID = selectedStation.stationID;
-        
-        
+
+
         tools = await Fassade.GetToolsFromStation(copiedTool.stationID);
         if (tools.Any(t => t.toolShortname == copiedTool.toolShortname))
         {
@@ -577,15 +577,15 @@
             copiedTool.toolShortname = newName;
         }
 
-		await Fassade.AddTool(copiedTool);
+        await Fassade.AddTool(copiedTool);
         await SignalRService.SendMessageToServer("ToolChanged");
-		await DirtyManagerService.setClean();
-			
-        
+        await DirtyManagerService.setClean();
+
+
 
         copiedTool = null;
 
-       
+
     }
 
 
@@ -626,5 +626,6 @@
     {
         // Hier dein UnlockTool() aufrufen oder Warnung anzeigen
         await UnlockTool();
+        await UnlockOperation();
     }
  }

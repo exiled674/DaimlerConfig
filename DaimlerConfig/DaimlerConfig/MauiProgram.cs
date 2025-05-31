@@ -129,7 +129,7 @@ namespace DaimlerConfig
                                 var lifecycleService = serviceProvider.GetService<AppLifecycleService>();
                                 if (lifecycleService != null)
                                 {
-                                    await lifecycleService.RaiseAppClosingAsync();
+                                    lifecycleService.RaiseAppClosingSync();
                                 }
                             };
                         }
