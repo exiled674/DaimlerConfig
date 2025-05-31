@@ -156,7 +156,7 @@
 </body>
 
 @code {
-    private readonly string currentUser = Guid.NewGuid().ToString();
+    private readonly string currentUser = DaimlerConfig.MauiProgram.Username;
 
 
     private StationFormular? stationFormular;
