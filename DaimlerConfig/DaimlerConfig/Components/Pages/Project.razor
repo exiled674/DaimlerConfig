@@ -425,7 +425,7 @@
             if (msg.StartsWith("OperationUnlocked"))
             {
                 var operationID = int.Parse(msg.Split(';')[1]);
-                if (selectedOperation?.operationID == operationID)
+                if ( selectedOperation != null && selectedOperation?.operationID == operationID)
                 {
 
                     operationReadOnly = false;
@@ -434,7 +434,7 @@
             else if (msg.StartsWith("OperationLocked"))
             {
                 var operationID = int.Parse(msg.Split(';')[1]);
-                if (selectedOperation?.lockedBy != currentUser && selectedOperation.operationID == operationID)
+                if ( selectedOperation != null && selectedOperation?.lockedBy != currentUser && selectedOperation.operationID == operationID)
                 {
 
                     operationReadOnly = true;
@@ -444,7 +444,7 @@
             if (msg.StartsWith("ToolUnlocked"))
             {
                 var toolID = int.Parse(msg.Split(';')[1]);
-                if (selectedTool?.toolID == toolID)
+                if (selectedTool != null && selectedTool?.toolID == toolID)
                 {
                     /*selectedTool.isLocked = true;
                     selectedTool.lockedBy = currentUser;
@@ -455,7 +455,7 @@
             else if (msg.StartsWith("ToolLocked"))
             {
                 var toolID = int.Parse(msg.Split(';')[1]);
-                if (selectedTool?.lockedBy != currentUser && selectedTool.toolID == toolID)
+                if (selectedTool != null && selectedTool?.lockedBy != currentUser && selectedTool.toolID == toolID)
                 {
                     toolReadOnly = true;
                 }
