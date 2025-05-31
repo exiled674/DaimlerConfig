@@ -295,6 +295,8 @@
     #endregion
 
     #region Lock
+     private System.Threading.CancellationTokenSource? lockCancellationTokenSource;
+
     public async Task LockOperation()
     {
 
@@ -303,14 +305,65 @@
         {
             SelectedOperation.isLocked = true;
             SelectedOperation.lockedBy = CurrentUser;
+			SelectedOperation.lockTimestamp = DateTime.Now;
             await Fassade.UpdateOperation(SelectedOperation);
             
             await SignalRService.SendMessageToServer("OperationChanged");
             await SignalRService.SendMessageToServer("OperationLocked;" + SelectedOperation.operationID.ToString());
             ReadOnly = false;
+			StateHasChanged();
+			StartUnlockTimer();
            
 
         }
+    }
+
+   
+    private void StartUnlockTimer()
+    {
+        // Wenn bereits ein Timer läuft, abbrechen
+        lockCancellationTokenSource?.Cancel();
+        lockCancellationTokenSource = new System.Threading.CancellationTokenSource();
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                // Warte 10 Minuten (600000 ms)
+                await Task.Delay(TimeSpan.FromSeconds(3), lockCancellationTokenSource.Token);
+
+                // Nach 10 Minuten entsperren
+                await UnlockOperationAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Timer wurde abgebrochen (z.B. bei erneutem Lock)
+            }
+        });
+    }
+
+    private async Task UnlockOperationAsync()
+    {
+        if (SelectedOperation == null) return;
+
+        SelectedOperation.isLocked = false;
+        SelectedOperation.lockedBy = null;
+        SelectedOperation.lockTimestamp = null;
+        await Fassade.UpdateOperation(SelectedOperation);
+
+        await SignalRService.SendMessageToServer("OperationChanged");
+        await SignalRService.SendMessageToServer("OperationUnlocked;" + SelectedOperation.operationID.ToString());
+
+        ReadOnly = true;
+        StateHasChanged();
+    }
+
+    // Optional: Falls man das Lock manuell aufheben will
+    public async Task ManualUnlockOperationAsync()
+    {
+        // Timer stoppen
+        lockCancellationTokenSource?.Cancel();
+        await UnlockOperationAsync();
     }
     #endregion
 

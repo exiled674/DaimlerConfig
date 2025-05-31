@@ -4,6 +4,7 @@
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
+@implements IDisposable
 
 <div>
 
@@ -14,7 +15,7 @@
             @if (SelectedTool?.toolID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync" >Create</button>
+                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -47,22 +48,22 @@
 
 
     <div class="layout position-relative">
-        <div class="toolColoumnLeft">     
+        <div class="toolColoumnLeft">
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder=""    @bind="SelectedTool.toolID" readonly>
+                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly>
                 <label>Tool ID</label>
             </div>
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control @(errorMessages.ContainsKey("ToolShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolShortname">
-                <label>Tool Shortname</label> 
+                <label>Tool Shortname</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedTool?.toolShortname?.Length ?? 0}/16")
                 </span>
                 @if (errorMessages.ContainsKey("ToolShortname"))
                 {
-                                <div class="invalid-feedback">@errorMessages["ToolShortname"]</div>
+                    <div class="invalid-feedback">@errorMessages["ToolShortname"]</div>
 
                 }
             </div>
@@ -112,7 +113,7 @@
                     <label>IP-Address Device</label>
                     @if (errorMessages.ContainsKey("IP"))
                     {
-                            <div class="invalid-feedback">@errorMessages["IP"]</div>
+                        <div class="invalid-feedback">@errorMessages["IP"]</div>
                     }
                 </div>
                 <div class="form-floating mb-3">
@@ -156,10 +157,10 @@
     [Parameter]
     public string? CurrentUser { get; set; }
 
-   
+
 
     [Parameter]
-    public bool ReadOnly { get; set; } 
+    public bool ReadOnly { get; set; }
 
     private string? ValidationMessage;
 
@@ -172,25 +173,25 @@
     private IEnumerable<ToolClass> toolClasses = Enumerable.Empty<ToolClass>();
 
 
-  protected override async Task OnParametersSetAsync()
-{
-    if (SelectedTool != null)
+    protected override async Task OnParametersSetAsync()
     {
-        ResetValidationState();
-        OriginalTool = SelectedTool.Clone();
-        OriginalTool.toolID = SelectedTool.toolID;
-        OriginalTool.stationID = SelectedTool.stationID;
-
-        toolClasses = await Fassade.GetAllToolClasses();
-
-        if (SelectedTool.toolClassID.HasValue)
+        if (SelectedTool != null)
         {
-            toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
-        }
+            ResetValidationState();
+            OriginalTool = SelectedTool.Clone();
+            OriginalTool.toolID = SelectedTool.toolID;
+            OriginalTool.stationID = SelectedTool.stationID;
 
-        StateHasChanged();
+            toolClasses = await Fassade.GetAllToolClasses();
+
+            if (SelectedTool.toolClassID.HasValue)
+            {
+                toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
+            }
+
+            StateHasChanged();
+        }
     }
-}
 
 
 
@@ -271,7 +272,7 @@
 
         if (!string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice) && !regex.IsMatch(SelectedTool.ipAddressDevice))
         {
-			errorMessages["IP"] = "IP Address is not valid. Please use the format xxx.xxx.xxx.xxx";
+            errorMessages["IP"] = "IP Address is not valid. Please use the format xxx.xxx.xxx.xxx";
         }
 
         showErrors = errorMessages.Any();
@@ -307,22 +308,72 @@
     #endregion
 
     #region Lock
+    private System.Threading.CancellationTokenSource? lockCancellationTokenSource;
+
     public async Task LockTool()
     {
-
         if (SelectedTool.toolID == 0) return;
-        if(SelectedTool.isLocked == false)
+        if (SelectedTool.isLocked == false)
         {
             SelectedTool.isLocked = true;
             SelectedTool.lockedBy = CurrentUser;
+            SelectedTool.lockTimestamp = DateTime.Now;
             await Fassade.UpdateTool(SelectedTool);
-            
+
             await SignalRService.SendMessageToServer("ToolChanged");
             await SignalRService.SendMessageToServer("ToolLocked;" + SelectedTool.toolID.ToString());
             ReadOnly = false;
             StateHasChanged();
 
+            StartUnlockTimer();
         }
+    }
+
+    private void StartUnlockTimer()
+    {
+        // Wenn bereits ein Timer läuft, abbrechen
+        lockCancellationTokenSource?.Cancel();
+        lockCancellationTokenSource = new System.Threading.CancellationTokenSource();
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                // Warte 10 Minuten (600000 ms)
+                await Task.Delay(TimeSpan.FromSeconds(3), lockCancellationTokenSource.Token);
+
+                // Nach 10 Minuten entsperren
+                await UnlockToolAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Timer wurde abgebrochen (z.B. bei erneutem Lock)
+            }
+        });
+    }
+
+    private async Task UnlockToolAsync()
+    {
+        if (SelectedTool == null) return;
+
+        SelectedTool.isLocked = false;
+        SelectedTool.lockedBy = null;
+        SelectedTool.lockTimestamp = null;
+        await Fassade.UpdateTool(SelectedTool);
+
+        await SignalRService.SendMessageToServer("ToolChanged");
+        await SignalRService.SendMessageToServer("ToolUnlocked;" + SelectedTool.toolID.ToString());
+
+        ReadOnly = true;
+        StateHasChanged();
+    }
+
+    // Optional: Falls man das Lock manuell aufheben will
+    public async Task ManualUnlockToolAsync()
+    {
+        // Timer stoppen
+        lockCancellationTokenSource?.Cancel();
+        await UnlockToolAsync();
     }
     #endregion
 
@@ -333,7 +384,7 @@
         {
             SelectedTool.toolClassID = selectedId;
             toolTypes = await Fassade.FindToolTypes(selectedId);
-			await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
+            await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
         }
     }
 
@@ -346,6 +397,14 @@
     }
 
     #endregion
+
+
+    public void Dispose()
+    {
+        // Timer stoppen und Ressourcen freigeben
+        lockCancellationTokenSource?.Cancel();
+        lockCancellationTokenSource?.Dispose();
+    }
 
 
 }
