@@ -27,7 +27,8 @@ namespace DaimlerConfig
     {
         // Statischer Zugriff auf die Services
         public static IServiceProvider Services { get; private set; }
-        public static string Username { get; private set; } = Environment.UserName;
+        public static string Username { get; private set; } = $"{Environment.UserName};{Guid.NewGuid()}";
+
 
         public static MauiApp CreateMauiApp()
         {
