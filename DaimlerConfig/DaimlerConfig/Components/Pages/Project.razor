@@ -109,11 +109,11 @@
                             @foreach (var tool in tools)
                             {
                                 <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
-                                    <div class="tool-header d-flex justify-content-between align-items-center">
-                                        <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
+                                            <div class="tool-header d-flex justify-content-between align-items-center"  @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">
+                                        <span class="clickable">@tool.toolShortname</span>
                                         <div class="d-flex align-items-center">
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
+                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))" @onclick:stopPropagation>copy</button>
+                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }" @onclick:stopPropagation>+</button>
                                             <!-- Drag handle for tools -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                                  class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
