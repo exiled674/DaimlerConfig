@@ -49,7 +49,7 @@
                 </span>
                 @if (errorMessages.ContainsKey("OperationShortname"))
                 {
-                            <div class="invalid-feedback">@errorMessages["OperationShortname"]</div>
+                    <div class="invalid-feedback">@errorMessages["OperationShortname"]</div>
                 }
             </div>
 
@@ -63,7 +63,7 @@
         <div class="toolColoumnRight ">
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ProcessingMode" disabled="@ReadOnly">
+                <select class="form-select form-select" id="ProcessingMode" disabled="@ReadOnly" @onfocus="LockOperation">
                     <option value="">select...</option>
                     <option value="Serial">Serial</option>
                     <option value="Parallel">Parallel</option>
@@ -72,12 +72,12 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
+                <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
                 <label>Operation Sequenz</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="">
+                <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
                 <label>Operation Sequenz Group</label>
             </div>
 
@@ -90,7 +90,7 @@
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly">
+                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly" @onfocus="LockOperation">
                     @foreach (var decision in decisionClasses)
                     {
                         <option value="@decision.decisionClassID">@decision.decisionClassName</option>
@@ -100,7 +100,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly">
+                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
                     @foreach (var generation in generationClasses)
                     {
                         <option value="@generation.generationClassID">@generation.generationClassName</option>
@@ -109,7 +109,7 @@
                 <label for="GenerationClass">Generation Class</label>
             </div>
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly">
+                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
                     @foreach (var verification in verificationClasses)
                     {
                         <option value="@verification.verificationClassID">@verification.verificationClassName</option>
@@ -119,7 +119,7 @@
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly">
+                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly" @onfocus="LockOperation">
                     @foreach (var saving in savingClasses)
                     {
                         <option value="@saving.savingClassID">@saving.savingClassName</option>
@@ -132,7 +132,7 @@
         <div class="toolColoumnRight">
 
             <div class="form-floating">
-                <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly"></textarea>
+                <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly" @onclick="LockOperation"></textarea>
                 <label for="DecisionCriteria">Decision Criteria</label>
             </div>
         </div>     
@@ -153,7 +153,7 @@
     [Parameter]
     public bool ReadOnly { get; set; }
 
-   
+
 
     private Operation? OriginalOperation { get; set; }
     private Dictionary<string, string> errorMessages = new();
@@ -187,12 +187,12 @@
                 var toolClassId = currentTool.toolClassID;
                 currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
             }
-           
+
 
             await InitializeClasses();
             StateHasChanged();
         }
-       
+
     }
 
     #region CRUD
@@ -295,12 +295,17 @@
     #endregion
 
     #region Lock
-     private System.Threading.CancellationTokenSource? lockCancellationTokenSource;
+    private System.Threading.CancellationTokenSource? lockCancellationTokenSource;
 
     public async Task LockOperation()
     {
 
         if (SelectedOperation.operationID == 0) return;
+        if(SelectedOperation.isLocked == true && SelectedOperation.lockedBy == CurrentUser)
+        {
+            lockCancellationTokenSource?.Cancel();
+			StartUnlockTimer();
+        }
         if (SelectedOperation.isLocked == false)
         {
             SelectedOperation.isLocked = true;
