@@ -94,17 +94,13 @@
 	[Parameter]
 	public Station? SelectedStation { get; set; }
 
-	[Parameter]
-	public EventCallback OnUpdated { get; set; }
-
 	IEnumerable<StationType> stationTypes;
 
 	private Station? OriginalStation { get; set; }
 
 	private Dictionary<string, string> errorMessages = new();
+
 	private bool showErrors = false;
-
-
 
 
 	protected override async Task OnParametersSetAsync()
@@ -125,42 +121,34 @@
 	{
 		ResetValidationState();
 		if (await ValidateData() == false) return;
+		if (!await Fassade.UpdateStation(SelectedStation)) return;
 
-		await Fassade.UpdateStation(SelectedStation);
-		await OnUpdated.InvokeAsync();
 		await SignalRService.SendMessageToServer("StationChanged");
-
+		await DirtyManagerService.setClean();
 	}
 
-	public async Task UpdateStationAsync(Station station)
-	{
-		ResetValidationState();
-		if (await ValidateData() == false) return;
 
-		await Fassade.UpdateStation(station);
-		await OnUpdated.InvokeAsync();
-		await SignalRService.SendMessageToServer("StationChanged");
-	}
+
+	
 
 	private async Task CreateStationAsync()
 	{
 		if (await ValidateData() == false) return;
+		if (!await Fassade.AddStation(SelectedStation)) return;
 
-		await Fassade.AddStation(SelectedStation);
-		await OnUpdated.InvokeAsync();
 		await SignalRService.SendMessageToServer("StationChanged");
-
+		await DirtyManagerService.setClean();
 	}
+
 
 	private async Task DeleteStationAsync()
 	{
-		if (SelectedStation != null)
-		{
-			await Fassade.DeleteStation(SelectedStation);
-			await OnUpdated.InvokeAsync();
-			await SignalRService.SendMessageToServer("StationChanged");
-		}
+		if (SelectedStation == null || !await Fassade.DeleteStation(SelectedStation)) return;
+
+		await SignalRService.SendMessageToServer("StationChanged");
+		await DirtyManagerService.setClean();
 	}
+
 	#endregion
 
 
@@ -174,10 +162,7 @@
 		{
 			errorMessages["General"] = "Station data is missing";
 			return false;
-
 		}
-
-
 
 		//Assemblystation
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
@@ -190,10 +175,8 @@
 			errorMessages["Assemblystation"] = "This station already exists in the line";
 		}
 
-
 		showErrors = errorMessages.Any();
 		return !showErrors;
-
 	}
 
 

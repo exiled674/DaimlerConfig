@@ -9,14 +9,14 @@ namespace DaimlerConfig.Components.Repositories
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        public Task Delete(TEntity entity);
-        public Task DeleteRange(IEnumerable<TEntity> entities);
+        public Task<bool> Delete(TEntity entity);
+        public Task<bool> DeleteRange(IEnumerable<TEntity> entities);
 
 
-        public Task Add(TEntity entity);
-        public Task AddRange(IEnumerable<TEntity> entities);
+        public Task<bool> Add(TEntity entity);
+        public Task<bool> AddRange(IEnumerable<TEntity> entities);
 
-        public Task Update(TEntity entity);
+        public Task<bool> Update(TEntity entity);
 
 
 
