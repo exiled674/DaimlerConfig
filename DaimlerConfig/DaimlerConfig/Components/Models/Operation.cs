@@ -33,7 +33,11 @@ namespace DaimlerConfig.Components.Models
         public string? lockedBy { get; set; }
 
         public DateTime? lockTimestamp { get; set; }
-
+        
+        public string Comment { get; set; } = "";
+        
+        public Status Status { get; set; } = Status.Undefined;
+        
         public Operation Clone()
         {
             var clone = (Operation)this.MemberwiseClone();

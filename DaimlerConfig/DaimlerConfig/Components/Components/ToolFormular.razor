@@ -68,10 +68,10 @@
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription"></textarea>
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription" maxlength="1000"></textarea>
                 <label>Tool Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-                    @($"{SelectedTool?.toolDescription?.Length ?? 0}/100")
+                    @($"{SelectedTool?.toolDescription?.Length ?? 0}/1000")
                 </span>
             </div>
         </div>
@@ -96,6 +96,13 @@
                     }
                 </select>
                 <label for="ToolType">Tool Type</label>
+            </div>
+            <div class="form-floating mb-3">
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.Comment" maxlength="1000"></textarea>
+                <label>Comment</label>
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedTool?.Comment.Length ?? 0}/1000")
+                </span>
             </div>
         </div>
     </div>

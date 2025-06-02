@@ -81,7 +81,13 @@
                 <input type="text" class="form-control form-control" placeholder="">
                 <label>Operation Sequenz Group</label>
             </div>
-
+            <div class="form-floating mb-3">
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.Comment" maxlength="1000"></textarea>
+                <label>Comment</label>
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedOperation?.Comment.Length ?? 0}/1000")
+                </span>
+            </div>
         </div>
     </div>
 

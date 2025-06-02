@@ -23,6 +23,10 @@ namespace DaimlerConfig.Components.Models
         public int stationTypeID { get; set; }
 
         public DateTime? lastModified { get; set; }
+        
+        public string Comment { get; set; } = "";
+        
+        public Status Status { get; set; } = Status.Undefined;
 
         public Station Clone()
         {
