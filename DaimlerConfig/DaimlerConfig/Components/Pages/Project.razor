@@ -9,6 +9,9 @@
 
 @using DaimlerConfig.Components.Models
 
+@using Microsoft.JSInterop
+@inject IJSRuntime JS;
+
 <body>
     <!-- Navbar -->
     <nav class="navbar fixed-top bg-white border-bottom">
@@ -33,11 +36,22 @@
 
                 @foreach (var station in stations)
                 {
-                    <li class="sidebar-item">
-                        <a class="sidebar-link clickable @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
+                    <li class="sidebar-item justify-content-between draggable">
+                        <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                            <Badge colour="@BadgeColor" />
-                            <span>@station.assemblystation</span>
+                            
+
+                            <div class="d-flex align-items-center">
+                                <Badge colour="@BadgeColor" />
+                                <span>@station.assemblystation</span>
+                            </div>
+
+                            <div class=" ms-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-grip-vertical" viewBox="0 0 16 16">
+                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                </svg>
+                            </div>
                         </a>
                     </li>
                 }
@@ -90,7 +104,7 @@
                         {
                             @foreach (var tool in tools)
                             {
-                                <div class="tool-section" data-tool-id="@tool.toolID">
+                                <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
                                     <div class="tool-header d-flex justify-content-between align-items-center">
                                         <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
                                         <div>
@@ -104,19 +118,27 @@
                                                 }
                                             }
 
-
+                                            <!-- Drag handle for tools -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                 class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
+                                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                            </svg>
 
                                         </div>
                                     </div>
                                     <div class="operation-list">
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
-                                            <div class="operation-section d-flex justify-content-between align-items-center">
+                                            <div class="operation-draggable operation-section d-flex justify-content-between align-items-center">
                                                 <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }">@operation.operationShortname</span>
                                                 <div>
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
 
-
+                                                    <!-- Drag handle for operations -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
+                                                         class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
+                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                                    </svg>
 
                                                 </div>
                                             </div>
@@ -618,6 +640,76 @@
 
 
         copiedOperation = null;
+    }
+    #endregion
+
+    #region Drag
+    private bool _initialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+
+            // Initialize drag and drop for stations
+            await JS.InvokeVoidAsync("initializeStationDragDrop");
+
+            // Set up the callback for when elements are reordered
+            await JS.InvokeVoidAsync("eval", @"
+            window.onElementReordered = function(elementType, newOrder) {
+                console.log('New ' + elementType + ' order:', newOrder);
+
+                // Call appropriate Blazor method based on element type
+                switch(elementType) {
+                    case 'station':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleStationReorder', newOrder);
+                        break;
+                    case 'tool':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleToolReorder', newOrder);
+                        break;
+                    case 'operation':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleOperationReorder', newOrder);
+                        break;
+                }
+            };
+        ");
+        }
+        // Initialize tool and operation drag and drop when they become available
+        if (selectedStation != null && tools.Any())
+        {
+            await JS.InvokeVoidAsync("initializeToolDragDrop");
+        }
+
+        if (selectedTool != null && allOperations.Any(op => op.toolID == selectedTool.toolID))
+        {
+            await JS.InvokeVoidAsync("initializeOperationDragDrop");
+        }
+    }
+    [JSInvokable]
+    public static async Task HandleStationReorder(string[] newOrder)
+    {
+        // Handle the new order - save to database, update state, etc.
+        Console.WriteLine($"Stations reordered: {string.Join(", ", newOrder)}");
+
+        // Example: Update your stations collection based on the new order
+        // You would need to implement this based on your specific requirements
+    }
+
+    [JSInvokable]
+    public static async Task HandleToolReorder(string[] newOrder)
+    {
+        Console.WriteLine($"Tools reordered: {string.Join(", ", newOrder)}");
+        // Implement your tool reordering logic here
+        // Example: Update tool order in database
+    }
+
+    [JSInvokable]
+    public static async Task HandleOperationReorder(string[] newOrder)
+    {
+        Console.WriteLine($"Operations reordered: {string.Join(", ", newOrder)}");
+        // Implement your operation reordering logic here
+        // Example: Update operation sequence in database
     }
     #endregion
 
