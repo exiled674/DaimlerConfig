@@ -76,13 +76,6 @@
 				</select>
 				<label for="StationType">Station Type</label>
 			</div>
-			<div class="form-floating mb-3">
-				<textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" @onblur="CheckIfDirty" @bind="SelectedStation.Comment" maxlength="1000"></textarea>
-				<label>Comment</label>
-				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-					@($"{SelectedStation?.Comment.Length ?? 0}/1000")
-				</span>
-			</div>
 
 		</div>
 

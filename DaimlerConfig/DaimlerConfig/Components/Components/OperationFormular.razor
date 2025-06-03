@@ -2,11 +2,10 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Services
-@using Microsoft.IdentityModel.Tokens
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
 
-<div class="container-lg px-3">
+<div>
     <div class="class-header justify-content-between align-items-center">
         <h2>Operation</h2>
         <div class="d-flex justify-content-end align-items-center gap-2">
@@ -81,13 +80,7 @@
                 <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
                 <label>Operation Sequenz Group</label>
             </div>
-            <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.Comment" maxlength="1000"></textarea>
-                <label>Comment</label>
-                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-                    @($"{SelectedOperation?.Comment.Length ?? 0}/1000")
-                </span>
-            </div>
+
         </div>
     </div>
 
@@ -98,7 +91,7 @@
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
+                    @foreach (var decision in decisionClasses)
                     {
                         <option value="@decision.decisionClassID">@decision.decisionClassName</option>
                     }
@@ -108,7 +101,7 @@
 
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
+                    @foreach (var generation in generationClasses)
                     {
                         <option value="@generation.generationClassID">@generation.generationClassName</option>
                     }
@@ -117,7 +110,7 @@
             </div>
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
+                    @foreach (var verification in verificationClasses)
                     {
                         <option value="@verification.verificationClassID">@verification.verificationClassName</option>
                     }
@@ -127,7 +120,7 @@
 
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
+                    @foreach (var saving in savingClasses)
                     {
                         <option value="@saving.savingClassID">@saving.savingClassName</option>
                     }
@@ -160,6 +153,8 @@
     [Parameter]
     public bool ReadOnly { get; set; }
 
+
+
     private Operation? OriginalOperation { get; set; }
     private Dictionary<string, string> errorMessages = new();
     private bool showErrors = false;
@@ -167,7 +162,7 @@
 
     private Tool? currentTool;
 
-    private List<int> currentTemplates = new List<int>();
+    private Template? currentTemplate;
 
     private IEnumerable<DecisionClass> decisionClasses = Enumerable.Empty<DecisionClass>();
 
@@ -176,8 +171,6 @@
     private IEnumerable<VerificationClass> verificationClasses = Enumerable.Empty<VerificationClass>();
 
     private IEnumerable<GenerationClass> generationClasses = Enumerable.Empty<GenerationClass>();
-    
-    private IEnumerable<ToolTypeHasTemplate> toolTypeHasTemplates = Enumerable.Empty<ToolTypeHasTemplate>();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -191,27 +184,22 @@
             currentTool = await Fassade.GetTool(SelectedOperation.toolID);
             if(currentTool != null)
             {
-                var toolTypeId = currentTool?.toolTypeID ?? 0;
-                
-                toolTypeHasTemplates = await Fassade.ToolTypeHasTemplateRepository.Find(t=>t.ToolTypeId ==toolTypeId);
-                
-                currentTemplates.Clear();
-                foreach (var toolTypeHasTemplate in toolTypeHasTemplates)
-                {
-                    currentTemplates.Add(toolTypeHasTemplate.TemplateId);
-                }
-
+                var toolClassId = currentTool.toolClassID;
+                currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
             }
-            
+
+
             await InitializeClasses();
             StateHasChanged();
         }
+
     }
 
     #region CRUD
     public async Task UpdateOperationAsync()
     {
         ResetValidationState();
+
         if (await ValidateData() == false)
             return;
 
@@ -221,6 +209,7 @@
         await SignalRService.SendMessageToServer("OperationChanged");
         await DirtyManagerService.setClean();
     }
+
 
     private async Task AddOperationAsync()
     {
@@ -234,6 +223,7 @@
         await DirtyManagerService.setClean();
     }
 
+
     private async Task DeleteOperationAsync()
     {
         if (SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser))
@@ -245,6 +235,7 @@
             await DirtyManagerService.setClean();
         }
     }
+
     #endregion
 
     #region Validate
@@ -386,24 +377,26 @@
     {
         decisionClasses = await Fassade.GetDecisionClasses();
 
-        if (!currentTemplates.IsNullOrEmpty())
+        if(currentTemplate != null)
         {
-            var savingClassesList = new List<SavingClass>();
-            var verificationClassesList = new List<VerificationClass>();
-            var generationClassesList = new List<GenerationClass>();
+            savingClasses = await Fassade.GetSavingClasses(currentTemplate.TemplateId);
 
-            foreach (var currentTemplate in currentTemplates)
+            verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.TemplateId);
+
+            generationClasses = await Fassade.GetGenerationClasses(currentTemplate.TemplateId);
+
+            if (verificationClasses == null || !verificationClasses.Any())
             {
-                savingClassesList.AddRange(await Fassade.GetSavingClasses(currentTemplate));
-                verificationClassesList.AddRange(await Fassade.GetVerificationClasses(currentTemplate));
-                generationClassesList.AddRange(await Fassade.GetGenerationClasses(currentTemplate));
+                var list = verificationClasses.ToList();
+                list.AddRange(await Fassade.GetVerificationClass(0));
+                verificationClasses = list.AsEnumerable();
+
+
             }
-
-            savingClasses = savingClassesList;
-            verificationClasses = verificationClassesList;
-            generationClasses = generationClassesList;
         }
-    }
+        
 
+        
+    }
     #endregion
 }

@@ -12,7 +12,8 @@ namespace DaimlerConfig.Components.Models
         public int? operationID { get; set; } = 0;
 
         public int? toolID { get; set; }
-        
+
+
         public  string? operationShortname { get; set; }
         public  string? operationDescription { get; set; }
         public  string? operationSequence { get; set; }
@@ -25,7 +26,7 @@ namespace DaimlerConfig.Components.Models
         public int savingClassID { get; set; }
        
         public bool parallel { get; set; }
-        public int qGateID { get; set; } = 1;
+        public int qGateID { get; set; }
         public DateTime? lastModified { get; set; }
 
         public bool? isLocked { get; set; }
@@ -33,11 +34,7 @@ namespace DaimlerConfig.Components.Models
         public string? lockedBy { get; set; }
 
         public DateTime? lockTimestamp { get; set; }
-        
-        public string Comment { get; set; } = "";
-        
-        public Status Status { get; set; } = Status.Undefined;
-        
+
         public Operation Clone()
         {
             var clone = (Operation)this.MemberwiseClone();
