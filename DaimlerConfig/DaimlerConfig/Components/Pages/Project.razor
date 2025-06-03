@@ -5,22 +5,13 @@
 @inject DirtyManagerService DirtyManagerService
 @inject AppLifecycleService LifecycleService
 @inject SidebarState SidebarState
-
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
-
 @using DaimlerConfig.Components.Models
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
 
 <body>
-    <!-- Navbar -->
-    @*
-    <nav class="navbar fixed-top bg-white border-bottom">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h2">Project: @line?.lineName</span>
-        </div>
-    </nav>
-    *@
+  
 
     <div class="d-flex sidebar bg-white">
         <!-- Sidebar -->
@@ -252,7 +243,7 @@
     private void HandleToggle()
     {
         SidebarClass = SidebarClass.Contains("collapsed") ? "" : "collapsed";
-        StateHasChanged(); // UI neu rendern
+        StateHasChanged(); 
     }
 
     public void Dispose()
@@ -401,7 +392,7 @@
             await UnlockTool();
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
-            StateHasChanged();  // Aktualisiere den UI-Status
+            StateHasChanged(); 
         }
 
     }
@@ -414,7 +405,7 @@
         showToolFormular = false;
         showStationFormular = false;
 
-        StateHasChanged();  // Aktualisiere den UI-Status
+        StateHasChanged();  
     }
     public async Task UnlockOperation()
     {

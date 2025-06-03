@@ -1,33 +1,69 @@
-﻿@*
-@if (!string.IsNullOrEmpty(currentMessage))
-{
-    <div class="toast show">
-        @currentMessage
+﻿@inject DaimlerConfig.Services.ToastService ToastService
+@implements IDisposable
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <!-- Success Toast -->
+    <div class="toast align-items-center text-white bg-success border-0"
+         role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
+        <div class="d-flex">
+            <div class="toast-body">
+                @SuccessMessage
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
     </div>
-}
+
+    <!-- Error Toast -->
+    <div class="toast align-items-center text-white bg-danger border-0"
+         role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
+        <div class="d-flex">
+            <div class="toast-body">
+                @ErrorMessage
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+
 
 @code {
-    private string? currentMessage;
+    [Parameter]
+    public string? SuccessMessage { get; set; }
+
+    [Parameter]
+    public string? ErrorMessage { get; set; }
 
     protected override void OnInitialized()
     {
-        ToastService.OnShow += ShowToast;
+        ToastService.OnShowSuccess += ShowSuccessToast;
+        ToastService.OnShowError += ShowErrorToast;
     }
 
-    private void ShowToast(string message)
+    private async void ShowSuccessToast(string message)
     {
-        currentMessage = message;
+        SuccessMessage = message;
         StateHasChanged();
-        Task.Delay(3000).ContinueWith(_ =>
-        {
-            currentMessage = null;
-            InvokeAsync(StateHasChanged);
-        });
+        await Task.Delay(10);
+        await JS.InvokeVoidAsync("showSuccessToast");
+    }
+
+    private async void ShowErrorToast(string message)
+    {
+        ErrorMessage = message;
+        StateHasChanged();
+        await Task.Delay(10);
+        await JS.InvokeVoidAsync("showErrorToast");
     }
 
     public void Dispose()
     {
-        ToastService.OnShow -= ShowToast;
+        ToastService.OnShowSuccess -= ShowSuccessToast;
+        ToastService.OnShowError -= ShowErrorToast;
     }
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
 }
-*@

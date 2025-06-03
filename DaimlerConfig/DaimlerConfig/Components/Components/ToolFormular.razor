@@ -4,6 +4,8 @@
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
+@inject ToastService ToastService
+
 @implements IDisposable
 
 <div class="container-lg px-3">
@@ -201,13 +203,22 @@
         ResetValidationState();
 
         if (await ValidateData() == false)
+        {
+            ToastService.ShowError("Could't update a Tool. Please check inputs!");
             return;
+        }
 
         if (!await Fassade.UpdateTool(SelectedTool))
+        {
+            ToastService.ShowError("Could't update a Tool. Why?"); //idk what this checks for
             return;
+
+        }
 
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
+        ToastService.ShowSuccess("Tool update was successful!");
+
     }
 
 
@@ -216,23 +227,44 @@
         ResetValidationState();
 
         if (await ValidateData() == false)
+        {
+            ToastService.ShowError("Could't create a Tool. Please check inputs!");
             return;
+        }
+        
 
         if (!await Fassade.AddTool(SelectedTool))
+        {
+            ToastService.ShowError("Could't create a Tool. Why?"); //idk what this checks for
             return;
+        }
 
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
+        ToastService.ShowSuccess("Tool creation was successful!");
+
     }
 
 
     private async Task DeleteToolAsync()
     {
-        if (SelectedTool == null) return;
-        if (!await Fassade.DeleteTool(SelectedTool)) return;
+        if (SelectedTool == null)
+        {
+            ToastService.ShowError("Could't delete a Tool. Please check inputs!");
+            return;
+        }
+
+        if (!await Fassade.DeleteTool(SelectedTool))
+        {
+            ToastService.ShowError("Could't delete a Tool. Why?"); //idk what this checks for
+            return;
+        }
+
 
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
+        ToastService.ShowSuccess("Tool deletion was successful!");
+
     }
 
     #endregion

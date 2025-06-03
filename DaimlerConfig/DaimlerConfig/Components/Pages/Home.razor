@@ -19,25 +19,11 @@
 
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
+@inject ToastService ToastService
 
 
 <!-- Main Content -->
 <div class="ProjectManager container">
-    <button @onclick="CreateSomething">Create</button>
-
-            
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
-            <div class="d-flex">
-                <div class="toast-body">
-                    ✔️ Item created successfully!
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-
-
 
    <!-- div with search and sort-->
    <div class="projects">
@@ -159,10 +145,6 @@
                     </div>
             }
         }
-
-
-
-
         else
         {
             <p class="text-muted">Keine Lines gefunden.</p>
@@ -177,17 +159,10 @@
     </div>
 </div>
 
+
+
+
 @code {
-
-
-    @code {
-        private async Task CreateSomething()
-        {
-            // ... your logic
-                    await Task.Delay(200); // Optional: mimic async work
-            await JS.InvokeVoidAsync("showSuccessToast");
-        }
-    }
 
 	public void Test()
 	{

@@ -76,6 +76,7 @@ namespace DaimlerConfig
             
             builder.Services.AddScoped<ExcelExport, ExcelExport>();
             builder.Services.AddSingleton<SidebarState>();
+            builder.Services.AddScoped<ToastService>();
 
 
             builder.Services.AddSingleton<Fassade>(sp =>

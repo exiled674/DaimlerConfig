@@ -4,6 +4,7 @@
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
+@inject ToastService ToastService
 
 <div class="container-lg px-3">
     <div class="class-header justify-content-between align-items-center">
@@ -201,26 +202,42 @@
         ResetValidationState();
 
         if (await ValidateData() == false)
+        {
+            ToastService.ShowError("Couldn't update an operation. Please check inputs!");
             return;
+        }
 
         if (!await Fassade.UpdateOperation(SelectedOperation))
+        {
+            ToastService.ShowError("Couldn't update an operation. Why?"); //idk what this checks for
             return;
+        }
 
         await SignalRService.SendMessageToServer("OperationChanged");
         await DirtyManagerService.setClean();
+        ToastService.ShowSuccess("Operation update was successful!");
+
     }
 
 
     private async Task AddOperationAsync()
     {
         if (await ValidateData() == false)
+        {
+            ToastService.ShowError("Couldn't add an operation. Please check inputs!");
             return;
+        }
 
         if (!await Fassade.AddOperation(SelectedOperation))
+        {
+            ToastService.ShowError("Couldn't add an operation. Why?"); //idk what this checks for
             return;
+        }
 
         await SignalRService.SendMessageToServer("OperationChanged");
         await DirtyManagerService.setClean();
+        ToastService.ShowSuccess("Operation adding was successful!");
+
     }
 
 
@@ -229,10 +246,16 @@
         if (SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser))
         {
             if (!await Fassade.DeleteOperation(SelectedOperation))
+            {
+                ToastService.ShowError("Couldn't delete an operation. Please check inputs!");
                 return;
+            }
+            
 
             await SignalRService.SendMessageToServer("OperationChanged");
             await DirtyManagerService.setClean();
+            ToastService.ShowSuccess("Operation deletion was successful!");
+
         }
     }
 
