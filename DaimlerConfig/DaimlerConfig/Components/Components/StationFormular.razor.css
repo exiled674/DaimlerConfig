@@ -21,7 +21,6 @@ h2 {
 
 .stationColoumn {
     flex: 1;
-    min-width: 300px; /* Prevents columns from shrinking too much */
     display: flex;
     flex-direction: column;
 }

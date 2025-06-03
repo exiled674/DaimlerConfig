@@ -18,6 +18,7 @@ namespace DaimlerConfig.Components.Fassade
         public IRepository<Template> TemplateRepository { get; private set; }
         public IRepository<ToolClass> ToolClassRepository { get; private set; }
         public IRepository<ToolType> ToolTypeRepository { get; private set; }
+        public IRepository<ToolTypeHasTemplate> ToolTypeHasTemplateRepository { get; private set; }
 
         public IRepository<DecisionClass> DecisionClassRepository { get; private set; }
 
@@ -30,7 +31,7 @@ namespace DaimlerConfig.Components.Fassade
         
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, IRepository<Template> templateRepository, ExcelExport ExcelExport)
+        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, IRepository<ToolTypeHasTemplate> toolTypeHasTemplateRepository, IRepository<Template> templateRepository, ExcelExport ExcelExport)
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
@@ -43,6 +44,7 @@ namespace DaimlerConfig.Components.Fassade
             VerificationClassRepository = verificationClassRepository;
             ToolClassRepository = toolClassRepository;
             ToolTypeRepository = toolTypeRepository;
+            ToolTypeHasTemplateRepository = toolTypeHasTemplateRepository;
             TemplateRepository = templateRepository;
             this.ExcelExport = ExcelExport;
         }
@@ -159,6 +161,8 @@ namespace DaimlerConfig.Components.Fassade
                 .Where(station => station.stationID != stationID)
                 .Any(station => station.assemblystation!.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
+
+      
 
         #endregion
 
