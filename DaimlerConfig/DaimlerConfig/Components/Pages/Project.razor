@@ -4,6 +4,7 @@
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
 @inject AppLifecycleService LifecycleService
+@inject SidebarState SidebarState
 
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
@@ -13,11 +14,13 @@
 
 <body>
     <!-- Navbar -->
+    @*
     <nav class="navbar fixed-top bg-white border-bottom">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h2">Project: @line?.lineName</span>
         </div>
     </nav>
+    *@
 
     <div class="d-flex sidebar bg-white">
         <!-- Sidebar -->
@@ -71,14 +74,9 @@
 
         <!-- Sidebar ends-->
         <!-- Main Content -->
-        <div class="main">
-            <nav class="navbar navbar-expand">
-                <button class="toggler-btn" @onclick="ToggleSidebar" type="button">
-                    <i class="lni lni-menu-hamburger-1"></i>
-                </button>
-                <h5><span>Current Station: @(selectedStation != null ? selectedStation.assemblystation : "Please choose a station")</span></h5>
-            </nav>
-            <main class="p-3 pb-0 d-flex gap-3">
+        <div class="main container">
+                <h5>Current Station: @(selectedStation != null ? selectedStation.assemblystation : "Please choose a station")</h5>
+            <main class=" pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
                 <div class="tool-operation-panel" style="width: 500px;">
@@ -245,13 +243,22 @@
 
     #region SideBar
     private string BadgeColor = "#006700"; //needs to be implemented
-    private string SidebarClass { get; set; } = string.Empty;
-    private void ToggleSidebar()
+    private string SidebarClass = "";
+
+    protected override void OnInitialized()
     {
-        if (SidebarClass.Contains("collapsed"))
-            SidebarClass = string.Empty;
-        else
-            SidebarClass = "collapsed";
+        SidebarState.OnToggleRequested += HandleToggle;
+    }
+
+    private void HandleToggle()
+    {
+        SidebarClass = SidebarClass.Contains("collapsed") ? "" : "collapsed";
+        StateHasChanged(); // UI neu rendern
+    }
+
+    public void Dispose()
+    {
+        SidebarState.OnToggleRequested -= HandleToggle;
     }
     #endregion
 

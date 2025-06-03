@@ -73,7 +73,9 @@ namespace DaimlerConfig
             builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
             
             builder.Services.AddScoped<ExcelExport, ExcelExport>();
-            
+            builder.Services.AddSingleton<SidebarState>();
+
+
             builder.Services.AddSingleton<Fassade>(sp =>
             {
                 var toolRepo = sp.GetRequiredService<IToolRepository>();

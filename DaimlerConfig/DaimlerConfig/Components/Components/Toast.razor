@@ -1,0 +1,33 @@
+﻿@*
+@if (!string.IsNullOrEmpty(currentMessage))
+{
+    <div class="toast show">
+        @currentMessage
+    </div>
+}
+
+@code {
+    private string? currentMessage;
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += ShowToast;
+    }
+
+    private void ShowToast(string message)
+    {
+        currentMessage = message;
+        StateHasChanged();
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            currentMessage = null;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnShow -= ShowToast;
+    }
+}
+*@

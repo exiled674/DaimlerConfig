@@ -1,58 +1,40 @@
-﻿<!--<nav class="navbar fixed-top bg-body-tertiary border-bottom">
-    <div class="container-fluid">-->
+﻿@inject NavigationManager Navigation
+@inject DaimlerConfig.Services.SidebarState SidebarState
 
-        <!-- Logo/Brand 
-        <a class="navbar-brand no-link-styling" href="/test">
-            <!--<img src="/images/phoenix-logo.png" alt="Phoenix Logo" height="30" class="me-2" />-
-            Project: Area_B02_Main
-        </a>
-        
-    </div>
-</nav>
-        <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
-            <a href="/" class="navbar-brand">Project: Area</a>
-        </nav>--->
-<!--
-<nav class="navbar navbar-expand-lg fixed-top bg-body-tertiary border-bottom">
-    <!--<div class="container-fluid">-->
-
-        <!-- Logo/Brand 
-        <a class="navbar-brand no-link-styling" href="/test">
-            <!--<img src="/images/phoenix-logo.png" alt="Phoenix Logo" height="30" class="me-2" />
-            Project: Area_B02_Main
-        </a>
-        
-    </div>
-    </nav>
--->
 <nav class="navbar fixed-top bg-white border-bottom">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h2">Project: Area_B02_Main</span>
-    </div>
-</nav>
-
-        <!-- Right Side Icons
-        <div class="d-flex align-items-center"> -->
-            <!-- Light/Dark Toggle 
-            <button class="btn btn-link text-decoration-none me-3">
-                <i class="bi bi-sun fs-5 text-warning"></i>
-        </button>-->
-
-            <!-- Notifications 
-            <button class="btn btn-link text-decoration-none me-3">
-                <i class="bi bi-bell fs-5 text-secondary"></i>
-        </button>-->
-
-            <!-- App Switcher
-            <button class="btn btn-link text-decoration-none me-3">
-                <i class="bi bi-grid-3x3-gap fs-5 text-secondary"></i>
+    @if (IsOnProject)
+    {
+        <button class="toggler-btn" @onclick="SidebarState.RequestToggle" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-layout-sidebar" viewBox="0 0 16 16">
+                <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5-1v12h9a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM4 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2z" />
+            </svg>
         </button>
-
-                </div>-->
-  
-
-
+    }
+    <div class="container px-0">
+        <div class="name d-flex align-items-center px-0">
+            
+            <span class="navbar-brand mb-0 h2 px-0">DaimlerConfig</span>
+        </div>
+    </div>
+    
+</nav>
 
 @code {
+    private bool IsOnProject =>
+        Navigation.ToBaseRelativePath(Navigation.Uri).StartsWith("line", StringComparison.OrdinalIgnoreCase);
 
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged); // re-render component when URL changes
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+}
 }
