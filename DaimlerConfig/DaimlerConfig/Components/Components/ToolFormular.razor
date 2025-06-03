@@ -6,7 +6,7 @@
 @inject DirtyManagerService DirtyManagerService
 @implements IDisposable
 
-<div>
+<div class="container-lg px-3">
 
     <div class="class-header  justify-content-between align-items-center">
         <h2>Tool</h2>
@@ -69,10 +69,10 @@
             </div>
 
             <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription"></textarea>
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription" maxlength="1000"></textarea>
                 <label>Tool Description</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-                    @($"{SelectedTool?.toolDescription?.Length ?? 0}/100")
+                    @($"{SelectedTool?.toolDescription?.Length ?? 0}/1000")
                 </span>
             </div>
         </div>
@@ -80,7 +80,7 @@
         <div class="toolColoumnRight ">
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="ToolClass" value="@SelectedTool.toolClassID" @onchange="OnToolClassChanged" disabled="@ReadOnly" @onfocus="LockTool">
-                    @foreach (var toolClass in toolClasses)
+                    @foreach (var toolClass in toolClasses.OrderBy(t =>t.toolClassName))
                     {
                         <option value="@toolClass.toolClassID">@toolClass.toolClassName</option>
                     }
@@ -91,12 +91,19 @@
 
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="ToolType" value="@SelectedTool.toolTypeID" @onchange="OnToolTypeChanged" disabled="@ReadOnly" @onfocus="LockTool">
-                    @foreach (var toolType in toolTypes)
+                    @foreach (var toolType in toolTypes.OrderBy(t=>t.toolTypeName))
                     {
                         <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
                     }
                 </select>
                 <label for="ToolType">Tool Type</label>
+            </div>
+            <div class="form-floating mb-3">
+                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.Comment" maxlength="1000"></textarea>
+                <label>Comment</label>
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedTool?.Comment.Length ?? 0}/1000")
+                </span>
             </div>
         </div>
     </div>
@@ -156,8 +163,6 @@
 
     [Parameter]
     public string? CurrentUser { get; set; }
-
-
 
     [Parameter]
     public bool ReadOnly { get; set; }
@@ -392,13 +397,13 @@
         {
             SelectedTool.toolClassID = selectedId;
             toolTypes = await Fassade.FindToolTypes(selectedId);
-            await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
+            SelectedTool.toolTypeID = toolTypes.FirstOrDefault()?.toolTypeID ?? 0;
+			await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
         }
     }
 
     private async Task OnToolTypeChanged(ChangeEventArgs e)
     {
-		
         if (int.TryParse(e.Value?.ToString(), out var id))
         {
             SelectedTool.toolTypeID = id;

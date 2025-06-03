@@ -8,7 +8,6 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Components.Models
-
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
 
@@ -38,12 +37,11 @@
                 {
                     <li class="sidebar-item justify-content-between draggable">
                         <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
-                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                            
+                           @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
 
                             <div class="d-flex align-items-center">
-                                <Badge colour="@BadgeColor" />
-                                <span>@station.assemblystation</span>
+                                <Badge colour="@GetBadgeColour(station.Status)"/>
+                                <span class="ms-2">@station.assemblystation</span>
                             </div>
 
                             <div class=" ms-2">
@@ -77,7 +75,7 @@
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
-                <div class="tool-operation-panel p-5" style="width: 500px;">
+                <div class="tool-operation-panel" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
                         @if (selectedStation != null)
@@ -106,8 +104,9 @@
                             {
                                 <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
                                     <div class="tool-header d-flex justify-content-between align-items-center">
+                                        <Badge colour="@GetBadgeColour(tool.Status)"/>
                                         <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
-                                        <div>
+                                        <div class="d-flex align-items-center">
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }">+</button>
                                             @if (selectedTool != null)
@@ -117,33 +116,31 @@
                                                     <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }">Insert Operation</button>
                                                 }
                                             }
-
                                             <!-- Drag handle for tools -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                                  class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
-                                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                             </svg>
-
                                         </div>
                                     </div>
-                                    <div class="operation-list">
-                                        @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
-                                        {
-                                            <div class="operation-draggable operation-section d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }">@operation.operationShortname</span>
-                                                <div>
+                                    @if (allOperations.Where(op => op.toolID == tool.toolID).Any())
+                                    {
+                                        <div class="operation-list">
+                                            @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
+                                            {
+                                                <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
+                                                    <Badge colour="@GetBadgeColour(operation.Status)"/>
+                                                    <span class="clickable" @onclick="() => { SelectOperation(operation); }">@operation.operationShortname</span>
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
-
                                                     <!-- Drag handle for operations -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
                                                          class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
-                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                                     </svg>
-
                                                 </div>
-                                            </div>
-                                        }
-                                    </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
                             }
                         }
@@ -228,7 +225,7 @@
         }
 
 
-        if (operationFormular != null )
+        if (operationFormular != null)
         {
             if (await operationFormular.ValidateData() == true)
             {
@@ -244,7 +241,18 @@
     #endregion
 
     #region SideBar
-    private string BadgeColor = "#006700"; //needs to be implemented
+
+    private static string GetBadgeColour(Status status)
+    {
+        return status switch
+        {
+            Status.Green => "green",
+            Status.Red => "red",
+            Status.Yellow => "yellow",
+            _ => "gray"
+        };
+    }
+
     private string SidebarClass { get; set; } = string.Empty;
     private void ToggleSidebar()
     {
@@ -443,13 +451,11 @@
     {
         await InvokeAsync(async () =>
         {
-
             if (msg.StartsWith("OperationUnlocked"))
             {
                 var operationID = int.Parse(msg.Split(';')[1]);
                 if ( selectedOperation != null && selectedOperation?.operationID == operationID)
                 {
-
                     operationReadOnly = false;
                 }
             }
@@ -458,11 +464,9 @@
                 var operationID = int.Parse(msg.Split(';')[1]);
                 if ( selectedOperation != null && selectedOperation?.lockedBy != currentUser && selectedOperation.operationID == operationID)
                 {
-
                     operationReadOnly = true;
                 }
             }
-
             if (msg.StartsWith("ToolUnlocked"))
             {
                 var toolID = int.Parse(msg.Split(';')[1]);
@@ -472,6 +476,7 @@
                     selectedTool.lockedBy = currentUser;
                     await Fassade.UpdateTool(selectedTool);
                     await SignalRService.SendMessageToServer("ToolChanged");*/                                                                                                                                                                                                                                               toolReadOnly = false;
+                    toolReadOnly = false;
                 }
             }
             else if (msg.StartsWith("ToolLocked"))
@@ -489,7 +494,6 @@
                 {
                     var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
                 }
-
                 if(operations != null)
                 {
                     foreach (var op in operations)
