@@ -75,7 +75,6 @@
 
     <ItemGroup>
       <Folder Include="Components\UiInteraction\" />
-      <Folder Include="wwwroot\JSFolder\" />
     </ItemGroup>
 
 </Project>

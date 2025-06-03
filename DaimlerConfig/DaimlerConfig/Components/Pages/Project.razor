@@ -102,16 +102,16 @@
                             @foreach (var tool in tools)
                             {
                                 <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
-                                    <div class="tool-header d-flex justify-content-between align-items-center">
-                                        <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
+                                    <div class="tool-header d-flex justify-content-between align-items-center" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">
+                                        <span class="clickable">@tool.toolShortname</span>
                                         <div>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }">+</button>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))" @onclick:stopPropagation>copy</button>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }" @onclick:stopPropagation>+</button>
                                             @if (selectedTool != null)
                                             {
                                                 if (copiedOperation != null)
                                                 {
-                                                    <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }">Insert Operation</button>
+                                                    <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }" @onclick:stopPropagation>Insert Operation</button>
                                                 }
                                             }
 
@@ -126,10 +126,10 @@
                                     <div class="operation-list">
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
-                                            <div class="operation-draggable operation-section d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }">@operation.operationShortname</span>
+                                            <div class="operation-draggable operation-section d-flex justify-content-between align-items-center" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }">
+                                                <span class="clickable" >@operation.operationShortname</span>
                                                 <div>
-                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
+                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))" @onclick:stopPropagation>copy</button>
 
                                                     <!-- Drag handle for operations -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
