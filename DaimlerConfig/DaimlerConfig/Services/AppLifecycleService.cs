@@ -10,10 +10,21 @@ namespace DaimlerConfig.Services
     {
         public event Func<Task>? OnAppClosing;
 
-        public async Task RaiseAppClosingAsync()
+        public void RaiseAppClosingSync()
         {
             if (OnAppClosing != null)
-                await OnAppClosing.Invoke();
+            {
+                var done = new ManualResetEventSlim(false);
+
+                _ = Task.Run(async () =>
+                {
+                    await OnAppClosing.Invoke();
+                    done.Set();
+                });
+
+                done.Wait(); // Blockiert App-Schluss bis Unlock + SignalR fertig ist
+            }
         }
+
     }
 }
