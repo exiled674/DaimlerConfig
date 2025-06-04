@@ -9,6 +9,9 @@
 
 @using DaimlerConfig.Components.Models
 
+@inject NavigationManager Navigation
+@inject NavigationStateService NavState
+
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
 
@@ -438,6 +441,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+
+        NavState.SetCurrentRoute($"/line/{lineName}"); // für Project
+
         LifecycleService.OnAppClosing += HandleAppClosingAsync;
         SignalRService.RegisterResponseHandler(async (string msg) =>
     {
@@ -559,6 +566,8 @@
                 allOperations = await Fassade.GetAllOperations();
             }
         }
+
+       
     }
 
     #region Clone
