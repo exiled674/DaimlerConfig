@@ -1,0 +1,402 @@
+﻿@using DaimlerConfig.Components.Models
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+@inject DirtyManagerService DirtyManagerService
+
+<div>
+    <div class="class-header justify-content-between align-items-center">
+        <h2>Operation</h2>
+        <div class="d-flex justify-content-end align-items-center gap-2">
+            @if (SelectedOperation.operationID == 0)
+            {
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync" >Create</button>
+                </div>
+            }
+            @if (SelectedOperation.operationID != 0)
+            {
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync" disabled="@ReadOnly">Update</button>
+                </div>
+            }
+
+
+            @if (SelectedOperation.operationID != 0)
+            {
+                <div class="d-flex justify-content-end align-items-center mb-3">
+                    <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync" disabled="@ReadOnly">Delete</button>
+                </div>
+            }
+        </div>
+    </div>
+
+
+    <div class="layout position-relative">
+        <div class="toolColoumnLeft">
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" placeholder=""  @bind="SelectedOperation.operationID" readonly>
+                <label>Operation ID</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control @(errorMessages.ContainsKey("OperationShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname" readonly="@ReadOnly">
+                <label>Operation Shortname</label>
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
+                </span>
+                @if (errorMessages.ContainsKey("OperationShortname"))
+                {
+                    <div class="invalid-feedback">@errorMessages["OperationShortname"]</div>
+                }
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.operationDescription" readonly="@ReadOnly"></textarea>
+                <label>Operation Description</label>
+                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                    @($"{SelectedOperation?.operationDescription?.Length ?? 0}/100")</span>
+            </div>
+        </div>
+        <div class="toolColoumnRight ">
+
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="ProcessingMode" disabled="@ReadOnly" @onfocus="LockOperation">
+                    <option value="">select...</option>
+                    <option value="Serial">Serial</option>
+                    <option value="Parallel">Parallel</option>
+                </select>
+                <label for="ProcessingMode">Processing Mode</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
+                <label>Operation Sequenz</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
+                <label>Operation Sequenz Group</label>
+            </div>
+
+        </div>
+    </div>
+
+    <hr />
+
+    <h2>Classes</h2>
+    <div class="layout position-relative">
+        <div class="toolColoumnLeft">
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly" @onfocus="LockOperation">
+                    @foreach (var decision in decisionClasses)
+                    {
+                        <option value="@decision.decisionClassID">@decision.decisionClassName</option>
+                    }
+                </select>
+                <label for="DecisionClass">Decision Class</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
+                    @foreach (var generation in generationClasses)
+                    {
+                        <option value="@generation.generationClassID">@generation.generationClassName</option>
+                    }
+                </select>
+                <label for="GenerationClass">Generation Class</label>
+            </div>
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
+                    @foreach (var verification in verificationClasses)
+                    {
+                        <option value="@verification.verificationClassID">@verification.verificationClassName</option>
+                    }
+                </select>
+                <label for="VerificationClass">Verification Class</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly" @onfocus="LockOperation">
+                    @foreach (var saving in savingClasses)
+                    {
+                        <option value="@saving.savingClassID">@saving.savingClassName</option>
+                    }
+                </select>
+                <label for="SavingClass">Saving Class</label>
+            </div>
+        </div>
+
+        <div class="toolColoumnRight">
+
+            <div class="form-floating">
+                <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly" @onclick="LockOperation"></textarea>
+                <label for="DecisionCriteria">Decision Criteria</label>
+            </div>
+        </div>     
+    </div>
+
+</div>
+
+
+
+@code {
+    [Parameter]
+    public string? CurrentUser { get; set; }
+
+
+    [Parameter]
+    public Operation? SelectedOperation { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+
+
+    private Operation? OriginalOperation { get; set; }
+    private Dictionary<string, string> errorMessages = new();
+    private bool showErrors = false;
+
+
+    private Tool? currentTool;
+
+    private Template? currentTemplate;
+
+    private IEnumerable<DecisionClass> decisionClasses = Enumerable.Empty<DecisionClass>();
+
+    private IEnumerable<SavingClass> savingClasses = Enumerable.Empty<SavingClass>();
+
+    private IEnumerable<VerificationClass> verificationClasses = Enumerable.Empty<VerificationClass>();
+
+    private IEnumerable<GenerationClass> generationClasses = Enumerable.Empty<GenerationClass>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ResetValidationState();
+        if (SelectedOperation != null)
+        {
+            OriginalOperation = SelectedOperation.Clone();
+            OriginalOperation.operationID = SelectedOperation.operationID;
+            OriginalOperation.toolID = SelectedOperation.toolID;
+
+            currentTool = await Fassade.GetTool(SelectedOperation.toolID);
+            if(currentTool != null)
+            {
+                var toolClassId = currentTool.toolClassID;
+                
+            }
+
+
+            await InitializeClasses();
+            StateHasChanged();
+        }
+
+    }
+
+    #region CRUD
+    public async Task UpdateOperationAsync()
+    {
+        ResetValidationState();
+
+        if (await ValidateData() == false)
+            return;
+
+        if (!await Fassade.UpdateOperationWithVersion(SelectedOperation, OriginalOperation))
+            return;
+
+        await SignalRService.SendMessageToServer("OperationChanged");
+        await DirtyManagerService.setClean();
+    }
+
+
+    private async Task AddOperationAsync()
+    {
+        if (await ValidateData() == false)
+            return;
+
+        if (!await Fassade.AddOperation(SelectedOperation))
+            return;
+
+        await SignalRService.SendMessageToServer("OperationChanged");
+        await DirtyManagerService.setClean();
+    }
+
+
+    private async Task DeleteOperationAsync()
+    {
+        if (SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser))
+        {
+            if (!await Fassade.DeleteOperation(SelectedOperation))
+                return;
+
+            await SignalRService.SendMessageToServer("OperationChanged");
+            await DirtyManagerService.setClean();
+        }
+    }
+
+    #endregion
+
+    #region Validate
+    public async Task<bool> ValidateData()
+    {
+        ResetValidationState();
+
+        //Objekt
+        if (SelectedOperation == null)
+            return false; //??
+
+        //OperationShortname
+        if (string.IsNullOrWhiteSpace(SelectedOperation.operationShortname))
+        {
+            errorMessages["OperationShortname"] = "OperationShortname is missing";
+        }
+
+        if (!SelectedOperation.toolID.HasValue)
+            return false; //??
+
+        if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.operationID.Value, SelectedOperation.toolID.Value))
+        {
+            errorMessages["OperationShortname"] = "An operation with this shortname already exists in this station";
+
+        }
+
+        showErrors = errorMessages.Any();
+        return !showErrors;
+    }
+
+    private void ResetValidationState()
+    {
+        errorMessages.Clear();
+        showErrors = false;
+    }
+
+    #endregion
+
+    #region Dirty
+    private async Task<bool> CheckIfDirty()
+    {
+        if (SelectedOperation?.operationID == 0)
+            return false;
+        return await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation);
+    }
+
+    public async Task ResetOperation()
+    {
+        if (OriginalOperation != null)
+        {
+            SelectedOperation = OriginalOperation.Clone();
+            SelectedOperation.operationID = OriginalOperation.operationID;
+            SelectedOperation.toolID = OriginalOperation.toolID;
+        }
+        await SignalRService.SendMessageToServer("OperationChanged");
+    }
+    #endregion
+
+    #region Lock
+    private System.Threading.CancellationTokenSource? lockCancellationTokenSource;
+
+    public async Task LockOperation()
+    {
+
+        if (SelectedOperation.operationID == 0) return;
+        if(SelectedOperation.isLocked == true && SelectedOperation.lockedBy == CurrentUser)
+        {
+            lockCancellationTokenSource?.Cancel();
+			StartUnlockTimer();
+        }
+        if (SelectedOperation.isLocked == false)
+        {
+            SelectedOperation.isLocked = true;
+            SelectedOperation.lockedBy = CurrentUser;
+			SelectedOperation.lockTimestamp = DateTime.Now;
+            await Fassade.UpdateOperation(SelectedOperation);
+            
+            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer("OperationLocked;" + SelectedOperation.operationID.ToString());
+            ReadOnly = false;
+			StateHasChanged();
+			StartUnlockTimer();
+           
+
+        }
+    }
+
+   
+    private void StartUnlockTimer()
+    {
+        // Wenn bereits ein Timer läuft, abbrechen
+        lockCancellationTokenSource?.Cancel();
+        lockCancellationTokenSource = new System.Threading.CancellationTokenSource();
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                // Warte 10 Minuten (600000 ms)
+                await Task.Delay(TimeSpan.FromMinutes(3), lockCancellationTokenSource.Token);
+
+                // Nach 10 Minuten entsperren
+                await UnlockOperationAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Timer wurde abgebrochen (z.B. bei erneutem Lock)
+            }
+        });
+    }
+
+    private async Task UnlockOperationAsync()
+    {
+        if (SelectedOperation == null) return;
+
+        SelectedOperation.isLocked = false;
+        SelectedOperation.lockedBy = null;
+        SelectedOperation.lockTimestamp = null;
+        await Fassade.UpdateOperation(SelectedOperation);
+
+        await SignalRService.SendMessageToServer("OperationChanged");
+        await SignalRService.SendMessageToServer("OperationUnlocked;" + SelectedOperation.operationID.ToString());
+
+        ReadOnly = true;
+        StateHasChanged();
+    }
+
+    // Optional: Falls man das Lock manuell aufheben will
+    public async Task ManualUnlockOperationAsync()
+    {
+        // Timer stoppen
+        lockCancellationTokenSource?.Cancel();
+        await UnlockOperationAsync();
+    }
+    #endregion
+
+    #region Classes
+    private async Task InitializeClasses()
+    {
+        decisionClasses = await Fassade.GetDecisionClasses();
+
+        if(currentTemplate != null)
+        {
+            savingClasses = await Fassade.GetSavingClasses(currentTemplate.TemplateId);
+
+            verificationClasses = await Fassade.GetVerificationClasses(currentTemplate.TemplateId);
+
+            generationClasses = await Fassade.GetGenerationClasses(currentTemplate.TemplateId);
+
+            if (verificationClasses == null || !verificationClasses.Any())
+            {
+                var list = verificationClasses.ToList();
+                list.AddRange(await Fassade.GetVerificationClass(0));
+                verificationClasses = list.AsEnumerable();
+
+
+            }
+        }
+        
+
+        
+    }
+    #endregion
+}

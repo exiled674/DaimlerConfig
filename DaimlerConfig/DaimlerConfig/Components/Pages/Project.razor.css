@@ -1,0 +1,405 @@
+/* Your existing CSS with improvements */
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+.main {
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    background: white;
+    padding-top: 55px;
+}
+
+#sidebar {
+    max-width: 200px;
+    min-width: 200px;
+    transition: all 0.35s ease-in-out;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    padding-top: 55px;
+    position: relative; /* Important for drag containment */
+    overflow: visible; /* Allow drag elements to be visible */
+}
+
+    #sidebar.collapsed {
+        margin-left: -200px;
+    }
+
+.toggler-btn {
+    background-color: transparent;
+    cursor: pointer;
+    border: 0;
+    z-index: 1;
+}
+
+    .toggler-btn i {
+        font-size: 1.5rem;
+        color: black;
+        font-weight: bold;
+    }
+
+.sidebar-nav {
+    flex: 1 1 auto;
+    position: relative; /* Important for drag containment */
+    padding: 0; /* Remove default padding */
+}
+
+.sidebar-header {
+    color: #808080;
+    font-size: .75rem;
+    padding: 1.5rem 1.5rem .375rem;
+}
+
+a.sidebar-link {
+    padding: .2rem 1.5rem;
+    font-size: 0.95rem;
+    color: black;
+    position: relative;
+    transition: all 0.35s;
+    display: block;
+}
+
+    a.sidebar-link:hover {
+        background-color: lightgray;
+    }
+
+.stationSelected {
+    background-color: lightgray;
+}
+
+.tool-operation-panel {
+    width: 50% !important;
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.content-panel {
+    width: 75%;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.container-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+main {
+    min-height: 89vh;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+    .clickable:hover {
+        text-decoration: none;
+    }
+
+h6 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.tool-header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+    .tool-header:hover {
+        background-color: #dee2e6;
+    }
+
+    .tool-header.active {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+.operation-list {
+    margin-left: 20px;
+}
+
+.operation-section {
+    padding: 8px;
+    margin: 3px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    border-left: 3px solid #ced4da;
+}
+
+    .operation-section:hover {
+        background-color: #e9ecef;
+    }
+
+    .operation-section.active {
+        background-color: #cfe2ff;
+        border-left: 3px solid #0d6efd;
+    }
+
+/* Enhanced draggable styles */
+.draggable {
+    user-select: none;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+    background-color: white; /* Ensure background is visible */
+    border-radius: 4px;
+    margin: 2px 0; /* Add some spacing */
+}
+
+    .draggable:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .draggable:active {
+        cursor: grabbing;
+    }
+
+    /* Enhanced drag states */
+    .draggable.dragging {
+        opacity: 0.7;
+        background-color: #8dafd4;
+        border: 2px dashed #2196f3;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transform: rotate(2deg); /* Slight rotation for visual feedback */
+    }
+
+.is-dragging {
+    opacity: 0.8;
+    background-color: #5E97EC !important;
+    border: 2px solid #0452C6 !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3) !important;
+    z-index: 1000 !important;
+    transform: scale(1.02); /* Slightly larger while dragging */
+    border-radius: 6px;
+}
+
+/* Drag preview styles */
+.draggable[data-x] {
+    z-index: 999;
+}
+
+/* Enhanced sidebar item positioning */
+li.sidebar-item {
+    position: relative;
+    margin: 1px 0; /* Small margin for better separation */
+    border-radius: 4px;
+    overflow: hidden; /* Contain any child elements */
+}
+
+/* Drop zone indicators */
+.sidebar-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    border: 2px dashed transparent;
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+}
+
+.sidebar-nav.drag-active::before {
+    border-color: #2196f3;
+    background-color: #2196F3;
+}
+
+/* Smooth transitions for reordering */
+.draggable:not(.is-dragging) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Prevent text selection during drag */
+.sidebar-nav {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Handle grip icon styling */
+.bi-grip-vertical {
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.draggable:hover .bi-grip-vertical {
+    opacity: 1;
+}
+
+/* Ensure proper stacking context */
+.d-flex.sidebar {
+    position: relative;
+    z-index: 1;
+}
+
+/* Prevent horizontal scrolling in sidebar */
+#sidebar {
+    overflow-x: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .draggable {
+        touch-action: none; /* Better touch support */
+    }
+}
+
+.tool-draggable {
+    cursor: move;
+    user-select: none;
+    transition: all 0.2s ease;
+    position: relative;
+    margin: 2px 0;
+}
+
+    .tool-draggable:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .tool-draggable.is-dragging {
+        opacity: 0.8;
+        background-color: #fff3e0 !important;
+        border: 2px solid #ff9800 !important;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3) !important;
+        z-index: 1000 !important;
+        transform: scale(1.02);
+        border-radius: 6px;
+    }
+
+/* Operation dragging styles */
+.operation-draggable {
+    cursor: move;
+    user-select: none;
+    transition: all 0.2s ease;
+    position: relative;
+    margin: 1px 0;
+}
+
+    .operation-draggable:hover {
+        background-color: #f0f8ff;
+    }
+
+    .operation-draggable.is-dragging {
+        opacity: 0.8;
+        background-color: #e8f5e8 !important;
+        border: 2px solid #4caf50 !important;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.25) !important;
+        z-index: 999 !important;
+        transform: scale(1.01);
+        border-radius: 4px;
+    }
+
+/* Drag handle styles */
+.drag-handle {
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+    cursor: grab;
+    margin-left: 8px;
+}
+
+    .drag-handle:hover {
+        opacity: 0.8;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+.drag-handle-small {
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+    cursor: grab;
+}
+
+    .drag-handle-small:hover {
+        opacity: 0.7;
+    }
+
+/* Container specific styles */
+#toolsList {
+    position: relative;
+    min-height: 50px;
+}
+
+.operation-list {
+    position: relative;
+    margin-left: 20px;
+    min-height: 20px;
+}
+
+/* Smooth transitions for all draggable elements */
+.tool-draggable:not(.is-dragging),
+.operation-draggable:not(.is-dragging) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Prevent text selection during drag operations */
+#toolsList,
+.operation-list {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+    /* Visual feedback for drop zones */
+    #toolsList.drag-active {
+        background-color: rgba(255, 152, 0, 0.05);
+        border: 2px dashed #ff9800;
+        border-radius: 4px;
+    }
+
+    .operation-list.drag-active {
+        background-color: rgba(76, 175, 80, 0.05);
+        border: 1px dashed #4caf50;
+        border-radius: 4px;
+    }
+
+/* Ensure proper spacing and hierarchy */
+.tool-section {
+    margin-bottom: 8px;
+}
+
+    .tool-section:last-child {
+        margin-bottom: 0;
+    }
+
+.operation-section {
+    margin-bottom: 2px;
+}
+
+    .operation-section:last-child {
+        margin-bottom: 0;
+    }
+
+/* Responsive adjustments for touch devices */
+@media (max-width: 768px) {
+    .tool-draggable,
+    .operation-draggable {
+        touch-action: none;
+    }
+
+    .drag-handle,
+    .drag-handle-small {
+        opacity: 0.8; /* More visible on touch devices */
+    }
+}

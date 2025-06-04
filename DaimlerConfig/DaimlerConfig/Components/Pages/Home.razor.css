@@ -1,0 +1,45 @@
+﻿body {
+    background-color: #F8FCFF;
+}
+
+.ProjectManager {
+    background-color: #FEFEFE;
+    border-radius: 8px;
+    padding-top: 60px;
+}
+
+p {
+    margin-bottom: 0px;
+}
+
+hr {
+    margin-top: 0px;
+}
+
+    hr:not([size]) {
+        height: 0.3px;
+    }
+
+.line-div:hover {
+    background-color: #f8f9fa;
+}
+
+.projects {
+    margin-bottom: 20px;
+}
+
+.plus-icon {
+    margin-right: 8px;
+    font-size: 18px;
+    line-height: 0;
+    position: relative;
+    top: 2px;
+}
+
+.lineLabel {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+}
+
