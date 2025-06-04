@@ -30,6 +30,8 @@ namespace DaimlerConfig.Components.Models
                 preCheckByte = tool.preCheckByte,
                 addressSendDB = tool.addressSendDB,
                 addressReceiveDB = tool.addressReceiveDB,
+                isLocked = tool.isLocked,
+                lockedBy = tool.lockedBy,
                 
                 lockTimestamp = tool.lockTimestamp,
                

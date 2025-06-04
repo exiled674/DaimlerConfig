@@ -203,7 +203,7 @@
         if (await ValidateData() == false)
             return;
 
-        if (!await Fassade.UpdateOperation(SelectedOperation))
+        if (!await Fassade.UpdateOperationWithVersion(SelectedOperation, OriginalOperation))
             return;
 
         await SignalRService.SendMessageToServer("OperationChanged");

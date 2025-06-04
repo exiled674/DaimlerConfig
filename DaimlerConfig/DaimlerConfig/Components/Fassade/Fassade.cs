@@ -11,6 +11,7 @@ namespace DaimlerConfig.Components.Fassade
     {
         public IToolRepository ToolRepository { get; private set; }
         public IRepository<ToolVersion> ToolVersionRepository { get; private set; }
+        public IRepository<OperationVersion> OperationVersionRepository { get; private set; }
         public IOperationRepository OperationRepository { get; private set; }
         public IStationRepository StationRepository { get; private set; }
         public IRepository<Line> LineRepository { get; private set; }
@@ -32,7 +33,7 @@ namespace DaimlerConfig.Components.Fassade
         
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, ExcelExport ExcelExport, IRepository<ToolVersion> toolVersionRepository)
+        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, ExcelExport ExcelExport, IRepository<ToolVersion> toolVersionRepository, IRepository<OperationVersion> operationVersionRepository)
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
@@ -45,7 +46,7 @@ namespace DaimlerConfig.Components.Fassade
             VerificationClassRepository = verificationClassRepository;
             ToolClassRepository = toolClassRepository;
             ToolTypeRepository = toolTypeRepository;
-            
+            OperationVersionRepository = operationVersionRepository;
             this.ExcelExport = ExcelExport;
             ToolVersionRepository = toolVersionRepository;
         }
@@ -311,6 +312,15 @@ namespace DaimlerConfig.Components.Fassade
             }
 
             return true;
+        }
+
+        public async Task<bool> UpdateOperationWithVersion(Operation operation, Operation original)
+        {
+            var version = OperationVersion.CreateOperationVersionFromOperation(original);
+            await OperationVersionRepository.Add(version);
+
+
+            return await UpdateOperation(operation);
         }
 
         public async Task<bool> AddOperation(Operation operation)
