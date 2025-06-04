@@ -203,7 +203,7 @@
         if (await ValidateData() == false)
             return;
 
-        if (!await Fassade.UpdateTool(SelectedTool))
+        if (!await Fassade.UpdateToolWithVersion(SelectedTool, OriginalTool))
             return;
 
         await SignalRService.SendMessageToServer("ToolChanged");
