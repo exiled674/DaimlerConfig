@@ -78,26 +78,30 @@
         </div>
 
         <div class="toolColoumnRight ">
-            <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolClass" value="@SelectedTool.toolClassID" @onchange="OnToolClassChanged" disabled="@ReadOnly" @onfocus="LockTool">
-                    @foreach (var toolClass in toolClasses)
-                    {
-                        <option value="@toolClass.toolClassID">@toolClass.toolClassName</option>
-                    }
-                </select>
 
-                <label for="ToolClass">Tool Class</label>
-            </div>
+            <SearchSelect TItem="ToolClass"
+                          Items="@toolClasses"
+                          SelectedItemID="@SelectedTool.toolClassID"
+                          OnSelectedItemIDChanged="OnToolClassChanged"
+                          GetItemID="@(tc => tc.toolClassID)"
+                          GetItemDisplayText="@(tc => tc.toolClassName)"
+                          Placeholder="Tool Class suchen..."
+                          Label="Tool Class"
+                          ReadOnly="@ReadOnly"
+                          OnInputClicked="LockTool" />
 
-            <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolType" value="@SelectedTool.toolTypeID" @onchange="OnToolTypeChanged" disabled="@ReadOnly" @onfocus="LockTool">
-                    @foreach (var toolType in toolTypes)
-                    {
-                        <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
-                    }
-                </select>
-                <label for="ToolType">Tool Type</label>
-            </div>
+
+            <SearchSelect TItem="ToolType"
+                          Items="@toolTypes"
+                          SelectedItemID="@SelectedTool.toolTypeID"
+                          OnSelectedItemIDChanged="OnToolTypeChanged"
+                          GetItemID="@(tt => tt.toolTypeID)"
+                          GetItemDisplayText="@(tt => tt.toolTypeName)"
+                          Placeholder="Tool Type suchen..."
+                          Label="Tool Type"
+                          ReadOnly="@ReadOnly"
+                          OnInputClicked="LockTool" />
+
         </div>
     </div>
 
@@ -385,23 +389,24 @@
     #endregion
 
     #region ToolClass/-Type
-    private async Task OnToolClassChanged(ChangeEventArgs e)
+    private async Task OnToolClassChanged(int? selectedId)
     {
-        
-        if (int.TryParse(e.Value?.ToString(), out var selectedId))
+        if (selectedId.HasValue)
         {
             SelectedTool.toolClassID = selectedId;
-            toolTypes = await Fassade.FindToolTypes(selectedId);
+            toolTypes = await Fassade.FindToolTypes(selectedId.Value);
+            SelectedTool.toolTypeID = toolTypes.FirstOrDefault()?.toolTypeID ?? 0;
             await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
         }
     }
 
-    private async Task OnToolTypeChanged(ChangeEventArgs e)
+
+    private async Task OnToolTypeChanged(int? selectedId)
     {
-		
-        if (int.TryParse(e.Value?.ToString(), out var id))
+        if (selectedId.HasValue)
         {
-            SelectedTool.toolTypeID = id;
+            SelectedTool.toolTypeID = selectedId.Value;
+            await CheckIfDirty();
         }
     }
 

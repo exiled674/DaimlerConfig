@@ -90,42 +90,56 @@
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var decision in decisionClasses)
-                    {
-                        <option value="@decision.decisionClassID">@decision.decisionClassName</option>
-                    }
-                </select>
-                <label for="DecisionClass">Decision Class</label>
+                <SearchSelect TItem="DecisionClass"
+                              Items="@decisionClasses"
+                              SelectedItemID="@SelectedOperation.decisionClassID"
+                              OnSelectedItemIDChanged="OnDecisionClassChanged"
+                              GetItemID="@(dc => dc.decisionClassID)"
+                              GetItemDisplayText="@(dc => dc.decisionClassName)"
+                              Placeholder="Decision Class suchen..."
+                              Label="Decision Class"
+                              ReadOnly="@ReadOnly"
+                              OnInputClicked="LockOperation" />
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var generation in generationClasses)
-                    {
-                        <option value="@generation.generationClassID">@generation.generationClassName</option>
-                    }
-                </select>
-                <label for="GenerationClass">Generation Class</label>
+                <SearchSelect TItem="GenerationClass"
+                              Items="@generationClasses"
+                              SelectedItemID="@SelectedOperation.generationClassID"
+                              OnSelectedItemIDChanged="OnGenerationClassChanged"
+                              GetItemID="@(gc => gc.generationClassID)"
+                              GetItemDisplayText="@(gc => gc.generationClassName)"
+                              Placeholder="Generation Class suchen..."
+                              Label="Generation Class"
+                              ReadOnly="@ReadOnly"
+                              OnInputClicked="LockOperation" />
+
             </div>
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var verification in verificationClasses)
-                    {
-                        <option value="@verification.verificationClassID">@verification.verificationClassName</option>
-                    }
-                </select>
-                <label for="VerificationClass">Verification Class</label>
+                <SearchSelect TItem="VerificationClass"
+                              Items="@verificationClasses"
+                              SelectedItemID="@SelectedOperation.verificationClassID"
+                              OnSelectedItemIDChanged="OnVerificationClassChanged"
+                              GetItemID="@(vc => vc.verificationClassID)"
+                              GetItemDisplayText="@(vc => vc.verificationClassName)"
+                              Placeholder="Verification Class suchen..."
+                              Label="Verification Class"
+                              ReadOnly="@ReadOnly"
+                              OnInputClicked="LockOperation" />
+
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var saving in savingClasses)
-                    {
-                        <option value="@saving.savingClassID">@saving.savingClassName</option>
-                    }
-                </select>
-                <label for="SavingClass">Saving Class</label>
+                <SearchSelect TItem="SavingClass"
+                              Items="@savingClasses"
+                              SelectedItemID="@SelectedOperation.savingClassID"
+                              OnSelectedItemIDChanged="OnSavingClassChanged"
+                              GetItemID="@(sc => sc.savingClassID)"
+                              GetItemDisplayText="@(sc => sc.savingClassName)"
+                              Placeholder="Saving Class suchen..."
+                              Label="Saving Class"
+                              ReadOnly="@ReadOnly"
+                              OnInputClicked="LockOperation" />
             </div>
         </div>
 
@@ -390,13 +404,45 @@
                 var list = verificationClasses.ToList();
                 list.AddRange(await Fassade.GetVerificationClass(0));
                 verificationClasses = list.AsEnumerable();
-
-
             }
         }
         
+    }
 
-        
+    private async Task OnDecisionClassChanged(int? selectedId)
+    {
+        if (selectedId.HasValue)
+        {
+            SelectedOperation.decisionClassID = selectedId.Value;
+            await CheckIfDirty();
+        }
+    }
+
+    private async Task OnGenerationClassChanged(int? selectedId)
+    {
+        if (selectedId.HasValue)
+        {
+            SelectedOperation.generationClassID = selectedId.Value;
+            await CheckIfDirty();
+        }
+    }
+
+    private async Task OnVerificationClassChanged(int? selectedId)
+    {
+        if (selectedId.HasValue)
+        {
+            SelectedOperation.verificationClassID = selectedId.Value;
+            await CheckIfDirty();
+        }
+    }
+
+    private async Task OnSavingClassChanged(int? selectedId)
+    {
+        if (selectedId.HasValue)
+        {
+            SelectedOperation.savingClassID = selectedId.Value;
+            await CheckIfDirty();
+        }
     }
     #endregion
 }
