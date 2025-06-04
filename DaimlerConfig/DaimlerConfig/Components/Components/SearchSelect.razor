@@ -21,9 +21,9 @@
 
     @if (showSuggestions && !ReadOnly)
     {
-        <div class="dropdown-menu show position-absolute w-100 mt-1"
-             style="z-index: 1050; max-height: 300px; overflow-y: auto;"
-             @onmousedown:preventDefault="true">
+            <div class="dropdown-menu show position-absolute w-100 mt-1"
+                 style="z-index: 1050; max-height: 300px; overflow-y: auto;"
+                 @onmousedown:preventDefault="true">
             @{
                 var filteredItems = FilterItems().Take(MaxResults).ToList();
             }
@@ -34,28 +34,30 @@
                     var item = filteredItems[i];
                     var index = i;
                     var isActive = highlightedIndex == index;
+                    var helpText = HelpTextFunc?.Invoke(item); // Get the help text
 
-                    <button type="button"
-                            class="dropdown-item @(isActive ? "active" : "")"
-                            @onclick="() => SelectItem(item)"
-                            @onmouseenter="() => SetHighlightedIndex(index)"
-                            style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <button type="button"
+                                        class="dropdown-item @(isActive ? "active" : "")"
+                                        @onclick="() => SelectItem(item)"
+                                        @onmouseenter="() => SetHighlightedIndex(index)"
+                                        style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                        title="@(string.IsNullOrEmpty(helpText) ? "" : helpText)"> @* Use title for standard HTML tooltip *@
                         @GetItemDisplayText(item)
-                    </button>
+                                </button>
                 }
             }
             else
             {
-                <div class="dropdown-item-text text-muted fst-italic">
-                    Keine Ergebnisse gefunden
-                </div>
+                        <div class="dropdown-item-text text-muted fst-italic">
+                            Keine Ergebnisse gefunden
+                        </div>
             }
-        </div>
+            </div>
     }
 
     @if (HasError && !string.IsNullOrEmpty(ErrorMessage))
     {
-        <div class="invalid-feedback">@ErrorMessage</div>
+            <div class="invalid-feedback">@ErrorMessage</div>
     }
 </div>
 
@@ -74,6 +76,9 @@
 
     [Parameter, EditorRequired]
     public Func<TItem, string> GetItemDisplayText { get; set; } = null!;
+
+    [Parameter]
+    public Func<TItem, string>? HelpTextFunc { get; set; } // Parameter for HelpText
 
     [Parameter]
     public string Placeholder { get; set; } = "Suchen...";

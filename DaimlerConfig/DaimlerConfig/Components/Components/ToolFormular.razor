@@ -8,39 +8,39 @@
 
 <div>
 
-    <div class="class-header  justify-content-between align-items-center">
+    <div class="class-header justify-content-between align-items-center">
         <h2>Tool</h2>
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             @if (SelectedTool?.toolID == 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+                    </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
-                    <div class="text-danger">@ValidationMessage</div>
+                            <div class="text-danger">@ValidationMessage</div>
                 }
             }
 
             @if (SelectedTool?.toolID != 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync" disabled="@ReadOnly">Update</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync" disabled="@ReadOnly">Update</button>
+                    </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
-                    <div class="text-danger">@ValidationMessage</div>
+                            <div class="text-danger">@ValidationMessage</div>
                 }
             }
             @if (SelectedTool?.toolID != 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync" disabled="@ReadOnly">Delete</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync" disabled="@ReadOnly">Delete</button>
+                    </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
-                    <div class="text-danger">@ValidationMessage</div>
+                            <div class="text-danger">@ValidationMessage</div>
                 }
             }
         </div>
@@ -63,7 +63,7 @@
                 </span>
                 @if (errorMessages.ContainsKey("ToolShortname"))
                 {
-                    <div class="invalid-feedback">@errorMessages["ToolShortname"]</div>
+                        <div class="invalid-feedback">@errorMessages["ToolShortname"]</div>
 
                 }
             </div>
@@ -100,7 +100,8 @@
                           Placeholder="Tool Type suchen..."
                           Label="Tool Type"
                           ReadOnly="@ReadOnly"
-                          OnInputClicked="LockTool" />
+                          OnInputClicked="LockTool"
+                          HelpTextFunc="@((tt) => tt.HelpText)" /> @* Added HelpTextFunc parameter *@
 
         </div>
     </div>
@@ -117,7 +118,7 @@
                     <label>IP-Address Device</label>
                     @if (errorMessages.ContainsKey("IP"))
                     {
-                        <div class="invalid-feedback">@errorMessages["IP"]</div>
+                            <div class="invalid-feedback">@errorMessages["IP"]</div>
                     }
                 </div>
                 <div class="form-floating mb-3">
@@ -322,7 +323,7 @@
             lockCancellationTokenSource?.Cancel();
             StartUnlockTimer();
 
-            
+
         }
         if (SelectedTool.isLocked == false)
         {
