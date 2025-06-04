@@ -41,7 +41,7 @@
                                         @onclick="() => SelectItem(item)"
                                         @onmouseenter="() => SetHighlightedIndex(index)"
                                         style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                                        title="@(string.IsNullOrEmpty(helpText) ? "" : helpText)"> @* Use title for standard HTML tooltip *@
+                                        title="@(string.IsNullOrEmpty(helpText) ? "" : helpText)">
                         @GetItemDisplayText(item)
                                 </button>
                 }
@@ -78,7 +78,7 @@
     public Func<TItem, string> GetItemDisplayText { get; set; } = null!;
 
     [Parameter]
-    public Func<TItem, string>? HelpTextFunc { get; set; } // Parameter for HelpText
+    public Func<TItem, string>? HelpTextFunc { get; set; } 
 
     [Parameter]
     public string Placeholder { get; set; } = "Suchen...";
@@ -114,7 +114,7 @@
 
     protected override void OnParametersSet()
     {
-        // Setze den searchTerm basierend auf der aktuellen Auswahl
+        
         if (SelectedItemID.HasValue)
         {
             var selectedItem = Items.FirstOrDefault(item => GetItemID(item) == SelectedItemID.Value);
@@ -162,7 +162,7 @@
             {
                 _ = InvokeAsync(async () =>
                 {
-                    await Task.Delay(100); // Small delay to avoid conflicts
+                    await Task.Delay(100);
                     if (OnSelectedItemIDChanged.HasDelegate)
                     {
                         await OnSelectedItemIDChanged.InvokeAsync(GetItemID(exactMatch));
@@ -184,7 +184,7 @@
 
     private async Task HandleBlur(FocusEventArgs e)
     {
-        // Use timer to allow click events on dropdown items
+        
         blurTimer?.Dispose();
         blurTimer = new Timer(async _ =>
         {
@@ -203,7 +203,7 @@
                 }
                 else
                 {
-                    // Check if current searchTerm matches any item
+                    
                     var matchingItem = Items.FirstOrDefault(item =>
                         string.Equals(GetItemDisplayText(item), searchTerm, StringComparison.OrdinalIgnoreCase));
 
@@ -217,7 +217,7 @@
                     }
                     else
                     {
-                        // If it matches an item, ensure the ID is set
+                        
                         if (OnSelectedItemIDChanged.HasDelegate)
                         {
                             await OnSelectedItemIDChanged.InvokeAsync(GetItemID(matchingItem));

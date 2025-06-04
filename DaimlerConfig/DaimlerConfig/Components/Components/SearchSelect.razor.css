@@ -1,18 +1,18 @@
-/* Custom Tooltip Styling for elements with a title attribute */
+
 [title]:hover::after {
     content: attr(title);
     position: absolute;
-    left: 100%; /* Positioniert den Tooltip rechts vom Element */
-    top: 50%; /* Zentriert den Tooltip vertikal */
-    transform: translateY(-50%) translateX(10px); /* Verschiebt den Tooltip leicht nach rechts und zentriert ihn */
+    left: 100%; 
+    top: 50%; 
+    transform: translateY(-50%) translateX(10px); 
     white-space: nowrap;
     background-color: #333;
     color: #fff;
     padding: 8px 12px;
     border-radius: 4px;
     font-size: 0.875rem;
-    z-index: 10000; /* Stellt sicher, dass der Tooltip über anderen Elementen liegt */
-    pointer-events: none; /* Ermöglicht Klicks durch den Tooltip hindurch */
+    z-index: 10000;
+    pointer-events: none; 
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
 }
@@ -20,13 +20,13 @@
 [title]:hover::before {
     content: '';
     position: absolute;
-    left: 100%; /* Positioniert den Pfeil rechts vom Element */
+    left: 100%;
     top: 50%;
-    transform: translateY(-50%) translateX(5px) rotate(45deg); /* Erstellt einen kleinen Pfeil */
+    transform: translateY(-50%) translateX(5px) rotate(45deg);
     width: 10px;
     height: 10px;
     background-color: #333;
-    z-index: 10001; /* Sicherstellen, dass der Pfeil über dem Tooltip liegt */
+    z-index: 10001;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
@@ -38,17 +38,11 @@
     opacity: 1;
 }
 
-/* Verhindert, dass der Tooltip für das Input-Feld selbst angezeigt wird,
-   da wir den Tooltip nur für die Dropdown-Elemente wollen.
-   Dies ist eine allgemeine Regel, du kannst sie spezifischer gestalten,
-   wenn sie andere Elemente beeinflusst.
-*/
 .form-floating input[title]:hover::after,
 .form-floating input[title]:hover::before {
     opacity: 0 !important;
 }
 
-/* Zusätzliches Styling für die Dropdown-Items, um die Positionierung zu gewährleisten */
 .dropdown-item {
-    position: relative; /* Wichtig, damit der Tooltip relativ zu diesem Element positioniert wird */
+    position: relative;
 }
