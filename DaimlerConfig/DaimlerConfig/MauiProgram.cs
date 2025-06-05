@@ -58,6 +58,7 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<SignalRService>();
             builder.Services.AddSingleton<DirtyManagerService>();
             builder.Services.AddSingleton<AppLifecycleService>();
+            builder.Services.AddSingleton<SelectionStateService>();
 
             var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>

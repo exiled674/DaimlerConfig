@@ -11,6 +11,7 @@
 
 @inject NavigationManager Navigation
 @inject NavigationStateService NavState
+@inject SelectionStateService SelectionState
 
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
@@ -42,7 +43,7 @@
                     <li class="sidebar-item justify-content-between draggable">
                         <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                            
+
 
                             <div class="d-flex align-items-center">
                                 <Badge colour="@BadgeColor" />
@@ -51,7 +52,7 @@
 
                             <div class=" ms-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                     class="bi bi-grip-vertical" viewBox="0 0 16 16">
+                                class="bi bi-grip-vertical" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
                                 </svg>
                             </div>
@@ -123,7 +124,7 @@
 
                                             <!-- Drag handle for tools -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                                 class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
+                                            class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
                                                 <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
                                             </svg>
 
@@ -139,7 +140,7 @@
 
                                                     <!-- Drag handle for operations -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
-                                                         class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
+                                                    class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
                                                         <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
                                                     </svg>
 
@@ -268,6 +269,7 @@
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
     private Station? selectedStation;
     private bool showStationFormular = false;
+
     private async Task SelectStation(Station station)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -288,10 +290,14 @@
             tools = await Fassade.GetToolsFromStation(station.stationID);
             allOperations = await Fassade.GetAllOperations();
 
+            SelectionState.SaveSelection(stationID: station.stationID);
+
             StateHasChanged();
         }
 
     }
+
+
     private void ToggleStationFormular(bool isNewStation)
     {
         if (isNewStation)
@@ -306,6 +312,8 @@
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
+
+
     }
     #endregion
 
@@ -316,6 +324,7 @@
     private Tool? selectedTool;
     private bool toolReadOnly = false;
     private bool showToolFormular = false;
+
     private async Task SelectTool(Tool tool)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -333,7 +342,12 @@
 
             selectedOperation = await CreateDummyOP();
 
-            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+
+            if (tool.toolID > 0) // Dummy-Tools haben toolID = 0
+            {
+                SelectionState.SaveSelection(stationID: selectedStation.stationID, toolID: tool.toolID);
+            }
 
             StateHasChanged();  
         }
@@ -346,6 +360,16 @@
         if (showToolFormular != true) showToolFormular = true;
         showOperationFormular = false;
         showStationFormular = false;
+
+        if (!isNewTool && selectedTool != null && selectedTool.toolID > 0)
+        {
+            SelectionState.SaveSelection(
+                stationID: selectedStation.stationID,
+                toolID: selectedTool.toolID
+            );
+        }
+
+
 
         StateHasChanged();  
 
@@ -382,6 +406,7 @@
     private Operation? selectedOperation;
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
+
     private async Task SelectOperation(Operation operation)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -398,6 +423,16 @@
             await UnlockTool();
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
+            if (operation.operationID > 0)
+            {
+                SelectionState.SaveSelection(
+                    stationID: selectedStation.stationID,
+                    toolID: selectedTool.toolID,
+                    operationID: operation.operationID
+                );
+            }
+
+
             StateHasChanged();  // Aktualisiere den UI-Status
         }
 
@@ -410,6 +445,16 @@
         showOperationFormular = true;
         showToolFormular = false;
         showStationFormular = false;
+
+        if (!isNewOperation && selectedOperation != null && selectedOperation.operationID > 0)
+        {
+            SelectionState.SaveSelection(
+                stationID: selectedStation.stationID,
+                toolID: selectedTool.toolID,
+                operationID: selectedOperation.operationID
+            );
+        }
+
 
         StateHasChanged();  // Aktualisiere den UI-Status
     }
@@ -536,7 +581,7 @@
                             allOperations = await Fassade.GetAllOperations();
                             break;
                         case "LineDeleted":
-  
+
                             if (line != null)
                             {
                                 var stillExists = await Fassade.GetLineByName(lineName);
@@ -575,6 +620,7 @@
         if (stations != null)
         {
             allOperations = await Fassade.GetAllOperations();
+            await RestoreSavedSelection();
         }
 
 
@@ -735,10 +781,76 @@
     #endregion
 
 
+    #region Restore Selection
+
+    private async Task RestoreSavedSelection()
+    {
+        var savedSelection = SelectionState.GetSavedSelection();
+
+        if (savedSelection.StationID.HasValue)
+        {
+            var station = stations.FirstOrDefault(s => s.stationID == savedSelection.StationID.Value);
+            if (station != null)
+            {
+                // Station ohne UI-Interaktion auswählen
+                selectedStation = station;
+                tools = await Fassade.GetToolsFromStation(station.stationID);
+
+                if (savedSelection.ToolID.HasValue)
+                {
+                    var tool = tools.FirstOrDefault(t => t.toolID == savedSelection.ToolID.Value);
+                    if (tool != null)
+                    {
+                        selectedTool = tool;
+                        toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != currentUser;
+
+                        if (savedSelection.OperationID.HasValue)
+                        {
+                            var operation = allOperations.FirstOrDefault(o => o.operationID == savedSelection.OperationID.Value);
+                            if (operation != null && operation.toolID == tool.toolID)
+                            {
+                                selectedOperation = operation;
+                                operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
+                                showOperationFormular = true;
+                            }
+                        }
+                        else
+                        {
+                            // Nur Tool ausgewählt
+                            selectedOperation = await CreateDummyOP();
+                            showToolFormular = true;
+                        }
+                    }
+                }
+                else
+                {
+                    // Nur Station ausgewählt
+                    selectedTool = await CreateDummyTool();
+                    selectedOperation = await CreateDummyOP();
+                }
+
+                StateHasChanged();
+            }
+        }
+    }
+
+
+    #endregion
+
     private async Task HandleAppClosingAsync()
     {
         // Hier dein UnlockTool() aufrufen oder Warnung anzeigen
         await UnlockTool();
         await UnlockOperation();
+
+        if (selectedStation != null)
+        {
+            SelectionState.SaveSelection(
+                stationID: selectedStation.stationID,
+                toolID: selectedTool?.toolID,
+                operationID: selectedOperation?.operationID
+            );
+        }
+
     }
  }
