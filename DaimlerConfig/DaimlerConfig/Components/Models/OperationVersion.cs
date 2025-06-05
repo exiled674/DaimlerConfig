@@ -32,9 +32,9 @@ namespace DaimlerConfig.Components.Models
                 parallel = operation.parallel,
                 qGateID = operation.qGateID,
                 lastModified = operation.lastModified,
+                modifiedBy = operation.modifiedBy,
 
 
-               
             };
         }
     }

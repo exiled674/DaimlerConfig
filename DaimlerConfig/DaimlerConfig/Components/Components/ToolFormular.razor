@@ -229,7 +229,7 @@
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
     }
-    
+
 
     public async Task CreateToolAsync()
     {
@@ -450,6 +450,7 @@
                 SelectedTool.addressReceiveDB = selectedVersion.addressReceiveDB;
                 SelectedTool.preCheckByte = selectedVersion.preCheckByte;
                 SelectedTool.lastModified = selectedVersion.lastModified;
+                SelectedTool.modifiedBy = selectedVersion.modifiedBy;
 
 
                 StateHasChanged();

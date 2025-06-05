@@ -62,7 +62,8 @@ namespace DaimlerConfig.Components.Models
                 && verificationClassID == other.verificationClassID
                 && savingClassID == other.savingClassID
                 && parallel == other.parallel
-                && qGateID == other.qGateID;
+                && qGateID == other.qGateID
+                && string.Equals(modifiedBy, other.modifiedBy, StringComparison.Ordinal);
         }
 
     }

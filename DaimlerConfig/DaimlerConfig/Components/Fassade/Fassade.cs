@@ -354,12 +354,34 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task<bool> UpdateOperationWithVersion(Operation operation, Operation original)
         {
-            var version = OperationVersion.CreateOperationVersionFromOperation(original);
-            await OperationVersionRepository.Add(version);
+            var newVersion = OperationVersion.CreateOperationVersionFromOperation(original);
 
+            var allVersions = await GetOperationVersions(operation.operationID.Value);
+
+            bool versionExists = allVersions.Any(v =>
+                v.operationShortname == newVersion.operationShortname &&
+                v.operationDescription == newVersion.operationDescription &&
+                v.operationSequence == newVersion.operationSequence &&
+                v.operationSequenceGroup == newVersion.operationSequenceGroup &&
+                v.operationDecisionCriteria == newVersion.operationDecisionCriteria &&
+                v.alwaysPerform == newVersion.alwaysPerform &&
+                v.decisionClassID == newVersion.decisionClassID &&
+                v.generationClassID == newVersion.generationClassID &&
+                v.verificationClassID == newVersion.verificationClassID &&
+                v.savingClassID == newVersion.savingClassID &&
+                v.parallel == newVersion.parallel &&
+                v.qGateID == newVersion.qGateID &&
+                v.modifiedBy == newVersion.modifiedBy
+            );
+
+            if (!versionExists)
+            {
+                await OperationVersionRepository.Add(newVersion);
+            }
 
             return await UpdateOperation(operation);
         }
+
 
         public async Task<IEnumerable<OperationVersion>> GetOperationVersions(int operationID)
         {
