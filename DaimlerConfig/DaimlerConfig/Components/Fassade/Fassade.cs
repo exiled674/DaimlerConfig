@@ -205,7 +205,7 @@ namespace DaimlerConfig.Components.Fassade
             
             var allVersions = await GetToolVersions(tool.toolID.Value);
 
-            
+
             bool versionExists = allVersions.Any(v =>
                 v.toolShortname == newVersion.toolShortname &&
                 v.toolDescription == newVersion.toolDescription &&
@@ -217,9 +217,10 @@ namespace DaimlerConfig.Components.Fassade
                 v.dbNoReceive == newVersion.dbNoReceive &&
                 v.addressSendDB == newVersion.addressSendDB &&
                 v.addressReceiveDB == newVersion.addressReceiveDB &&
-                v.preCheckByte == newVersion.preCheckByte &&
-                v.modifiedBy == newVersion.modifiedBy
-           
+                v.preCheckByte == newVersion.preCheckByte
+
+
+
             );
 
             if (!versionExists)
@@ -370,8 +371,8 @@ namespace DaimlerConfig.Components.Fassade
                 v.verificationClassID == newVersion.verificationClassID &&
                 v.savingClassID == newVersion.savingClassID &&
                 v.parallel == newVersion.parallel &&
-                v.qGateID == newVersion.qGateID &&
-                v.modifiedBy == newVersion.modifiedBy
+                v.qGateID == newVersion.qGateID 
+                
             );
 
             if (!versionExists)

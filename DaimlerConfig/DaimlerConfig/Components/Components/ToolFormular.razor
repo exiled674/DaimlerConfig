@@ -204,7 +204,7 @@
             {
                 toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
             }
-
+			ToolVersions = await Fassade.GetToolVersions(SelectedTool.toolID.Value);
             StateHasChanged();
         }
     }
@@ -225,6 +225,8 @@
         SelectedTool.modifiedBy = CurrentUser;       
         if (!await Fassade.UpdateToolWithVersion(SelectedTool, OriginalTool))
             return;
+
+        
 
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();

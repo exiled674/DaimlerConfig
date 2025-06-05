@@ -205,6 +205,7 @@
 
 
             await InitializeClasses();
+			OperationVersions = await Fassade.GetOperationVersions(SelectedOperation.operationID.Value);
             StateHasChanged();
         }
 
