@@ -151,6 +151,9 @@
     public Operation? SelectedOperation { get; set; }
 
     [Parameter]
+    public IEnumerable<OperationVersion> OperationVersions { get; set; } = Enumerable.Empty<OperationVersion>();
+
+    [Parameter]
     public bool ReadOnly { get; set; }
 
 
