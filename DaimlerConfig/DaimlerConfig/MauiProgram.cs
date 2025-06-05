@@ -45,16 +45,20 @@ namespace DaimlerConfig
             string benutzerOrdner = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             string dateiPfad = Path.Combine(benutzerOrdner, "appsettings.json");
             builder.Configuration.AddJsonFile(dateiPfad, optional: false, reloadOnChange: true);
-            
+
             // 2. Services registrieren
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
+            // NEUE ZEILE: NavigationStateService registrieren
+            builder.Services.AddSingleton<NavigationStateService>();
+
             builder.Services.AddSingleton<SignalRService>();
             builder.Services.AddSingleton<DirtyManagerService>();
             builder.Services.AddSingleton<AppLifecycleService>();
+            builder.Services.AddSingleton<SelectionStateService>();
 
             var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
@@ -76,7 +80,7 @@ namespace DaimlerConfig
             builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
 
             builder.Services.AddScoped<ExcelExport, ExcelExport>();
-            
+
             builder.Services.AddSingleton<Fassade>(sp =>
             {
                 var toolRepo = sp.GetRequiredService<IToolRepository>();

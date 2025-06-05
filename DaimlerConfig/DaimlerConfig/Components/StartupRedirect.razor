@@ -1,0 +1,17 @@
+﻿@using DaimlerConfig.Services
+@inject NavigationManager Navigation
+@inject NavigationStateService NavState
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Letzte Route laden und dorthin navigieren
+        var lastRoute = NavState.GetLastSavedRoute();
+
+        // Nur navigieren, wenn es nicht bereits die aktuelle Route ist
+        if (lastRoute != "/" && !Navigation.Uri.EndsWith(lastRoute))
+        {
+            Navigation.NavigateTo(lastRoute, replace: true);
+        }
+    }
+}

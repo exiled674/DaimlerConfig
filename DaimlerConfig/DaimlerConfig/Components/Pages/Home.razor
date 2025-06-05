@@ -5,6 +5,9 @@
 
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
+@inject NavigationManager Navigation
+@inject NavigationStateService NavState
+
 
 
 @using CommunityToolkit.Maui.Storage;
@@ -201,6 +204,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+        NavState.SetCurrentRoute("/"); // für Home
+
+
         SignalRService.RegisterResponseHandler(async (string msg) =>
         {
             await InvokeAsync(async () =>
