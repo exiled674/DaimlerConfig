@@ -203,6 +203,9 @@
     {
         ResetValidationState();
 
+        if (!await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation))
+            return;
+
         if (await ValidateData() == false)
             return;
 

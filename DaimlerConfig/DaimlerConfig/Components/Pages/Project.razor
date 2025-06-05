@@ -159,7 +159,7 @@
 
                     @if (showOperationFormular && selectedOperation != null)
                     {
-                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@selectedOperation"  CurrentUser="@currentUser" />
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@selectedOperation"  CurrentUser="@currentUser" OperationVersions=operationVersions />
                     }
 
                     @if (showStationFormular && selectedStation != null)
@@ -334,9 +334,9 @@
 
             tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  
 
-            StateHasChanged();  
+           
             toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
-
+            StateHasChanged();
         }
 
     }
@@ -381,6 +381,7 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
+	private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
     private async Task SelectOperation(Operation operation)
@@ -399,7 +400,8 @@
             await UnlockTool();
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
-            StateHasChanged();  // Aktualisiere den UI-Status
+            StateHasChanged();  
+			operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
         }
 
     }

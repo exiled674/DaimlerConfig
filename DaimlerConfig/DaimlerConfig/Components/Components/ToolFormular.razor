@@ -12,6 +12,18 @@
         <h2>Tool</h2>
 
         <div class="d-flex justify-content-end align-items-center gap-2">
+            <div class="form-floating" style="min-width:200px;">
+                <select class="form-select" id="ToolVersionSelect">
+                    <option value="">Version wählen...</option>
+                    @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
+                    {
+                        <option value="@version.toolVersionID">
+                            Version @version.lastModified
+                        </option>
+                    }
+                </select>
+                <label for="ToolVersionSelect">Versionen</label>
+            </div>
             @if (SelectedTool?.toolID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
@@ -203,6 +215,9 @@
     public async Task UpdateToolAsync()
     {
         ResetValidationState();
+
+        if (!await DirtyManagerService.CheckIfDirty(SelectedTool, OriginalTool))
+            return;
 
         if (await ValidateData() == false)
             return;

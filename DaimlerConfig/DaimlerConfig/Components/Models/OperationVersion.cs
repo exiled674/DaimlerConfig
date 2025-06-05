@@ -33,6 +33,7 @@ namespace DaimlerConfig.Components.Models
                 qGateID = operation.qGateID,
                 lastModified = operation.lastModified,
 
+
                
             };
         }
