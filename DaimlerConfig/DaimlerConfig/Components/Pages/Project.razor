@@ -811,14 +811,22 @@
                             {
                                 selectedOperation = operation;
                                 operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
+
+                                // Operation-Formular anzeigen
                                 showOperationFormular = true;
+                                showToolFormular = false;
+                                showStationFormular = false;
                             }
                         }
                         else
                         {
                             // Nur Tool ausgewählt
                             selectedOperation = await CreateDummyOP();
+
+                            // Tool-Formular anzeigen
                             showToolFormular = true;
+                            showOperationFormular = false;
+                            showStationFormular = false;
                         }
                     }
                 }
@@ -827,6 +835,11 @@
                     // Nur Station ausgewählt
                     selectedTool = await CreateDummyTool();
                     selectedOperation = await CreateDummyOP();
+
+                    // Station-Formular anzeigen - Das war der fehlende Teil!
+                    showStationFormular = true;
+                    showToolFormular = false;
+                    showOperationFormular = false;
                 }
 
                 StateHasChanged();
