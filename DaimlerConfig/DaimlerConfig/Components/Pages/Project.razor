@@ -154,7 +154,7 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@selectedTool"  CurrentUser=@currentUser/>
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@selectedTool"  CurrentUser=@currentUser ToolVersions=@toolVersions />
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
@@ -311,6 +311,8 @@
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
+    private IEnumerable<ToolVersion> toolVersions = Enumerable.Empty<ToolVersion>();
+
     private bool toolReadOnly = false;
     private bool showToolFormular = false;
     private async Task SelectTool(Tool tool)
@@ -333,6 +335,8 @@
             tools = await Fassade.GetToolsFromStation(selectedStation.stationID);  
 
             StateHasChanged();  
+            toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
+
         }
 
     }

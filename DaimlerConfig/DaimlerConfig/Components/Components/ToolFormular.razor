@@ -155,6 +155,10 @@
     public Tool? SelectedTool { get; set; }
 
     [Parameter]
+    public IEnumerable<ToolVersion> ToolVersions { get; set; } = Enumerable.Empty<ToolVersion>();
+
+
+    [Parameter]
     public string? CurrentUser { get; set; }
 
 

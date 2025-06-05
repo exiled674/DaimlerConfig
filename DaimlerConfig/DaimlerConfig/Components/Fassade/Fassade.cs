@@ -205,6 +205,14 @@ namespace DaimlerConfig.Components.Fassade
             return await UpdateTool(tool);
         }
 
+        public async Task<IEnumerable<ToolVersion>> GetToolVersions(int toolID)
+        {
+            return await ToolVersionRepository.Find(v => v.toolID == toolID);
+        }
+
+
+
+
 
         public async Task<bool> AddTool(Tool tool)
         {
@@ -322,6 +330,12 @@ namespace DaimlerConfig.Components.Fassade
 
             return await UpdateOperation(operation);
         }
+
+        public async Task<IEnumerable<OperationVersion>> GetOperationVersions(int operationID)
+        {
+            return await OperationVersionRepository.Find(v => v.operationID == operationID);
+        }
+
 
         public async Task<bool> AddOperation(Operation operation)
         {
