@@ -13,7 +13,7 @@
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <select class="form-select" id="ToolVersionSelect">
+                <select class="form-select" id="ToolVersionSelect" @onchange="OnVersionChanged">
                     <option value="">Version wählen...</option>
                     @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
@@ -337,7 +337,7 @@
             lockCancellationTokenSource?.Cancel();
             StartUnlockTimer();
 
-            
+
         }
         if (SelectedTool.isLocked == false)
         {
@@ -406,7 +406,7 @@
     #region ToolClass/-Type
     private async Task OnToolClassChanged(ChangeEventArgs e)
     {
-        
+
         if (int.TryParse(e.Value?.ToString(), out var selectedId))
         {
             SelectedTool.toolClassID = selectedId;
@@ -417,10 +417,40 @@
 
     private async Task OnToolTypeChanged(ChangeEventArgs e)
     {
-		
+
         if (int.TryParse(e.Value?.ToString(), out var id))
         {
             SelectedTool.toolTypeID = id;
+        }
+    }
+
+    #endregion
+
+    #region Version
+    private async Task OnVersionChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int versionId))
+        {
+            var selectedVersion = ToolVersions.FirstOrDefault(v => v.toolVersionID == versionId);
+            if (selectedVersion != null)
+            {
+
+                SelectedTool.toolShortname = selectedVersion.toolShortname;
+                SelectedTool.toolDescription = selectedVersion.toolDescription;
+                SelectedTool.toolClassID = selectedVersion.toolClassID;
+                SelectedTool.toolTypeID = selectedVersion.toolTypeID;
+                SelectedTool.ipAddressDevice = selectedVersion.ipAddressDevice;
+                SelectedTool.plcName = selectedVersion.plcName;
+                SelectedTool.dbNoSend = selectedVersion.dbNoSend;
+                SelectedTool.dbNoReceive = selectedVersion.dbNoReceive;
+                SelectedTool.addressSendDB = selectedVersion.addressSendDB;
+                SelectedTool.addressReceiveDB = selectedVersion.addressReceiveDB;
+                SelectedTool.preCheckByte = selectedVersion.preCheckByte;
+                SelectedTool.lastModified = selectedVersion.lastModified;
+
+
+                StateHasChanged();
+            }
         }
     }
 
