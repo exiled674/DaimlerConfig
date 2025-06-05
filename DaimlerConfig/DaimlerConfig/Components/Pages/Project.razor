@@ -241,17 +241,6 @@
 
     #region SideBar
 
-    private static string GetBadgeColour(Status status)
-    {
-        return status switch
-        {
-            Status.Green => "green",
-            Status.Red => "red",
-            Status.Yellow => "yellow",
-            _ => "gray"
-        };
-    }
-
     private string SidebarClass { get; set; } = string.Empty;
     private void ToggleSidebar()
     {
@@ -558,6 +547,10 @@
             if (stations != null)
             {
                 allOperations = await Fassade.GetAllOperations();
+                foreach (var station in stations)
+                {
+                    station.Status = await GetStationBadgeColourAsync(station);
+                }
             }
         }
     }
@@ -715,6 +708,49 @@
     #endregion
 
     #region Badge
+    
+    private static string GetBadgeColour(Status status)
+    {
+        return status switch
+        {
+            Status.Green => "green",
+            Status.Red => "red",
+            Status.Yellow => "yellow",
+            _ => "gray"
+        };
+    }
+    private async Task<Status> GetStationBadgeColourAsync(Station station)
+    {
+        var worstStatus = Status.Undefined;
+        var toolsList = (await Fassade.GetToolsFromStation(station.stationID)).ToList();
+        foreach (var tool in toolsList)
+        {
+            switch (tool.Status)
+            {
+                case Status.Red:
+                    worstStatus = Status.Red;
+                    goto BadgeColourForLoop;
+
+                case Status.Yellow:
+                    if (worstStatus != Status.Red)
+                        worstStatus = Status.Yellow;
+                    break;
+
+                case Status.Undefined:
+                    if (worstStatus == Status.Green)
+                        worstStatus = Status.Undefined;
+                    break;
+
+                case Status.Green:
+                    // Kein Einfluss, solange kein anderer Status
+                    break;
+            }
+        }
+        BadgeColourForLoop:
+        
+        return worstStatus;
+    }
+
 
     private async Task CycleColour(Operation o)
     {
@@ -740,6 +776,16 @@
         };
         if (!await Fassade.UpdateTool(t))
             return;
+        if (selectedStation != null)
+        {
+            selectedStation.Status = await GetStationBadgeColourAsync(selectedStation);
+            var stationToUpdate = stations.FirstOrDefault(s => s.stationID == t.stationID);
+            if (stationToUpdate != null)
+            {
+                stationToUpdate.Status = await GetStationBadgeColourAsync(stationToUpdate);
+            }
+        }
+
         StateHasChanged();
     }
 
