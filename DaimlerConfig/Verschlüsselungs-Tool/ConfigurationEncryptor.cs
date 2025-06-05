@@ -2,10 +2,10 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
+using System.Text.Json; // Wichtig: Für JsonDocument und Utf8JsonWriter
+using System.Text.Json.Nodes; // Neu: Für JsonNode
 
-namespace DaimlerConfig.Security
+namespace ConnectionStringEncryptor // Sicherstellen, dass dies Ihr Projekt-Namespace ist
 {
     public static class ConfigurationEncryptor
     {

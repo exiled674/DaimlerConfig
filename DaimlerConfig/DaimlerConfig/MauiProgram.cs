@@ -49,7 +49,7 @@ namespace DaimlerConfig
             string dateiPfad = Path.Combine(benutzerOrdner, "appsettings.json");
 
             // Development Mode Check
-            bool developmentMode = false;
+            bool developmentMode = true;
 #if DEBUG
             developmentMode = true; // In Debug-Builds Verschlüsselung deaktivieren
 #endif
