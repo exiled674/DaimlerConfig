@@ -196,14 +196,37 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task<bool> UpdateToolWithVersion(Tool tool, Tool original)
         {
+           
+            var newVersion = ToolVersion.CreateToolVersionFromTool(original);
 
+            
+            var allVersions = await GetToolVersions(tool.toolID.Value);
 
-            var version = ToolVersion.CreateToolVersionFromTool(original);
-        await ToolVersionRepository.Add(version);
+            
+            bool versionExists = allVersions.Any(v =>
+                v.toolShortname == newVersion.toolShortname &&
+                v.toolDescription == newVersion.toolDescription &&
+                v.toolClassID == newVersion.toolClassID &&
+                v.toolTypeID == newVersion.toolTypeID &&
+                v.ipAddressDevice == newVersion.ipAddressDevice &&
+                v.plcName == newVersion.plcName &&
+                v.dbNoSend == newVersion.dbNoSend &&
+                v.dbNoReceive == newVersion.dbNoReceive &&
+                v.addressSendDB == newVersion.addressSendDB &&
+                v.addressReceiveDB == newVersion.addressReceiveDB &&
+                v.preCheckByte == newVersion.preCheckByte
+           
+            );
 
+            if (!versionExists)
+            {
+                await ToolVersionRepository.Add(newVersion);
+            }
 
+            
             return await UpdateTool(tool);
         }
+
 
         public async Task<IEnumerable<ToolVersion>> GetToolVersions(int toolID)
         {
