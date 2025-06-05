@@ -29,6 +29,8 @@ namespace DaimlerConfig.Components.Models
         public int qGateID { get; set; }
         public DateTime? lastModified { get; set; }
 
+        public string? modifiedBy { get; set; }
+
         public bool? isLocked { get; set; }
 
         public string? lockedBy { get; set; }

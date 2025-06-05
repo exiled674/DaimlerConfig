@@ -24,6 +24,8 @@ namespace DaimlerConfig.Components.Models
 
         public DateTime? lastModified { get; set; }
 
+        public string? modifiedBy { get; set; }
+
         public Station Clone()
         {
             var clone = (Station)this.MemberwiseClone();

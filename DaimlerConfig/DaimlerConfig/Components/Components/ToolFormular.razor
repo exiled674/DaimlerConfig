@@ -18,7 +18,7 @@
                     @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
                         <option value="@version.toolVersionID">
-                            Version @version.lastModified
+                            @version.modifiedBy - @version.lastModified
                         </option>
                     }
                 </select>
@@ -222,6 +222,7 @@
         if (await ValidateData() == false)
             return;
 
+        SelectedTool.modifiedBy = CurrentUser;       
         if (!await Fassade.UpdateToolWithVersion(SelectedTool, OriginalTool))
             return;
 

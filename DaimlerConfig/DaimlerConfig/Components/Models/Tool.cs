@@ -37,6 +37,8 @@ namespace DaimlerConfig.Components.Models
 
         public DateTime? lastModified { get; set; }
 
+        public string? modifiedBy { get; set; }
+
         public bool? isLocked {  get; set; }
 
         public string? lockedBy { get; set; }

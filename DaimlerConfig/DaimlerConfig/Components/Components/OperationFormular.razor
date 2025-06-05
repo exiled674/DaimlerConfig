@@ -209,6 +209,8 @@
         if (await ValidateData() == false)
             return;
 
+		SelectedOperation.modifiedBy = CurrentUser;
+
         if (!await Fassade.UpdateOperationWithVersion(SelectedOperation, OriginalOperation))
             return;
 
