@@ -114,6 +114,7 @@ namespace DaimlerConfig.Components.Fassade
             if (await LineRepository.Get(station.lineID) is { } line)
             {
                 line.lastModified = DateTime.Now;
+                line.modifiedBy = station.modifiedBy;
                 await LineRepository.Update(line);
             }
 
@@ -181,12 +182,14 @@ namespace DaimlerConfig.Components.Fassade
             if (station != null)
             {
                 station.lastModified = DateTime.Now;
+                station.modifiedBy = tool.modifiedBy;
                 if (!await StationRepository.Update(station)) return false;
 
                 var line = await LineRepository.Get(station.lineID);
                 if (line != null)
                 {
                     line.lastModified = DateTime.Now;
+                    line.modifiedBy = tool.modifiedBy;
                     if (!await LineRepository.Update(line)) return false;
                 }
             }
@@ -325,18 +328,21 @@ namespace DaimlerConfig.Components.Fassade
             if (tool != null)
             {
                 tool.lastModified = DateTime.Now;
+                tool.modifiedBy = operation.modifiedBy;
                 if (!await ToolRepository.Update(tool)) return false;
 
                 var station = await StationRepository.Get(tool.stationID);
                 if (station != null)
                 {
                     station.lastModified = DateTime.Now;
+                    station.modifiedBy = operation.modifiedBy;
                     if (!await StationRepository.Update(station)) return false;
 
                     var line = await LineRepository.Get(station.lineID);
                     if (line != null)
                     {
                         line.lastModified = DateTime.Now;
+                        line.modifiedBy = operation.modifiedBy;
                         if (!await LineRepository.Update(line)) return false;
                     }
                 }
