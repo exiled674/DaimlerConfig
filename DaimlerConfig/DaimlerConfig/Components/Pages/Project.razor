@@ -103,16 +103,16 @@
                             {
                                 <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
                                     <div class="tool-header d-flex justify-content-between align-items-center">
-                                        <Badge colour="@GetBadgeColour(tool.Status)"/>
+                                        <button class="btn btn-secondary btn-sm mr-2"@onclick="() =>CycleColour(tool)"><Badge colour="@GetBadgeColour(tool.Status)"/></button>
                                         <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
                                         <div class="d-flex align-items-center">
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }">+</button>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
                                             @if (selectedTool != null)
                                             {
                                                 if (copiedOperation != null)
                                                 {
-                                                    <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }">Insert Operation</button>
+                                                    <button class="btn btn-primary btn-sm" @onclick="() => { SelectTool(tool); InsertOperation(); }">Insert Operation</button>
                                                 }
                                             }
                                             <!-- Drag handle for tools -->
@@ -128,7 +128,7 @@
                                             @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                             {
                                                 <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
-                                                    <Badge colour="@GetBadgeColour(operation.Status)"/>
+                                                    <button class="btn btn-secondary btn-sm mr-2"@onclick="() =>CycleColour(operation)"><Badge colour="@GetBadgeColour(operation.Status)"/></button>
                                                     <span class="clickable" @onclick="() => { SelectOperation(operation); }">@operation.operationShortname</span>
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
                                                     <!-- Drag handle for operations -->
@@ -312,9 +312,7 @@
         showOperationFormular = false;
     }
     #endregion
-
-
-
+    
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
@@ -716,7 +714,37 @@
     }
     #endregion
 
+    #region Badge
 
+    private async Task CycleColour(Operation o)
+    {
+        o.Status = o.Status switch
+        {
+            Status.Green   => Status.Undefined,
+            Status.Yellow  => Status.Green,
+            Status.Red     => Status.Yellow,
+            _              => Status.Red
+        };
+        if (!await Fassade.UpdateOperation(o))
+            return;
+        StateHasChanged();
+    }
+    private async Task CycleColour(Tool t)
+    {
+        t.Status = t.Status switch
+        {
+            Status.Green   => Status.Undefined,
+            Status.Yellow  => Status.Green,
+            Status.Red     => Status.Yellow,
+            _              => Status.Red
+        };
+        if (!await Fassade.UpdateTool(t))
+            return;
+        StateHasChanged();
+    }
+
+    #endregion
+    
     private async Task HandleAppClosingAsync()
     {
         // Hier dein UnlockTool() aufrufen oder Warnung anzeigen
