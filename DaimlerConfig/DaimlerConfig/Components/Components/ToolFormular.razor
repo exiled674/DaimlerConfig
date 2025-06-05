@@ -18,7 +18,7 @@
                     @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
                         <option value="@version.toolVersionID">
-                            @version.modifiedBy - @version.lastModified
+                            @version.modifiedBy?.Split(';')[0] - @version.lastModified
                         </option>
                     }
                 </select>
@@ -229,7 +229,7 @@
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
     }
-
+    
 
     public async Task CreateToolAsync()
     {
@@ -237,6 +237,8 @@
 
         if (await ValidateData() == false)
             return;
+
+        SelectedTool.modifiedBy = CurrentUser;
 
         if (!await Fassade.AddTool(SelectedTool))
             return;

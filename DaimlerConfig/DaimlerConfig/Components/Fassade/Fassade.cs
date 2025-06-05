@@ -217,7 +217,8 @@ namespace DaimlerConfig.Components.Fassade
                 v.dbNoReceive == newVersion.dbNoReceive &&
                 v.addressSendDB == newVersion.addressSendDB &&
                 v.addressReceiveDB == newVersion.addressReceiveDB &&
-                v.preCheckByte == newVersion.preCheckByte
+                v.preCheckByte == newVersion.preCheckByte &&
+                v.modifiedBy == newVersion.modifiedBy
            
             );
 

@@ -34,7 +34,7 @@ namespace DaimlerConfig.Components.Models
                 lockedBy = tool.lockedBy,
                 lastModified = tool.lastModified,
                 lockTimestamp = tool.lockTimestamp,
-               
+                modifiedBy = tool.modifiedBy
             };
         }
     }
