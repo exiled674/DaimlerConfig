@@ -136,6 +136,19 @@
                 <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly" @onclick="LockOperation"></textarea>
                 <label for="DecisionCriteria">Decision Criteria</label>
             </div>
+            <div class="form-floating mb-3">
+                <div class="form-control" style="height: auto; min-height: 38px;">
+                    @if (currentTemplates.Any())
+                    {
+                        @string.Join(", ", currentTemplates)
+                    }
+                    else
+                    {
+                        <span class="text-muted">No templates</span>
+                    }
+                </div>
+                <label>Current Templates</label>
+            </div>
         </div>     
     </div>
 
