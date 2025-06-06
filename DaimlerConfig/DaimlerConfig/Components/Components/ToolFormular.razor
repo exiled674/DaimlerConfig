@@ -13,7 +13,7 @@
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <select class="form-select" id="ToolVersionSelect" @onchange="OnVersionChanged">
+                <select class="form-select" id="ToolVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
                     <option value="-1">Aktuelle Version</option>
                     @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
@@ -177,6 +177,7 @@
     [Parameter]
     public IEnumerable<ToolVersion> ToolVersions { get; set; } = Enumerable.Empty<ToolVersion>();
 
+    private int selectedVersionId = -1;
 
     [Parameter]
     public string? CurrentUser { get; set; }
@@ -211,6 +212,7 @@
                 toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
             }
 			ToolVersions = await Fassade.GetToolVersions(SelectedTool.toolID.Value);
+            selectedVersionId = -1;
             StateHasChanged();
         }
     }
@@ -444,6 +446,7 @@
     {
         if (int.TryParse(e.Value?.ToString(), out int versionId))
         {
+            selectedVersionId = versionId;
             if (versionId == -1)
             {
                 
