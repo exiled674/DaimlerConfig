@@ -16,6 +16,10 @@ using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Fassade;
 using DaimlerConfig.Services;
 using Microsoft.Maui.LifecycleEvents;
+using MudBlazor.Services;
+
+
+
 
 #if WINDOWS
 using Microsoft.UI.Xaml;
@@ -78,6 +82,8 @@ namespace DaimlerConfig
             builder.Services.AddScoped<ExcelExport, ExcelExport>();
             builder.Services.AddSingleton<SidebarState>();
             builder.Services.AddScoped<ToastService>();
+            builder.Services.AddMudServices();
+
 
 
             builder.Services.AddSingleton<Fassade>(sp =>

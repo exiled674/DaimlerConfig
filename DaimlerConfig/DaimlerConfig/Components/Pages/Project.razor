@@ -65,6 +65,79 @@
             <main class=" pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
+                @* <div class="tool-operation-panel" style="width: 500px;"> *@
+                @*     <div class="d-flex justify-content-between align-items-center mb-3"> *@
+                @*         <h6>Tools and Operations</h6> *@
+                @*         @if (selectedStation != null) *@
+                @*         { *@
+                @*             if (copiedTool != null) *@
+                @*             { *@
+                @*                 <button class="btn btn-primary btn-sm" @onclick="() => InsertTool()">Insert Tool</button> *@
+                @*             } *@
+                @*             <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button> *@
+                @*         } *@
+
+                @*     </div> *@
+
+                @*     <div id="toolsList"> *@
+                @*         @if (selectedStation == null) *@
+                @*         { *@
+                @*             <p>Please choose a station.</p> *@
+                @*         } *@
+                @*         else if (!tools.Any()) *@
+                @*         { *@
+                @*             <p>No tools found.</p> *@
+                @*         } *@
+                @*         else *@
+                @*         { *@
+                @*             @foreach (var tool in tools) *@
+                @*             { *@
+                @*                 <div class="tool-section tool-draggable" data-tool-id="@tool.toolID"> *@
+                @*                     <div class="tool-header d-flex justify-content-between align-items-center" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }"> *@
+                @*                         <span class="clickable">@tool.toolShortname</span> *@
+                @*                         <div> *@
+                @*                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))" @onclick:stopPropagation>copy</button> *@
+                @*                             <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }" @onclick:stopPropagation>+</button> *@
+                @*                             @if (selectedTool != null) *@
+                @*                             { *@
+                @*                                 if (copiedOperation != null) *@
+                @*                                 { *@
+                @*                                     <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }" @onclick:stopPropagation>Insert Operation</button> *@
+                @*                                 } *@
+                @*                             } *@
+
+                @*                             <!-- Drag handle for tools --> *@
+                @*                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" *@
+                @*                                  class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16"> *@
+                @*                                 <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" /> *@
+                @*                             </svg> *@
+
+                @*                         </div> *@
+                @*                     </div> *@
+                @*                     <div class="operation-list"> *@
+                @*                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID)) *@
+                @*                         { *@
+                @*                             <div class="operation-draggable operation-section d-flex justify-content-between align-items-center" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }"> *@
+                @*                                 <span class="clickable" >@operation.operationShortname</span> *@
+                @*                                 <div> *@
+                @*                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))" @onclick:stopPropagation>copy</button> *@
+
+                @*                                     <!-- Drag handle for operations --> *@
+                @*                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" *@
+                @*                                          class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16"> *@
+                @*                                         <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" /> *@
+                @*                                     </svg> *@
+
+                @*                                 </div> *@
+                @*                             </div> *@
+                @*                         } *@
+                @*                     </div> *@
+                @*                 </div> *@
+                @*             } *@
+                @*         } *@
+                @*     </div> *@
+                @* </div> *@
+
                 <div class="tool-operation-panel" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6>Tools and Operations</h6>
@@ -90,11 +163,12 @@
                         }
                         else
                         {
+                            <MudExpansionPanels MultiExpansion="true">
                             @foreach (var tool in tools)
                             {
                                 <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
-                                    <div class="tool-header d-flex justify-content-between align-items-center" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">
-                                        <span class="clickable">@tool.toolShortname</span>
+                                        <MudExpansionPanel Text="@tool.toolShortname" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">
+                                        
                                         <div>
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))" @onclick:stopPropagation>copy</button>
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }" @onclick:stopPropagation>+</button>
@@ -113,12 +187,12 @@
                                             </svg>
 
                                         </div>
-                                    </div>
+                                    </MudExpansionPanel>
                                     <div class="operation-list">
                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                         {
                                             <div class="operation-draggable operation-section d-flex justify-content-between align-items-center" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }">
-                                                <span class="clickable" >@operation.operationShortname</span>
+                                                <span class="clickable">@operation.operationShortname</span>
                                                 <div>
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))" @onclick:stopPropagation>copy</button>
 
@@ -134,9 +208,11 @@
                                     </div>
                                 </div>
                             }
+                            </MudExpansionPanels>
                         }
                     </div>
                 </div>
+
 
                 <!-- Rechte Spalte: Content -->
                 <div class="content-panel flex-fill">
