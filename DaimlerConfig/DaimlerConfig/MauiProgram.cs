@@ -16,6 +16,8 @@ using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Fassade;
 using DaimlerConfig.Services;
 using Microsoft.Maui.LifecycleEvents;
+using DaimlerConfig.Security;
+
 
 #if WINDOWS
 using Microsoft.UI.Xaml;
@@ -41,20 +43,35 @@ namespace DaimlerConfig
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
-            // 1. Konfiguration laden
+
+            // 1. Konfiguration laden - MIT Verschlüsselung
             string benutzerOrdner = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             string dateiPfad = Path.Combine(benutzerOrdner, "appsettings.json");
-            builder.Configuration.AddJsonFile(dateiPfad, optional: false, reloadOnChange: true);
-            
+
+            // Development Mode Check
+            bool developmentMode = true;
+#if DEBUG
+            developmentMode = true; // In Debug-Builds Verschlüsselung deaktivieren
+#endif
+
+            builder.Configuration.AddEncryptedJsonFile(dateiPfad,
+                optional: false,
+                reloadOnChange: true,
+                developmentMode: developmentMode);
+
             // 2. Services registrieren
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
+            // NEUE ZEILE: NavigationStateService registrieren
+            builder.Services.AddSingleton<NavigationStateService>();
+
             builder.Services.AddSingleton<SignalRService>();
             builder.Services.AddSingleton<DirtyManagerService>();
             builder.Services.AddSingleton<AppLifecycleService>();
+            builder.Services.AddSingleton<SelectionStateService>();
 
             var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
@@ -76,7 +93,7 @@ namespace DaimlerConfig
             builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
 
             builder.Services.AddScoped<ExcelExport, ExcelExport>();
-            
+
             builder.Services.AddSingleton<Fassade>(sp =>
             {
                 var toolRepo = sp.GetRequiredService<IToolRepository>();
