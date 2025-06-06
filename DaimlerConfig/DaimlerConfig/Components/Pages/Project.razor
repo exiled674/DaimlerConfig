@@ -437,6 +437,9 @@
             }
             
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
+            showOperationFormular = true;
+            showToolFormular = false;
+            showStationFormular = false;
             StateHasChanged();  // Aktualisiere den UI-Status
         }
     }
