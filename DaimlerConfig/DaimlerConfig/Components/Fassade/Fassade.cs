@@ -316,7 +316,15 @@ namespace DaimlerConfig.Components.Fassade
             return await ToolRepository.Get(toolID);
         }
 
-      
+        public async Task<Tool?> GetToolByName(string toolShortname, int stationID)
+        {
+            var tools = await GetToolsFromStation(stationID);
+            return tools.FirstOrDefault(t => t.toolShortname != null &&
+                                             t.toolShortname.Equals(toolShortname, StringComparison.OrdinalIgnoreCase));
+        }
+
+
+
         #endregion
 
         #region Operation
