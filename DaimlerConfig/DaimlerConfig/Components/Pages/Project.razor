@@ -723,31 +723,18 @@
     {
         var worstStatus = Status.Undefined;
         var toolsList = (await Fassade.GetToolsFromStation(station.stationID)).ToList();
-        foreach (var tool in toolsList)
-        {
-            switch (tool.Status)
-            {
-                case Status.Red:
-                    worstStatus = Status.Red;
-                    goto BadgeColourForLoop;
-
-                case Status.Yellow:
-                    if (worstStatus != Status.Red)
-                        worstStatus = Status.Yellow;
-                    break;
-
-                case Status.Undefined:
-                    if (worstStatus == Status.Green)
-                        worstStatus = Status.Undefined;
-                    break;
-
-                case Status.Green:
-                    // Kein Einfluss, solange kein anderer Status
-                    break;
-            }
-        }
-        BadgeColourForLoop:
+        var map = toolsList
+                .GroupBy(op => op.Status)
+                .ToDictionary(g => g.Key, g => g.Count());
         
+        if (map.TryGetValue(Status.Red, out var redCount) && redCount >= 1)
+            worstStatus = Status.Red;
+        else if (map.TryGetValue(Status.Yellow, out var yellowCount) && yellowCount >= 1)
+            worstStatus = Status.Yellow;
+        else if (map.TryGetValue(Status.Green, out var greenCount) && greenCount == toolsList.Count)
+            worstStatus = Status.Green;
+        else
+            worstStatus = Status.Undefined;
         return worstStatus;
     }
 

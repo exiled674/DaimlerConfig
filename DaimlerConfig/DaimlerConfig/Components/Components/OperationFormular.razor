@@ -398,6 +398,11 @@
                 verificationClassesList.AddRange(await Fassade.GetVerificationClasses(currentTemplate));
                 generationClassesList.AddRange(await Fassade.GetGenerationClasses(currentTemplate));
             }
+            //Set standards if classes are null (Saving never null)
+            if (verificationClassesList.IsNullOrEmpty())
+                verificationClassesList.AddRange(await Fassade.GetVerificationClasses(0));
+            if (generationClassesList.IsNullOrEmpty())
+                generationClassesList.AddRange(await Fassade.GetGenerationClasses(0));
 
             savingClasses = savingClassesList;
             verificationClasses = verificationClassesList;
