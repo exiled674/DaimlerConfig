@@ -114,7 +114,7 @@ namespace DaimlerConfig
                 
                 return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo,
                     generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo,
-                    toolTypeHasTemplateRepo, export,toolversion, operationversion);
+                    toolTypeHasTemplateRepo,templateRepo, export,toolversion, operationversion);
             });
 
             // 3. SignalR konfigurieren
