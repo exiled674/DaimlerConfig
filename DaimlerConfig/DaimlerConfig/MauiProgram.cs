@@ -49,9 +49,9 @@ namespace DaimlerConfig
             string dateiPfad = Path.Combine(benutzerOrdner, "appsettings.json");
 
             // Development Mode Check
-            bool developmentMode = true;
+            bool developmentMode = false;
 #if DEBUG
-            developmentMode = true; // In Debug-Builds Verschlüsselung deaktivieren
+            developmentMode = false; // In Debug-Builds Verschlüsselung deaktivieren
 #endif
 
             builder.Configuration.AddEncryptedJsonFile(dateiPfad,
