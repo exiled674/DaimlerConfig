@@ -115,24 +115,15 @@ namespace DaimlerConfig
                 return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, export, toolversion, operationversion);
             });
 
-            // 3. SignalR konfigurieren
-            var signalRConfigPfad = Path.Combine(benutzerOrdner, "signalRVPS.json");
-            string hubURL = null;
-            if (File.Exists(signalRConfigPfad))
-            {
-                var jsonInhalt = File.ReadAllText(signalRConfigPfad);
-                using var jsonDoc = JsonDocument.Parse(jsonInhalt);
-                if (jsonDoc.RootElement.TryGetProperty("SignalRHubUrl", out var urlElement))
-                {
-                    hubURL = urlElement.GetString();
-                }
-            }
+            // 3. SignalR konfigurieren aus appsettings.json
+            var hubURL = builder.Configuration["SignalR:HubUrl"];
 
             if (string.IsNullOrWhiteSpace(hubURL))
                 throw new Exception("SignalR-URL konnte nicht aus der Konfiguration geladen werden.");
 
             var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
             builder.Services.AddSingleton(connection);
+
 
             // 4. Lifecycle Event: App schließen abfangen (nur Windows)
             builder.ConfigureLifecycleEvents(events =>
