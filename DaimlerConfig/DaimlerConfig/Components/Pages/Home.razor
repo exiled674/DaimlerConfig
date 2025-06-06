@@ -165,10 +165,16 @@
                 <span class="plus-icon">+</span>
                 Create Empty Project
     </button>
+
     </div>
 </div>
 
 @code {
+
+	public void Test()
+	{
+		Navigation.NavigateTo("/test");
+	}
     private List<Line> AllLines = new();
     private List<Line> FilteredLines = new();
     private HashSet<Line> EditingLines = new();
