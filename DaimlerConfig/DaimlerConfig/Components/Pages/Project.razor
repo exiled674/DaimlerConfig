@@ -121,7 +121,7 @@
                                             }
                                             <!-- Drag handle for tools -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                                 class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
+                                            class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
                                                 <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                             </svg>
                                         </div>
@@ -137,7 +137,7 @@
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
                                                     <!-- Drag handle for operations -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
-                                                         class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
+                                                    class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
                                                         <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                                     </svg>
                                                 </div>
@@ -292,7 +292,7 @@
         }
 
     }
-    
+
     private void ToggleStationFormular(bool isNewStation)
     {
         if (isNewStation)
@@ -309,7 +309,7 @@
         showOperationFormular = false;
     }
     #endregion
-    
+
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
@@ -341,7 +341,7 @@
             {
                 SelectionState.SaveSelection(stationID: selectedStation.stationID, toolID: tool.toolID);
             }
-            
+
             toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
             StateHasChanged();
         }
@@ -350,7 +350,7 @@
     private async Task ToggleToolFormular(bool isNewTool)
     {
         if (isNewTool) selectedTool = await CreateDummyTool();
-        
+
         showToolFormular = true;
         showOperationFormular = false;
         showStationFormular = false;
@@ -398,7 +398,7 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
-	private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
+    private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
 
@@ -425,7 +425,7 @@
                     operationID: operation.operationID
                 );
             }
-
+            allOperations = await Fassade.GetAllOperations();
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
             StateHasChanged();  // Aktualisiere den UI-Status
         }
