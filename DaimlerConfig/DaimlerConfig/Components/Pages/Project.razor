@@ -400,14 +400,13 @@
 
     private async Task SelectOperation(Operation operation)
     {
-        if (DirtyManagerService.IsDirty().Result == true)
+        if (DirtyManagerService.IsDirty().Result)
         {
             showPopup = true;
-            return;
-        }
-        else
+        }else
         {
-            if (selectedOperation != null && selectedOperation.operationID != operation.operationID) await UnlockOperation();
+            if (selectedOperation != null && selectedOperation.operationID != operation.operationID)
+                await UnlockOperation();
             selectedOperation = operation;
             operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
 
@@ -422,11 +421,8 @@
                     operationID: operation.operationID
                 );
             }
-
-
             StateHasChanged();  // Aktualisiere den UI-Status
         }
-
     }
     private async Task ToggleOperationFormular(bool isNewOperation)
     {
@@ -844,7 +840,6 @@
     }
 
     #endregion
-    
 
     #region Restore Selection
 
