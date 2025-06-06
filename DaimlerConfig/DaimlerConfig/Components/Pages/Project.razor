@@ -133,7 +133,7 @@
                                             {
                                                 <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
                                                     <button class="btn btn-secondary btn-sm mr-2"@onclick="() =>CycleColour(operation)"><Badge colour="@GetBadgeColour(operation.Status)"/></button>
-                                                    <span class="clickable" @onclick="() => { SelectOperation(operation); }">@operation.operationShortname</span>
+                                                    <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false); }">@operation.operationShortname</span>
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
                                                     <!-- Drag handle for operations -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
@@ -341,8 +341,7 @@
             {
                 SelectionState.SaveSelection(stationID: selectedStation.stationID, toolID: tool.toolID);
             }
-
-           
+            
             toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
             StateHasChanged();
         }
@@ -351,8 +350,8 @@
     private async Task ToggleToolFormular(bool isNewTool)
     {
         if (isNewTool) selectedTool = await CreateDummyTool();
-
-        if (showToolFormular != true) showToolFormular = true;
+        
+        showToolFormular = true;
         showOperationFormular = false;
         showStationFormular = false;
 
@@ -405,24 +404,18 @@
 
     private async Task SelectOperation(Operation operation)
     {
-        if (DirtyManagerService.IsDirty().Result == true)
+        if (DirtyManagerService.IsDirty().Result)
         {
             showPopup = true;
-            return;
-        }
-        else
+        }else
         {
-            if (selectedOperation != null && selectedOperation.operationID != operation.operationID) await UnlockOperation();
+            if (selectedOperation != null && selectedOperation.operationID != operation.operationID)
+                await UnlockOperation();
             selectedOperation = operation;
             operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
 
             await UnlockTool();
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
-
-
-             
-			
-            
 
             if (operation.operationID > 0)
             {
@@ -435,9 +428,7 @@
 
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
             StateHasChanged();  // Aktualisiere den UI-Status
-
         }
-
     }
     private async Task ToggleOperationFormular(bool isNewOperation)
     {
@@ -855,7 +846,6 @@
     }
 
     #endregion
-    
 
     #region Restore Selection
 

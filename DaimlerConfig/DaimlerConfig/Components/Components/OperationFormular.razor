@@ -32,19 +32,13 @@
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
                     <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync" disabled="@ReadOnly">Update</button>
-                    tooltypehastemplate   </div>
-            }
-
-
-            @if (SelectedOperation.operationID != 0)
-            {
+                </div>
                 <div class="d-flex justify-content-end align-items-center mb-3">
                     <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync" disabled="@ReadOnly">Delete</button>
                 </div>
             }
         </div>
     </div>
-
 
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
@@ -153,6 +147,19 @@
             <div class="form-floating">
                 <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly" @onclick="LockOperation"></textarea>
                 <label for="DecisionCriteria">Decision Criteria</label>
+            </div>
+            <div class="form-floating mb-3">
+                <div class="form-control" style="height: auto; min-height: 38px;">
+                    @if (currentTemplates.Any())
+                    {
+                        @string.Join(", ", currentTemplates)
+                    }
+                    else
+                    {
+                        <span class="text-muted">No templates</span>
+                    }
+                </div>
+                <label>Current Templates</label>
             </div>
         </div>     
     </div>
@@ -417,7 +424,7 @@
             var verificationClassesList = new List<VerificationClass>();
             var generationClassesList = new List<GenerationClass>();
 
-            foreach (var currentTemplate in currentTemplates)
+            foreach (var currentTemplate in currentTemplates.ToList())
             {
                 savingClassesList.AddRange(await Fassade.GetSavingClasses(currentTemplate));
                 verificationClassesList.AddRange(await Fassade.GetVerificationClasses(currentTemplate));
