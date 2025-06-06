@@ -28,6 +28,8 @@ namespace DaimlerConfig.Components.Models
         public int qGateID { get; set; } = 1;
         public DateTime? lastModified { get; set; }
 
+        public string? modifiedBy { get; set; }
+
         public bool? isLocked { get; set; }
 
         public string? lockedBy { get; set; }
@@ -63,7 +65,8 @@ namespace DaimlerConfig.Components.Models
                 && verificationClassID == other.verificationClassID
                 && savingClassID == other.savingClassID
                 && parallel == other.parallel
-                && qGateID == other.qGateID;
+                && qGateID == other.qGateID
+                && string.Equals(modifiedBy, other.modifiedBy, StringComparison.Ordinal);
         }
 
     }

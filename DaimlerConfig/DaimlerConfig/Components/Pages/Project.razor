@@ -154,12 +154,12 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && selectedTool != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@selectedTool"  CurrentUser=@currentUser/>
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@selectedTool"  CurrentUser=@currentUser ToolVersions=@toolVersions />
                     }
 
                     @if (showOperationFormular && selectedOperation != null)
                     {
-                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@selectedOperation"  CurrentUser="@currentUser" />
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@selectedOperation"  CurrentUser="@currentUser" OperationVersions=operationVersions />
                     }
 
                     @if (showStationFormular && selectedStation != null)
@@ -313,6 +313,8 @@
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
+    private IEnumerable<ToolVersion> toolVersions = Enumerable.Empty<ToolVersion>();
+
     private bool toolReadOnly = false;
     private bool showToolFormular = false;
 
@@ -340,7 +342,9 @@
                 SelectionState.SaveSelection(stationID: selectedStation.stationID, toolID: tool.toolID);
             }
 
-            StateHasChanged();  
+           
+            toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
+            StateHasChanged();
         }
 
     }
@@ -395,6 +399,7 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
+	private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
 
@@ -414,6 +419,11 @@
             await UnlockTool();
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
 
+
+             
+			
+            
+
             if (operation.operationID > 0)
             {
                 SelectionState.SaveSelection(
@@ -423,8 +433,9 @@
                 );
             }
 
-
+            operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
             StateHasChanged();  // Aktualisiere den UI-Status
+
         }
 
     }
@@ -857,7 +868,7 @@
             var station = stations.FirstOrDefault(s => s.stationID == savedSelection.StationID.Value);
             if (station != null)
             {
-                // Station ohne UI-Interaktion ausw�hlen
+
                 selectedStation = station;
                 tools = await Fassade.GetToolsFromStation(station.stationID);
 
@@ -885,7 +896,7 @@
                         }
                         else
                         {
-                            // Nur Tool ausgew�hlt
+
                             selectedOperation = await CreateDummyOP();
 
                             // Tool-Formular anzeigen
@@ -897,7 +908,7 @@
                 }
                 else
                 {
-                    // Nur Station ausgew�hlt
+
                     selectedTool = await CreateDummyTool();
                     selectedOperation = await CreateDummyOP();
 

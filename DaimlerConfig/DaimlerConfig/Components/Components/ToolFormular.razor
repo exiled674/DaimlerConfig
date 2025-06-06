@@ -12,6 +12,18 @@
         <h2>Tool</h2>
 
         <div class="d-flex justify-content-end align-items-center gap-2">
+            <div class="form-floating" style="min-width:200px;">
+                <select class="form-select" id="ToolVersionSelect" @onchange="OnVersionChanged">
+                    <option value="">Version wählen...</option>
+                    @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
+                    {
+                        <option value="@version.toolVersionID">
+                            @version.modifiedBy?.Split(';')[0] - @version.lastModified
+                        </option>
+                    }
+                </select>
+                <label for="ToolVersionSelect">Versionen</label>
+            </div>
             @if (SelectedTool?.toolID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
@@ -162,6 +174,10 @@
     public Tool? SelectedTool { get; set; }
 
     [Parameter]
+    public IEnumerable<ToolVersion> ToolVersions { get; set; } = Enumerable.Empty<ToolVersion>();
+
+
+    [Parameter]
     public string? CurrentUser { get; set; }
 
     [Parameter]
@@ -193,7 +209,7 @@
             {
                 toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
             }
-
+			ToolVersions = await Fassade.GetToolVersions(SelectedTool.toolID.Value);
             StateHasChanged();
         }
     }
@@ -205,11 +221,17 @@
     {
         ResetValidationState();
 
+        if (!await DirtyManagerService.CheckIfDirty(SelectedTool, OriginalTool))
+            return;
+
         if (await ValidateData() == false)
             return;
 
+        SelectedTool.modifiedBy = CurrentUser;       
         if (!await Fassade.UpdateToolWithVersion(SelectedTool, OriginalTool))
             return;
+
+        
 
         await SignalRService.SendMessageToServer("ToolChanged");
         await DirtyManagerService.setClean();
@@ -222,6 +244,8 @@
 
         if (await ValidateData() == false)
             return;
+
+        SelectedTool.modifiedBy = CurrentUser;
 
         if (!await Fassade.AddTool(SelectedTool))
             return;
@@ -323,7 +347,7 @@
             lockCancellationTokenSource?.Cancel();
             StartUnlockTimer();
 
-            
+
         }
         if (SelectedTool.isLocked == false)
         {
@@ -392,7 +416,7 @@
     #region ToolClass/-Type
     private async Task OnToolClassChanged(ChangeEventArgs e)
     {
-        
+
         if (int.TryParse(e.Value?.ToString(), out var selectedId))
         {
             SelectedTool.toolClassID = selectedId;
@@ -404,6 +428,7 @@
 
     private async Task OnToolTypeChanged(ChangeEventArgs e)
     {
+
         if (int.TryParse(e.Value?.ToString(), out var id))
         {
             SelectedTool.toolTypeID = id;
@@ -411,6 +436,41 @@
     }
 
     #endregion
+
+
+    #region Version
+    private async Task OnVersionChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int versionId))
+        {
+            var selectedVersion = ToolVersions.FirstOrDefault(v => v.toolVersionID == versionId);
+            if (selectedVersion != null)
+            {
+
+                SelectedTool.toolShortname = selectedVersion.toolShortname;
+                SelectedTool.toolDescription = selectedVersion.toolDescription;
+                SelectedTool.toolClassID = selectedVersion.toolClassID;
+                SelectedTool.toolTypeID = selectedVersion.toolTypeID;
+                SelectedTool.ipAddressDevice = selectedVersion.ipAddressDevice;
+                SelectedTool.plcName = selectedVersion.plcName;
+                SelectedTool.dbNoSend = selectedVersion.dbNoSend;
+                SelectedTool.dbNoReceive = selectedVersion.dbNoReceive;
+                SelectedTool.addressSendDB = selectedVersion.addressSendDB;
+                SelectedTool.addressReceiveDB = selectedVersion.addressReceiveDB;
+                SelectedTool.preCheckByte = selectedVersion.preCheckByte;
+                SelectedTool.lastModified = selectedVersion.lastModified;
+                SelectedTool.modifiedBy = selectedVersion.modifiedBy;
+
+
+                StateHasChanged();
+            }
+        }
+    }
+
+    #endregion
+
+
+
     public void Dispose()
     {
         // Timer stoppen und Ressourcen freigeben

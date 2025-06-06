@@ -121,6 +121,7 @@
 	{
 		ResetValidationState();
 		if (await ValidateData() == false) return;
+		SelectedStation.modifiedBy = DaimlerConfig.MauiProgram.Username;
 		if (!await Fassade.UpdateStation(SelectedStation)) return;
 
 		await SignalRService.SendMessageToServer("StationChanged");

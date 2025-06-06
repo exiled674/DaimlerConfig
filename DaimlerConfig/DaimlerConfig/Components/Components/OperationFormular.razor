@@ -10,6 +10,18 @@
     <div class="class-header justify-content-between align-items-center">
         <h2>Operation</h2>
         <div class="d-flex justify-content-end align-items-center gap-2">
+            <div class="form-floating" style="min-width:200px;">
+                <select class="form-select" id="OperationVersionSelect" @onchange="OnVersionChanged">
+                    <option value="">Version wählen...</option>
+                    @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
+                    {
+                        <option value="@version.operationVersionID">
+                            @version.modifiedBy?.Split(';')[0] - @version.lastModified
+                        </option>
+                    }
+                </select>
+                <label for="ToolVersionSelect">Versionen</label>
+            </div>
             @if (SelectedOperation.operationID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
@@ -158,6 +170,9 @@
     public Operation? SelectedOperation { get; set; }
 
     [Parameter]
+    public IEnumerable<OperationVersion> OperationVersions { get; set; } = Enumerable.Empty<OperationVersion>();
+
+    [Parameter]
     public bool ReadOnly { get; set; }
 
     private Operation? OriginalOperation { get; set; }
@@ -202,6 +217,7 @@
                 }
             }
             await InitializeClasses();
+			OperationVersions = await Fassade.GetOperationVersions(SelectedOperation.operationID.Value);
             StateHasChanged();
         }
     }
@@ -210,8 +226,17 @@
     public async Task UpdateOperationAsync()
     {
         ResetValidationState();
+
+
+        if (!await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation))
+            return;
+
+
+
         if (await ValidateData() == false)
             return;
+
+		    SelectedOperation.modifiedBy = CurrentUser;
 
         if (!await Fassade.UpdateOperationWithVersion(SelectedOperation, OriginalOperation))
             return;
@@ -224,6 +249,8 @@
     {
         if (await ValidateData() == false)
             return;
+
+		SelectedOperation.modifiedBy = CurrentUser;
 
         if (!await Fassade.AddOperation(SelectedOperation))
             return;
@@ -407,6 +434,37 @@
             generationClasses = generationClassesList;
         }
     }
+
+    #endregion
+
+    #region 
+    private async Task OnVersionChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int versionId))
+        {
+            var selectedVersion = OperationVersions.FirstOrDefault(v => v.operationVersionID == versionId);
+            if (selectedVersion != null && SelectedOperation != null)
+            {
+                SelectedOperation.operationShortname = selectedVersion.operationShortname;
+                SelectedOperation.operationDescription = selectedVersion.operationDescription;
+                SelectedOperation.operationSequence = selectedVersion.operationSequence;
+                SelectedOperation.operationSequenceGroup = selectedVersion.operationSequenceGroup;
+                SelectedOperation.operationDecisionCriteria = selectedVersion.operationDecisionCriteria;
+                SelectedOperation.alwaysPerform = selectedVersion.alwaysPerform;
+                SelectedOperation.decisionClassID = selectedVersion.decisionClassID;
+                SelectedOperation.generationClassID = selectedVersion.generationClassID;
+                SelectedOperation.verificationClassID = selectedVersion.verificationClassID;
+                SelectedOperation.savingClassID = selectedVersion.savingClassID;
+                SelectedOperation.parallel = selectedVersion.parallel;
+                SelectedOperation.qGateID = selectedVersion.qGateID;
+                SelectedOperation.lastModified = selectedVersion.lastModified;
+                SelectedOperation.modifiedBy = selectedVersion.modifiedBy;
+
+                StateHasChanged();
+            }
+        }
+    }
+
 
     #endregion
 }

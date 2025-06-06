@@ -123,6 +123,7 @@ namespace DaimlerConfig.Components.Fassade
             if (await LineRepository.Get(station.lineID) is { } line)
             {
                 line.lastModified = DateTime.Now;
+                line.modifiedBy = station.modifiedBy;
                 await LineRepository.Update(line);
             }
 
@@ -190,12 +191,14 @@ namespace DaimlerConfig.Components.Fassade
             if (station != null)
             {
                 station.lastModified = DateTime.Now;
+                station.modifiedBy = tool.modifiedBy;
                 if (!await StationRepository.Update(station)) return false;
 
                 var line = await LineRepository.Get(station.lineID);
                 if (line != null)
                 {
                     line.lastModified = DateTime.Now;
+                    line.modifiedBy = tool.modifiedBy;
                     if (!await LineRepository.Update(line)) return false;
                 }
             }
@@ -205,14 +208,47 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task<bool> UpdateToolWithVersion(Tool tool, Tool original)
         {
+           
+            var newVersion = ToolVersion.CreateToolVersionFromTool(original);
+
+            
+            var allVersions = await GetToolVersions(tool.toolID.Value);
 
 
-            var version = ToolVersion.CreateToolVersionFromTool(original);
-        await ToolVersionRepository.Add(version);
+            bool versionExists = allVersions.Any(v =>
+                v.toolShortname == newVersion.toolShortname &&
+                v.toolDescription == newVersion.toolDescription &&
+                v.toolClassID == newVersion.toolClassID &&
+                v.toolTypeID == newVersion.toolTypeID &&
+                v.ipAddressDevice == newVersion.ipAddressDevice &&
+                v.plcName == newVersion.plcName &&
+                v.dbNoSend == newVersion.dbNoSend &&
+                v.dbNoReceive == newVersion.dbNoReceive &&
+                v.addressSendDB == newVersion.addressSendDB &&
+                v.addressReceiveDB == newVersion.addressReceiveDB &&
+                v.preCheckByte == newVersion.preCheckByte
 
 
+
+            );
+
+            if (!versionExists)
+            {
+                await ToolVersionRepository.Add(newVersion);
+            }
+
+            
             return await UpdateTool(tool);
         }
+
+
+        public async Task<IEnumerable<ToolVersion>> GetToolVersions(int toolID)
+        {
+            return await ToolVersionRepository.Find(v => v.toolID == toolID);
+        }
+
+
+
 
 
         public async Task<bool> AddTool(Tool tool)
@@ -303,18 +339,21 @@ namespace DaimlerConfig.Components.Fassade
             if (tool != null)
             {
                 tool.lastModified = DateTime.Now;
+                tool.modifiedBy = operation.modifiedBy;
                 if (!await ToolRepository.Update(tool)) return false;
 
                 var station = await StationRepository.Get(tool.stationID);
                 if (station != null)
                 {
                     station.lastModified = DateTime.Now;
+                    station.modifiedBy = operation.modifiedBy;
                     if (!await StationRepository.Update(station)) return false;
 
                     var line = await LineRepository.Get(station.lineID);
                     if (line != null)
                     {
                         line.lastModified = DateTime.Now;
+                        line.modifiedBy = operation.modifiedBy;
                         if (!await LineRepository.Update(line)) return false;
                     }
                 }
@@ -325,12 +364,40 @@ namespace DaimlerConfig.Components.Fassade
 
         public async Task<bool> UpdateOperationWithVersion(Operation operation, Operation original)
         {
-            var version = OperationVersion.CreateOperationVersionFromOperation(original);
-            await OperationVersionRepository.Add(version);
+            var newVersion = OperationVersion.CreateOperationVersionFromOperation(original);
 
+            var allVersions = await GetOperationVersions(operation.operationID.Value);
+
+            bool versionExists = allVersions.Any(v =>
+                v.operationShortname == newVersion.operationShortname &&
+                v.operationDescription == newVersion.operationDescription &&
+                v.operationSequence == newVersion.operationSequence &&
+                v.operationSequenceGroup == newVersion.operationSequenceGroup &&
+                v.operationDecisionCriteria == newVersion.operationDecisionCriteria &&
+                v.alwaysPerform == newVersion.alwaysPerform &&
+                v.decisionClassID == newVersion.decisionClassID &&
+                v.generationClassID == newVersion.generationClassID &&
+                v.verificationClassID == newVersion.verificationClassID &&
+                v.savingClassID == newVersion.savingClassID &&
+                v.parallel == newVersion.parallel &&
+                v.qGateID == newVersion.qGateID 
+                
+            );
+
+            if (!versionExists)
+            {
+                await OperationVersionRepository.Add(newVersion);
+            }
 
             return await UpdateOperation(operation);
         }
+
+
+        public async Task<IEnumerable<OperationVersion>> GetOperationVersions(int operationID)
+        {
+            return await OperationVersionRepository.Find(v => v.operationID == operationID);
+        }
+
 
         public async Task<bool> AddOperation(Operation operation)
         {

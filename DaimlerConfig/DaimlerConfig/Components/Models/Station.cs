@@ -28,6 +28,8 @@ namespace DaimlerConfig.Components.Models
         
         public Status Status { get; set; } = Status.Undefined;
 
+        public string? modifiedBy { get; set; }
+
         public Station Clone()
         {
             var clone = (Station)this.MemberwiseClone();
