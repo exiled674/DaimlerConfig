@@ -14,7 +14,7 @@
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
                 <select class="form-select" id="ToolVersionSelect" @onchange="OnVersionChanged">
-                    <option value="">Version wählen...</option>
+                    <option value="-1">Aktuelle Version</option>
                     @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
                         <option value="@version.toolVersionID">
@@ -22,6 +22,7 @@
                         </option>
                     }
                 </select>
+
                 <label for="ToolVersionSelect">Versionen</label>
             </div>
             @if (SelectedTool?.toolID == 0)
@@ -443,27 +444,41 @@
     {
         if (int.TryParse(e.Value?.ToString(), out int versionId))
         {
-            var selectedVersion = ToolVersions.FirstOrDefault(v => v.toolVersionID == versionId);
-            if (selectedVersion != null)
+            if (versionId == -1)
             {
-
-                SelectedTool.toolShortname = selectedVersion.toolShortname;
-                SelectedTool.toolDescription = selectedVersion.toolDescription;
-                SelectedTool.toolClassID = selectedVersion.toolClassID;
-                SelectedTool.toolTypeID = selectedVersion.toolTypeID;
-                SelectedTool.ipAddressDevice = selectedVersion.ipAddressDevice;
-                SelectedTool.plcName = selectedVersion.plcName;
-                SelectedTool.dbNoSend = selectedVersion.dbNoSend;
-                SelectedTool.dbNoReceive = selectedVersion.dbNoReceive;
-                SelectedTool.addressSendDB = selectedVersion.addressSendDB;
-                SelectedTool.addressReceiveDB = selectedVersion.addressReceiveDB;
-                SelectedTool.preCheckByte = selectedVersion.preCheckByte;
-                SelectedTool.lastModified = selectedVersion.lastModified;
-                SelectedTool.modifiedBy = selectedVersion.modifiedBy;
-
-
-                StateHasChanged();
+                
+                if (SelectedTool?.toolID != null)
+                {
+                    var currentTool = await Fassade.GetTool(SelectedTool.toolID);
+                    if (currentTool != null)
+                    {
+                        SelectedTool = currentTool;
+                    }
+                }
             }
+            else
+            {
+                var selectedVersion = ToolVersions.FirstOrDefault(v => v.toolVersionID == versionId);
+                if (selectedVersion != null)
+                {
+                    SelectedTool.toolShortname = selectedVersion.toolShortname;
+                    SelectedTool.toolDescription = selectedVersion.toolDescription;
+                    SelectedTool.toolClassID = selectedVersion.toolClassID;
+                    SelectedTool.toolTypeID = selectedVersion.toolTypeID;
+                    SelectedTool.ipAddressDevice = selectedVersion.ipAddressDevice;
+                    SelectedTool.plcName = selectedVersion.plcName;
+                    SelectedTool.dbNoSend = selectedVersion.dbNoSend;
+                    SelectedTool.dbNoReceive = selectedVersion.dbNoReceive;
+                    SelectedTool.addressSendDB = selectedVersion.addressSendDB;
+                    SelectedTool.addressReceiveDB = selectedVersion.addressReceiveDB;
+                    SelectedTool.preCheckByte = selectedVersion.preCheckByte;
+                    SelectedTool.lastModified = selectedVersion.lastModified;
+                    SelectedTool.modifiedBy = selectedVersion.modifiedBy;
+                    SelectedTool.Comment = selectedVersion.Comment;
+                    SelectedTool.Status = selectedVersion.Status;
+                }
+            }
+            StateHasChanged();
         }
     }
 
@@ -473,7 +488,7 @@
 
     public void Dispose()
     {
-        // Timer stoppen und Ressourcen freigeben
+        
         lockCancellationTokenSource?.Cancel();
         lockCancellationTokenSource?.Dispose();
     }
