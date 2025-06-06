@@ -1,0 +1,345 @@
+﻿@typeparam TItem
+@using DaimlerConfig.Components.Models
+
+<div class="form-floating mb-3 position-relative">
+    <input type="text"
+           id="@inputId"
+           class="form-control @(HasError ? "is-invalid" : "")"
+           @bind="_searchTerm"
+           @bind:event="oninput"
+           placeholder="@Placeholder"
+           @onfocus="ShowAllSuggestions"
+           @onblur="HandleBlur"
+           @onkeydown="HandleKeyDown"
+           readonly="@ReadOnly"
+           autocomplete="off"
+           aria-expanded="@showSuggestions"
+           aria-haspopup="listbox"
+           role="combobox"
+           @onclick="OnInputClick" />
+    <label for="@inputId">@Label</label>
+
+    @if (showSuggestions && !ReadOnly)
+    {
+            <div class="dropdown-menu show position-absolute w-100 mt-1"
+                 style="z-index: 1050; max-height: 300px; overflow-y: auto;"
+                 @onmousedown:preventDefault="true">
+            @{
+                var filteredItems = FilterItems().Take(MaxResults).ToList();
+            }
+            @if (filteredItems.Any())
+            {
+                @for (int i = 0; i < filteredItems.Count; i++)
+                {
+                    var item = filteredItems[i];
+                    var index = i;
+                    var isActive = highlightedIndex == index;
+                    var helpText = HelpTextFunc?.Invoke(item); // Get the help text
+
+                                <button type="button"
+                                        class="dropdown-item @(isActive ? "active" : "")"
+                                        @onclick="() => SelectItem(item)"
+                                        @onmouseenter="() => SetHighlightedIndex(index)"
+                                        style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                        title="@(string.IsNullOrEmpty(helpText) ? "" : helpText)">
+                        @GetItemDisplayText(item)
+                                </button>
+                }
+            }
+            else
+            {
+                        <div class="dropdown-item-text text-muted fst-italic">
+                            Keine Ergebnisse gefunden
+                        </div>
+            }
+            </div>
+    }
+
+    @if (HasError && !string.IsNullOrEmpty(ErrorMessage))
+    {
+            <div class="invalid-feedback">@ErrorMessage</div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<TItem> Items { get; set; } = Enumerable.Empty<TItem>();
+
+    [Parameter]
+    public int? SelectedItemID { get; set; }
+
+    [Parameter]
+    public EventCallback<int?> OnSelectedItemIDChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public Func<TItem, int> GetItemID { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public Func<TItem, string> GetItemDisplayText { get; set; } = null!;
+
+    [Parameter]
+    public Func<TItem, string>? HelpTextFunc { get; set; } 
+
+    [Parameter]
+    public string Placeholder { get; set; } = "Suchen...";
+
+    [Parameter]
+    public string Label { get; set; } = "";
+
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnInputClicked { get; set; }
+
+    [Parameter]
+    public bool HasError { get; set; } = false;
+
+    [Parameter]
+    public string ErrorMessage { get; set; } = "";
+
+    [Parameter]
+    public bool AllowClear { get; set; } = true;
+
+    [Parameter]
+    public int MaxResults { get; set; } = 50;
+
+    private string searchTerm = "";
+    private bool showSuggestions = false;
+    private int highlightedIndex = -1;
+    private string inputId = Guid.NewGuid().ToString("N")[..8];
+    private bool isSelectingItem = false;
+    private Timer? blurTimer;
+    private bool hasUserEdited = false;
+
+    protected override void OnParametersSet()
+    {
+        
+        if (SelectedItemID.HasValue)
+        {
+            var selectedItem = Items.FirstOrDefault(item => GetItemID(item) == SelectedItemID.Value);
+            if (selectedItem != null)
+            {
+                var displayText = GetItemDisplayText(selectedItem);
+                if (searchTerm != displayText && !hasUserEdited)
+                {
+                    searchTerm = displayText;
+                }
+            }
+        }
+        else if (!hasUserEdited)
+        {
+            searchTerm = "Unknown";
+        }
+    }
+
+    private string _searchTerm
+    {
+        get => searchTerm;
+        set
+        {
+            if (searchTerm != value)
+            {
+                hasUserEdited = true;
+                searchTerm = value;
+                OnSearchTermChanged();
+            }
+        }
+    }
+
+    private void OnSearchTermChanged()
+    {
+        showSuggestions = true;
+        highlightedIndex = -1;
+
+        // Auto-select exact match
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var exactMatch = Items.FirstOrDefault(item =>
+                string.Equals(GetItemDisplayText(item), searchTerm, StringComparison.OrdinalIgnoreCase));
+
+            if (exactMatch != null)
+            {
+                _ = InvokeAsync(async () =>
+                {
+                    await Task.Delay(100);
+                    if (OnSelectedItemIDChanged.HasDelegate)
+                    {
+                        await OnSelectedItemIDChanged.InvokeAsync(GetItemID(exactMatch));
+                    }
+                });
+            }
+        }
+    }
+
+    private void ShowAllSuggestions(FocusEventArgs e)
+    {
+        blurTimer?.Dispose();
+        if (!ReadOnly)
+        {
+            showSuggestions = true;
+            highlightedIndex = -1;
+        }
+    }
+
+    private async Task HandleBlur(FocusEventArgs e)
+    {
+        
+        blurTimer?.Dispose();
+        blurTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(async () =>
+            {
+                showSuggestions = false;
+                highlightedIndex = -1;
+
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    searchTerm = "Unknown";
+                    if (OnSelectedItemIDChanged.HasDelegate)
+                    {
+                        await OnSelectedItemIDChanged.InvokeAsync(null);
+                    }
+                }
+                else
+                {
+                    
+                    var matchingItem = Items.FirstOrDefault(item =>
+                        string.Equals(GetItemDisplayText(item), searchTerm, StringComparison.OrdinalIgnoreCase));
+
+                    if (matchingItem == null)
+                    {
+                        searchTerm = "Unknown";
+                        if (OnSelectedItemIDChanged.HasDelegate)
+                        {
+                            await OnSelectedItemIDChanged.InvokeAsync(null);
+                        }
+                    }
+                    else
+                    {
+                        
+                        if (OnSelectedItemIDChanged.HasDelegate)
+                        {
+                            await OnSelectedItemIDChanged.InvokeAsync(GetItemID(matchingItem));
+                        }
+                    }
+                }
+
+                hasUserEdited = false;
+                StateHasChanged();
+            });
+        }, null, 150, Timeout.Infinite);
+    }
+
+    private async Task OnInputClick()
+    {
+        if (!ReadOnly && OnInputClicked.HasDelegate)
+        {
+            await OnInputClicked.InvokeAsync();
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (ReadOnly || !showSuggestions) return;
+
+        var filteredItems = FilterItems().Take(MaxResults).ToList();
+
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                highlightedIndex = Math.Min(highlightedIndex + 1, filteredItems.Count - 1);
+                StateHasChanged();
+                break;
+
+            case "ArrowUp":
+                highlightedIndex = Math.Max(highlightedIndex - 1, -1);
+                StateHasChanged();
+                break;
+
+            case "Enter":
+                if (highlightedIndex >= 0 && highlightedIndex < filteredItems.Count)
+                {
+                    await SelectItem(filteredItems[highlightedIndex]);
+                }
+                break;
+
+            case "Escape":
+                showSuggestions = false;
+                highlightedIndex = -1;
+                StateHasChanged();
+                break;
+
+            case "Tab":
+                showSuggestions = false;
+                highlightedIndex = -1;
+                break;
+        }
+    }
+
+    private void SetHighlightedIndex(int index)
+    {
+        highlightedIndex = index;
+        StateHasChanged();
+    }
+
+    private IEnumerable<TItem> FilterItems()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return Items.OrderBy(item => GetItemDisplayText(item));
+        }
+
+        // Prioritize exact matches, then starts with, then contains
+        var exactMatches = Items.Where(item =>
+            string.Equals(GetItemDisplayText(item), searchTerm, StringComparison.OrdinalIgnoreCase));
+
+        var startsWithMatches = Items.Where(item =>
+            GetItemDisplayText(item).StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(GetItemDisplayText(item), searchTerm, StringComparison.OrdinalIgnoreCase));
+
+        var containsMatches = Items.Where(item =>
+            GetItemDisplayText(item).Contains(searchTerm, StringComparison.OrdinalIgnoreCase) &&
+            !GetItemDisplayText(item).StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+        return exactMatches
+            .Concat(startsWithMatches.OrderBy(item => GetItemDisplayText(item)))
+            .Concat(containsMatches.OrderBy(item => GetItemDisplayText(item)));
+    }
+
+    private async Task SelectItem(TItem selected)
+    {
+        isSelectingItem = true;
+        searchTerm = GetItemDisplayText(selected);
+        showSuggestions = false;
+        highlightedIndex = -1;
+        blurTimer?.Dispose();
+
+        if (OnSelectedItemIDChanged.HasDelegate)
+        {
+            await OnSelectedItemIDChanged.InvokeAsync(GetItemID(selected));
+        }
+
+        isSelectingItem = false;
+        StateHasChanged();
+    }
+
+    public async Task ClearSelection()
+    {
+        searchTerm = "";
+        showSuggestions = false;
+        highlightedIndex = -1;
+
+        if (OnSelectedItemIDChanged.HasDelegate)
+        {
+            await OnSelectedItemIDChanged.InvokeAsync(null);
+        }
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        blurTimer?.Dispose();
+    }
+}

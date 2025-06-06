@@ -10,39 +10,39 @@
 
 <div class="container-lg px-3">
 
-    <div class="class-header  justify-content-between align-items-center">
+    <div class="class-header justify-content-between align-items-center">
         <h2>Tool</h2>
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             @if (SelectedTool?.toolID == 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+                    </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
-                    <div class="text-danger">@ValidationMessage</div>
+                            <div class="text-danger">@ValidationMessage</div>
                 }
             }
 
             @if (SelectedTool?.toolID != 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync" disabled="@ReadOnly">Update</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync" disabled="@ReadOnly">Update</button>
+                    </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
-                    <div class="text-danger">@ValidationMessage</div>
+                            <div class="text-danger">@ValidationMessage</div>
                 }
             }
             @if (SelectedTool?.toolID != 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync" disabled="@ReadOnly">Delete</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync" disabled="@ReadOnly">Delete</button>
+                    </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
-                    <div class="text-danger">@ValidationMessage</div>
+                            <div class="text-danger">@ValidationMessage</div>
                 }
             }
         </div>
@@ -65,7 +65,7 @@
                 </span>
                 @if (errorMessages.ContainsKey("ToolShortname"))
                 {
-                    <div class="invalid-feedback">@errorMessages["ToolShortname"]</div>
+                        <div class="invalid-feedback">@errorMessages["ToolShortname"]</div>
 
                 }
             </div>
@@ -80,26 +80,31 @@
         </div>
 
         <div class="toolColoumnRight ">
-            <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolClass" value="@SelectedTool.toolClassID" @onchange="OnToolClassChanged" disabled="@ReadOnly" @onfocus="LockTool">
-                    @foreach (var toolClass in toolClasses)
-                    {
-                        <option value="@toolClass.toolClassID">@toolClass.toolClassName</option>
-                    }
-                </select>
 
-                <label for="ToolClass">Tool Class</label>
-            </div>
+            <SearchSelect TItem="ToolClass"
+                          Items="@toolClasses"
+                          SelectedItemID="@SelectedTool.toolClassID"
+                          OnSelectedItemIDChanged="OnToolClassChanged"
+                          GetItemID="@(tc => tc.toolClassID)"
+                          GetItemDisplayText="@(tc => tc.toolClassName)"
+                          Placeholder="Tool Class suchen..."
+                          Label="Tool Class"
+                          ReadOnly="@ReadOnly"
+                          OnInputClicked="LockTool" />
 
-            <div class="form-floating mb-3">
-                <select class="form-select form-select" id="ToolType" value="@SelectedTool.toolTypeID" @onchange="OnToolTypeChanged" disabled="@ReadOnly" @onfocus="LockTool">
-                    @foreach (var toolType in toolTypes)
-                    {
-                        <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
-                    }
-                </select>
-                <label for="ToolType">Tool Type</label>
-            </div>
+
+            <SearchSelect TItem="ToolType"
+                          Items="@toolTypes"
+                          SelectedItemID="@SelectedTool.toolTypeID"
+                          OnSelectedItemIDChanged="OnToolTypeChanged"
+                          GetItemID="@(tt => tt.toolTypeID)"
+                          GetItemDisplayText="@(tt => tt.toolTypeName)"
+                          Placeholder="Tool Type suchen..."
+                          Label="Tool Type"
+                          ReadOnly="@ReadOnly"
+                          OnInputClicked="LockTool"
+                          HelpTextFunc="@((tt) => tt.HelpText)" /> @* Added HelpTextFunc parameter *@
+
         </div>
     </div>
 
@@ -115,7 +120,7 @@
                     <label>IP-Address Device</label>
                     @if (errorMessages.ContainsKey("IP"))
                     {
-                        <div class="invalid-feedback">@errorMessages["IP"]</div>
+                            <div class="invalid-feedback">@errorMessages["IP"]</div>
                     }
                 </div>
                 <div class="form-floating mb-3">
@@ -208,7 +213,7 @@
             return;
         }
 
-        if (!await Fassade.UpdateTool(SelectedTool))
+        if (!await Fassade.UpdateToolWithVersion(SelectedTool, OriginalTool))
         {
             ToastService.ShowError("Couldn't update a tool."); 
             return;
@@ -350,7 +355,7 @@
             lockCancellationTokenSource?.Cancel();
             StartUnlockTimer();
 
-            
+
         }
         if (SelectedTool.isLocked == false)
         {
@@ -417,23 +422,24 @@
     #endregion
 
     #region ToolClass/-Type
-    private async Task OnToolClassChanged(ChangeEventArgs e)
+    private async Task OnToolClassChanged(int? selectedId)
     {
-        
-        if (int.TryParse(e.Value?.ToString(), out var selectedId))
+        if (selectedId.HasValue)
         {
             SelectedTool.toolClassID = selectedId;
-            toolTypes = await Fassade.FindToolTypes(selectedId);
+            toolTypes = await Fassade.FindToolTypes(selectedId.Value);
+            SelectedTool.toolTypeID = toolTypes.FirstOrDefault()?.toolTypeID ?? 0;
             await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
         }
     }
 
-    private async Task OnToolTypeChanged(ChangeEventArgs e)
+
+    private async Task OnToolTypeChanged(int? selectedId)
     {
-		
-        if (int.TryParse(e.Value?.ToString(), out var id))
+        if (selectedId.HasValue)
         {
-            SelectedTool.toolTypeID = id;
+            SelectedTool.toolTypeID = selectedId.Value;
+            await CheckIfDirty();
         }
     }
 

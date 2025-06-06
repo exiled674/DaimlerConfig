@@ -69,11 +69,12 @@ namespace DaimlerConfig
             builder.Services.AddScoped<IRepository<SavingClass>, Repository<SavingClass>>();
             builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
             builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
-            
+            builder.Services.AddScoped<IRepository<ToolVersion>, Repository<ToolVersion>>();
             builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
             builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
             builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
-            
+            builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
+
             builder.Services.AddScoped<ExcelExport, ExcelExport>();
             builder.Services.AddSingleton<SidebarState>();
             builder.Services.AddScoped<ToastService>();
@@ -94,8 +95,10 @@ namespace DaimlerConfig
                 var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
                 var templateRepo = sp.GetRequiredService<IRepository<Template>>();
                 var export = sp.GetRequiredService<ExcelExport>();
-                
-                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, templateRepo, export);
+                var toolversion = sp.GetRequiredService<IRepository<ToolVersion>>();
+                var operationversion = sp.GetRequiredService<IRepository<OperationVersion>>();
+
+                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, export, toolversion, operationversion);
             });
 
             // 3. SignalR konfigurieren

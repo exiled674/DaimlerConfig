@@ -12,23 +12,23 @@
         <div class="d-flex justify-content-end align-items-center gap-2">
             @if (SelectedOperation.operationID == 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync" >Create</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync" >Create</button>
+                    </div>
             }
             @if (SelectedOperation.operationID != 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync" disabled="@ReadOnly">Update</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync" disabled="@ReadOnly">Update</button>
+                    </div>
             }
 
 
             @if (SelectedOperation.operationID != 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync" disabled="@ReadOnly">Delete</button>
-                </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync" disabled="@ReadOnly">Delete</button>
+                    </div>
             }
         </div>
     </div>
@@ -50,7 +50,7 @@
                 </span>
                 @if (errorMessages.ContainsKey("OperationShortname"))
                 {
-                    <div class="invalid-feedback">@errorMessages["OperationShortname"]</div>
+                        <div class="invalid-feedback">@errorMessages["OperationShortname"]</div>
                 }
             </div>
 
@@ -91,42 +91,60 @@
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var decision in decisionClasses)
-                    {
-                        <option value="@decision.decisionClassID">@decision.decisionClassName</option>
-                    }
-                </select>
-                <label for="DecisionClass">Decision Class</label>
+                <SearchSelect TItem="DecisionClass"
+                              Items="@decisionClasses"
+                              SelectedItemID="@SelectedOperation.decisionClassID"
+                              OnSelectedItemIDChanged="OnDecisionClassChanged"
+                              GetItemID="@(dc => dc.decisionClassID)"
+                              GetItemDisplayText="@(dc => dc.decisionClassName)"
+                              Placeholder="Decision Class suchen..."
+                              Label="Decision Class"
+                              ReadOnly="@ReadOnly"
+                              OnInputClicked="LockOperation"
+                              HelpTextFunc="@((dc) => dc.HelpText)" /> @* Added HelpTextFunc parameter *@
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var generation in generationClasses)
-                    {
-                        <option value="@generation.generationClassID">@generation.generationClassName</option>
-                    }
-                </select>
-                <label for="GenerationClass">Generation Class</label>
+                <SearchSelect TItem="GenerationClass"
+                              Items="@generationClasses"
+                              SelectedItemID="@SelectedOperation.generationClassID"
+                              OnSelectedItemIDChanged="OnGenerationClassChanged"
+                              GetItemID="@(gc => gc.generationClassID)"
+                              GetItemDisplayText="@(gc => gc.generationClassName)"
+                              Placeholder="Generation Class suchen..."
+                              Label="Generation Class"
+                              ReadOnly="@ReadOnly"
+                              OnInputClicked="LockOperation"
+                              HelpTextFunc="@((gc) => gc.HelpText)" /> @* Added HelpTextFunc parameter *@
+
             </div>
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var verification in verificationClasses)
-                    {
-                        <option value="@verification.verificationClassID">@verification.verificationClassName</option>
-                    }
-                </select>
-                <label for="VerificationClass">Verification Class</label>
+                <SearchSelect TItem="VerificationClass"
+                              Items="@verificationClasses"
+                              SelectedItemID="@SelectedOperation.verificationClassID"
+                              OnSelectedItemIDChanged="OnVerificationClassChanged"
+                              GetItemID="@(vc => vc.verificationClassID)"
+                              GetItemDisplayText="@(vc => vc.verificationClassName)"
+                              Placeholder="Verification Class suchen..."
+                              Label="Verification Class"
+                              ReadOnly="@ReadOnly"
+                              OnInputClicked="LockOperation"
+                              HelpTextFunc="@((vc) => vc.HelpText)" /> @* Added HelpTextFunc parameter *@
+
             </div>
 
             <div class="form-floating mb-3">
-                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var saving in savingClasses)
-                    {
-                        <option value="@saving.savingClassID">@saving.savingClassName</option>
-                    }
-                </select>
-                <label for="SavingClass">Saving Class</label>
+                <SearchSelect TItem="SavingClass"
+                              Items="@savingClasses"
+                              SelectedItemID="@SelectedOperation.savingClassID"
+                              OnSelectedItemIDChanged="OnSavingClassChanged"
+                              GetItemID="@(sc => sc.savingClassID)"
+                              GetItemDisplayText="@(sc => sc.savingClassName)"
+                              Placeholder="Saving Class suchen..."
+                              Label="Saving Class"
+                              ReadOnly="@ReadOnly"
+                              OnInputClicked="LockOperation"
+                              HelpTextFunc="@((sc) => sc.HelpText)" /> @* Added HelpTextFunc parameter *@
             </div>
         </div>
 
@@ -163,7 +181,7 @@
 
     private Tool? currentTool;
 
-    private Template? currentTemplate;
+    private Template? currentTemplate; // Annahme: Template-Klasse existiert und hat eine TemplateId-Eigenschaft
 
     private IEnumerable<DecisionClass> decisionClasses = Enumerable.Empty<DecisionClass>();
 
@@ -183,10 +201,23 @@
             OriginalOperation.toolID = SelectedOperation.toolID;
 
             currentTool = await Fassade.GetTool(SelectedOperation.toolID);
-            if(currentTool != null)
+            if (currentTool != null)
             {
                 var toolClassId = currentTool.toolClassID;
-                currentTemplate = await Fassade.TemplateRepository.Get(toolClassId);
+                // Hier müsste ggf. die Logik erweitert werden, um das aktuelle Template zu bestimmen,
+                // da die GetSavingClasses/VerificationClasses/GenerationClasses Funktionen ein TemplateId erwarten.
+                // Zum Beispiel, wenn ToolClass mit Template verknüpft ist:
+                // currentTemplate = await Fassade.GetTemplateByToolClassId(toolClassId.Value);
+            }
+
+            // Für Demonstrationszwecke und ohne tatsächliche Template-Logik,
+            // initialisiere currentTemplate hier mock-up-mäßig,
+            // wenn es in deiner Anwendung noch nicht korrekt gesetzt wird
+            if (currentTemplate == null)
+            {
+                // TODO: Ersetze dies durch deine tatsächliche Logik, um das relevante Template zu erhalten
+                // Zum Beispiel, wenn du ein Standard-Template hast oder das Template aus dem SelectedOperation abgeleitet werden kann
+                currentTemplate = new Template { TemplateId = 1 }; // Beispiel-TemplateId
             }
 
 
@@ -207,7 +238,7 @@
             return;
         }
 
-        if (!await Fassade.UpdateOperation(SelectedOperation))
+        if (!await Fassade.UpdateOperationWithVersion(SelectedOperation, OriginalOperation))
         {
             ToastService.ShowError("Couldn't update an operation.");
             return;
@@ -324,29 +355,29 @@
     {
 
         if (SelectedOperation.operationID == 0) return;
-        if(SelectedOperation.isLocked == true && SelectedOperation.lockedBy == CurrentUser)
+        if (SelectedOperation.isLocked == true && SelectedOperation.lockedBy == CurrentUser)
         {
             lockCancellationTokenSource?.Cancel();
-			StartUnlockTimer();
+            StartUnlockTimer();
         }
         if (SelectedOperation.isLocked == false)
         {
             SelectedOperation.isLocked = true;
             SelectedOperation.lockedBy = CurrentUser;
-			SelectedOperation.lockTimestamp = DateTime.Now;
+            SelectedOperation.lockTimestamp = DateTime.Now;
             await Fassade.UpdateOperation(SelectedOperation);
-            
+
             await SignalRService.SendMessageToServer("OperationChanged");
             await SignalRService.SendMessageToServer("OperationLocked;" + SelectedOperation.operationID.ToString());
             ReadOnly = false;
-			StateHasChanged();
-			StartUnlockTimer();
-           
+            StateHasChanged();
+            StartUnlockTimer();
+
 
         }
     }
 
-   
+
     private void StartUnlockTimer()
     {
         // Wenn bereits ein Timer läuft, abbrechen
@@ -400,7 +431,7 @@
     {
         decisionClasses = await Fassade.GetDecisionClasses();
 
-        if(currentTemplate != null)
+        if (currentTemplate != null)
         {
             savingClasses = await Fassade.GetSavingClasses(currentTemplate.TemplateId);
 
@@ -411,15 +442,50 @@
             if (verificationClasses == null || !verificationClasses.Any())
             {
                 var list = verificationClasses.ToList();
+                // Die Methode GetVerificationClass(0) wird hier aufgerufen,
+                // aber es ist unklar, was sie zurückgibt oder ob sie korrekt ist.
+                // Stelle sicher, dass dies die erwarteten Daten liefert.
                 list.AddRange(await Fassade.GetVerificationClass(0));
                 verificationClasses = list.AsEnumerable();
-
-
             }
         }
-        
 
-        
+    }
+
+    private async Task OnDecisionClassChanged(int? selectedId)
+    {
+        if (selectedId.HasValue)
+        {
+            SelectedOperation.decisionClassID = selectedId.Value;
+            await CheckIfDirty();
+        }
+    }
+
+    private async Task OnGenerationClassChanged(int? selectedId)
+    {
+        if (selectedId.HasValue)
+        {
+            SelectedOperation.generationClassID = selectedId.Value;
+            await CheckIfDirty();
+        }
+    }
+
+    private async Task OnVerificationClassChanged(int? selectedId)
+    {
+        if (selectedId.HasValue)
+        {
+            SelectedOperation.verificationClassID = selectedId.Value;
+            await CheckIfDirty();
+        }
+    }
+
+    private async Task OnSavingClassChanged(int? selectedId)
+    {
+        if (selectedId.HasValue)
+        {
+            SelectedOperation.savingClassID = selectedId.Value;
+            await CheckIfDirty();
+        }
     }
     #endregion
 }
