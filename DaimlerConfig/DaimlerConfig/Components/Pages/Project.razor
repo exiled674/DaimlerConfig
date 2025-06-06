@@ -409,6 +409,16 @@
             showPopup = true;
         }else
         {
+            var opsList = allOperations.ToList();
+            var idx = opsList.FindIndex(o => o.operationID == operation.operationID);
+            if (idx >= 0)
+            {
+                var freshOp = await Fassade.GetOperation(operation.operationID);
+                if (freshOp != null)
+                    opsList[idx] = freshOp;
+            }
+            allOperations = opsList.AsEnumerable();
+
             if (selectedOperation != null && selectedOperation.operationID != operation.operationID)
                 await UnlockOperation();
             selectedOperation = operation;
@@ -425,7 +435,7 @@
                     operationID: operation.operationID
                 );
             }
-            allOperations = await Fassade.GetAllOperations();
+            
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
             StateHasChanged();  // Aktualisiere den UI-Status
         }
