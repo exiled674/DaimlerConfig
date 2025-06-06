@@ -8,7 +8,6 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Components.Models
-
 @inject NavigationManager Navigation
 @inject NavigationStateService NavState
 @inject SelectionStateService SelectionState
@@ -792,7 +791,7 @@
             var station = stations.FirstOrDefault(s => s.stationID == savedSelection.StationID.Value);
             if (station != null)
             {
-                // Station ohne UI-Interaktion auswählen
+                // Station ohne UI-Interaktion auswï¿½hlen
                 selectedStation = station;
                 tools = await Fassade.GetToolsFromStation(station.stationID);
 
@@ -820,7 +819,7 @@
                         }
                         else
                         {
-                            // Nur Tool ausgewählt
+                            // Nur Tool ausgewï¿½hlt
                             selectedOperation = await CreateDummyOP();
 
                             // Tool-Formular anzeigen
@@ -832,7 +831,7 @@
                 }
                 else
                 {
-                    // Nur Station ausgewählt
+                    // Nur Station ausgewï¿½hlt
                     selectedTool = await CreateDummyTool();
                     selectedOperation = await CreateDummyOP();
 
