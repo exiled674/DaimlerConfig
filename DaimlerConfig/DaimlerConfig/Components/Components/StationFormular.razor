@@ -5,6 +5,8 @@
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
 @using System.Linq
+@inject ToastService ToastService
+
 
 <div class="container-lg px-3">
 
@@ -113,33 +115,60 @@
 	public async Task UpdateStationAsync()
 	{
 		ResetValidationState();
-		if (await ValidateData() == false) return;
-		if (!await Fassade.UpdateStation(SelectedStation)) return;
+		if (await ValidateData() == false)
+		{
+			ToastService.ShowError("Couldn't update a station. Please check inputs!");
+			return;
+		}
+
+		if (!await Fassade.UpdateStation(SelectedStation))
+		{
+			ToastService.ShowError("Couldn't update a station.");
+			return;
+		}
 
 		await SignalRService.SendMessageToServer("StationChanged");
 		await DirtyManagerService.setClean();
+		ToastService.ShowSuccess("Station update was successful!");
+
 	}
 
 
 
-	
+
 
 	private async Task CreateStationAsync()
 	{
-		if (await ValidateData() == false) return;
-		if (!await Fassade.AddStation(SelectedStation)) return;
+		if (await ValidateData() == false)
+		{
+			ToastService.ShowError("Couldn't create a station. Please check inputs!");
+			return;
+
+		}
+		if (!await Fassade.AddStation(SelectedStation))
+		{
+			ToastService.ShowError("Couldn't create a station.");
+			return;
+		}
 
 		await SignalRService.SendMessageToServer("StationChanged");
 		await DirtyManagerService.setClean();
+		ToastService.ShowSuccess("Station creation was successful!");
+
 	}
 
 
 	private async Task DeleteStationAsync()
 	{
-		if (SelectedStation == null || !await Fassade.DeleteStation(SelectedStation)) return;
-
+		if (SelectedStation == null || !await Fassade.DeleteStation(SelectedStation))
+		{
+			ToastService.ShowError("Couldn't delete a station.");
+			return;
+		}
 		await SignalRService.SendMessageToServer("StationChanged");
 		await DirtyManagerService.setClean();
+		ToastService.ShowSuccess("Station deletion was successful!");
+
 	}
 
 	#endregion

@@ -209,7 +209,7 @@
 
         if (!await Fassade.UpdateOperation(SelectedOperation))
         {
-            ToastService.ShowError("Couldn't update an operation. Why?"); //idk what this checks for
+            ToastService.ShowError("Couldn't update an operation.");
             return;
         }
 
@@ -230,7 +230,7 @@
 
         if (!await Fassade.AddOperation(SelectedOperation))
         {
-            ToastService.ShowError("Couldn't add an operation. Why?"); //idk what this checks for
+            ToastService.ShowError("Couldn't add an operation."); 
             return;
         }
 
@@ -247,7 +247,7 @@
         {
             if (!await Fassade.DeleteOperation(SelectedOperation))
             {
-                ToastService.ShowError("Couldn't delete an operation. Please check inputs!");
+                ToastService.ShowError("Couldn't delete an operation.");
                 return;
             }
             

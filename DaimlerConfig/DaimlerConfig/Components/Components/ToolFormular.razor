@@ -204,13 +204,13 @@
 
         if (await ValidateData() == false)
         {
-            ToastService.ShowError("Could't update a Tool. Please check inputs!");
+            ToastService.ShowError("Couldn't update a tool. Please check inputs!");
             return;
         }
 
         if (!await Fassade.UpdateTool(SelectedTool))
         {
-            ToastService.ShowError("Could't update a Tool. Why?"); //idk what this checks for
+            ToastService.ShowError("Couldn't update a tool."); 
             return;
 
         }
@@ -228,14 +228,14 @@
 
         if (await ValidateData() == false)
         {
-            ToastService.ShowError("Could't create a Tool. Please check inputs!");
+            ToastService.ShowError("Couldn't create a tool. Please check inputs!");
             return;
         }
         
 
         if (!await Fassade.AddTool(SelectedTool))
         {
-            ToastService.ShowError("Could't create a Tool. Why?"); //idk what this checks for
+            ToastService.ShowError("Couldn't create a tool.");  
             return;
         }
 
@@ -250,13 +250,13 @@
     {
         if (SelectedTool == null)
         {
-            ToastService.ShowError("Could't delete a Tool. Please check inputs!");
+            ToastService.ShowError("No tool for deletion selected");
             return;
         }
 
         if (!await Fassade.DeleteTool(SelectedTool))
         {
-            ToastService.ShowError("Could't delete a Tool. Why?"); //idk what this checks for
+            ToastService.ShowError("Couldn't delete a tool."); 
             return;
         }
 
