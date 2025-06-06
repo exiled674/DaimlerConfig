@@ -42,8 +42,7 @@ namespace DaimlerConfig
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
-
-
+            
             // 1. Konfiguration laden - MIT Verschlüsselung
             string benutzerOrdner = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             string dateiPfad = Path.Combine(benutzerOrdner, "appsettings.json");
@@ -51,7 +50,7 @@ namespace DaimlerConfig
             // Development Mode Check
             bool developmentMode = true;
 #if DEBUG
-            developmentMode = true; // In Debug-Builds Verschlüsselung deaktivieren
+        developmentMode = true; // In Debug-Builds Verschlüsselung deaktivieren
 #endif
 
             builder.Configuration.AddEncryptedJsonFile(dateiPfad,
@@ -87,13 +86,13 @@ namespace DaimlerConfig
             builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
             builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
             builder.Services.AddScoped<IRepository<ToolVersion>, Repository<ToolVersion>>();
+            builder.Services.AddScoped<IRepository<ToolTypeHasTemplate>, Repository<ToolTypeHasTemplate>>();
             builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
             builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
             builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
             builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
-
             builder.Services.AddScoped<ExcelExport, ExcelExport>();
-
+            
             builder.Services.AddSingleton<Fassade>(sp =>
             {
                 var toolRepo = sp.GetRequiredService<IToolRepository>();
@@ -107,12 +106,15 @@ namespace DaimlerConfig
                 var verificationClassRepo = sp.GetRequiredService<IRepository<VerificationClass>>();
                 var toolClassRepo = sp.GetRequiredService<IRepository<ToolClass>>();
                 var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
+                var toolTypeHasTemplateRepo = sp.GetRequiredService<IRepository<ToolTypeHasTemplate>>();
                 var templateRepo = sp.GetRequiredService<IRepository<Template>>();
                 var export = sp.GetRequiredService<ExcelExport>();
                 var toolversion = sp.GetRequiredService<IRepository<ToolVersion>>();
                 var operationversion = sp.GetRequiredService<IRepository<OperationVersion>>();
-
-                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, export, toolversion, operationversion);
+                
+                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo,
+                    generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo,
+                    toolTypeHasTemplateRepo,templateRepo, export,toolversion, operationversion);
             });
 
             // 3. SignalR konfigurieren

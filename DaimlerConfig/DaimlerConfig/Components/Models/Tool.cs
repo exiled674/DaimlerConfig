@@ -45,6 +45,9 @@ namespace DaimlerConfig.Components.Models
 
         public DateTime? lockTimestamp { get; set; }
 
+        public string Comment { get; set; } = "";
+
+        public Status Status { get; set; } = Status.Undefined;
 
         public Tool Clone()
         {

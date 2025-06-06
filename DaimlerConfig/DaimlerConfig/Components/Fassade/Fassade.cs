@@ -2,8 +2,6 @@
 using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.JsonHandler;
 using DaimlerConfig.Components.Export;
-using DocumentFormat.OpenXml.Presentation;
-
 
 namespace DaimlerConfig.Components.Fassade
 {
@@ -18,9 +16,10 @@ namespace DaimlerConfig.Components.Fassade
 
         public IRepository<StationType> StationTypeRepository { get; private set; }
 
-       
+        public IRepository<Template> TemplateRepository { get; private set; }
         public IRepository<ToolClass> ToolClassRepository { get; private set; }
         public IRepository<ToolType> ToolTypeRepository { get; private set; }
+        public IRepository<ToolTypeHasTemplate> ToolTypeHasTemplateRepository { get; private set; }
 
         public IRepository<DecisionClass> DecisionClassRepository { get; private set; }
 
@@ -33,7 +32,15 @@ namespace DaimlerConfig.Components.Fassade
         
         private readonly WriteJson _writeJson = new WriteJson();
 
-        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository, IStationRepository stationRepository, IRepository<Line> lineRepository, IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository, IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository, IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository, IRepository<ToolType> toolTypeRepository, ExcelExport ExcelExport, IRepository<ToolVersion> toolVersionRepository, IRepository<OperationVersion> operationVersionRepository)
+        public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository,
+               IStationRepository stationRepository, IRepository<Line> lineRepository,
+               IRepository<StationType> stationTypeRepository, IRepository<DecisionClass> decisionClassRepository,
+               IRepository<GenerationClass> generationClassRepository, IRepository<SavingClass> savingClassRepository,
+               IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository,
+               IRepository<ToolType> toolTypeRepository, IRepository<ToolTypeHasTemplate> toolTypeHasTemplateRepository,
+               IRepository<Template> templateRepository, ExcelExport ExcelExport,
+               IRepository<ToolVersion> toolVersionRepository, IRepository<OperationVersion> operationVersionRepository)
+        
         {
             ToolRepository = toolRepository;
             OperationRepository = operationRepository;
@@ -46,8 +53,10 @@ namespace DaimlerConfig.Components.Fassade
             VerificationClassRepository = verificationClassRepository;
             ToolClassRepository = toolClassRepository;
             ToolTypeRepository = toolTypeRepository;
-            OperationVersionRepository = operationVersionRepository;
+            ToolTypeHasTemplateRepository = toolTypeHasTemplateRepository;
+            TemplateRepository = templateRepository;
             this.ExcelExport = ExcelExport;
+            OperationVersionRepository = operationVersionRepository;
             ToolVersionRepository = toolVersionRepository;
         }
 
@@ -515,7 +524,11 @@ namespace DaimlerConfig.Components.Fassade
 
         #region OperationClasses 
 
-       
+        public async Task<Template> GetTemplate(int toolClassID)
+        {
+            return await TemplateRepository.Get(toolClassID);
+        }
+
 
         public async Task<IEnumerable<DecisionClass>> GetDecisionClasses()
         {
