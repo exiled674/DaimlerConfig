@@ -11,7 +11,7 @@
         <h2>Operation</h2>
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <select class="form-select" id="OperationVersionSelect" @onchange="OnVersionChanged">
+                <select class="form-select" id="OperationVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
                     <option value="-1">Aktuelle Version</option>
                     @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                     {
@@ -179,6 +179,7 @@
 
     [Parameter]
     public IEnumerable<OperationVersion> OperationVersions { get; set; } = Enumerable.Empty<OperationVersion>();
+    private int selectedVersionId = -1;
 
     [Parameter]
     public bool ReadOnly { get; set; }
@@ -226,6 +227,7 @@
             }
             await InitializeClasses();
 			OperationVersions = await Fassade.GetOperationVersions(SelectedOperation.operationID.Value);
+            selectedVersionId = -1;
             StateHasChanged();
         }
     }
@@ -450,6 +452,7 @@
     {
         if (int.TryParse(e.Value?.ToString(), out int versionId))
         {
+            selectedVersionId = versionId;
             if (versionId == -1)
             {
                
