@@ -1,6 +1,7 @@
-﻿
-@using Microsoft.Extensions.Configuration
+﻿@using Microsoft.Extensions.Configuration
 @using System.IO
+@using System.Text.Json
+@using System.Text.Json.Nodes
 @using DaimlerConfig.Security
 
 @inject IConfiguration Configuration
@@ -9,44 +10,53 @@
 
 @if (hasError)
 {
-    <div class="alert alert-danger">
-        <strong>Error:</strong> @errorMessage
-    </div>
+        <div class="alert alert-danger">
+            <strong>Error:</strong> @errorMessage
+        </div>
 }
 else if (isLoading)
 {
-    <div class="alert alert-info">
-        Loading settings...
-    </div>
+        <div class="alert alert-info">
+            Loading settings...
+        </div>
 }
 else
 {
-    <div class="mb-3">
-        <label class="form-label">Connection String:</label>
-        <textarea class="form-control"
-                  @bind="connectionString"
-                  rows="4"
-                  placeholder="Enter your connection string here..."></textarea>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Connection String:</label>
+            <textarea class="form-control"
+                      @bind="connectionString"
+                      rows="4"
+                      placeholder="Enter your connection string here..."></textarea>
+        </div>
 
-    <button class="btn btn-primary" @onclick="SaveSettings" disabled="@isSaving">
+        <div class="mb-3">
+            <label class="form-label">SignalR Hub URL:</label>
+            <input class="form-control"
+                   type="text"
+                   @bind="signalRHubUrl"
+                   placeholder="Enter SignalR Hub URL here..." />
+        </div>
+
+        <button class="btn btn-primary" @onclick="SaveSettings" disabled="@isSaving">
         @if (isSaving)
         {
-            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
         }
-        Save Settings
-    </button>
+            Save Settings
+        </button>
 
     @if (!string.IsNullOrEmpty(statusMessage))
     {
-        <div class="alert @(isStatusError ? "alert-danger" : "alert-success") mt-3">
+                <div class="alert @(isStatusError ? "alert-danger" : "alert-success") mt-3">
             @statusMessage
-        </div>
+                </div>
     }
 }
 
 @code {
     private string connectionString = "";
+    private string signalRHubUrl = "";
     private string statusMessage = "";
     private string errorMessage = "";
     private bool isLoading = true;
@@ -56,13 +66,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(100); // Kurze Verzögerung für bessere UX
+        await Task.Delay(100); // kleine Verzögerung für bessere UX
 
         try
         {
-            // Sichere Konfigurationsabfrage
-            var configValue = Configuration?.GetConnectionString("DefaultConnection");
-            connectionString = configValue ?? "";
+            connectionString = Configuration?.GetConnectionString("DefaultConnection") ?? "";
+            signalRHubUrl = Configuration?["SignalR:HubUrl"] ?? "";
 
             isLoading = false;
             StateHasChanged();
@@ -72,11 +81,6 @@ else
             hasError = true;
             errorMessage = $"Fehler beim Laden der Konfiguration: {ex.Message}";
             isLoading = false;
-
-            // Debug-Ausgabe
-            System.Diagnostics.Debug.WriteLine($"Configuration Error: {ex}");
-            Console.WriteLine($"Configuration Error: {ex}");
-
             StateHasChanged();
         }
     }
@@ -86,6 +90,13 @@ else
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             statusMessage = "Connection String darf nicht leer sein.";
+            isStatusError = true;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(signalRHubUrl))
+        {
+            statusMessage = "SignalR Hub URL darf nicht leer sein.";
             isStatusError = true;
             return;
         }
@@ -104,21 +115,40 @@ else
             if (!File.Exists(appSettingsPath))
             {
                 var initialConfig = @"{
-    ""ConnectionStrings"": {
-        ""DefaultConnection"": """"
-    }
+  ""ConnectionStrings"": {
+    ""DefaultConnection"": """"
+  },
+  ""SignalR"": {
+    ""HubUrl"": """"
+  }
 }";
                 await File.WriteAllTextAsync(appSettingsPath, initialConfig);
             }
 
-            // Hier prüfen ob ConfigurationEncryptor verfügbar ist
+            // Lade aktuellen JSON Inhalt
+            string jsonText = await File.ReadAllTextAsync(appSettingsPath);
+            var jsonNode = JsonNode.Parse(jsonText) ?? new JsonObject();
+
+            // Setze ConnectionStrings.DefaultConnection
+            if (jsonNode["ConnectionStrings"] == null)
+                jsonNode["ConnectionStrings"] = new JsonObject();
+
+            jsonNode["ConnectionStrings"]["DefaultConnection"] = connectionString;
+
+            // Setze SignalR.HubUrl
+            if (jsonNode["SignalR"] == null)
+                jsonNode["SignalR"] = new JsonObject();
+
+            jsonNode["SignalR"]["HubUrl"] = signalRHubUrl;
+
+            // Schreibe JSON zurück in Datei (mit Einrückung)
+            var updatedJson = jsonNode.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(appSettingsPath, updatedJson);
+
+            // Verschlüsselung auf Connection String anwenden, wenn verfügbar
             if (typeof(ConfigurationEncryptor).GetMethod("EncryptConnectionString") != null)
             {
                 ConfigurationEncryptor.EncryptConnectionString(connectionString, appSettingsPath);
-            }
-            else
-            {
-                throw new InvalidOperationException("ConfigurationEncryptor.EncryptConnectionString ist nicht verfügbar");
             }
 
             statusMessage = "Einstellungen erfolgreich gespeichert. Anwendung wird neu gestartet...";
@@ -137,7 +167,6 @@ else
         {
             statusMessage = $"Fehler beim Speichern: {ex.Message}";
             isStatusError = true;
-
             System.Diagnostics.Debug.WriteLine($"Save Error: {ex}");
             Console.WriteLine($"Save Error: {ex}");
         }
