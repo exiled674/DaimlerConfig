@@ -3,6 +3,15 @@
 <div class="page">
     <main>
         <article class="content">
+            @* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+            @* Needed for dialogs *@
+<MudDialogProvider />
+
+            @* Needed for snackbars *@
+<MudSnackbarProvider />
             @Body
         </article>
     </main>

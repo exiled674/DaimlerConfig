@@ -17,6 +17,7 @@ using DaimlerConfig.Components.Fassade;
 using DaimlerConfig.Services;
 using Microsoft.Maui.LifecycleEvents;
 using DaimlerConfig.Security;
+using MudBlazor.Services;
 
 
 #if WINDOWS
@@ -72,6 +73,8 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<DirtyManagerService>();
             builder.Services.AddSingleton<AppLifecycleService>();
             builder.Services.AddSingleton<SelectionStateService>();
+
+            builder.Services.AddMudServices();
 
             var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
