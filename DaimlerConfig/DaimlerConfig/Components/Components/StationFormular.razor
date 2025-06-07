@@ -137,7 +137,11 @@
 		if (await ValidateData() == false) return;
 		if (!await Fassade.AddStation(SelectedStation)) return;
 
-		await SignalRService.SendMessageToServer("StationChanged");
+		var createdStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
+		if (createdStation != null)
+		{
+			await SignalRService.SendMessageToServer($"StationCreated;{createdStation.stationID}");
+		}
 		await DirtyManagerService.setClean();
 	}
 

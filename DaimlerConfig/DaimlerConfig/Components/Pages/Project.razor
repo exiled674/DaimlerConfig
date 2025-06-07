@@ -547,30 +547,52 @@
                 switch (msg)
                 {
                     case var msg when msg.StartsWith("StationUpdated;"):
-                        var parts = msg.Split(';');
-                        var stationID = int.Parse(parts[1]);
-
-                        var stationList = stations.ToList();
-                        var idx = stationList.FindIndex(s => s.stationID == stationID);
-
-                        if (idx >= 0)
                         {
-                            
-                            var updatedStation = await Fassade.GetStation(stationID);
-                            if (updatedStation != null)
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+
+                            var stationList = stations.ToList();
+                            var idx = stationList.FindIndex(s => s.stationID == stationID);
+
+                            if (idx >= 0)
                             {
-                                stationList[idx] = updatedStation;
-                                stations = stationList.AsEnumerable();
-                                if (showStationFormular && selectedStation?.stationID == stationID)
+
+                                var updatedStation = await Fassade.GetStation(stationID);
+                                if (updatedStation != null)
                                 {
-                                    selectedStation = updatedStation;
-                                    
+                                    stationList[idx] = updatedStation;
+                                    stations = stationList.AsEnumerable();
+                                    if (showStationFormular && selectedStation?.stationID == stationID)
+                                    {
+                                        selectedStation = updatedStation;
+
+                                    }
+                                    StateHasChanged();
                                 }
+
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("StationCreated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+                            var stationList = stations.ToList();
+
+                            
+                            var newStation = await Fassade.GetStation(stationID);
+                            if (newStation != null && !stationList.Any(s => s.stationID == stationID))
+                            {
+                          
+                                stationList.Add(newStation);
+                                stations = stationList.AsEnumerable();
                                 StateHasChanged();
                             }
-                            
+                            break;
                         }
-                        break;
+
+
 
                     case "StationChanged":
                         if (line != null)
