@@ -209,7 +209,7 @@
             {
                 toolTypes = await Fassade.FindToolTypes(SelectedTool.toolClassID.Value);
             }
-			ToolVersions = await Fassade.GetToolVersions(SelectedTool.toolID.Value);
+            ToolVersions = await Fassade.GetToolVersions(SelectedTool.toolID.Value);
             StateHasChanged();
         }
     }
@@ -231,7 +231,7 @@
         if (!await Fassade.UpdateToolWithVersion(SelectedTool, OriginalTool))
             return;
 
-        
+
 
         await SignalRService.SendMessageToServer($"ToolUpdated;{SelectedTool.toolID}");
         await DirtyManagerService.setClean();
@@ -249,8 +249,12 @@
 
         if (!await Fassade.AddTool(SelectedTool))
             return;
-
-        await SignalRService.SendMessageToServer("ToolChanged");
+        var createdTool = await Fassade.GetToolByName(SelectedTool.toolShortname, SelectedTool.stationID.Value);
+        if(createdTool != null)
+        {
+            await SignalRService.SendMessageToServer($"ToolCreated;{createdTool.toolID}");
+        }
+       
         await DirtyManagerService.setClean();
     }
 
@@ -260,7 +264,7 @@
         if (SelectedTool == null) return;
         if (!await Fassade.DeleteTool(SelectedTool)) return;
 
-        await SignalRService.SendMessageToServer("ToolChanged");
+        await SignalRService.SendMessageToServer($"ToolDeleted;{SelectedTool.toolID}");
         await DirtyManagerService.setClean();
     }
 
@@ -326,13 +330,9 @@
 
     public async Task ResetTool()
     {
-        if (OriginalTool != null)
-        {
-            SelectedTool = OriginalTool.Clone();
-            SelectedTool.toolID = OriginalTool.toolID;
-            SelectedTool.stationID = OriginalTool.stationID;
-        }
-        await SignalRService.SendMessageToServer("ToolChanged");
+        var signalTool = await Fassade.GetTool(SelectedTool.toolID.Value);
+        await SignalRService.SendMessageToServer($"ToolUpdated;{signalTool.toolID}");
+        await DirtyManagerService.setClean();
     }
     #endregion
 

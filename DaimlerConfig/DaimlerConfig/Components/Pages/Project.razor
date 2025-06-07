@@ -643,6 +643,41 @@
                             break;
                         }
 
+					case var msg when msg.StartsWith("ToolCreated;"):
+						{
+							var parts = msg.Split(';');
+							var toolID = int.Parse(parts[1]);
+							var toolList = tools.ToList();
+							var newTool = await Fassade.GetTool(toolID);
+							if (newTool != null && !toolList.Any(s => s.toolID == toolID))
+							{
+								toolList.Add(newTool);
+								tools = toolList.AsEnumerable();
+								StateHasChanged();
+							}
+							break;
+						}
+
+					case var msg when msg.StartsWith("ToolDeleted;"):
+						{
+							var parts = msg.Split(';');
+							var toolID = int.Parse(parts[1]);
+							var toolList = tools.ToList();
+							var idx = toolList.FindIndex(s => s.toolID == toolID);
+							if (idx >= 0)
+							{
+								toolList.RemoveAt(idx);
+								tools = toolList.AsEnumerable();
+								if (selectedTool?.toolID == toolID)
+								{
+									selectedTool = null;
+									showToolFormular = false;
+								}
+								StateHasChanged();
+							}
+							break;
+						}
+
 
 
                     case "StationChanged":
