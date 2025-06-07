@@ -199,13 +199,10 @@
 
 	public async Task ResetStation()
 	{
-		if (OriginalStation != null)
-		{
-			SelectedStation = OriginalStation.Clone();
-			SelectedStation.stationID = OriginalStation.stationID;
-			SelectedStation.lineID = OriginalStation.lineID;
-		}
-		await SignalRService.SendMessageToServer("StationChanged");
+		
+		var signalStation = await Fassade.GetStation(SelectedStation.stationID.Value);
+		await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
+		await DirtyManagerService.setClean();
 	}
 	#endregion
 
