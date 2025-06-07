@@ -13,11 +13,16 @@
 <div class="popup-backdrop">
         <div class="popup-dialog">
 
-        <MudIconButton Icon="@Icons.Material.Filled.Close"
-                       Color="Color.Secondary"
-                       OnClick="CloseSomething"
-                       Disabled="@isEditMode"
-                       aria-label="Close" />
+        <div class="popup-header">
+            <MudText Typo="Typo.h5">Settings</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           Size="Size.Medium"
+                           OnClick="CloseSomething"
+                           Disabled="@isEditMode"
+                           Class="popup-close-btn"
+                           aria-label="Close" />
+        </div>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
     <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
