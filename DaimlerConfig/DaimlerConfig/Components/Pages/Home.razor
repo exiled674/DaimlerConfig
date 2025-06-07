@@ -24,16 +24,23 @@
 @inject IDialogService DialogService
 
 <!-- Navbar -->
+
 <nav class="navbar fixed-top bg-white border-bottom">
     <div class="container">
         <span class="navbar-brand mb-0 h2">DaimlerConfig</span>
-        <MudIconButton @onclick="OpenSettingsDialog" 
-                      Icon="@Icons.Material.Filled.Settings" 
-                      Color="Color.Inherit"
-                      Class="float-end"
-                      Title="Settings"/>
+        <MudIconButton Icon="@Icons.Material.Filled.Settings"
+        Color="Color.Primary"
+        OnClick="OpenSettings"
+        aria-label="Settings" />
+
+        @if (ShowSettings)
+        {
+            <Settings></Settings>
+        }
+        
     </div>
 </nav>
+
 
 <!-- Main Content -->
 <div class="ProjectManager container">
@@ -185,6 +192,7 @@
     private bool isDuplicateName = false;
     private Line? ActiveContextMenuLine = null;
     private bool ShowDropdown = false;
+	private bool ShowSettings = false;
 
     private void ToggleContextMenu(Line line)
     {
@@ -407,15 +415,12 @@
         }
     }
 
-    private void OpenSettingsDialog()
-    {
-        var options = new DialogOptions
-            {
-                CloseOnEscapeKey = false,
-                MaxWidth = MaxWidth.Large,
-                FullWidth = true
-            };
+	#region Settings
 
-        DialogService.Show<Settings>("Einstellungen", options);
+    private void OpenSettings()
+    {
+        ShowSettings = true;
     }
+
+    #endregion
 }

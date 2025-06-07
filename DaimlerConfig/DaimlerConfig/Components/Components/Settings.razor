@@ -9,6 +9,13 @@
 @inject IConfiguration Configuration
 @inject ISnackbar Snackbar
 
+
+<div class="popup-backdrop">
+        <div class="popup-dialog">
+        <MudIconButton Icon="@Icons.Material.Filled.Close"
+                       Color="Color.Secondary"
+                       OnClick="CloseSomething"
+                       aria-label="Close" />
 <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
     <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
         <MudTabPanel Text="Profile">
@@ -219,7 +226,16 @@
     </MudTabs>
 </MudContainer>
 
+</div>
+</div>
+
+
 @code {
+
+    [Parameter]
+    public EventCallback OnClosing { get; set; }
+
+
     // Original fields
     private string connectionString = "";
     private string signalRHubUrl = "";
@@ -503,5 +519,12 @@
             isSaving = false;
             StateHasChanged();
         }
+    }
+
+
+    private void CloseSomething()
+    {
+        Console.WriteLine("Close-Button geklickt!");
+        // z. B. Dialog schließen, Komponente ausblenden usw.
     }
 }
