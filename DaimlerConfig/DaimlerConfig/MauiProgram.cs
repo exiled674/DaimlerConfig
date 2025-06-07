@@ -19,7 +19,6 @@ using Microsoft.Maui.LifecycleEvents;
 using DaimlerConfig.Security;
 using MudBlazor.Services;
 
-
 #if WINDOWS
 using Microsoft.UI.Xaml;
 #endif
@@ -32,7 +31,6 @@ namespace DaimlerConfig
         public static IServiceProvider Services { get; private set; }
         public static string Username { get; private set; } = $"{Environment.UserName};{Guid.NewGuid()}";
 
-
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
@@ -43,7 +41,6 @@ namespace DaimlerConfig
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
-
 
             // 1. Konfiguration laden - MIT Verschlüsselung
             string benutzerOrdner = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -66,74 +63,20 @@ namespace DaimlerConfig
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
-            // NEUE ZEILE: NavigationStateService registrieren
-            builder.Services.AddSingleton<NavigationStateService>();
 
-            builder.Services.AddSingleton<SignalRService>();
+            // WICHTIG: AppStartupValidationService als Singleton vor anderen Services registrieren
+            builder.Services.AddSingleton<AppStartupValidationService>();
+
+            builder.Services.AddSingleton<NavigationStateService>();
             builder.Services.AddSingleton<DirtyManagerService>();
             builder.Services.AddSingleton<AppLifecycleService>();
             builder.Services.AddSingleton<SelectionStateService>();
 
             builder.Services.AddMudServices();
 
-            var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
-                new SqlServerConnectionFactory(sqlConnectionString));
-
-            builder.Services.AddSingleton<IToolRepository, ToolRepository>();
-            builder.Services.AddSingleton<IOperationRepository, OperationRepository>();
-            builder.Services.AddSingleton<IStationRepository, StationRepository>();
-            builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
-            builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
-            builder.Services.AddScoped<IRepository<GenerationClass>, Repository<GenerationClass>>();
-            builder.Services.AddScoped<IRepository<SavingClass>, Repository<SavingClass>>();
-            builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
-            builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
-            builder.Services.AddScoped<IRepository<ToolVersion>, Repository<ToolVersion>>();
-            builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
-            builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
-            builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
-            builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
-
-            builder.Services.AddScoped<ExcelExport, ExcelExport>();
-
-            builder.Services.AddSingleton<Fassade>(sp =>
-            {
-                var toolRepo = sp.GetRequiredService<IToolRepository>();
-                var operationRepo = sp.GetRequiredService<IOperationRepository>();
-                var stationRepo = sp.GetRequiredService<IStationRepository>();
-                var lineRepo = sp.GetRequiredService<IRepository<Line>>();
-                var stationType = sp.GetRequiredService<IRepository<StationType>>();
-                var decisionClassRepo = sp.GetRequiredService<IRepository<DecisionClass>>();
-                var generationClassRepo = sp.GetRequiredService<IRepository<GenerationClass>>();
-                var savingClassRepo = sp.GetRequiredService<IRepository<SavingClass>>();
-                var verificationClassRepo = sp.GetRequiredService<IRepository<VerificationClass>>();
-                var toolClassRepo = sp.GetRequiredService<IRepository<ToolClass>>();
-                var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
-                var templateRepo = sp.GetRequiredService<IRepository<Template>>();
-                var export = sp.GetRequiredService<ExcelExport>();
-                var toolversion = sp.GetRequiredService<IRepository<ToolVersion>>();
-                var operationversion = sp.GetRequiredService<IRepository<OperationVersion>>();
-
-                return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, export, toolversion, operationversion);
-            });
-
-            // 3. SignalR konfigurieren aus appsettings.json
-            var hubURL = builder.Configuration["SignalR:HubUrl"];
-
-            if (!string.IsNullOrWhiteSpace(hubURL))
-            {
-                var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
-                builder.Services.AddSingleton(connection);
-                builder.Services.AddSingleton<SignalRService>();
-            }
-            else
-            {
-                // Kein SignalR verfügbar – Dummy-Service registrieren oder Logging
-                builder.Services.AddSingleton<HubConnection>(_ => null!);
-                builder.Services.AddSingleton<SignalRService>(_ => new SignalRService(null!));
-            }
-
+            // Services immer registrieren, aber mit Fallback-Implementierungen bei Fehlern
+            RegisterDataServices(builder);
+            RegisterSignalRServices(builder);
 
             // 4. Lifecycle Event: App schließen abfangen (nur Windows)
             builder.ConfigureLifecycleEvents(events =>
@@ -143,7 +86,6 @@ namespace DaimlerConfig
                 {
                     windows.OnWindowCreated(window =>
                     {
-                        // The window parameter is already the native Microsoft.UI.Xaml.Window
                         if (window != null)
                         {
                             window.Closed += async (sender, args) =>
@@ -161,12 +103,100 @@ namespace DaimlerConfig
 #endif
             });
 
+            // Dispose des temporären ServiceProviders
+            // tempServiceProvider.Dispose();
+
             var app = builder.Build();
 
             // Services-Provider speichern für globalen Zugriff
             Services = app.Services;
 
             return app;
+        }
+
+        private static void RegisterDataServices(MauiAppBuilder builder)
+        {
+            try
+            {
+                var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+                if (!string.IsNullOrWhiteSpace(sqlConnectionString))
+                {
+                    builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
+                        new SqlServerConnectionFactory(sqlConnectionString));
+
+                    builder.Services.AddSingleton<IToolRepository, ToolRepository>();
+                    builder.Services.AddSingleton<IOperationRepository, OperationRepository>();
+                    builder.Services.AddSingleton<IStationRepository, StationRepository>();
+                    builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
+                    builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
+                    builder.Services.AddScoped<IRepository<GenerationClass>, Repository<GenerationClass>>();
+                    builder.Services.AddScoped<IRepository<SavingClass>, Repository<SavingClass>>();
+                    builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
+                    builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
+                    builder.Services.AddScoped<IRepository<ToolVersion>, Repository<ToolVersion>>();
+                    builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
+                    builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
+                    builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
+                    builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
+
+                    builder.Services.AddScoped<ExcelExport, ExcelExport>();
+
+                    builder.Services.AddSingleton<Fassade>(sp =>
+                    {
+                        var toolRepo = sp.GetRequiredService<IToolRepository>();
+                        var operationRepo = sp.GetRequiredService<IOperationRepository>();
+                        var stationRepo = sp.GetRequiredService<IStationRepository>();
+                        var lineRepo = sp.GetRequiredService<IRepository<Line>>();
+                        var stationType = sp.GetRequiredService<IRepository<StationType>>();
+                        var decisionClassRepo = sp.GetRequiredService<IRepository<DecisionClass>>();
+                        var generationClassRepo = sp.GetRequiredService<IRepository<GenerationClass>>();
+                        var savingClassRepo = sp.GetRequiredService<IRepository<SavingClass>>();
+                        var verificationClassRepo = sp.GetRequiredService<IRepository<VerificationClass>>();
+                        var toolClassRepo = sp.GetRequiredService<IRepository<ToolClass>>();
+                        var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
+                        var templateRepo = sp.GetRequiredService<IRepository<Template>>();
+                        var export = sp.GetRequiredService<ExcelExport>();
+                        var toolversion = sp.GetRequiredService<IRepository<ToolVersion>>();
+                        var operationversion = sp.GetRequiredService<IRepository<OperationVersion>>();
+
+                        return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, export, toolversion, operationversion);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MauiProgram] Fehler bei DB-Service-Registrierung: {ex.Message}");
+                // Services werden nicht registriert - App läuft trotzdem
+            }
+        }
+
+        private static void RegisterSignalRServices(MauiAppBuilder builder)
+        {
+            try
+            {
+                var hubURL = builder.Configuration["SignalR:HubUrl"];
+
+                if (!string.IsNullOrWhiteSpace(hubURL))
+                {
+                    var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
+                    builder.Services.AddSingleton(connection);
+                    builder.Services.AddSingleton<SignalRService>();
+                }
+                else
+                {
+                    // Fallback: Dummy-Services
+                    builder.Services.AddSingleton<HubConnection>(_ => null!);
+                    builder.Services.AddSingleton<SignalRService>(_ => new SignalRService(null!));
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MauiProgram] Fehler bei SignalR-Service-Registrierung: {ex.Message}");
+                // Fallback: Dummy-Services
+                builder.Services.AddSingleton<HubConnection>(_ => null!);
+                builder.Services.AddSingleton<SignalRService>(_ => new SignalRService(null!));
+            }
         }
     }
 }

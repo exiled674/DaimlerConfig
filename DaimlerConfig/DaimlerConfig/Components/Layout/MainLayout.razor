@@ -3,9 +3,11 @@
 
 @inject IConfiguration Configuration
 
+@using DaimlerConfig.Services
+@inject AppStartupValidationService ValidationService
+
 @code {
-    private bool showOnlySettings => 
-        string.IsNullOrWhiteSpace(Configuration.GetConnectionString("DefaultConnection"));
+    private bool showOnlySettings => ValidationService.HasErrors;
 }
 
 @if (showOnlySettings)
@@ -19,6 +21,7 @@
 
     @* Needed for snackbars *@
     <MudSnackbarProvider />
+    
     <Settings />
 }
 else
@@ -41,4 +44,3 @@ else
         </main>
     </div>
 }
-
