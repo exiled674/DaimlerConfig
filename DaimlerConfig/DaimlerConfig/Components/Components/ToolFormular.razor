@@ -356,7 +356,7 @@
             SelectedTool.lockTimestamp = DateTime.Now;
             await Fassade.UpdateTool(SelectedTool);
 
-            await SignalRService.SendMessageToServer("ToolUpdated");
+            await SignalRService.SendMessageToServer($"ToolUpdated;{SelectedTool.toolID}");
             await SignalRService.SendMessageToServer("ToolLocked;" + SelectedTool.toolID.ToString());
             ReadOnly = false;
             StateHasChanged();
@@ -397,7 +397,7 @@
         SelectedTool.lockTimestamp = null;
         await Fassade.UpdateTool(SelectedTool);
 
-        await SignalRService.SendMessageToServer("ToolUpdated");
+        await SignalRService.SendMessageToServer($"ToolUpdated;{SelectedTool.toolID}");
         await SignalRService.SendMessageToServer("ToolUnlocked;" + SelectedTool.toolID.ToString());
 
         ReadOnly = true;

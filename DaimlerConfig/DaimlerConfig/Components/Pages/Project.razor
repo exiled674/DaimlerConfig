@@ -643,40 +643,99 @@
                             break;
                         }
 
-					case var msg when msg.StartsWith("ToolCreated;"):
-						{
-							var parts = msg.Split(';');
-							var toolID = int.Parse(parts[1]);
-							var toolList = tools.ToList();
-							var newTool = await Fassade.GetTool(toolID);
-							if (newTool != null && !toolList.Any(s => s.toolID == toolID))
-							{
-								toolList.Add(newTool);
-								tools = toolList.AsEnumerable();
-								StateHasChanged();
-							}
-							break;
-						}
+                    case var msg when msg.StartsWith("ToolCreated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+                            var toolList = tools.ToList();
+                            var newTool = await Fassade.GetTool(toolID);
+                            if (newTool != null && !toolList.Any(s => s.toolID == toolID))
+                            {
+                                toolList.Add(newTool);
+                                tools = toolList.AsEnumerable();
+                                StateHasChanged();
+                            }
+                            break;
+                        }
 
-					case var msg when msg.StartsWith("ToolDeleted;"):
-						{
-							var parts = msg.Split(';');
-							var toolID = int.Parse(parts[1]);
-							var toolList = tools.ToList();
-							var idx = toolList.FindIndex(s => s.toolID == toolID);
-							if (idx >= 0)
-							{
-								toolList.RemoveAt(idx);
-								tools = toolList.AsEnumerable();
-								if (selectedTool?.toolID == toolID)
-								{
-									selectedTool = null;
-									showToolFormular = false;
-								}
-								StateHasChanged();
-							}
-							break;
-						}
+                    case var msg when msg.StartsWith("ToolDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+                            var toolList = tools.ToList();
+                            var idx = toolList.FindIndex(s => s.toolID == toolID);
+                            if (idx >= 0)
+                            {
+                                toolList.RemoveAt(idx);
+                                tools = toolList.AsEnumerable();
+                                if (selectedTool?.toolID == toolID)
+                                {
+                                    selectedTool = null;
+                                    showToolFormular = false;
+                                }
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("OperationUpdated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = operations.ToList();
+                            var idx = operationList.FindIndex(s => s.operationID == operationID);
+                            if (idx >= 0)
+                            {
+                                var updatedOperation = await Fassade.GetOperation(operationID);
+                                if (updatedOperation != null)
+                                {
+                                    operationList[idx] = updatedOperation;
+                                    operations = operationList.AsEnumerable();
+                                    if (showOperationFormular && selectedOperation?.operationID == operationID)
+                                    {
+                                        selectedOperation = updatedOperation;
+                                    }
+                                    StateHasChanged();
+                                }
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("OperationCreated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = operations.ToList();
+                            var newOperation = await Fassade.GetOperation(operationID);
+                            if (newOperation != null && !operationList.Any(s => s.operationID == operationID))
+                            {
+                                operationList.Add(newOperation);
+                                operations = operationList.AsEnumerable();
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("OperationDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = operations.ToList();
+                            var idx = operationList.FindIndex(s => s.operationID == operationID);
+                            if (idx >= 0)
+                            {
+                                operationList.RemoveAt(idx);
+                                operations = operationList.AsEnumerable();
+                                if (selectedOperation?.operationID == operationID)
+                                {
+                                    selectedOperation = null;
+                                    showOperationFormular = false;
+                                }
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
 
 
 

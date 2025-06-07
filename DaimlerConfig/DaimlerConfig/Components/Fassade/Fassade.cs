@@ -342,6 +342,18 @@ namespace DaimlerConfig.Components.Fassade
             return await OperationRepository.GetOperationsFromTool(toolID);
         }
 
+        public async Task<Operation> GetOperation(int? operationID)
+        {
+            return await OperationRepository.Get(operationID);
+        }
+
+        public async Task<Operation> GetOperationByName(string operationShortname, int toolID)
+        {
+            var operations = await OperationRepository.GetOperationsFromTool(toolID);
+            return operations.FirstOrDefault(o => o.operationShortname != null &&
+                                                  o.operationShortname.Equals(operationShortname, StringComparison.Ordinal));
+        }
+
         public async Task<IEnumerable<Operation>> GetAllOperations()
         {
             return await OperationRepository.GetAll();
