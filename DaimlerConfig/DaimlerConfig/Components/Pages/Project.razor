@@ -580,13 +580,36 @@
                             var stationID = int.Parse(parts[1]);
                             var stationList = stations.ToList();
 
-                            
+
                             var newStation = await Fassade.GetStation(stationID);
                             if (newStation != null && !stationList.Any(s => s.stationID == stationID))
                             {
-                          
+
                                 stationList.Add(newStation);
                                 stations = stationList.AsEnumerable();
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("StationDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+                            var stationList = stations.ToList();
+
+                            var idx = stationList.FindIndex(s => s.stationID == stationID);
+                            if (idx >= 0)
+                            {
+                                stationList.RemoveAt(idx);
+                                stations = stationList.AsEnumerable();
+
+                                if (selectedStation?.stationID == stationID)
+                                {
+                                    selectedStation = null;
+                                    showStationFormular = false;
+                                }
+
                                 StateHasChanged();
                             }
                             break;

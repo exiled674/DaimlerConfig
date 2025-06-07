@@ -150,7 +150,7 @@
 	{
 		if (SelectedStation == null || !await Fassade.DeleteStation(SelectedStation)) return;
 
-		await SignalRService.SendMessageToServer("StationChanged");
+		await SignalRService.SendMessageToServer($"StationDeleted;{SelectedStation.stationID}");
 		await DirtyManagerService.setClean();
 	}
 
