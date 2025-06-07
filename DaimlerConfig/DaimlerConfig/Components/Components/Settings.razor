@@ -522,9 +522,8 @@
     }
 
 
-    private void CloseSomething()
+    private async Task CloseSomething()
     {
-        Console.WriteLine("Close-Button geklickt!");
-        // z. B. Dialog schließen, Komponente ausblenden usw.
+        await OnClosing.InvokeAsync();
     }
 }
