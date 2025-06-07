@@ -123,8 +123,8 @@
 		if (await ValidateData() == false) return;
 		SelectedStation.modifiedBy = DaimlerConfig.MauiProgram.Username;
 		if (!await Fassade.UpdateStation(SelectedStation)) return;
-
-		await SignalRService.SendMessageToServer("StationChanged");
+		var signalStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
+		await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
 		await DirtyManagerService.setClean();
 	}
 

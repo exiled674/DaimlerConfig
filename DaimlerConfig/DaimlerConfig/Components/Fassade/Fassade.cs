@@ -115,6 +115,15 @@ namespace DaimlerConfig.Components.Fassade
             return await StationRepository.Get(stationID);
         }
 
+        public async Task<Station?> GetStationByName(int lineID, string assemblystation)
+        {
+            var stations = await StationRepository.GetStationsFromLine(lineID);
+            return stations.FirstOrDefault(s =>
+                s.assemblystation != null &&
+                s.assemblystation.Equals(assemblystation, StringComparison.Ordinal));
+        }
+
+
         public async Task<bool> UpdateStation(Station station)
         {
             station.lastModified = DateTime.Now;
@@ -320,7 +329,7 @@ namespace DaimlerConfig.Components.Fassade
         {
             var tools = await GetToolsFromStation(stationID);
             return tools.FirstOrDefault(t => t.toolShortname != null &&
-                                             t.toolShortname.Equals(toolShortname, StringComparison.OrdinalIgnoreCase));
+                                             t.toolShortname.Equals(toolShortname, StringComparison.Ordinal));
         }
 
 
