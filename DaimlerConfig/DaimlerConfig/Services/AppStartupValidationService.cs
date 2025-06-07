@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using DaimlerConfig.Security;
+using Microsoft.Data.SqlClient;
 
 namespace DaimlerConfig.Services
 {
@@ -65,6 +66,14 @@ namespace DaimlerConfig.Services
                     {
                         errors.Add("Der Datenbankverbindungsstring enthält keine gültige Datenquelle.");
                     }
+                    else
+                    {
+                        // NEUE PRÜFUNG: Tatsächliche Datenbankverbindung testen
+                        if (!TestDatabaseConnection(connectionString))
+                        {
+                            errors.Add("Die Datenbankverbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Server, Benutzername und Passwort.");
+                        }
+                    }
                 }
                 catch (Exception)
                 {
@@ -87,6 +96,36 @@ namespace DaimlerConfig.Services
             {
                 HasErrors = true;
                 ErrorMessage = string.Join("\n• ", new[] { "Folgende Probleme wurden festgestellt:" }.Concat(errors));
+            }
+        }
+
+        /// <summary>
+        /// Testet die tatsächliche Datenbankverbindung
+        /// </summary>
+        private bool TestDatabaseConnection(string connectionString)
+        {
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                connection.Open();
+
+                // Einfacher Test-Query um sicherzustellen, dass die Verbindung funktioniert
+                using var command = new SqlCommand("SELECT 1", connection);
+                var result = command.ExecuteScalar();
+
+                return result != null;
+            }
+            catch (SqlException sqlEx)
+            {
+                // Spezifische SQL-Fehler loggen für Debugging
+                System.Diagnostics.Debug.WriteLine($"[AppStartupValidation] SQL Fehler: {sqlEx.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // Andere Verbindungsfehler
+                System.Diagnostics.Debug.WriteLine($"[AppStartupValidation] Verbindungsfehler: {ex.Message}");
+                return false;
             }
         }
 

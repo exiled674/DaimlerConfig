@@ -11,7 +11,8 @@
 
 @inject IConfiguration Configuration
 @inject ISnackbar Snackbar
-
+@using DaimlerConfig.Services
+@inject AppStartupValidationService ValidationService
 
 <div class="popup-backdrop">
     <div class="popup-dialog">
@@ -26,6 +27,13 @@
                            Class="popup-close-btn"
                            aria-label="Close" />
         </div>
+
+        @if (ValidationService.HasErrors)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">
+                <MudText>@ValidationService.ErrorMessage</MudText>
+            </MudAlert>
+        }
 
         <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">

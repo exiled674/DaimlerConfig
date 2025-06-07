@@ -122,46 +122,58 @@ namespace DaimlerConfig
 
                 if (!string.IsNullOrWhiteSpace(sqlConnectionString))
                 {
-                    builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
-                        new SqlServerConnectionFactory(sqlConnectionString));
+                    // Prüfung: Validierung durchführen, bevor Services registriert werden
+                    var tempConfig = builder.Configuration;
+                    var tempValidationService = new AppStartupValidationService(tempConfig);
 
-                    builder.Services.AddSingleton<IToolRepository, ToolRepository>();
-                    builder.Services.AddSingleton<IOperationRepository, OperationRepository>();
-                    builder.Services.AddSingleton<IStationRepository, StationRepository>();
-                    builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
-                    builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
-                    builder.Services.AddScoped<IRepository<GenerationClass>, Repository<GenerationClass>>();
-                    builder.Services.AddScoped<IRepository<SavingClass>, Repository<SavingClass>>();
-                    builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
-                    builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
-                    builder.Services.AddScoped<IRepository<ToolVersion>, Repository<ToolVersion>>();
-                    builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
-                    builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
-                    builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
-                    builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
-
-                    builder.Services.AddScoped<ExcelExport, ExcelExport>();
-
-                    builder.Services.AddSingleton<Fassade>(sp =>
+                    // Nur Services registrieren, wenn keine Validierungsfehler vorliegen
+                    if (!tempValidationService.HasErrors)
                     {
-                        var toolRepo = sp.GetRequiredService<IToolRepository>();
-                        var operationRepo = sp.GetRequiredService<IOperationRepository>();
-                        var stationRepo = sp.GetRequiredService<IStationRepository>();
-                        var lineRepo = sp.GetRequiredService<IRepository<Line>>();
-                        var stationType = sp.GetRequiredService<IRepository<StationType>>();
-                        var decisionClassRepo = sp.GetRequiredService<IRepository<DecisionClass>>();
-                        var generationClassRepo = sp.GetRequiredService<IRepository<GenerationClass>>();
-                        var savingClassRepo = sp.GetRequiredService<IRepository<SavingClass>>();
-                        var verificationClassRepo = sp.GetRequiredService<IRepository<VerificationClass>>();
-                        var toolClassRepo = sp.GetRequiredService<IRepository<ToolClass>>();
-                        var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
-                        var templateRepo = sp.GetRequiredService<IRepository<Template>>();
-                        var export = sp.GetRequiredService<ExcelExport>();
-                        var toolversion = sp.GetRequiredService<IRepository<ToolVersion>>();
-                        var operationversion = sp.GetRequiredService<IRepository<OperationVersion>>();
+                        builder.Services.AddSingleton<IDbConnectionFactory>(sp =>
+                            new SqlServerConnectionFactory(sqlConnectionString));
 
-                        return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, export, toolversion, operationversion);
-                    });
+                        builder.Services.AddSingleton<IToolRepository, ToolRepository>();
+                        builder.Services.AddSingleton<IOperationRepository, OperationRepository>();
+                        builder.Services.AddSingleton<IStationRepository, StationRepository>();
+                        builder.Services.AddScoped<IRepository<Line>, Repository<Line>>();
+                        builder.Services.AddScoped<IRepository<StationType>, Repository<StationType>>();
+                        builder.Services.AddScoped<IRepository<GenerationClass>, Repository<GenerationClass>>();
+                        builder.Services.AddScoped<IRepository<SavingClass>, Repository<SavingClass>>();
+                        builder.Services.AddScoped<IRepository<VerificationClass>, Repository<VerificationClass>>();
+                        builder.Services.AddScoped<IRepository<DecisionClass>, Repository<DecisionClass>>();
+                        builder.Services.AddScoped<IRepository<ToolVersion>, Repository<ToolVersion>>();
+                        builder.Services.AddScoped<IRepository<ToolClass>, Repository<ToolClass>>();
+                        builder.Services.AddScoped<IRepository<ToolType>, Repository<ToolType>>();
+                        builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
+                        builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
+
+                        builder.Services.AddScoped<ExcelExport, ExcelExport>();
+
+                        builder.Services.AddSingleton<Fassade>(sp =>
+                        {
+                            var toolRepo = sp.GetRequiredService<IToolRepository>();
+                            var operationRepo = sp.GetRequiredService<IOperationRepository>();
+                            var stationRepo = sp.GetRequiredService<IStationRepository>();
+                            var lineRepo = sp.GetRequiredService<IRepository<Line>>();
+                            var stationType = sp.GetRequiredService<IRepository<StationType>>();
+                            var decisionClassRepo = sp.GetRequiredService<IRepository<DecisionClass>>();
+                            var generationClassRepo = sp.GetRequiredService<IRepository<GenerationClass>>();
+                            var savingClassRepo = sp.GetRequiredService<IRepository<SavingClass>>();
+                            var verificationClassRepo = sp.GetRequiredService<IRepository<VerificationClass>>();
+                            var toolClassRepo = sp.GetRequiredService<IRepository<ToolClass>>();
+                            var toolTypeRepo = sp.GetRequiredService<IRepository<ToolType>>();
+                            var templateRepo = sp.GetRequiredService<IRepository<Template>>();
+                            var export = sp.GetRequiredService<ExcelExport>();
+                            var toolversion = sp.GetRequiredService<IRepository<ToolVersion>>();
+                            var operationversion = sp.GetRequiredService<IRepository<OperationVersion>>();
+
+                            return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo, generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo, export, toolversion, operationversion);
+                        });
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[MauiProgram] Datenbank-Services werden nicht registriert aufgrund von Validierungsfehlern: {tempValidationService.ErrorMessage}");
+                    }
                 }
             }
             catch (Exception ex)
