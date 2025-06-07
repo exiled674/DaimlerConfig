@@ -35,3 +35,13 @@
 .popup-close-btn {
     margin-left: auto;
 }
+
+
+.readonly-field-variant {
+    background-color: #fafafa;
+    border: 1px dashed #e0e0e0;
+}
+
+    .readonly-field-variant .mud-input-root {
+        background-color: #fafafa;
+    }

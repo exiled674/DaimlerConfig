@@ -11,7 +11,7 @@
 
 
 <div class="popup-backdrop">
-        <div class="popup-dialog">
+    <div class="popup-dialog">
 
         <div class="popup-header">
             <MudText Typo="Typo.h5">Settings</MudText>
@@ -24,77 +24,97 @@
                            aria-label="Close" />
         </div>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
-    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-        <MudTabPanel Text="Profile">
-            <MudPaper Class="pa-4" Elevation="1">
-                <MudText Typo="Typo.h6" GutterBottom="true">User Profile</MudText>
-                <MudText Color="Color.Secondary">Profile settings will be available here.</MudText>
-            </MudPaper>
-        </MudTabPanel>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                <MudTabPanel Text="Profile">
+                    <MudPaper Class="pa-4" Elevation="1">
+                        <MudText Typo="Typo.h6" GutterBottom="true">User Profile</MudText>
+                        <MudText Color="Color.Secondary">Profile settings will be available here.</MudText>
+                    </MudPaper>
+                </MudTabPanel>
 
-        <MudTabPanel Text="General">
-            <MudPaper Class="pa-4" Elevation="1">
-                <MudText Typo="Typo.h6" GutterBottom="true">General Settings</MudText>
-                <MudText Color="Color.Secondary">General application settings will be available here.</MudText>
-            </MudPaper>
-        </MudTabPanel>
+                <MudTabPanel Text="General">
+                    <MudPaper Class="pa-4" Elevation="1">
+                        <MudText Typo="Typo.h6" GutterBottom="true">General Settings</MudText>
+                        <MudText Color="Color.Secondary">General application settings will be available here.</MudText>
+                    </MudPaper>
+                </MudTabPanel>
 
-        <MudTabPanel Text="Connection Settings">
-            @if (hasError)
-            {
+                <MudTabPanel Text="Connection Settings">
+                    @if (hasError)
+                    {
                         <MudAlert Severity="Severity.Error" Class="mb-4">
                             <strong>Error:</strong> @errorMessage
                         </MudAlert>
-            }
-            else if (isLoading)
-            {
+                    }
+                    else if (isLoading)
+                    {
                         <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
                         <MudText Class="ml-3">Loading settings...</MudText>
-            }
-            else
-            {
-                        <MudCard Elevation="2">
+                    }
+                    else
+                    {
+                        @if (!isEditMode)
+                        {
+                            <MudAlert Severity="Severity.Info" Class="mb-4" Variant="Variant.Outlined">
+                                <div class="d-flex align-center">
+                                    <MudIcon Icon="Icons.Material.Filled.Info" Class="mr-2" />
+                                    <span>Settings are in read-only mode. Click "Edit Settings" to make changes.</span>
+                                </div>
+                            </MudAlert>
+                        }
+
+                        <MudCard Elevation="2" Class="@(!isEditMode ? "readonly-card" : "")">
                             <MudCardHeader>
                                 <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">Database & Connection Configuration</MudText>
+                                    <div class="d-flex align-center">
+                                        @if (!isEditMode)
+                                        {
+                                            <MudIcon Icon="Icons.Material.Filled.Lock" Size="Size.Small" Class="mr-2" Color="Color.Secondary" />
+                                        }
+                                        <MudText Typo="Typo.h6">Database & Connection Configuration</MudText>
+                                        @if (!isEditMode)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Default" Class="ml-2">Read-Only</MudChip>
+                                        }
+                                    </div>
                                 </CardHeaderContent>
                                 <CardHeaderActions>
-                            @if (!isEditMode)
-                            {
-                                                <MudButton Variant="Variant.Filled" 
-                                                          Color="Color.Primary" 
-                                                          StartIcon="Icons.Material.Filled.Edit"
-                                                          OnClick="EnableEditMode">
-                                                    Edit Settings
-                                                </MudButton>
-                            }
-                            else
-                            {
-                                                <MudButtonGroup Variant="Variant.Filled" Size="Size.Small">
-                                                    <MudButton Color="Color.Success" 
-                                                              StartIcon="Icons.Material.Filled.Save"
-                                                              OnClick="SaveSettings"
-                                                              Disabled="@(!hasUnsavedChanges || isSaving)">
-                                        @if (isSaving)
-                                        {
-                                                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                                        }
-                                                        Save Settings
-                                                    </MudButton>
-                                                    <MudButton Color="Color.Secondary" 
-                                                              StartIcon="Icons.Material.Filled.Refresh"
-                                                              OnClick="ResetChanges"
-                                                              Disabled="@(!hasUnsavedChanges || isSaving)">
-                                                        Reset Changes
-                                                    </MudButton>
-                                                    <MudButton Color="Color.Default" 
-                                                              StartIcon="Icons.Material.Filled.Cancel"
-                                                              OnClick="CancelEdit">
-                                                        Cancel
-                                                    </MudButton>
-                                                </MudButtonGroup>
-                            }
+                                    @if (!isEditMode)
+                                    {
+                                        <MudButton Variant="Variant.Filled"
+                                                   Color="Color.Primary"
+                                                   StartIcon="Icons.Material.Filled.Edit"
+                                                   OnClick="EnableEditMode">
+                                            Edit Settings
+                                        </MudButton>
+                                    }
+                                    else
+                                    {
+                                        <MudButtonGroup Variant="Variant.Filled" Size="Size.Small">
+                                            <MudButton Color="Color.Success"
+                                                       StartIcon="Icons.Material.Filled.Save"
+                                                       OnClick="SaveSettings"
+                                                       Disabled="@(!hasUnsavedChanges || isSaving)">
+                                                @if (isSaving)
+                                                {
+                                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                                }
+                                                Save Settings
+                                            </MudButton>
+                                            <MudButton Color="Color.Secondary"
+                                                       StartIcon="Icons.Material.Filled.Refresh"
+                                                       OnClick="ResetChanges"
+                                                       Disabled="@(!hasUnsavedChanges || isSaving)">
+                                                Reset Changes
+                                            </MudButton>
+                                            <MudButton Color="Color.Default"
+                                                       StartIcon="Icons.Material.Filled.Cancel"
+                                                       OnClick="CancelEdit">
+                                                Cancel
+                                            </MudButton>
+                                        </MudButtonGroup>
+                                    }
                                 </CardHeaderActions>
                             </MudCardHeader>
 
@@ -107,61 +127,77 @@
 
                                     <MudItem xs="12" md="8">
                                         <MudTextField @bind-Value="serverIp"
-                                                     Label="Server IP"
-                                                     Variant="Variant.Outlined"
-                                                     ReadOnly="@(!isEditMode)"
-                                                     OnKeyUp="OnFieldChanged"
-                                                     HelperText="Database server IP address" />
+                                                      Label="Server IP"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      HelperText="Database server IP address"
+                                                      Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
                                     </MudItem>
 
                                     <MudItem xs="12" md="4">
                                         <MudNumericField @bind-Value="port"
-                                                       Label="Port"
-                                                       Variant="Variant.Outlined"
-                                                       ReadOnly="@(!isEditMode)"
-                                                       OnKeyUp="OnFieldChanged"
-                                                       HelperText="Database port number" />
+                                                         Label="Port"
+                                                         Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                         ReadOnly="@(!isEditMode)"
+                                                         OnKeyUp="OnFieldChanged"
+                                                         HelperText="Database port number"
+                                                         Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                         AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                         Class="@(!isEditMode ? "readonly-field-variant" : "")" />
                                     </MudItem>
 
                                     <MudItem xs="12" md="6">
                                         <MudTextField @bind-Value="initialCatalog"
-                                                     Label="Initial Catalog"
-                                                     Variant="Variant.Outlined"
-                                                     ReadOnly="@(!isEditMode)"
-                                                     OnKeyUp="OnFieldChanged"
-                                                     HelperText="Database name" />
+                                                      Label="Initial Catalog"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      HelperText="Database name"
+                                                      Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
                                     </MudItem>
 
                                     <MudItem xs="12" md="6">
                                         <MudTextField @bind-Value="userId"
-                                                     Label="User ID"
-                                                     Variant="Variant.Outlined"
-                                                     ReadOnly="@(!isEditMode)"
-                                                     OnKeyUp="OnFieldChanged"
-                                                     HelperText="Database username" />
+                                                      Label="User ID"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      HelperText="Database username"
+                                                      Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
                                     </MudItem>
 
                                     <MudItem xs="12" md="6">
                                         <MudTextField @bind-Value="password"
-                                                     Label="Password"
-                                                     Variant="Variant.Outlined"
-                                                     InputType="@(showPassword ? InputType.Text : InputType.Password)"
-                                                     ReadOnly="@(!isEditMode)"
-                                                     OnKeyUp="OnFieldChanged"
-                                                     Adornment="Adornment.End"
-                                                     AdornmentIcon="@(showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
-                                                     OnAdornmentClick="TogglePasswordVisibility"
-                                                     AdornmentAriaLabel="Show/Hide Password"
-                                                     HelperText="Database password" />
+                                                      Label="Password"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      InputType="@(showPassword ? InputType.Text : InputType.Password)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      Adornment="Adornment.End"
+                                                      AdornmentIcon="@(isEditMode ? (showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility) : Icons.Material.Filled.Lock)"
+                                                      OnAdornmentClick="@(isEditMode ? TogglePasswordVisibility : null)"
+                                                      AdornmentAriaLabel="@(isEditMode ? "Show/Hide Password" : "Read-only field")"
+                                                      HelperText="Database password"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
                                     </MudItem>
 
                                     <MudItem xs="12" md="6">
                                         <MudNumericField @bind-Value="connectionTimeout"
-                                                       Label="Connection Timeout"
-                                                       Variant="Variant.Outlined"
-                                                       ReadOnly="@(!isEditMode)"
-                                                       OnKeyUp="OnFieldChanged"
-                                                       HelperText="Timeout in seconds" />
+                                                         Label="Connection Timeout"
+                                                         Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                         ReadOnly="@(!isEditMode)"
+                                                         OnKeyUp="OnFieldChanged"
+                                                         HelperText="Timeout in seconds"
+                                                         Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                         AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                         Class="@(!isEditMode ? "readonly-field-variant" : "")" />
                                     </MudItem>
 
                                     <!-- Checkboxes Section -->
@@ -170,39 +206,43 @@
                                     </MudItem>
 
                                     <MudItem xs="12" sm="6" md="3">
-                                        <MudCheckBox T="bool" 
-                                                   Checked="persistSecurityInfo"
-                                                   CheckedChanged="@((bool value) => { persistSecurityInfo = value; OnFieldChanged(); })"
-                                                   Label="Persist Security Info"
-                                                   ReadOnly="@(!isEditMode)"
-                                                   Color="Color.Primary" />
+                                        <MudCheckBox T="bool"
+                                                     Checked="persistSecurityInfo"
+                                                     CheckedChanged="@((bool value) => { persistSecurityInfo = value; OnFieldChanged(); })"
+                                                     Label="Persist Security Info"
+                                                     ReadOnly="@(!isEditMode)"
+                                                     Color="Color.Primary"
+                                                     Class="@(!isEditMode ? "readonly-checkbox" : "")" />
                                     </MudItem>
 
                                     <MudItem xs="12" sm="6" md="3">
-                                        <MudCheckBox T="bool" 
-                                                   Checked="multipleActiveResultSets"
-                                                   CheckedChanged="@((bool value) => { multipleActiveResultSets = value; OnFieldChanged(); })"
-                                                   Label="Multiple Active Result Sets"
-                                                   ReadOnly="@(!isEditMode)"
-                                                   Color="Color.Primary" />
+                                        <MudCheckBox T="bool"
+                                                     Checked="multipleActiveResultSets"
+                                                     CheckedChanged="@((bool value) => { multipleActiveResultSets = value; OnFieldChanged(); })"
+                                                     Label="Multiple Active Result Sets"
+                                                     ReadOnly="@(!isEditMode)"
+                                                     Color="Color.Primary"
+                                                     Class="@(!isEditMode ? "readonly-checkbox" : "")" />
                                     </MudItem>
 
                                     <MudItem xs="12" sm="6" md="3">
-                                        <MudCheckBox T="bool" 
-                                                   Checked="encrypt"
-                                                   CheckedChanged="@((bool value) => { encrypt = value; OnFieldChanged(); })"
-                                                   Label="Encrypt"
-                                                   ReadOnly="@(!isEditMode)"
-                                                   Color="Color.Primary" />
+                                        <MudCheckBox T="bool"
+                                                     Checked="encrypt"
+                                                     CheckedChanged="@((bool value) => { encrypt = value; OnFieldChanged(); })"
+                                                     Label="Encrypt"
+                                                     ReadOnly="@(!isEditMode)"
+                                                     Color="Color.Primary"
+                                                     Class="@(!isEditMode ? "readonly-checkbox" : "")" />
                                     </MudItem>
 
                                     <MudItem xs="12" sm="6" md="3">
-                                        <MudCheckBox T="bool" 
-                                                   Checked="trustServerCertificate"
-                                                   CheckedChanged="@((bool value) => { trustServerCertificate = value; OnFieldChanged(); })"
-                                                   Label="Trust Server Certificate"
-                                                   ReadOnly="@(!isEditMode)"
-                                                   Color="Color.Primary" />
+                                        <MudCheckBox T="bool"
+                                                     Checked="trustServerCertificate"
+                                                     CheckedChanged="@((bool value) => { trustServerCertificate = value; OnFieldChanged(); })"
+                                                     Label="Trust Server Certificate"
+                                                     ReadOnly="@(!isEditMode)"
+                                                     Color="Color.Primary"
+                                                     Class="@(!isEditMode ? "readonly-checkbox" : "")" />
                                     </MudItem>
 
                                     <!-- SignalR Section -->
@@ -213,28 +253,31 @@
 
                                     <MudItem xs="12">
                                         <MudTextField @bind-Value="signalRHubUrl"
-                                                     Label="SignalR Hub URL"
-                                                     Variant="Variant.Outlined"
-                                                     ReadOnly="@(!isEditMode)"
-                                                     OnKeyUp="OnFieldChanged"
-                                                     HelperText="SignalR hub connection URL" />
+                                                      Label="SignalR Hub URL"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      HelperText="SignalR hub connection URL"
+                                                      Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
                                     </MudItem>
                                 </MudGrid>
 
-                        @if (!string.IsNullOrEmpty(statusMessage))
-                        {
-                                            <MudAlert Severity="@(isStatusError ? Severity.Error : Severity.Success)" Class="mt-4">
-                                @statusMessage
-                                            </MudAlert>
-                        }
+                                @if (!string.IsNullOrEmpty(statusMessage))
+                                {
+                                    <MudAlert Severity="@(isStatusError ? Severity.Error : Severity.Success)" Class="mt-4">
+                                        @statusMessage
+                                    </MudAlert>
+                                }
                             </MudCardContent>
                         </MudCard>
-            }
-        </MudTabPanel>
-    </MudTabs>
-</MudContainer>
+                    }
+                </MudTabPanel>
+            </MudTabs>
+        </MudContainer>
 
-</div>
+    </div>
 </div>
 
 
@@ -425,7 +468,10 @@
 
     private void TogglePasswordVisibility()
     {
-        showPassword = !showPassword;
+        if (isEditMode)
+        {
+            showPassword = !showPassword;
+        }
     }
 
     private async Task SaveSettings()
@@ -532,7 +578,7 @@
 
     private async Task CloseSomething()
     {
-        if (isEditMode) return; 
+        if (isEditMode) return;
         await OnClosing.InvokeAsync();
     }
 }
