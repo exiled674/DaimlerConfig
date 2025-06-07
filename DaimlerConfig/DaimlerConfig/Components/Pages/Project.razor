@@ -375,7 +375,7 @@
             selectedTool.isLocked = false;
             selectedTool.lockedBy = null;
             await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer("ToolChanged");
+            await SignalRService.SendMessageToServer("ToolUpdated");
             await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
 
 
@@ -611,6 +611,34 @@
                                 }
 
                                 StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolUpdated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+
+                            var toolList = tools.ToList();
+                            var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                            if (idx >= 0)
+                            {
+
+                                var updatedTool = await Fassade.GetTool(toolID);
+                                if (updatedTool != null)
+                                {
+                                    toolList[idx] = updatedTool;
+                                    tools = toolList.AsEnumerable();
+                                    if (showToolFormular && selectedTool?.toolID == toolID)
+                                    {
+                                        selectedTool = updatedTool;
+
+                                    }
+                                    StateHasChanged();
+                                }
+
                             }
                             break;
                         }
