@@ -56,7 +56,7 @@ namespace DaimlerConfig
 #endif
 
             builder.Configuration.AddEncryptedJsonFile(dateiPfad,
-                optional: false,
+                optional: true,
                 reloadOnChange: true,
                 developmentMode: developmentMode);
 
@@ -121,11 +121,18 @@ namespace DaimlerConfig
             // 3. SignalR konfigurieren aus appsettings.json
             var hubURL = builder.Configuration["SignalR:HubUrl"];
 
-            if (string.IsNullOrWhiteSpace(hubURL))
-                throw new Exception("SignalR-URL konnte nicht aus der Konfiguration geladen werden.");
-
-            var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
-            builder.Services.AddSingleton(connection);
+            if (!string.IsNullOrWhiteSpace(hubURL))
+            {
+                var connection = new HubConnectionBuilder().WithUrl(hubURL).Build();
+                builder.Services.AddSingleton(connection);
+                builder.Services.AddSingleton<SignalRService>();
+            }
+            else
+            {
+                // Kein SignalR verfügbar – Dummy-Service registrieren oder Logging
+                builder.Services.AddSingleton<HubConnection>(_ => null!);
+                builder.Services.AddSingleton<SignalRService>(_ => new SignalRService(null!));
+            }
 
 
             // 4. Lifecycle Event: App schließen abfangen (nur Windows)

@@ -1,18 +1,44 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.Extensions.Configuration
 
-<div class="page">
-    <main>
-        <article class="content">
-            @* Required *@
-<MudThemeProvider />
-<MudPopoverProvider />
+@inject IConfiguration Configuration
 
-            @* Needed for dialogs *@
-<MudDialogProvider />
+@code {
+    private bool showOnlySettings => 
+        string.IsNullOrWhiteSpace(Configuration.GetConnectionString("DefaultConnection"));
+}
 
-            @* Needed for snackbars *@
-<MudSnackbarProvider />
-            @Body
-        </article>
-    </main>
-</div>
+@if (showOnlySettings)
+{
+    @* Required *@
+    <MudThemeProvider />
+    <MudPopoverProvider />
+
+    @* Needed for dialogs *@
+    <MudDialogProvider />
+
+    @* Needed for snackbars *@
+    <MudSnackbarProvider />
+    <Settings />
+}
+else
+{
+    <div class="page">
+        <main>
+            <article class="content">
+                @* Required *@
+                <MudThemeProvider />
+                <MudPopoverProvider />
+
+                @* Needed for dialogs *@
+                <MudDialogProvider />
+
+                @* Needed for snackbars *@
+                <MudSnackbarProvider />
+
+                @Body
+            </article>
+        </main>
+    </div>
+}
+
