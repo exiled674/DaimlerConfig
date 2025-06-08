@@ -41,6 +41,7 @@
 
         <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                
                 <MudTabPanel Text="Profile">
                     <MudPaper Class="pa-6" Elevation="2">
                         <!-- Profile Header with Avatar -->
@@ -51,7 +52,7 @@
                                 @GetUserInitial()
                             </MudAvatar>
                             <MudText Typo="Typo.h5" Class="font-weight-bold text-center">
-                                @(string.IsNullOrWhiteSpace(_newUsername) ? UsernameS.Username : _newUsername)
+                                @GetDisplayUsernameForUI()
                             </MudText>
                         </MudStack>
 
@@ -78,7 +79,7 @@
                                                Color="Color.Primary"
                                                StartIcon="Icons.Material.Filled.Save"
                                                OnClick="ChangeUsername"
-                                               Disabled="@(_newUsername == UsernameS.Username || string.IsNullOrWhiteSpace(_newUsername))">
+                                               Disabled="@(_newUsername == GetDisplayUsername(UsernameS.Username) || string.IsNullOrWhiteSpace(_newUsername))">
                                         Save
                                     </MudButton>
 
@@ -93,8 +94,6 @@
                         </MudCard>
                     </MudPaper>
                 </MudTabPanel>
-
-
 
                 <MudTabPanel Text="General">
                     <MudPaper Class="pa-4" Elevation="1">
@@ -414,32 +413,6 @@
     private List<string> validationErrors = new List<string>();
 
 
-    protected override async Task OnInitializedAsync()
-    {
-        _newUsername = UsernameS.Username;
-
-        await Task.Delay(100);
-
-        try
-        {
-            connectionString = Configuration?.GetConnectionString("DefaultConnection") ?? "";
-            signalRHubUrl = Configuration?["SignalR:HubUrl"] ?? "";
-
-            ParseConnectionString(connectionString);
-            BackupCurrentValues();
-
-            isLoading = false;
-        }
-        catch (Exception ex)
-        {
-            hasError = true;
-            errorMessage = $"Fehler beim Laden der Konfiguration: {ex.Message}";
-            isLoading = false;
-        }
-
-        StateHasChanged();
-    }
-
     private void ParseConnectionString(string connStr)
     {
         if (string.IsNullOrEmpty(connStr)) return;
@@ -688,15 +661,79 @@
         await OnClosing.InvokeAsync();
     }
 
-	#region Username Change Logic
+
+    #region Username Change Logic
 
     private string _newUsername = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Extrahiere nur den Username-Teil (vor dem Semikolon)
+        _newUsername = GetDisplayUsername(UsernameS.Username);
+
+        await Task.Delay(100);
+
+        try
+        {
+            connectionString = Configuration?.GetConnectionString("DefaultConnection") ?? "";
+            signalRHubUrl = Configuration?["SignalR:HubUrl"] ?? "";
+
+            ParseConnectionString(connectionString);
+            BackupCurrentValues();
+
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            hasError = true;
+            errorMessage = $"Fehler beim Laden der Konfiguration: {ex.Message}";
+            isLoading = false;
+        }
+
+        StateHasChanged();
+    }
+
+    private string GetDisplayUsername(string fullUsername)
+    {
+        if (string.IsNullOrWhiteSpace(fullUsername))
+            return "";
+
+        // Extrahiere nur den Teil vor dem Semikolon
+        var semicolonIndex = fullUsername.IndexOf(';');
+        if (semicolonIndex > 0)
+        {
+            return fullUsername.Substring(0, semicolonIndex);
+        }
+
+        return fullUsername;
+    }
+
+    private string GetGuidPart(string fullUsername)
+    {
+        if (string.IsNullOrWhiteSpace(fullUsername))
+            return "";
+
+        // Extrahiere den Teil nach dem Semikolon (die GUID)
+        var semicolonIndex = fullUsername.IndexOf(';');
+        if (semicolonIndex >= 0 && semicolonIndex < fullUsername.Length - 1)
+        {
+            return fullUsername.Substring(semicolonIndex + 1);
+        }
+
+        return "";
+    }
 
     private void ChangeUsername()
     {
         if (!string.IsNullOrWhiteSpace(_newUsername))
         {
-            UsernameS.UpdateUsername(_newUsername);
+            // Kombiniere den neuen Username mit der existierenden GUID
+            var guidPart = GetGuidPart(UsernameS.Username);
+            var newFullUsername = string.IsNullOrWhiteSpace(guidPart)
+                ? _newUsername
+                : $"{_newUsername};{guidPart}";
+
+            UsernameS.UpdateUsername(newFullUsername);
             StateHasChanged();
         }
     }
@@ -704,7 +741,7 @@
     private void ResetToWindowsName()
     {
         UsernameS.ResetToWindowsUsername();
-        _newUsername = UsernameS.Username;
+        _newUsername = GetDisplayUsername(UsernameS.Username);
         StateHasChanged();
     }
 
@@ -716,17 +753,25 @@
 
     private string GetUserInitial()
     {
-        var displayName = string.IsNullOrWhiteSpace(_newUsername) ? UsernameS.Username : _newUsername;
+        var displayName = string.IsNullOrWhiteSpace(_newUsername)
+            ? GetDisplayUsername(UsernameS.Username)
+            : _newUsername;
         return string.IsNullOrWhiteSpace(displayName) ? "U" : displayName[0].ToString().ToUpper();
     }
 
-    
+    // Für die Anzeige des Usernames im HTML
+    private string GetDisplayUsernameForUI()
+    {
+        return string.IsNullOrWhiteSpace(_newUsername)
+            ? GetDisplayUsername(UsernameS.Username)
+            : _newUsername;
+    }
+
     private string GetAvatarStyle()
     {
         return "width: 120px; height: 120px; font-size: 48px; font-weight: bold; " +
                "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;";
     }
-
 
     #endregion
 }
