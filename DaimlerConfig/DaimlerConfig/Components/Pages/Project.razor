@@ -152,19 +152,19 @@
 
                 <!-- Rechte Spalte: Content -->
                 <div class="content-panel flex-fill">
-                    @if (showToolFormular && selectedTool != null)
+                    @if (showToolFormular && toolFormularModel != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@selectedTool"  CurrentUser=@currentUser ToolVersions=@toolVersions />
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@toolFormularModel" CurrentUser=@currentUser ToolVersions=@toolVersions />
                     }
 
-                    @if (showOperationFormular && selectedOperation != null)
+                    @if (showOperationFormular && operationFormularModel != null)
                     {
-                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@selectedOperation"  CurrentUser="@currentUser" OperationVersions=operationVersions />
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@operationFormularModel" CurrentUser="@currentUser" OperationVersions=operationVersions />
                     }
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular @ref="stationFormular" SelectedStation="@stationFormularModel"   />
+                        <StationFormular @ref="stationFormular" SelectedStation="@stationFormularModel" />
                     }
                 </div>
             </main>
@@ -319,6 +319,7 @@
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
+    private Tool? toolFormularModel; // NEU: Separate Kopie für das Formular
     private IEnumerable<ToolVersion> toolVersions = Enumerable.Empty<ToolVersion>();
 
     private bool toolReadOnly = false;
@@ -333,7 +334,7 @@
         }
         else
         {
-            if (selectedTool != null && tool.toolID != selectedTool.toolID ) await UnlockTool();
+            if (selectedTool != null && tool.toolID != selectedTool.toolID) await UnlockTool();
             selectedTool = tool;
             toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != currentUser;
 
@@ -351,16 +352,22 @@
             toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
             StateHasChanged();
         }
-
     }
-    
+
     private async Task ToggleToolFormular(bool isNewTool)
     {
-        if (isNewTool) {
+        if (isNewTool)
+        {
             selectedTool = await CreateDummyTool();
-           
+            toolFormularModel = selectedTool.Clone(); // Kopie für neues Tool
         }
-       
+        else if (selectedTool != null)
+        {
+            // WICHTIG: Kopie erstellen für bestehendes Tool
+            toolFormularModel = selectedTool.Clone();
+            toolFormularModel.toolID = selectedTool.toolID;
+            toolFormularModel.stationID = selectedTool.stationID;
+        }
 
         showToolFormular = true;
         showOperationFormular = false;
@@ -374,11 +381,9 @@
             );
         }
 
-
-
-        StateHasChanged();  
-
+        StateHasChanged();
     }
+
     public async Task UnlockTool()
     {
         if (selectedTool != null && selectedTool.lockedBy == currentUser && selectedTool.isLocked == true)
@@ -388,11 +393,9 @@
             await Fassade.UpdateTool(selectedTool);
             await SignalRService.SendMessageToServer("ToolUpdated");
             await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
-
-
-
         }
     }
+
     public async Task<Tool> CreateDummyTool()
     {
         return new Tool
@@ -409,6 +412,7 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
+    private Operation? operationFormularModel; // NEU: Separate Kopie für das Formular
     private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
@@ -418,10 +422,12 @@
         if (DirtyManagerService.IsDirty().Result)
         {
             showPopup = true;
-        }else
+        }
+        else
         {
             if (selectedOperation != null && selectedOperation.operationID != operation.operationID)
                 await UnlockOperation();
+
             selectedOperation = operation;
             operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
 
@@ -438,13 +444,24 @@
             }
 
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
-            StateHasChanged();  // Aktualisiere den UI-Status
+            StateHasChanged();
         }
     }
+
     private async Task ToggleOperationFormular(bool isNewOperation)
     {
-
-        if (isNewOperation) selectedOperation = await CreateDummyOP();
+        if (isNewOperation)
+        {
+            selectedOperation = await CreateDummyOP();
+            operationFormularModel = selectedOperation.Clone(); // Kopie für neue Operation
+        }
+        else if (selectedOperation != null)
+        {
+            // WICHTIG: Kopie erstellen für bestehende Operation
+            operationFormularModel = selectedOperation.Clone();
+            operationFormularModel.operationID = selectedOperation.operationID;
+            operationFormularModel.toolID = selectedOperation.toolID;
+        }
 
         showOperationFormular = true;
         showToolFormular = false;
@@ -459,8 +476,7 @@
             );
         }
 
-
-        StateHasChanged();  // Aktualisiere den UI-Status
+        StateHasChanged();
     }
 
     public async Task OnOperationClicked(Operation operation, bool isNewOperation)
@@ -468,6 +484,7 @@
         await SelectOperation(operation);
         await ToggleOperationFormular(isNewOperation);
     }
+
     public async Task UnlockOperation()
     {
         if (selectedOperation != null && selectedOperation.lockedBy == currentUser && selectedOperation.isLocked == true)
@@ -479,11 +496,12 @@
             await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
         }
     }
+
     public async Task<Operation> CreateDummyOP()
     {
         return new Operation
             {
-                toolID = selectedTool.toolID,
+                toolID = selectedTool?.toolID,
                 decisionClassID = 1,
                 savingClassID = 1,
                 generationClassID = 1,
@@ -1097,6 +1115,9 @@
                     if (tool != null)
                     {
                         selectedTool = tool;
+                        toolFormularModel = tool.Clone();
+                        toolFormularModel.stationID = selectedTool.stationID;
+						toolFormularModel.toolID = selectedTool.toolID;
                        
                         toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != currentUser;
 
@@ -1106,6 +1127,10 @@
                             if (operation != null && operation.toolID == tool.toolID)
                             {
                                 selectedOperation = operation;
+                                operationFormularModel = operation.Clone();
+                                operationFormularModel.operationID = selectedOperation.operationID;
+								operationFormularModel.toolID = selectedOperation.toolID;
+
                                 operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
 
                                 // Operation-Formular anzeigen
