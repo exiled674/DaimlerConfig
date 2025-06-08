@@ -9,10 +9,10 @@ namespace DaimlerConfig.Components.Models
 {
     public class Station : ICopyable<Station>, IEquatable<Station>
     {
-       
-    
 
-    public int? stationID { get; set; } = 0;
+
+
+        public int? stationID { get; set; } = 0;
 
         public int? lineID { get; set; }
 
@@ -23,6 +23,12 @@ namespace DaimlerConfig.Components.Models
         public int stationTypeID { get; set; }
 
         public DateTime? lastModified { get; set; }
+        
+        public string Comment { get; set; } = "";
+        
+        public Status Status { get; set; } = Status.Undefined;
+
+        public string? modifiedBy { get; set; }
 
         public Station Clone()
         {

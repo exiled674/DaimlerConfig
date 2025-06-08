@@ -8,7 +8,6 @@
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 @using DaimlerConfig.Components.Models
-
 @inject NavigationManager Navigation
 @inject NavigationStateService NavState
 @inject SelectionStateService SelectionState
@@ -16,7 +15,6 @@
 
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
-
 
 <body>
     
@@ -48,10 +46,9 @@
                         <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
 
-
                             <div class="d-flex align-items-center">
-                                <Badge colour="@BadgeColor" />
-                                <span>@station.assemblystation</span>
+                                <Badge colour="@GetBadgeColour(station.Status)"/>
+                                <span class="ms-2">@station.assemblystation</span>
                             </div>
 
                             <div class=" ms-2">
@@ -114,44 +111,43 @@
                             {
                                 <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
                                     <div class="tool-header d-flex justify-content-between align-items-center">
+                                        <button class="btn btn-secondary btn-sm mr-2"@onclick="() =>CycleColour(tool)"><Badge colour="@GetBadgeColour(tool.Status)"/></button>
                                         <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
                                         <div>
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }">+</button>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
                                             @if (selectedTool != null)
                                             {
                                                 if (copiedOperation != null)
                                                 {
-                                                    <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }">Insert Operation</button>
+                                                    <button class="btn btn-primary btn-sm" @onclick="() => { SelectTool(tool); InsertOperation(); }">Insert Operation</button>
                                                 }
                                             }
-
                                             <!-- Drag handle for tools -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                            class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
-                                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                                 class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
+                                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                             </svg>
-
                                         </div>
                                     </div>
-                                    <div class="operation-list">
-                                        @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
-                                        {
-                                            <div class="operation-draggable operation-section d-flex justify-content-between align-items-center">
-                                                <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }">@operation.operationShortname</span>
-                                                <div>
+                                    @if (allOperations.Where(op => op.toolID == tool.toolID).Any())
+                                    {
+                                        <div class="operation-list">
+                                            @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
+                                            {
+                                                <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
+                                                    <button class="btn btn-secondary btn-sm mr-2"@onclick="() =>CycleColour(operation)"><Badge colour="@GetBadgeColour(operation.Status)"/></button>
+                                                    <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false); }">@operation.operationShortname</span>
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
-
                                                     <!-- Drag handle for operations -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
-                                                    class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
-                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                                         class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
+                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                                     </svg>
-
                                                 </div>
-                                            </div>
-                                        }
-                                    </div>
+                                            }
+                                        </div>
+                                    }
                                 </div>
                             }
                         }
@@ -236,7 +232,7 @@
         }
 
 
-        if (operationFormular != null )
+        if (operationFormular != null)
         {
             if (await operationFormular.ValidateData() == true)
             {
@@ -252,7 +248,7 @@
     #endregion
 
     #region SideBar
-    private string BadgeColor = "#006700"; //needs to be implemented
+
     private string SidebarClass { get; set; } = string.Empty;
     private void ToggleSidebar()
     {
@@ -300,8 +296,7 @@
         }
 
     }
-
-
+    
     private void ToggleStationFormular(bool isNewStation)
     {
         if (isNewStation)
@@ -316,16 +311,14 @@
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
-
-
     }
     #endregion
-
-
-
+    
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
+    private IEnumerable<ToolVersion> toolVersions = Enumerable.Empty<ToolVersion>();
+
     private bool toolReadOnly = false;
     private bool showToolFormular = false;
 
@@ -352,16 +345,17 @@
             {
                 SelectionState.SaveSelection(stationID: selectedStation.stationID, toolID: tool.toolID);
             }
-
-            StateHasChanged();  
+            
+            toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
+            StateHasChanged();
         }
 
     }
     private async Task ToggleToolFormular(bool isNewTool)
     {
         if (isNewTool) selectedTool = await CreateDummyTool();
-
-        if (showToolFormular != true) showToolFormular = true;
+        
+        showToolFormular = true;
         showOperationFormular = false;
         showStationFormular = false;
 
@@ -408,19 +402,19 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
+	private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
 
     private async Task SelectOperation(Operation operation)
     {
-        if (DirtyManagerService.IsDirty().Result == true)
+        if (DirtyManagerService.IsDirty().Result)
         {
             showPopup = true;
-            return;
-        }
-        else
+        }else
         {
-            if (selectedOperation != null && selectedOperation.operationID != operation.operationID) await UnlockOperation();
+            if (selectedOperation != null && selectedOperation.operationID != operation.operationID)
+                await UnlockOperation();
             selectedOperation = operation;
             operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != UsernameService.Username;
 
@@ -436,10 +430,9 @@
                 );
             }
 
-
+            operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
             StateHasChanged();  // Aktualisiere den UI-Status
         }
-
     }
     private async Task ToggleOperationFormular(bool isNewOperation)
     {
@@ -493,18 +486,21 @@
         UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
         LifecycleService.OnAppClosing += HandleAppClosingAsync;
         SignalRService.RegisterResponseHandler(async (string msg) =>
+    {
+        await InvokeAsync(async () =>
         {
-            await InvokeAsync(async () =>
+            if (msg.StartsWith("OperationUnlocked"))
             {
-                if (msg.StartsWith("OperationUnlocked"))
+                var operationID = int.Parse(msg.Split(';')[1]);
+                if ( selectedOperation != null && selectedOperation?.operationID == operationID)
                 {
-                    var operationID = int.Parse(msg.Split(';')[1]);
-                    if (selectedOperation != null && selectedOperation?.operationID == operationID)
-                    {
-                        operationReadOnly = false;
-                    }
+                    operationReadOnly = false;
                 }
-                else if (msg.StartsWith("OperationLocked"))
+            }
+            else if (msg.StartsWith("OperationLocked"))
+            {
+                var operationID = int.Parse(msg.Split(';')[1]);
+                if ( selectedOperation != null && selectedOperation?.lockedBy != currentUser && selectedOperation.operationID == operationID)
                 {
                     var operationID = int.Parse(msg.Split(';')[1]);
                     if (selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
@@ -512,105 +508,105 @@
                         operationReadOnly = true;
                     }
                 }
-
-                if (msg.StartsWith("ToolUnlocked"))
+            }
+            if (msg.StartsWith("ToolUnlocked"))
+            {
+                var toolID = int.Parse(msg.Split(';')[1]);
+                if (selectedTool != null && selectedTool?.toolID == toolID)
                 {
-                    var toolID = int.Parse(msg.Split(';')[1]);
-                    if (selectedTool != null && selectedTool?.toolID == toolID)
-                    {
-                        toolReadOnly = false;
-                    }
+                    toolReadOnly = false;
                 }
-                else if (msg.StartsWith("ToolLocked"))
+            }
+            else if (msg.StartsWith("ToolLocked"))
+            {
+                var toolID = int.Parse(msg.Split(';')[1]);
+                if (selectedTool != null && selectedTool?.lockedBy != UsernameService.Username && selectedTool.toolID == toolID)
                 {
-                    var toolID = int.Parse(msg.Split(';')[1]);
-                    if (selectedTool != null && selectedTool?.lockedBy != UsernameService.Username && selectedTool.toolID == toolID)
-                    {
-                        toolReadOnly = true;
-                    }
+                    toolReadOnly = true;
                 }
-                else if (msg.StartsWith("ToolClassChanged"))
+            }
+            else if (msg.StartsWith("ToolClassChanged"))
+            {
+                var id = int.Parse(msg.Split(';')[1]);
+                if (selectedTool != null)
                 {
-                    var id = int.Parse(msg.Split(';')[1]);
-                    if (selectedTool != null)
-                    {
-                        var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                    }
+                    var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                }
 
-                    if (operations != null)
+                if (operations != null)
+                {
+                    foreach (var op in operations)
                     {
-                        foreach (var op in operations)
+                        op.decisionClassID = 1;
+                        op.verificationClassID = 0;
+                        op.savingClassID = 0;
+                        op.generationClassID = 0;
+                        await Fassade.UpdateOperation(op);
+                    }
+                    await SignalRService.SendMessageToServer("OperationChanged");
+                }
+            }
+            else
+            {
+                switch (msg)
+                {
+                    case "StationChanged":
+                        if (line != null)
                         {
-                            op.decisionClassID = 1;
-                            op.verificationClassID = 0;
-                            op.savingClassID = 0;
-                            op.generationClassID = 0;
-                            await Fassade.UpdateOperation(op);
-                        }
-                        await SignalRService.SendMessageToServer("OperationChanged");
-                    }
-                }
-                else
-                {
-                    switch (msg)
-                    {
-                        case "StationChanged":
-                            if (line != null)
-                            {
-                                stations = await Fassade.GetStationsFromLine(line.lineID);
-                                if (selectedStation != null)
-                                {
-                                    selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
-                                }
-                            }
-                            break;
-                        case "ToolChanged":
+                            stations = await Fassade.GetStationsFromLine(line.lineID);
                             if (selectedStation != null)
                             {
-                                tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
-                                if (selectedTool != null)
-                                {
-                                    selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
-                                }
+                                // Hole die aktualisierte Station aus der Datenbank
+                                selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
                             }
-                            break;
-                        case "OperationChanged":
+                        }
+                        break;
+                    case "ToolChanged":
+                        if (selectedStation != null)
+                        {
+                            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
                             if (selectedTool != null)
                             {
-                                operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                                if (selectedOperation != null)
-                                {
-                                    selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
-                                }
+                                // Aktualisiere das ausgewÃ¤hlte Tool aus der neuen Liste
+                                selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
                             }
-                            allOperations = await Fassade.GetAllOperations();
-                            break;
-                        case "LineDeleted":
-
-                            if (line != null)
+                        }
+                        break;
+                    case "OperationChanged":
+                        if (selectedTool != null)
+                        {
+                            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                            if (selectedOperation != null)
                             {
-                                var stillExists = await Fassade.GetLineByName(lineName);
-                                if (stillExists == null)
-                                {
-
-                                    NavState.SetCurrentRoute("/");
-                                    Navigation.NavigateTo("/", replace: true);
-                                    return;
-                                }
+                                // Aktualisiere die ausgewÃ¤hlte Operation aus der neuen Liste
+                                selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
                             }
-                            break;
-                    }
+                        }
+                        allOperations = await Fassade.GetAllOperations();
+                        break;
+                    case "LineDeleted":
+
+                        if (line != null)
+                        {
+                            var stillExists = await Fassade.GetLineByName(lineName);
+                            if (stillExists == null)
+                            {
+
+                                NavState.SetCurrentRoute("/");
+                                Navigation.NavigateTo("/", replace: true);
+                                return;
+                            }
+                        }
+                        break;
                 }
-                StateHasChanged();
-            });
+            }
+            StateHasChanged();
         });
-
-
+    });
+        // 2) Starte die Verbindung
         await SignalRService.StartConnectionAsync();
 
-
         line = await Fassade.GetLineByName(lineName);
-
 
         if (line == null)
         {
@@ -619,19 +615,24 @@
             Navigation.NavigateTo("/", replace: true);
             return;
         }
-
-
+        
         stations = await Fassade.GetStationsFromLine(line.lineID);
         if (stations != null)
         {
-            allOperations = await Fassade.GetAllOperations();
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+            if (stations != null)
+            {
+                allOperations = await Fassade.GetAllOperations();
+                foreach (var station in stations)
+                {
+                    station.Status = await GetStationBadgeColourAsync(station);
+                }
+            }
             await RestoreSavedSelection();
         }
-
-
+        
         NavState.SetCurrentRoute($"/line/{lineName}");
     }
-
 
     #region Clone
     private Tool? copiedTool;
@@ -785,6 +786,76 @@
     }
     #endregion
 
+    #region Badge
+    
+    private static string GetBadgeColour(Status status)
+    {
+        return status switch
+        {
+            Status.Green => "green",
+            Status.Red => "red",
+            Status.Yellow => "yellow",
+            _ => "gray"
+        };
+    }
+    private async Task<Status> GetStationBadgeColourAsync(Station station)
+    {
+        var worstStatus = Status.Undefined;
+        var toolsList = (await Fassade.GetToolsFromStation(station.stationID)).ToList();
+        var map = toolsList
+                .GroupBy(op => op.Status)
+                .ToDictionary(g => g.Key, g => g.Count());
+        
+        if (map.TryGetValue(Status.Red, out var redCount) && redCount >= 1)
+            worstStatus = Status.Red;
+        else if (map.TryGetValue(Status.Yellow, out var yellowCount) && yellowCount >= 1)
+            worstStatus = Status.Yellow;
+        else if (map.TryGetValue(Status.Green, out var greenCount) && greenCount == toolsList.Count)
+            worstStatus = Status.Green;
+        else
+            worstStatus = Status.Undefined;
+        return worstStatus;
+    }
+
+
+    private async Task CycleColour(Operation o)
+    {
+        o.Status = o.Status switch
+        {
+            Status.Green   => Status.Undefined,
+            Status.Yellow  => Status.Green,
+            Status.Red     => Status.Yellow,
+            _              => Status.Red
+        };
+        if (!await Fassade.UpdateOperation(o))
+            return;
+        StateHasChanged();
+    }
+    private async Task CycleColour(Tool t)
+    {
+        t.Status = t.Status switch
+        {
+            Status.Green   => Status.Undefined,
+            Status.Yellow  => Status.Green,
+            Status.Red     => Status.Yellow,
+            _              => Status.Red
+        };
+        if (!await Fassade.UpdateTool(t))
+            return;
+        if (selectedStation != null)
+        {
+            selectedStation.Status = await GetStationBadgeColourAsync(selectedStation);
+            var stationToUpdate = stations.FirstOrDefault(s => s.stationID == t.stationID);
+            if (stationToUpdate != null)
+            {
+                stationToUpdate.Status = await GetStationBadgeColourAsync(stationToUpdate);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    #endregion
 
     #region Restore Selection
 
@@ -797,7 +868,7 @@
             var station = stations.FirstOrDefault(s => s.stationID == savedSelection.StationID.Value);
             if (station != null)
             {
-                // Station ohne UI-Interaktion auswählen
+
                 selectedStation = station;
                 tools = await Fassade.GetToolsFromStation(station.stationID);
 
@@ -825,7 +896,7 @@
                         }
                         else
                         {
-                            // Nur Tool ausgewählt
+
                             selectedOperation = await CreateDummyOP();
 
                             // Tool-Formular anzeigen
@@ -837,7 +908,7 @@
                 }
                 else
                 {
-                    // Nur Station ausgewählt
+
                     selectedTool = await CreateDummyTool();
                     selectedOperation = await CreateDummyOP();
 
@@ -878,3 +949,4 @@
     }
 
 }
+

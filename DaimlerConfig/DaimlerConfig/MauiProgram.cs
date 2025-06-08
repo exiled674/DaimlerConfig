@@ -50,6 +50,7 @@ namespace DaimlerConfig
             bool developmentMode = false;
 #if DEBUG
             developmentMode = false; // In Debug-Builds Verschlüsselung deaktivieren
+
 #endif
 
             builder.Configuration.AddEncryptedJsonFile(dateiPfad,
@@ -73,7 +74,6 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<SelectionStateService>();
             builder.Services.AddScoped<SettingsValidationService>();
             builder.Services.AddSingleton<UsernameService>();
-
 
             builder.Services.AddMudServices();
 

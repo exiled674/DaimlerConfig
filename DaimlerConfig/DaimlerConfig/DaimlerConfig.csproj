@@ -74,4 +74,8 @@
         <PackageReference Include="MudBlazor" Version="8.7.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\JSFolder\" />
+    </ItemGroup>
+
 </Project>

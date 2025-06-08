@@ -37,12 +37,17 @@ namespace DaimlerConfig.Components.Models
 
         public DateTime? lastModified { get; set; }
 
+        public string? modifiedBy { get; set; }
+
         public bool? isLocked {  get; set; }
 
         public string? lockedBy { get; set; }
 
         public DateTime? lockTimestamp { get; set; }
 
+        public string Comment { get; set; } = "";
+
+        public Status Status { get; set; } = Status.Undefined;
 
         public Tool Clone()
         {
@@ -67,7 +72,8 @@ namespace DaimlerConfig.Components.Models
                 && string.Equals(dbNoReceive, other.dbNoReceive, StringComparison.Ordinal)
                 && preCheckByte == other.preCheckByte
                 && string.Equals(addressSendDB, other.addressSendDB, StringComparison.Ordinal)
-                && string.Equals(addressReceiveDB, other.addressReceiveDB, StringComparison.Ordinal);
+                && string.Equals(addressReceiveDB, other.addressReceiveDB, StringComparison.Ordinal)
+                && string.Equals(modifiedBy, other.modifiedBy, StringComparison.Ordinal);
         }
 
 

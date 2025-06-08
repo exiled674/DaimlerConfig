@@ -32,9 +32,9 @@ namespace DaimlerConfig.Components.Models
                 addressReceiveDB = tool.addressReceiveDB,
                 isLocked = tool.isLocked,
                 lockedBy = tool.lockedBy,
-                
+                lastModified = tool.lastModified,
                 lockTimestamp = tool.lockTimestamp,
-               
+                modifiedBy = tool.modifiedBy
             };
         }
     }
