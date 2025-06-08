@@ -14,6 +14,8 @@
 @using DaimlerConfig.Services
 @inject AppStartupValidationService ValidationService
 @inject SettingsValidationService SettingsValidation
+@inject UsernameService UsernameS
+
 
 
 <div class="popup-backdrop">
@@ -42,6 +44,11 @@
                 <MudTabPanel Text="Profile">
                     <MudPaper Class="pa-4" Elevation="1">
                         <MudText Typo="Typo.h6" GutterBottom="true">User Profile</MudText>
+                        <p>Current Username: @UsernameS.Username</p>
+                        <input @bind="@_newUsername" placeholder="Enter new username" />
+                        <button @onclick="ChangeUsername">Save</button>
+                        <br />
+                        <button @onclick="ResetToWindowsName">Zurücksetzen auf Windows-Benutzernamen</button>
                         <MudText Color="Color.Secondary">Profile settings will be available here.</MudText>
                     </MudPaper>
                 </MudTabPanel>
@@ -363,6 +370,7 @@
     private bool isValidating = false;
     private List<string> validationErrors = new List<string>();
 
+
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(100);
@@ -634,4 +642,18 @@
         if (isEditMode) return;
         await OnClosing.InvokeAsync();
     }
+
+	#region Username Change Logic
+    
+    private string _newUsername = "";
+    private void ChangeUsername()
+    {
+        UsernameS.UpdateUsername(_newUsername);
+    }
+
+    private void ResetToWindowsName()
+    {
+        UsernameS.ResetToWindowsUsername();
+    }
+    #endregion
 }

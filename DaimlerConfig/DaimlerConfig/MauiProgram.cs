@@ -72,6 +72,8 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<AppLifecycleService>();
             builder.Services.AddSingleton<SelectionStateService>();
             builder.Services.AddScoped<SettingsValidationService>();
+            builder.Services.AddSingleton<UsernameService>();
+
 
             builder.Services.AddMudServices();
 
