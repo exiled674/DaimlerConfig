@@ -42,16 +42,59 @@
         <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
                 <MudTabPanel Text="Profile">
-                    <MudPaper Class="pa-4" Elevation="1">
-                        <MudText Typo="Typo.h6" GutterBottom="true">User Profile</MudText>
-                        <p>Current Username: @UsernameS.Username</p>
-                        <input @bind="@_newUsername" placeholder="Enter new username" />
-                        <button @onclick="ChangeUsername">Save</button>
-                        <br />
-                        <button @onclick="ResetToWindowsName">Zurücksetzen auf Windows-Benutzernamen</button>
-                        <MudText Color="Color.Secondary">Profile settings will be available here.</MudText>
+                    <MudPaper Class="pa-6" Elevation="2">
+                        <!-- Profile Header with Avatar -->
+                        <MudStack Spacing="4" Class="mb-6 d-flex align-center justify-center">
+                            <MudAvatar Size="Size.Large"
+                                       Class="profile-avatar"
+                                       Style="@GetAvatarStyle()">
+                                @GetUserInitial()
+                            </MudAvatar>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold text-center">
+                                @(string.IsNullOrWhiteSpace(_newUsername) ? UsernameS.Username : _newUsername)
+                            </MudText>
+                        </MudStack>
+
+                        <MudDivider Class="mb-6" />
+
+                        <!-- Username Section -->
+                        <MudCard Elevation="0" Class="pa-4 mb-4" Style="background-color: var(--mud-palette-background-grey);">
+                            <MudCardContent>
+                                <MudText Typo="Typo.h6" Class="mb-3 d-flex align-center">
+                                    <MudIcon Icon="Icons.Material.Filled.Person" Class="mr-2" />
+                                    Username Settings
+                                </MudText>
+
+                                <MudStack Direction="Row" Spacing="2" AlignItems="AlignItems.Center" Class="flex-wrap mb-3">
+                                    <MudTextField @bind-Value="_newUsername"
+                                                  Label="Username"
+                                                  Placeholder="Enter your username"
+                                                  Variant="Variant.Outlined"
+                                                  Style="min-width: 250px; max-width: 400px;"
+                                                  @oninput="OnUsernameInput"
+                                                  HelperText="Your display name for the application" />
+
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="Color.Primary"
+                                               StartIcon="Icons.Material.Filled.Save"
+                                               OnClick="ChangeUsername"
+                                               Disabled="@(_newUsername == UsernameS.Username || string.IsNullOrWhiteSpace(_newUsername))">
+                                        Save
+                                    </MudButton>
+
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Secondary"
+                                               StartIcon="Icons.Material.Filled.Refresh"
+                                               OnClick="ResetToWindowsName">
+                                        Reset
+                                    </MudButton>
+                                </MudStack>
+                            </MudCardContent>
+                        </MudCard>
                     </MudPaper>
                 </MudTabPanel>
+
+
 
                 <MudTabPanel Text="General">
                     <MudPaper Class="pa-4" Elevation="1">
@@ -373,6 +416,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _newUsername = UsernameS.Username;
+
         await Task.Delay(100);
 
         try
@@ -644,16 +689,44 @@
     }
 
 	#region Username Change Logic
-    
+
     private string _newUsername = "";
+
     private void ChangeUsername()
     {
-        UsernameS.UpdateUsername(_newUsername);
+        if (!string.IsNullOrWhiteSpace(_newUsername))
+        {
+            UsernameS.UpdateUsername(_newUsername);
+            StateHasChanged();
+        }
     }
 
     private void ResetToWindowsName()
     {
         UsernameS.ResetToWindowsUsername();
+        _newUsername = UsernameS.Username;
+        StateHasChanged();
     }
+
+    private void OnUsernameInput(ChangeEventArgs e)
+    {
+        _newUsername = e.Value?.ToString() ?? "";
+        StateHasChanged(); // Trigger re-render to update avatar
+    }
+
+    private string GetUserInitial()
+    {
+        var displayName = string.IsNullOrWhiteSpace(_newUsername) ? UsernameS.Username : _newUsername;
+        return string.IsNullOrWhiteSpace(displayName) ? "U" : displayName[0].ToString().ToUpper();
+    }
+
+    
+    private string GetAvatarStyle()
+    {
+        return "width: 120px; height: 120px; font-size: 48px; font-weight: bold; " +
+               "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;";
+    }
+
+
     #endregion
 }

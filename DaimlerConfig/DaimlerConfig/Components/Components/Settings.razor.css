@@ -45,3 +45,16 @@
     .readonly-field-variant .mud-input-root {
         background-color: #fafafa;
     }
+
+
+
+.profile-avatar {
+    transition: transform 0.25s ease, box-shadow 0.3s ease;
+    border-radius: 50%;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+    .profile-avatar:hover {
+        transform: scale(1.06);
+        box-shadow: 0 10px 32px rgba(102, 126, 234, 0.45);
+    }
