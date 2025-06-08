@@ -221,8 +221,13 @@
     {
         ResetValidationState();
 
-        if (!await DirtyManagerService.CheckIfDirty(SelectedTool, OriginalTool))
-            return;
+       // if (!await DirtyManagerService.CheckIfDirty(SelectedTool, OriginalTool))
+            //return;
+		var dbTool = await Fassade.GetTool(SelectedTool.toolID.Value);
+		if (dbTool.Equals(SelectedTool))
+		{
+			return;
+		}
 
         if (await ValidateData() == false)
             return;

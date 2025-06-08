@@ -164,7 +164,7 @@
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular @ref="stationFormular" SelectedStation="@selectedStation"   />
+                        <StationFormular @ref="stationFormular" SelectedStation="@stationFormularModel"   />
                     }
                 </div>
             </main>
@@ -292,22 +292,28 @@
         }
 
     }
+    private Station? stationFormularModel;
 
     private void ToggleStationFormular(bool isNewStation)
     {
         if (isNewStation)
         {
             selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
-
-            selectedTool = null;
-            selectedOperation = null;
-            tools = Enumerable.Empty<Tool>();
-            allOperations = Enumerable.Empty<Operation>();
+            stationFormularModel = selectedStation.Clone();
+            stationFormularModel.lineID = selectedStation.lineID;
+        }
+        else if (selectedStation != null)
+        {
+            // Kopie erstellen!
+            stationFormularModel = selectedStation.Clone();
+            stationFormularModel.stationID = selectedStation.stationID;
+            stationFormularModel.lineID = selectedStation.lineID;
         }
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
     }
+
     #endregion
 
     #region Tools
@@ -347,9 +353,14 @@
         }
 
     }
+    
     private async Task ToggleToolFormular(bool isNewTool)
     {
-        if (isNewTool) selectedTool = await CreateDummyTool();
+        if (isNewTool) {
+            selectedTool = await CreateDummyTool();
+           
+        }
+       
 
         showToolFormular = true;
         showOperationFormular = false;
@@ -878,7 +889,7 @@
             await Fassade.AddOperation(operation);
             await SignalRService.SendMessageToServer("OperationChanged");
         }
-       
+
         await DirtyManagerService.setClean();
 
 
@@ -992,7 +1003,7 @@
     #endregion
 
     #region Badge
-    
+
     private static string GetBadgeColour(Status status)
     {
         return status switch
@@ -1010,7 +1021,7 @@
         var map = toolsList
                 .GroupBy(op => op.Status)
                 .ToDictionary(g => g.Key, g => g.Count());
-        
+
         if (map.TryGetValue(Status.Red, out var redCount) && redCount >= 1)
             worstStatus = Status.Red;
         else if (map.TryGetValue(Status.Yellow, out var yellowCount) && yellowCount >= 1)
@@ -1075,6 +1086,9 @@
             {
 
                 selectedStation = station;
+                stationFormularModel = station.Clone();
+                stationFormularModel.lineID = selectedStation.lineID;
+                stationFormularModel.stationID = selectedStation.stationID;
                 tools = await Fassade.GetToolsFromStation(station.stationID);
 
                 if (savedSelection.ToolID.HasValue)
@@ -1083,6 +1097,7 @@
                     if (tool != null)
                     {
                         selectedTool = tool;
+                       
                         toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != currentUser;
 
                         if (savedSelection.OperationID.HasValue)
