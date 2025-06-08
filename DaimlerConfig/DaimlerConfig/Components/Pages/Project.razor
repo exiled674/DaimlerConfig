@@ -693,7 +693,7 @@
                         {
                             var parts = msg.Split(';');
                             var operationID = int.Parse(parts[1]);
-                            var operationList = operations.ToList();
+                            var operationList = allOperations.ToList();
                             var idx = operationList.FindIndex(s => s.operationID == operationID);
                             if (idx >= 0)
                             {
@@ -701,7 +701,7 @@
                                 if (updatedOperation != null)
                                 {
                                     operationList[idx] = updatedOperation;
-                                    operations = operationList.AsEnumerable();
+                                    allOperations = operationList.AsEnumerable();
                                     if (showOperationFormular && selectedOperation?.operationID == operationID)
                                     {
                                         selectedOperation = updatedOperation;
@@ -716,12 +716,12 @@
                         {
                             var parts = msg.Split(';');
                             var operationID = int.Parse(parts[1]);
-                            var operationList = operations.ToList();
+                            var operationList = allOperations.ToList();
                             var newOperation = await Fassade.GetOperation(operationID);
                             if (newOperation != null && !operationList.Any(s => s.operationID == operationID))
                             {
                                 operationList.Add(newOperation);
-                                operations = operationList.AsEnumerable();
+                                allOperations = operationList.AsEnumerable();
                                 StateHasChanged();
                             }
                             break;
@@ -731,12 +731,12 @@
                         {
                             var parts = msg.Split(';');
                             var operationID = int.Parse(parts[1]);
-                            var operationList = operations.ToList();
+                            var operationList = allOperations.ToList();
                             var idx = operationList.FindIndex(s => s.operationID == operationID);
                             if (idx >= 0)
                             {
                                 operationList.RemoveAt(idx);
-                                operations = operationList.AsEnumerable();
+                                allOperations = operationList.AsEnumerable();
                                 if (selectedOperation?.operationID == operationID)
                                 {
                                     selectedOperation = null;

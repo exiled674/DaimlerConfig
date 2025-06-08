@@ -66,8 +66,12 @@ namespace DaimlerConfig.Components.Models
                 && savingClassID == other.savingClassID
                 && parallel == other.parallel
                 && qGateID == other.qGateID
-                && string.Equals(modifiedBy, other.modifiedBy, StringComparison.Ordinal);
+                && Nullable.Equals(lastModified, other.lastModified)
+                && string.Equals(modifiedBy, other.modifiedBy, StringComparison.Ordinal)
+                && string.Equals(Comment, other.Comment, StringComparison.Ordinal)
+                && Status == other.Status;
         }
+
 
     }
 

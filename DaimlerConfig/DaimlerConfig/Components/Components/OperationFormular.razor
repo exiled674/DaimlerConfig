@@ -198,7 +198,7 @@
     private IEnumerable<VerificationClass> verificationClasses = Enumerable.Empty<VerificationClass>();
 
     private IEnumerable<GenerationClass> generationClasses = Enumerable.Empty<GenerationClass>();
-    
+
     private IEnumerable<ToolTypeHasTemplate> toolTypeHasTemplates = Enumerable.Empty<ToolTypeHasTemplate>();
 
     protected override async Task OnParametersSetAsync()
@@ -214,9 +214,9 @@
             if(currentTool != null)
             {
                 var toolTypeId = currentTool?.toolTypeID ?? 0;
-                
+
                 toolTypeHasTemplates = await Fassade.ToolTypeHasTemplateRepository.Find(t=>t.ToolTypeId ==toolTypeId);
-                
+
                 currentTemplates.Clear();
                 foreach (var toolTypeHasTemplate in toolTypeHasTemplates)
                 {
@@ -224,7 +224,7 @@
                 }
             }
             await InitializeClasses();
-			OperationVersions = await Fassade.GetOperationVersions(SelectedOperation.operationID.Value);
+            OperationVersions = await Fassade.GetOperationVersions(SelectedOperation.operationID.Value);
             StateHasChanged();
         }
     }
@@ -235,8 +235,14 @@
         ResetValidationState();
 
 
-        if (!await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation))
+        //if (!await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation))
+        //return;
+
+        var dbOperation = await Fassade.GetOperation(SelectedOperation.operationID);
+        if (dbOperation.Equals(SelectedOperation))
+        {
             return;
+        }
 
 
 
