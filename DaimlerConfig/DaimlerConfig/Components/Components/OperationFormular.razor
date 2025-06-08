@@ -356,8 +356,8 @@
 			SelectedOperation.lockTimestamp = DateTime.Now;
             await Fassade.UpdateOperation(SelectedOperation);
             
-            await SignalRService.SendMessageToServer($"OperationUpdated;{SelectedOperation.operationID}");
-            await SignalRService.SendMessageToServer("OperationLocked;" + SelectedOperation.operationID.ToString());
+           
+            await SignalRService.SendMessageToServer($"OperationLocked;{SelectedOperation.operationID}");
             ReadOnly = false;
 			StateHasChanged();
 			StartUnlockTimer();
@@ -399,8 +399,8 @@
         SelectedOperation.lockTimestamp = null;
         await Fassade.UpdateOperation(SelectedOperation);
 
-        await SignalRService.SendMessageToServer($"OperationUpdated;{SelectedOperation.operationID}");
-        await SignalRService.SendMessageToServer("OperationUnlocked;" + SelectedOperation.operationID.ToString());
+        
+        await SignalRService.SendMessageToServer($"OperationUnlocked;{SelectedOperation.operationID}");
 
         ReadOnly = true;
         StateHasChanged();
