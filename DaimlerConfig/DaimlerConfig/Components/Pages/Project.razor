@@ -500,7 +500,7 @@
             else if (msg.StartsWith("OperationLocked"))
             {
                 var operationID = int.Parse(msg.Split(';')[1]);
-                if ( selectedOperation != null && selectedOperation?.lockedBy != currentUser && selectedOperation.operationID == operationID)
+                if ( selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
                 {
                     var operationID = int.Parse(msg.Split(';')[1]);
                     if (selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
