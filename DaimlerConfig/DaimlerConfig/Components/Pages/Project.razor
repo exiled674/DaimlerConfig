@@ -336,6 +336,9 @@
         {
             if (selectedTool != null && tool.toolID != selectedTool.toolID) await UnlockTool();
             selectedTool = tool;
+            toolFormularModel = selectedTool.Clone();
+            toolFormularModel.toolID = selectedTool.toolID;
+            toolFormularModel.stationID = selectedTool.stationID;
             toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != currentUser;
 
             await UnlockOperation();
@@ -537,7 +540,30 @@
             }
             if (msg.StartsWith("ToolUnlocked"))
             {
-                var toolID = int.Parse(msg.Split(';')[1]);
+                var parts = msg.Split(';');
+                var toolID = int.Parse(parts[1]);
+
+                var toolList = tools.ToList();
+                var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                if (idx >= 0)
+                {
+
+                    var updatedTool = await Fassade.GetTool(toolID);
+                    if (updatedTool != null)
+                    {
+                        toolList[idx] = updatedTool;
+                        tools = toolList.AsEnumerable();
+                        if (showToolFormular && selectedTool?.toolID == toolID)
+                        {
+                            selectedTool = updatedTool;
+
+                        }
+                        StateHasChanged();
+                    }
+
+                }
+                
                 if (selectedTool != null && selectedTool?.toolID == toolID)
                 {
                     toolReadOnly = false;
@@ -545,7 +571,30 @@
             }
             else if (msg.StartsWith("ToolLocked"))
             {
-                var toolID = int.Parse(msg.Split(';')[1]);
+                var parts = msg.Split(';');
+                var toolID = int.Parse(parts[1]);
+
+                var toolList = tools.ToList();
+                var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                if (idx >= 0)
+                {
+
+                    var updatedTool = await Fassade.GetTool(toolID);
+                    if (updatedTool != null)
+                    {
+                        toolList[idx] = updatedTool;
+                        tools = toolList.AsEnumerable();
+                        if (showToolFormular && selectedTool?.toolID == toolID)
+                        {
+                            selectedTool = updatedTool;
+
+                        }
+                        StateHasChanged();
+                    }
+
+                }
+               
                 if (selectedTool != null && selectedTool?.lockedBy != currentUser && selectedTool.toolID == toolID)
                 {
                     toolReadOnly = true;
