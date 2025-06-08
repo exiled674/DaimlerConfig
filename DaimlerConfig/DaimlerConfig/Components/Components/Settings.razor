@@ -13,6 +13,8 @@
 @inject ISnackbar Snackbar
 @using DaimlerConfig.Services
 @inject AppStartupValidationService ValidationService
+@inject SettingsValidationService SettingsValidation
+
 
 <div class="popup-backdrop">
     <div class="popup-dialog">
@@ -52,6 +54,26 @@
                 </MudTabPanel>
 
                 <MudTabPanel Text="Connection Settings">
+
+                    @if (validationErrors.Any())
+                    {
+                        @foreach (var error in validationErrors)
+                        {
+                            <MudAlert Severity="Severity.Error" Class="mt-2">
+                                @error
+                            </MudAlert>
+                        }
+                    }
+
+                    @if (isValidating)
+                    {
+                        <MudAlert Severity="Severity.Info" Class="mt-4">
+                            <div class="d-flex align-center">
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                <span>Validating connection settings...</span>
+                            </div>
+                        </MudAlert>
+                    }
                     @if (hasError)
                     {
                         <MudAlert Severity="Severity.Error" Class="mb-4">
@@ -338,6 +360,9 @@
     private int backupConnectionTimeout = 30;
     private string backupSignalRHubUrl = "";
 
+    private bool isValidating = false;
+    private List<string> validationErrors = new List<string>();
+
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(100);
@@ -487,6 +512,10 @@
 
     private async Task SaveSettings()
     {
+        // Clear previous validation errors
+        validationErrors.Clear();
+        statusMessage = "";
+
         if (string.IsNullOrWhiteSpace(serverIp) || string.IsNullOrWhiteSpace(initialCatalog) ||
             string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(password))
         {
@@ -502,12 +531,26 @@
             return;
         }
 
+        isValidating = true;
         isSaving = true;
         statusMessage = "";
         StateHasChanged();
 
         try
         {
+            // Build new connection string (declare once and reuse)
+            var newConnectionString = BuildConnectionString();
+
+            // Validate settings using the new service
+            var validationResult = await SettingsValidation.ValidateSettingsAsync(newConnectionString, signalRHubUrl);
+
+            if (!validationResult.IsValid)
+            {
+                validationErrors = validationResult.ErrorMessages;
+                isStatusError = true;
+                return;
+            }
+
             var appSettingsPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                 "appsettings.json");
@@ -530,9 +573,7 @@
             string jsonText = await File.ReadAllTextAsync(appSettingsPath);
             var jsonNode = JsonNode.Parse(jsonText) ?? new JsonObject();
 
-            // Build and set connection string
-            var newConnectionString = BuildConnectionString();
-
+            // Use the already declared newConnectionString variable
             if (jsonNode["ConnectionStrings"] == null)
                 jsonNode["ConnectionStrings"] = new JsonObject();
 
@@ -581,6 +622,7 @@
         }
         finally
         {
+            isValidating = false;
             isSaving = false;
             StateHasChanged();
         }
