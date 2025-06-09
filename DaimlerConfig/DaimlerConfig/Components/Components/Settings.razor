@@ -1,0 +1,777 @@
+﻿
+@page "/settings"
+
+@using Microsoft.Extensions.Configuration
+@using System.IO
+@using System.Text.Json
+@using System.Text.Json.Nodes
+@using DaimlerConfig.Security
+@using MudBlazor
+@using System.Text.RegularExpressions
+
+@inject IConfiguration Configuration
+@inject ISnackbar Snackbar
+@using DaimlerConfig.Services
+@inject AppStartupValidationService ValidationService
+@inject SettingsValidationService SettingsValidation
+@inject UsernameService UsernameS
+
+
+
+<div class="popup-backdrop">
+    <div class="popup-dialog">
+
+        <div class="popup-header">
+            <MudText Typo="Typo.h5">Settings</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           Size="Size.Medium"
+                           OnClick="CloseSomething"
+                           Disabled="@isEditMode"
+                           Class="popup-close-btn"
+                           aria-label="Close" />
+        </div>
+
+        @if (ValidationService.HasErrors)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">
+                <MudText>@ValidationService.ErrorMessage</MudText>
+            </MudAlert>
+        }
+
+        <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                
+                <MudTabPanel Text="Profile">
+                    <MudPaper Class="pa-6" Elevation="2">
+                        <!-- Profile Header with Avatar -->
+                        <MudStack Spacing="4" Class="mb-6 d-flex align-center justify-center">
+                            <MudAvatar Size="Size.Large"
+                                       Class="profile-avatar"
+                                       Style="@GetAvatarStyle()">
+                                @GetUserInitial()
+                            </MudAvatar>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold text-center">
+                                @GetDisplayUsernameForUI()
+                            </MudText>
+                        </MudStack>
+
+                        <MudDivider Class="mb-6" />
+
+                        <!-- Username Section -->
+                        <MudCard Elevation="0" Class="pa-4 mb-4" Style="background-color: var(--mud-palette-background-grey);">
+                            <MudCardContent>
+                                <MudText Typo="Typo.h6" Class="mb-3 d-flex align-center">
+                                    <MudIcon Icon="Icons.Material.Filled.Person" Class="mr-2" />
+                                    Username Settings
+                                </MudText>
+
+                                <MudStack Direction="Row" Spacing="2" AlignItems="AlignItems.Center" Class="flex-wrap mb-3">
+                                    <MudTextField @bind-Value="_newUsername"
+                                                  Label="Username"
+                                                  Placeholder="Enter your username"
+                                                  Variant="Variant.Outlined"
+                                                  Style="min-width: 250px; max-width: 400px;"
+                                                  @oninput="OnUsernameInput"
+                                                  HelperText="Your display name for the application" />
+
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="Color.Primary"
+                                               StartIcon="Icons.Material.Filled.Save"
+                                               OnClick="ChangeUsername"
+                                               Disabled="@(_newUsername == GetDisplayUsername(UsernameS.Username) || string.IsNullOrWhiteSpace(_newUsername))">
+                                        Save
+                                    </MudButton>
+
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Secondary"
+                                               StartIcon="Icons.Material.Filled.Refresh"
+                                               OnClick="ResetToWindowsName">
+                                        Reset
+                                    </MudButton>
+                                </MudStack>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudPaper>
+                </MudTabPanel>
+
+                <MudTabPanel Text="General">
+                    <MudPaper Class="pa-4" Elevation="1">
+                        <MudText Typo="Typo.h6" GutterBottom="true">General Settings</MudText>
+                        <MudText Color="Color.Secondary">General application settings will be available here.</MudText>
+                    </MudPaper>
+                </MudTabPanel>
+
+                <MudTabPanel Text="Connection Settings">
+
+                    @if (validationErrors.Any())
+                    {
+                        @foreach (var error in validationErrors)
+                        {
+                            <MudAlert Severity="Severity.Error" Class="mt-2">
+                                @error
+                            </MudAlert>
+                        }
+                    }
+
+                    @if (isValidating)
+                    {
+                        <MudAlert Severity="Severity.Info" Class="mt-4">
+                            <div class="d-flex align-center">
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                <span>Validating connection settings...</span>
+                            </div>
+                        </MudAlert>
+                    }
+                    @if (hasError)
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mb-4">
+                            <strong>Error:</strong> @errorMessage
+                        </MudAlert>
+                    }
+                    else if (isLoading)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                        <MudText Class="ml-3">Loading settings...</MudText>
+                    }
+                    else
+                    {
+                        @if (!isEditMode)
+                        {
+                            <MudAlert Severity="Severity.Info" Class="mb-4" Variant="Variant.Outlined">
+                                <div class="d-flex align-center">
+                                    <MudIcon Icon="Icons.Material.Filled.Info" Class="mr-2" />
+                                    <span>Settings are in read-only mode. Click "Edit Settings" to make changes.</span>
+                                </div>
+                            </MudAlert>
+                        }
+
+                        <MudCard Elevation="2" Class="@(!isEditMode ? "readonly-card" : "")">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <div class="d-flex align-center">
+                                        @if (!isEditMode)
+                                        {
+                                            <MudIcon Icon="Icons.Material.Filled.Lock" Size="Size.Small" Class="mr-2" Color="Color.Secondary" />
+                                        }
+                                        <MudText Typo="Typo.h6">Database & Connection Configuration</MudText>
+                                        @if (!isEditMode)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Default" Class="ml-2">Read-Only</MudChip>
+                                        }
+                                    </div>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    @if (!isEditMode)
+                                    {
+                                        <MudButton Variant="Variant.Filled"
+                                                   Color="Color.Primary"
+                                                   StartIcon="Icons.Material.Filled.Edit"
+                                                   OnClick="EnableEditMode">
+                                            Edit Settings
+                                        </MudButton>
+                                    }
+                                    else
+                                    {
+                                        <MudButtonGroup Variant="Variant.Filled" Size="Size.Small">
+                                            <MudButton Color="Color.Success"
+                                                       StartIcon="Icons.Material.Filled.Save"
+                                                       OnClick="SaveSettings"
+                                                       Disabled="@(!hasUnsavedChanges || isSaving)">
+                                                @if (isSaving)
+                                                {
+                                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                                }
+                                                Save Settings
+                                            </MudButton>
+                                            <MudButton Color="Color.Secondary"
+                                                       StartIcon="Icons.Material.Filled.Refresh"
+                                                       OnClick="ResetChanges"
+                                                       Disabled="@(!hasUnsavedChanges || isSaving)">
+                                                Reset Changes
+                                            </MudButton>
+                                            <MudButton Color="Color.Default"
+                                                       StartIcon="Icons.Material.Filled.Cancel"
+                                                       OnClick="CancelEdit">
+                                                Cancel
+                                            </MudButton>
+                                        </MudButtonGroup>
+                                    }
+                                </CardHeaderActions>
+                            </MudCardHeader>
+
+                            <MudCardContent>
+                                <MudGrid>
+                                    <!-- Database Connection Section -->
+                                    <MudItem xs="12">
+                                        <MudText Typo="Typo.h6" Class="mb-4" Color="Color.Primary">Database Connection</MudText>
+                                    </MudItem>
+
+                                    <MudItem xs="12" md="8">
+                                        <MudTextField @bind-Value="serverIp"
+                                                      Label="Server IP"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      HelperText="Database server IP address"
+                                                      Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
+                                    </MudItem>
+
+                                    <MudItem xs="12" md="4">
+                                        <MudNumericField @bind-Value="port"
+                                                         Label="Port"
+                                                         Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                         ReadOnly="@(!isEditMode)"
+                                                         OnKeyUp="OnFieldChanged"
+                                                         HelperText="Database port number"
+                                                         Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                         AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                         Class="@(!isEditMode ? "readonly-field-variant" : "")" />
+                                    </MudItem>
+
+                                    <MudItem xs="12" md="6">
+                                        <MudTextField @bind-Value="initialCatalog"
+                                                      Label="Initial Catalog"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      HelperText="Database name"
+                                                      Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
+                                    </MudItem>
+
+                                    <MudItem xs="12" md="6">
+                                        <MudTextField @bind-Value="userId"
+                                                      Label="User ID"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      HelperText="Database username"
+                                                      Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
+                                    </MudItem>
+
+                                    <MudItem xs="12" md="6">
+                                        <MudTextField @bind-Value="password"
+                                                      Label="Password"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      InputType="@(showPassword ? InputType.Text : InputType.Password)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      Adornment="Adornment.End"
+                                                      AdornmentIcon="@(isEditMode ? (showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility) : Icons.Material.Filled.Lock)"
+                                                      OnAdornmentClick="@(isEditMode ? TogglePasswordVisibility : null)"
+                                                      AdornmentAriaLabel="@(isEditMode ? "Show/Hide Password" : "Read-only field")"
+                                                      HelperText="Database password"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
+                                    </MudItem>
+
+                                    <MudItem xs="12" md="6">
+                                        <MudNumericField @bind-Value="connectionTimeout"
+                                                         Label="Connection Timeout"
+                                                         Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                         ReadOnly="@(!isEditMode)"
+                                                         OnKeyUp="OnFieldChanged"
+                                                         HelperText="Timeout in seconds"
+                                                         Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                         AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                         Class="@(!isEditMode ? "readonly-field-variant" : "")" />
+                                    </MudItem>
+
+                                    <!-- Checkboxes Section -->
+                                    <MudItem xs="12">
+                                        <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">Connection Options</MudText>
+                                    </MudItem>
+
+                                    <MudItem xs="12" sm="6" md="3">
+                                        <MudCheckBox T="bool"
+                                                     Checked="persistSecurityInfo"
+                                                     CheckedChanged="@((bool value) => { persistSecurityInfo = value; OnFieldChanged(); })"
+                                                     Label="Persist Security Info"
+                                                     ReadOnly="@(!isEditMode)"
+                                                     Color="Color.Primary"
+                                                     Class="@(!isEditMode ? "readonly-checkbox" : "")" />
+                                    </MudItem>
+
+                                    <MudItem xs="12" sm="6" md="3">
+                                        <MudCheckBox T="bool"
+                                                     Checked="multipleActiveResultSets"
+                                                     CheckedChanged="@((bool value) => { multipleActiveResultSets = value; OnFieldChanged(); })"
+                                                     Label="Multiple Active Result Sets"
+                                                     ReadOnly="@(!isEditMode)"
+                                                     Color="Color.Primary"
+                                                     Class="@(!isEditMode ? "readonly-checkbox" : "")" />
+                                    </MudItem>
+
+                                    <MudItem xs="12" sm="6" md="3">
+                                        <MudCheckBox T="bool"
+                                                     Checked="encrypt"
+                                                     CheckedChanged="@((bool value) => { encrypt = value; OnFieldChanged(); })"
+                                                     Label="Encrypt"
+                                                     ReadOnly="@(!isEditMode)"
+                                                     Color="Color.Primary"
+                                                     Class="@(!isEditMode ? "readonly-checkbox" : "")" />
+                                    </MudItem>
+
+                                    <MudItem xs="12" sm="6" md="3">
+                                        <MudCheckBox T="bool"
+                                                     Checked="trustServerCertificate"
+                                                     CheckedChanged="@((bool value) => { trustServerCertificate = value; OnFieldChanged(); })"
+                                                     Label="Trust Server Certificate"
+                                                     ReadOnly="@(!isEditMode)"
+                                                     Color="Color.Primary"
+                                                     Class="@(!isEditMode ? "readonly-checkbox" : "")" />
+                                    </MudItem>
+
+                                    <!-- SignalR Section -->
+                                    <MudItem xs="12">
+                                        <MudDivider Class="my-4" />
+                                        <MudText Typo="Typo.h6" Class="mb-4" Color="Color.Primary">SignalR Configuration</MudText>
+                                    </MudItem>
+
+                                    <MudItem xs="12">
+                                        <MudTextField @bind-Value="signalRHubUrl"
+                                                      Label="SignalR Hub URL"
+                                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                                      ReadOnly="@(!isEditMode)"
+                                                      OnKeyUp="OnFieldChanged"
+                                                      HelperText="SignalR hub connection URL"
+                                                      Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
+                                                      Class="@(!isEditMode ? "readonly-field-variant" : "")" />
+                                    </MudItem>
+                                </MudGrid>
+
+                                @if (!string.IsNullOrEmpty(statusMessage))
+                                {
+                                    <MudAlert Severity="@(isStatusError ? Severity.Error : Severity.Success)" Class="mt-4">
+                                        @statusMessage
+                                    </MudAlert>
+                                }
+                            </MudCardContent>
+                        </MudCard>
+                    }
+                </MudTabPanel>
+            </MudTabs>
+        </MudContainer>
+
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback OnClosing { get; set; }
+
+
+    // Original fields
+    private string connectionString = "";
+    private string signalRHubUrl = "";
+    private string statusMessage = "";
+    private string errorMessage = "";
+    private bool isLoading = true;
+    private bool hasError = false;
+    private bool isStatusError = false;
+    private bool isSaving = false;
+
+    // New fields for edit mode and form handling
+    private bool isEditMode = false;
+    private bool hasUnsavedChanges = false;
+    private bool showPassword = false;
+
+    // Connection string components
+    private string serverIp = "";
+    private int port = 1433;
+    private string initialCatalog = "";
+    private string userId = "";
+    private string password = "";
+    private bool persistSecurityInfo = false;
+    private bool multipleActiveResultSets = false;
+    private bool encrypt = false;
+    private bool trustServerCertificate = true;
+    private int connectionTimeout = 30;
+
+    // Backup values for reset functionality
+    private string backupServerIp = "";
+    private int backupPort = 1433;
+    private string backupInitialCatalog = "";
+    private string backupUserId = "";
+    private string backupPassword = "";
+    private bool backupPersistSecurityInfo = false;
+    private bool backupMultipleActiveResultSets = false;
+    private bool backupEncrypt = false;
+    private bool backupTrustServerCertificate = true;
+    private int backupConnectionTimeout = 30;
+    private string backupSignalRHubUrl = "";
+
+    private bool isValidating = false;
+    private List<string> validationErrors = new List<string>();
+
+
+    private void ParseConnectionString(string connStr)
+    {
+        if (string.IsNullOrEmpty(connStr)) return;
+
+        var parts = connStr.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var part in parts)
+        {
+            var keyValue = part.Split('=', 2);
+            if (keyValue.Length != 2) continue;
+
+            var key = keyValue[0].Trim();
+            var value = keyValue[1].Trim();
+
+            switch (key.ToLower())
+            {
+                case "server":
+                    var serverParts = value.Split(',');
+                    serverIp = serverParts[0];
+                    if (serverParts.Length > 1 && int.TryParse(serverParts[1], out int parsedPort))
+                        port = parsedPort;
+                    break;
+                case "initial catalog":
+                    initialCatalog = value;
+                    break;
+                case "user id":
+                    userId = value;
+                    break;
+                case "password":
+                    password = value;
+                    break;
+                case "persist security info":
+                    persistSecurityInfo = bool.TryParse(value, out bool psi) && psi;
+                    break;
+                case "multipleactiveresultsets":
+                    multipleActiveResultSets = bool.TryParse(value, out bool mars) && mars;
+                    break;
+                case "encrypt":
+                    encrypt = bool.TryParse(value, out bool enc) && enc;
+                    break;
+                case "trustservercertificate":
+                    trustServerCertificate = bool.TryParse(value, out bool tsc) && tsc;
+                    break;
+                case "connection timeout":
+                    if (int.TryParse(value, out int timeout))
+                        connectionTimeout = timeout;
+                    break;
+            }
+        }
+    }
+
+    private string BuildConnectionString()
+    {
+        return $"Server={serverIp},{port};Initial Catalog={initialCatalog};Persist Security Info={persistSecurityInfo};User ID={userId};Password={password};MultipleActiveResultSets={multipleActiveResultSets};Encrypt={encrypt};TrustServerCertificate={trustServerCertificate};Connection Timeout={connectionTimeout};";
+    }
+
+    private void BackupCurrentValues()
+    {
+        backupServerIp = serverIp;
+        backupPort = port;
+        backupInitialCatalog = initialCatalog;
+        backupUserId = userId;
+        backupPassword = password;
+        backupPersistSecurityInfo = persistSecurityInfo;
+        backupMultipleActiveResultSets = multipleActiveResultSets;
+        backupEncrypt = encrypt;
+        backupTrustServerCertificate = trustServerCertificate;
+        backupConnectionTimeout = connectionTimeout;
+        backupSignalRHubUrl = signalRHubUrl;
+    }
+
+    private void EnableEditMode()
+    {
+        isEditMode = true;
+        hasUnsavedChanges = false;
+        BackupCurrentValues();
+    }
+
+    private void CancelEdit()
+    {
+        isEditMode = false;
+        hasUnsavedChanges = false;
+        ResetChanges();
+    }
+
+    private void ResetChanges()
+    {
+        serverIp = backupServerIp;
+        port = backupPort;
+        initialCatalog = backupInitialCatalog;
+        userId = backupUserId;
+        password = backupPassword;
+        persistSecurityInfo = backupPersistSecurityInfo;
+        multipleActiveResultSets = backupMultipleActiveResultSets;
+        encrypt = backupEncrypt;
+        trustServerCertificate = backupTrustServerCertificate;
+        connectionTimeout = backupConnectionTimeout;
+        signalRHubUrl = backupSignalRHubUrl;
+
+        hasUnsavedChanges = false;
+        StateHasChanged();
+    }
+
+    private void OnFieldChanged()
+    {
+        hasUnsavedChanges = true;
+        StateHasChanged();
+    }
+
+    private void OnFieldChanged(bool value)
+    {
+        hasUnsavedChanges = true;
+        StateHasChanged();
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        if (isEditMode)
+        {
+            showPassword = !showPassword;
+        }
+    }
+
+    private async Task SaveSettings()
+    {
+        // Clear previous validation errors
+        validationErrors.Clear();
+        statusMessage = "";
+
+        if (string.IsNullOrWhiteSpace(serverIp) || string.IsNullOrWhiteSpace(initialCatalog) ||
+            string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(password))
+        {
+            statusMessage = "Bitte füllen Sie alle erforderlichen Datenbankfelder aus.";
+            isStatusError = true;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(signalRHubUrl))
+        {
+            statusMessage = "SignalR Hub URL darf nicht leer sein.";
+            isStatusError = true;
+            return;
+        }
+
+        isValidating = true;
+        isSaving = true;
+        statusMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            // Build new connection string (declare once and reuse)
+            var newConnectionString = BuildConnectionString();
+
+            // Validate settings using the new service
+            var validationResult = await SettingsValidation.ValidateSettingsAsync(newConnectionString, signalRHubUrl);
+
+            if (!validationResult.IsValid)
+            {
+                validationErrors = validationResult.ErrorMessages;
+                isStatusError = true;
+                return;
+            }
+
+            var appSettingsPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "appsettings.json");
+
+            // Create file if it doesn't exist
+            if (!File.Exists(appSettingsPath))
+            {
+                var initialConfig = @"{
+  ""ConnectionStrings"": {
+    ""DefaultConnection"": """"
+  },
+  ""SignalR"": {
+    ""HubUrl"": """"
+  }
+}";
+                await File.WriteAllTextAsync(appSettingsPath, initialConfig);
+            }
+
+            // Load current JSON content
+            string jsonText = await File.ReadAllTextAsync(appSettingsPath);
+            var jsonNode = JsonNode.Parse(jsonText) ?? new JsonObject();
+
+            // Use the already declared newConnectionString variable
+            if (jsonNode["ConnectionStrings"] == null)
+                jsonNode["ConnectionStrings"] = new JsonObject();
+
+            jsonNode["ConnectionStrings"]["DefaultConnection"] = newConnectionString;
+
+            // Set SignalR URL
+            if (jsonNode["SignalR"] == null)
+                jsonNode["SignalR"] = new JsonObject();
+
+            jsonNode["SignalR"]["HubUrl"] = signalRHubUrl;
+
+            // Write JSON back to file
+            var updatedJson = jsonNode.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(appSettingsPath, updatedJson);
+
+            // Apply encryption if available
+            if (typeof(ConfigurationEncryptor).GetMethod("EncryptConnectionString") != null)
+            {
+                ConfigurationEncryptor.EncryptConnectionString(newConnectionString, appSettingsPath);
+            }
+
+            statusMessage = "Einstellungen erfolgreich gespeichert. Anwendung wird neu gestartet...";
+            isStatusError = false;
+            hasUnsavedChanges = false;
+            isEditMode = false;
+
+            // Update backup values
+            BackupCurrentValues();
+
+            StateHasChanged();
+
+            await Task.Delay(2000);
+
+            // Restart application
+            if (Microsoft.Maui.Controls.Application.Current != null)
+            {
+                Microsoft.Maui.Controls.Application.Current.Quit();
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Fehler beim Speichern: {ex.Message}";
+            isStatusError = true;
+            System.Diagnostics.Debug.WriteLine($"Save Error: {ex}");
+            Console.WriteLine($"Save Error: {ex}");
+        }
+        finally
+        {
+            isValidating = false;
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task CloseSomething()
+    {
+        if (isEditMode) return;
+        await OnClosing.InvokeAsync();
+    }
+
+
+    #region Username Change Logic
+
+    private string _newUsername = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Extrahiere nur den Username-Teil (vor dem Semikolon)
+        _newUsername = GetDisplayUsername(UsernameS.Username);
+
+        await Task.Delay(100);
+
+        try
+        {
+            connectionString = Configuration?.GetConnectionString("DefaultConnection") ?? "";
+            signalRHubUrl = Configuration?["SignalR:HubUrl"] ?? "";
+
+            ParseConnectionString(connectionString);
+            BackupCurrentValues();
+
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            hasError = true;
+            errorMessage = $"Fehler beim Laden der Konfiguration: {ex.Message}";
+            isLoading = false;
+        }
+
+        StateHasChanged();
+    }
+
+    private string GetDisplayUsername(string fullUsername)
+    {
+        if (string.IsNullOrWhiteSpace(fullUsername))
+            return "";
+
+        // Extrahiere nur den Teil vor dem Semikolon
+        var semicolonIndex = fullUsername.IndexOf(';');
+        if (semicolonIndex > 0)
+        {
+            return fullUsername.Substring(0, semicolonIndex);
+        }
+
+        return fullUsername;
+    }
+
+    private string GetGuidPart(string fullUsername)
+    {
+        if (string.IsNullOrWhiteSpace(fullUsername))
+            return "";
+
+        // Extrahiere den Teil nach dem Semikolon (die GUID)
+        var semicolonIndex = fullUsername.IndexOf(';');
+        if (semicolonIndex >= 0 && semicolonIndex < fullUsername.Length - 1)
+        {
+            return fullUsername.Substring(semicolonIndex + 1);
+        }
+
+        return "";
+    }
+
+    private void ChangeUsername()
+    {
+        if (!string.IsNullOrWhiteSpace(_newUsername))
+        {
+            // Kombiniere den neuen Username mit der existierenden GUID
+            var guidPart = GetGuidPart(UsernameS.Username);
+            var newFullUsername = string.IsNullOrWhiteSpace(guidPart)
+                ? _newUsername
+                : $"{_newUsername};{guidPart}";
+
+            UsernameS.UpdateUsername(newFullUsername);
+            StateHasChanged();
+        }
+    }
+
+    private void ResetToWindowsName()
+    {
+        UsernameS.ResetToWindowsUsername();
+        _newUsername = GetDisplayUsername(UsernameS.Username);
+        StateHasChanged();
+    }
+
+    private void OnUsernameInput(ChangeEventArgs e)
+    {
+        _newUsername = e.Value?.ToString() ?? "";
+        StateHasChanged(); // Trigger re-render to update avatar
+    }
+
+    private string GetUserInitial()
+    {
+        var displayName = string.IsNullOrWhiteSpace(_newUsername)
+            ? GetDisplayUsername(UsernameS.Username)
+            : _newUsername;
+        return string.IsNullOrWhiteSpace(displayName) ? "U" : displayName[0].ToString().ToUpper();
+    }
+
+    // Für die Anzeige des Usernames im HTML
+    private string GetDisplayUsernameForUI()
+    {
+        return string.IsNullOrWhiteSpace(_newUsername)
+            ? GetDisplayUsername(UsernameS.Username)
+            : _newUsername;
+    }
+
+    private string GetAvatarStyle()
+    {
+        return "width: 120px; height: 120px; font-size: 48px; font-weight: bold; " +
+               "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;";
+    }
+
+    #endregion
+}

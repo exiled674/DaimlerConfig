@@ -11,10 +11,14 @@
 @inject NavigationManager Navigation
 @inject NavigationStateService NavState
 @inject SelectionStateService SelectionState
+@inject UsernameService UsernameService
 
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
+
 <body>
+    
+
     <!-- Navbar -->
     <nav class="navbar fixed-top bg-white border-bottom">
         <div class="container-fluid">
@@ -154,12 +158,18 @@
                 <div class="content-panel flex-fill">
                     @if (showToolFormular && toolFormularModel != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@toolFormularModel" CurrentUser=@currentUser ToolVersions=@toolVersions />
+
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@toolFormularModel" UsernameService.Username=@UsernameService.Username ToolVersions=@toolVersions />
+
                     }
 
                     @if (showOperationFormular && operationFormularModel != null)
                     {
-                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@operationFormularModel" CurrentUser="@currentUser" OperationVersions=operationVersions />
+
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@operationFormularModel" UsernameService.Username="@UsernameService.Username" OperationVersions=operationVersions />
+
+
+
                     }
 
                     @if (showStationFormular && selectedStation != null)
@@ -178,7 +188,7 @@
 </body>
 
 @code {
-    private readonly string currentUser = DaimlerConfig.MauiProgram.Username;
+    //private readonly string currentUser = DaimlerConfig.MauiProgram.Username;
 
 
     private StationFormular? stationFormular;
@@ -341,10 +351,12 @@
         {
             if (selectedTool != null && tool.toolID != selectedTool.toolID) await UnlockTool();
             selectedTool = tool;
+
             toolFormularModel = selectedTool.Clone();
             toolFormularModel.toolID = selectedTool.toolID;
             toolFormularModel.stationID = selectedTool.stationID;
-            toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != currentUser;
+            toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != UsernameService.Username;
+
 
             await UnlockOperation();
 
@@ -398,7 +410,7 @@
 
     public async Task UnlockTool()
     {
-        if (selectedTool != null && selectedTool.lockedBy == currentUser && selectedTool.isLocked == true)
+        if (selectedTool != null && selectedTool.lockedBy == UsernameService.Username && selectedTool.isLocked == true)
         {
             selectedTool.isLocked = false;
             selectedTool.lockedBy = null;
@@ -441,7 +453,7 @@
                 await UnlockOperation();
 
             selectedOperation = operation;
-            operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
+            operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != UsernameService.Username;
 
             await UnlockTool();
             selectedTool = await Fassade.GetTool(selectedOperation.toolID);
@@ -503,7 +515,7 @@
 
     public async Task UnlockOperation()
     {
-        if (selectedOperation != null && selectedOperation.lockedBy == currentUser && selectedOperation.isLocked == true)
+        if (selectedOperation != null && selectedOperation.lockedBy == UsernameService.Username && selectedOperation.isLocked == true)
         {
             selectedOperation.isLocked = false;
             selectedOperation.lockedBy = null;
@@ -530,6 +542,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
         LifecycleService.OnAppClosing += HandleAppClosingAsync;
         SignalRService.RegisterResponseHandler(async (string msg) =>
     {
@@ -566,6 +579,7 @@
             }
             else if (msg.StartsWith("OperationLocked"))
             {
+
                 var parts = msg.Split(';');
                 var operationID = int.Parse(parts[1]);
                 var operationList = allOperations.ToList();
@@ -588,9 +602,14 @@
                     }
                 }
 
-                if ( selectedOperation != null && selectedOperation?.lockedBy != currentUser && selectedOperation.operationID == operationID)
+                if ( selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
+
                 {
-                    operationReadOnly = true;
+                    
+                    if (selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
+                    {
+                        operationReadOnly = true;
+                    }
                 }
             }
             if (msg.StartsWith("ToolUnlocked"))
@@ -629,6 +648,7 @@
             }
             else if (msg.StartsWith("ToolLocked"))
             {
+
                 var parts = msg.Split(';');
                 var toolID = int.Parse(parts[1]);
 
@@ -636,6 +656,7 @@
                 var idx = toolList.FindIndex(s => s.toolID == toolID);
 
                 if (idx >= 0)
+
                 {
 
                     var updatedTool = await Fassade.GetTool(toolID);
@@ -656,7 +677,7 @@
 
                 }
 
-                if (selectedTool != null && selectedTool?.lockedBy != currentUser && selectedTool.toolID == toolID)
+                if (selectedTool != null && selectedTool?.lockedBy != UsernameService.Username && selectedTool.toolID == toolID)
                 {
                     toolReadOnly = true;
                 }
@@ -1228,11 +1249,13 @@
                     if (tool != null)
                     {
                         selectedTool = tool;
+
                         toolFormularModel = tool.Clone();
                         toolFormularModel.stationID = selectedTool.stationID;
 						toolFormularModel.toolID = selectedTool.toolID;
                        
-                        toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != currentUser;
+                        toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != UsernameService.Username;
+
 
                         if (savedSelection.OperationID.HasValue)
                         {
@@ -1240,11 +1263,13 @@
                             if (operation != null && operation.toolID == tool.toolID)
                             {
                                 selectedOperation = operation;
+
                                 operationFormularModel = operation.Clone();
                                 operationFormularModel.operationID = selectedOperation.operationID;
 								operationFormularModel.toolID = selectedOperation.toolID;
 
-                                operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != currentUser;
+                                operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != UsernameService.Username;
+
 
                                 // Operation-Formular anzeigen
                                 showOperationFormular = true;
@@ -1300,4 +1325,11 @@
         }
 
     }
- }
+
+    public void Dispose()
+    {
+        UsernameService.PropertyChanged -= (_, __) => InvokeAsync(StateHasChanged);
+    }
+
+}
+
