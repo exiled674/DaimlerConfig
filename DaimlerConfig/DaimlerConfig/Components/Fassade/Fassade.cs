@@ -457,10 +457,7 @@ namespace DaimlerConfig.Components.Fassade
             return true;
         }
 
-        public async Task<Operation?> GetOperation(int? operationID)
-        {
-            return await OperationRepository.Get(operationID);
-        }
+      
 
 
 
