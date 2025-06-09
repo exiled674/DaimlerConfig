@@ -125,7 +125,7 @@
                                             }
                                             <!-- Drag handle for tools -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                                 class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
+                                            class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
                                                 <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                             </svg>
                                         </div>
@@ -137,11 +137,11 @@
                                             {
                                                 <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
                                                     <button class="btn btn-secondary btn-sm mr-2"@onclick="() =>CycleColour(operation)"><Badge colour="@GetBadgeColour(operation.Status)"/></button>
-                                                    <span class="clickable" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false); }">@operation.operationShortname</span>
+                                                    <span class="clickable" @onclick="() => { OnOperationClicked(operation, false); }">@operation.operationShortname</span>
                                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
                                                     <!-- Drag handle for operations -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
-                                                         class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
+                                                    class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
                                                         <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                                     </svg>
                                                 </div>
@@ -156,19 +156,25 @@
 
                 <!-- Rechte Spalte: Content -->
                 <div class="content-panel flex-fill">
-                    @if (showToolFormular && selectedTool != null)
+                    @if (showToolFormular && toolFormularModel != null)
                     {
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@selectedTool"  UsernameService.Username=@UsernameService.Username/>
+
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@toolFormularModel" UsernameService.Username=@UsernameService.Username ToolVersions=@toolVersions />
+
                     }
 
-                    @if (showOperationFormular && selectedOperation != null)
+                    @if (showOperationFormular && operationFormularModel != null)
                     {
-                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@selectedOperation"  UsernameService.Username="@UsernameService.Username" />
+
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@operationFormularModel" UsernameService.Username="@UsernameService.Username" OperationVersions=operationVersions />
+
+
+
                     }
 
                     @if (showStationFormular && selectedStation != null)
                     {
-                        <StationFormular @ref="stationFormular" SelectedStation="@selectedStation"   />
+                        <StationFormular @ref="stationFormular" SelectedStation="@stationFormularModel" />
                     }
                 </div>
             </main>
@@ -296,27 +302,39 @@
         }
 
     }
-    
-    private void ToggleStationFormular(bool isNewStation)
+    private Station? stationFormularModel;
+
+    private async Task ToggleStationFormular(bool isNewStation)
     {
         if (isNewStation)
         {
+            await UnlockOperation();
+            await UnlockTool();
             selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
-
-            selectedTool = null;
-            selectedOperation = null;
+            stationFormularModel = selectedStation.Clone();
+            stationFormularModel.lineID = selectedStation.lineID;
             tools = Enumerable.Empty<Tool>();
             allOperations = Enumerable.Empty<Operation>();
+
+        }
+        else if (selectedStation != null)
+        {
+            // Kopie erstellen!
+            stationFormularModel = selectedStation.Clone();
+            stationFormularModel.stationID = selectedStation.stationID;
+            stationFormularModel.lineID = selectedStation.lineID;
         }
         showStationFormular = true;
         showToolFormular = false;
         showOperationFormular = false;
     }
+
     #endregion
-    
+
     #region Tools
     private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
     private Tool? selectedTool;
+    private Tool? toolFormularModel; // NEU: Separate Kopie für das Formular
     private IEnumerable<ToolVersion> toolVersions = Enumerable.Empty<ToolVersion>();
 
     private bool toolReadOnly = false;
@@ -331,9 +349,14 @@
         }
         else
         {
-            if (selectedTool != null && tool.toolID != selectedTool.toolID ) await UnlockTool();
+            if (selectedTool != null && tool.toolID != selectedTool.toolID) await UnlockTool();
             selectedTool = tool;
+
+            toolFormularModel = selectedTool.Clone();
+            toolFormularModel.toolID = selectedTool.toolID;
+            toolFormularModel.stationID = selectedTool.stationID;
             toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != UsernameService.Username;
+
 
             await UnlockOperation();
 
@@ -345,16 +368,31 @@
             {
                 SelectionState.SaveSelection(stationID: selectedStation.stationID, toolID: tool.toolID);
             }
-            
+
             toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
             StateHasChanged();
         }
-
     }
+
     private async Task ToggleToolFormular(bool isNewTool)
     {
-        if (isNewTool) selectedTool = await CreateDummyTool();
-        
+        if (isNewTool)
+        {
+            await UnlockOperation();
+            await UnlockTool();
+            selectedTool = await CreateDummyTool();
+            toolFormularModel = selectedTool.Clone();
+            toolFormularModel.stationID = selectedStation.stationID;
+            toolReadOnly = false;
+        }
+        else if (selectedTool != null)
+        {
+            // WICHTIG: Kopie erstellen für bestehendes Tool
+            toolFormularModel = selectedTool.Clone();
+            toolFormularModel.toolID = selectedTool.toolID;
+            toolFormularModel.stationID = selectedTool.stationID;
+        }
+
         showToolFormular = true;
         showOperationFormular = false;
         showStationFormular = false;
@@ -367,11 +405,9 @@
             );
         }
 
-
-
-        StateHasChanged();  
-
+        StateHasChanged();
     }
+
     public async Task UnlockTool()
     {
         if (selectedTool != null && selectedTool.lockedBy == UsernameService.Username && selectedTool.isLocked == true)
@@ -379,13 +415,11 @@
             selectedTool.isLocked = false;
             selectedTool.lockedBy = null;
             await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer("ToolChanged");
+            await SignalRService.SendMessageToServer($"ToolUpdated;{selectedTool.toolID}");
             await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
-
-
-
         }
     }
+
     public async Task<Tool> CreateDummyTool()
     {
         return new Tool
@@ -402,7 +436,8 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
-	private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
+    private Operation? operationFormularModel; // NEU: Separate Kopie für das Formular
+    private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
 
@@ -411,10 +446,12 @@
         if (DirtyManagerService.IsDirty().Result)
         {
             showPopup = true;
-        }else
+        }
+        else
         {
             if (selectedOperation != null && selectedOperation.operationID != operation.operationID)
                 await UnlockOperation();
+
             selectedOperation = operation;
             operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != UsernameService.Username;
 
@@ -431,13 +468,28 @@
             }
 
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
-            StateHasChanged();  // Aktualisiere den UI-Status
+            StateHasChanged();
         }
     }
+
     private async Task ToggleOperationFormular(bool isNewOperation)
     {
-
-        if (isNewOperation) selectedOperation = await CreateDummyOP();
+        if (isNewOperation)
+        {
+            await UnlockOperation();
+            await UnlockTool();
+            selectedOperation = await CreateDummyOP();
+            operationFormularModel = selectedOperation.Clone(); // Kopie für neue Operation
+            operationFormularModel.toolID = selectedTool.toolID;
+            operationReadOnly = false;
+        }
+        else if (selectedOperation != null)
+        {
+            // WICHTIG: Kopie erstellen für bestehende Operation
+            operationFormularModel = selectedOperation.Clone();
+            operationFormularModel.operationID = selectedOperation.operationID;
+            operationFormularModel.toolID = selectedOperation.toolID;
+        }
 
         showOperationFormular = true;
         showToolFormular = false;
@@ -452,9 +504,15 @@
             );
         }
 
-
-        StateHasChanged();  // Aktualisiere den UI-Status
+        StateHasChanged();
     }
+
+    public async Task OnOperationClicked(Operation operation, bool isNewOperation)
+    {
+        await SelectOperation(operation);
+        await ToggleOperationFormular(isNewOperation);
+    }
+
     public async Task UnlockOperation()
     {
         if (selectedOperation != null && selectedOperation.lockedBy == UsernameService.Username && selectedOperation.isLocked == true)
@@ -462,15 +520,16 @@
             selectedOperation.isLocked = false;
             selectedOperation.lockedBy = null;
             await Fassade.UpdateOperation(selectedOperation);
-            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer($"OperationUpdated;{selectedOperation.operationID}");
             await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
         }
     }
+
     public async Task<Operation> CreateDummyOP()
     {
         return new Operation
             {
-                toolID = selectedTool.toolID,
+                toolID = selectedTool?.toolID,
                 decisionClassID = 1,
                 savingClassID = 1,
                 generationClassID = 1,
@@ -491,7 +550,28 @@
         {
             if (msg.StartsWith("OperationUnlocked"))
             {
-                var operationID = int.Parse(msg.Split(';')[1]);
+                var parts = msg.Split(';');
+                var operationID = int.Parse(parts[1]);
+                var operationList = allOperations.ToList();
+                var idx = operationList.FindIndex(s => s.operationID == operationID);
+                if (idx >= 0)
+                {
+                    var updatedOperation = await Fassade.GetOperation(operationID);
+                    if (updatedOperation != null)
+                    {
+                        operationList[idx] = updatedOperation;
+                        allOperations = operationList.AsEnumerable();
+                        if (showOperationFormular && selectedOperation?.operationID == operationID)
+                        {
+                            selectedOperation = updatedOperation;
+                            operationFormularModel = selectedOperation.Clone();
+                            operationFormularModel.operationID = selectedOperation.operationID;
+                            operationFormularModel.toolID = selectedOperation.toolID;
+                        }
+                        StateHasChanged();
+                    }
+                }
+
                 if ( selectedOperation != null && selectedOperation?.operationID == operationID)
                 {
                     operationReadOnly = false;
@@ -499,8 +579,31 @@
             }
             else if (msg.StartsWith("OperationLocked"))
             {
-                var operationID = int.Parse(msg.Split(';')[1]);
+
+                var parts = msg.Split(';');
+                var operationID = int.Parse(parts[1]);
+                var operationList = allOperations.ToList();
+                var idx = operationList.FindIndex(s => s.operationID == operationID);
+                if (idx >= 0)
+                {
+                    var updatedOperation = await Fassade.GetOperation(operationID);
+                    if (updatedOperation != null)
+                    {
+                        operationList[idx] = updatedOperation;
+                        allOperations = operationList.AsEnumerable();
+                        if (showOperationFormular && selectedOperation?.operationID == operationID)
+                        {
+                            selectedOperation = updatedOperation;
+                            operationFormularModel = selectedOperation.Clone();
+                            operationFormularModel.operationID = selectedOperation.operationID;
+                            operationFormularModel.toolID = selectedOperation.toolID;
+                        }
+                        StateHasChanged();
+                    }
+                }
+
                 if ( selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
+
                 {
                     
                     if (selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
@@ -511,7 +614,33 @@
             }
             if (msg.StartsWith("ToolUnlocked"))
             {
-                var toolID = int.Parse(msg.Split(';')[1]);
+                var parts = msg.Split(';');
+                var toolID = int.Parse(parts[1]);
+
+                var toolList = tools.ToList();
+                var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                if (idx >= 0)
+                {
+
+                    var updatedTool = await Fassade.GetTool(toolID);
+                    if (updatedTool != null)
+                    {
+                        toolList[idx] = updatedTool;
+                        tools = toolList.AsEnumerable();
+                        if (showToolFormular && selectedTool?.toolID == toolID)
+                        {
+                            selectedTool = updatedTool;
+                            toolFormularModel = selectedTool.Clone();
+                            toolFormularModel.toolID = selectedTool.toolID;
+                            toolFormularModel.stationID = selectedTool.stationID;
+
+                        }
+                        StateHasChanged();
+                    }
+
+                }
+
                 if (selectedTool != null && selectedTool?.toolID == toolID)
                 {
                     toolReadOnly = false;
@@ -519,71 +648,291 @@
             }
             else if (msg.StartsWith("ToolLocked"))
             {
-                var toolID = int.Parse(msg.Split(';')[1]);
+
+                var parts = msg.Split(';');
+                var toolID = int.Parse(parts[1]);
+
+                var toolList = tools.ToList();
+                var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                if (idx >= 0)
+
+                {
+
+                    var updatedTool = await Fassade.GetTool(toolID);
+                    if (updatedTool != null)
+                    {
+                        toolList[idx] = updatedTool;
+                        tools = toolList.AsEnumerable();
+                        if (showToolFormular && selectedTool?.toolID == toolID)
+                        {
+                            selectedTool = updatedTool;
+                            toolFormularModel = selectedTool.Clone();
+                            toolFormularModel.toolID = selectedTool.toolID;
+                            toolFormularModel.stationID = selectedTool.stationID;
+
+                        }
+                        StateHasChanged();
+                    }
+
+                }
+
                 if (selectedTool != null && selectedTool?.lockedBy != UsernameService.Username && selectedTool.toolID == toolID)
                 {
                     toolReadOnly = true;
                 }
             }
-            else if (msg.StartsWith("ToolClassChanged"))
-            {
-                var id = int.Parse(msg.Split(';')[1]);
-                if (selectedTool != null)
-                {
-                    var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                }
-
-                if (operations != null)
-                {
-                    foreach (var op in operations)
-                    {
-                        op.decisionClassID = 1;
-                        op.verificationClassID = 0;
-                        op.savingClassID = 0;
-                        op.generationClassID = 0;
-                        await Fassade.UpdateOperation(op);
-                    }
-                    await SignalRService.SendMessageToServer("OperationChanged");
-                }
-            }
+            
             else
             {
                 switch (msg)
                 {
-                    case "StationChanged":
-                        if (line != null)
+                    case var msg when msg.StartsWith("StationUpdated;"):
                         {
-                            stations = await Fassade.GetStationsFromLine(line.lineID);
-                            if (selectedStation != null)
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+
+                            var stationList = stations.ToList();
+                            var idx = stationList.FindIndex(s => s.stationID == stationID);
+
+                            if (idx >= 0)
                             {
-                                // Hole die aktualisierte Station aus der Datenbank
-                                selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
+
+                                var updatedStation = await Fassade.GetStation(stationID);
+                                if (updatedStation != null)
+                                {
+                                    stationList[idx] = updatedStation;
+                                    stations = stationList.AsEnumerable();
+                                    if (showStationFormular && selectedStation?.stationID == stationID)
+                                    {
+                                        selectedStation = updatedStation;
+                                        stationFormularModel = selectedStation.Clone();
+                                        stationFormularModel.stationID = selectedStation.stationID;
+                                        stationFormularModel.lineID = selectedStation.lineID;
+
+                                    }
+                                    StateHasChanged();
+                                }
+
                             }
+                            break;
                         }
-                        break;
-                    case "ToolChanged":
-                        if (selectedStation != null)
+
+                    case var msg when msg.StartsWith("StationCreated;"):
                         {
-                            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+                            var stationList = stations.ToList();
+
+
+                            var newStation = await Fassade.GetStation(stationID);
+                            if (newStation != null && !stationList.Any(s => s.stationID == stationID))
+                            {
+
+                                stationList.Add(newStation);
+                                stations = stationList.AsEnumerable();
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("StationDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+                            var stationList = stations.ToList();
+
+                            var idx = stationList.FindIndex(s => s.stationID == stationID);
+                            if (idx >= 0)
+                            {
+                                stationList.RemoveAt(idx);
+                                stations = stationList.AsEnumerable();
+
+                                if (selectedStation?.stationID == stationID)
+                                {
+                                    selectedStation = null;
+                                    showStationFormular = false;
+                                }
+
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolUpdated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+
+                            var toolList = tools.ToList();
+                            var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                            if (idx >= 0)
+                            {
+
+                                var updatedTool = await Fassade.GetTool(toolID);
+                                if (updatedTool != null)
+                                {
+                                    toolList[idx] = updatedTool;
+                                    tools = toolList.AsEnumerable();
+                                    if (showToolFormular && selectedTool?.toolID == toolID)
+                                    {
+                                        selectedTool = updatedTool;
+                                        toolFormularModel = selectedTool.Clone();
+                                        toolFormularModel.toolID = selectedTool.toolID;
+                                        toolFormularModel.stationID = selectedTool.stationID;
+
+                                    }
+                                    StateHasChanged();
+                                }
+
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolCreated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+                            var toolList = tools.ToList();
+                            var newTool = await Fassade.GetTool(toolID);
+                            if (newTool != null && !toolList.Any(s => s.toolID == toolID))
+                            {
+                                toolList.Add(newTool);
+                                tools = toolList.AsEnumerable();
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+                            var toolList = tools.ToList();
+                            var idx = toolList.FindIndex(s => s.toolID == toolID);
+                            if (idx >= 0)
+                            {
+                                toolList.RemoveAt(idx);
+                                tools = toolList.AsEnumerable();
+                                if (selectedTool?.toolID == toolID)
+                                {
+                                    selectedTool = null;
+                                    showToolFormular = false;
+                                }
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolClassChanged;"):
+                        {
+                            var id = msg.Split(';')[1];
+                            var operations = Enumerable.Empty<Operation>();
                             if (selectedTool != null)
                             {
-                                // Aktualisiere das ausgewählte Tool aus der neuen Liste
-                                selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
+                                operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
                             }
-                        }
-                        break;
-                    case "OperationChanged":
-                        if (selectedTool != null)
-                        {
-                            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                            if (selectedOperation != null)
+                            if (operations != null)
                             {
-                                // Aktualisiere die ausgewählte Operation aus der neuen Liste
-                                selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
+                                foreach (var op in operations)
+                                {
+                                    op.decisionClassID = 1;
+                                    op.verificationClassID = 0;
+                                    op.savingClassID = 0;
+                                    op.generationClassID = 0;
+                                    await Fassade.UpdateOperation(op);
+                                    var operationID = op.operationID;
+                                    var operationList = allOperations.ToList();
+                                    var idx = operationList.FindIndex(s => s.operationID == operationID);
+                                    if (idx >= 0)
+                                    {
+                                        var updatedOperation = await Fassade.GetOperation(operationID);
+                                        if (updatedOperation != null)
+                                        {
+                                            operationList[idx] = updatedOperation;
+                                            allOperations = operationList.AsEnumerable();
+                                            if (showOperationFormular && selectedOperation?.operationID == operationID)
+                                            {
+                                                selectedOperation = updatedOperation;
+                                                operationFormularModel = selectedOperation.Clone();
+                                                operationFormularModel.operationID = selectedOperation.operationID;
+                                                operationFormularModel.toolID = selectedOperation.toolID;
+                                            }
+                                            StateHasChanged();
+                                        }
+                                    }
+                                }
+
                             }
+                            break;
                         }
-                        allOperations = await Fassade.GetAllOperations();
-                        break;
+
+                    case var msg when msg.StartsWith("OperationUpdated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = allOperations.ToList();
+                            var idx = operationList.FindIndex(s => s.operationID == operationID);
+                            if (idx >= 0)
+                            {
+                                var updatedOperation = await Fassade.GetOperation(operationID);
+                                if (updatedOperation != null)
+                                {
+                                    operationList[idx] = updatedOperation;
+                                    allOperations = operationList.AsEnumerable();
+                                    if (showOperationFormular && selectedOperation?.operationID == operationID)
+                                    {
+                                        selectedOperation = updatedOperation;
+                                        operationFormularModel = selectedOperation.Clone();
+                                        operationFormularModel.operationID = selectedOperation.operationID;
+										operationFormularModel.toolID = selectedOperation.toolID;
+                                    }
+                                    StateHasChanged();
+                                }
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("OperationCreated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = allOperations.ToList();
+                            var newOperation = await Fassade.GetOperation(operationID);
+                            if (newOperation != null && !operationList.Any(s => s.operationID == operationID))
+                            {
+                                operationList.Add(newOperation);
+                                allOperations = operationList.AsEnumerable();
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("OperationDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = allOperations.ToList();
+                            var idx = operationList.FindIndex(s => s.operationID == operationID);
+                            if (idx >= 0)
+                            {
+                                operationList.RemoveAt(idx);
+                                allOperations = operationList.AsEnumerable();
+                                if (selectedOperation?.operationID == operationID)
+                                {
+                                    selectedOperation = null;
+                                    showOperationFormular = false;
+                                }
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+
+
+
+                    
                     case "LineDeleted":
 
                         if (line != null)
@@ -615,7 +964,7 @@
             Navigation.NavigateTo("/", replace: true);
             return;
         }
-        
+
         stations = await Fassade.GetStationsFromLine(line.lineID);
         if (stations != null)
         {
@@ -630,24 +979,30 @@
             }
             await RestoreSavedSelection();
         }
-        
+
         NavState.SetCurrentRoute($"/line/{lineName}");
     }
 
     #region Clone
     private Tool? copiedTool;
+    private List<Operation> copiedOperations;
     private Operation? copiedOperation;
-    public void CloneTool(Tool copied)
+    public async Task CloneTool(Tool copied)
     {
 
         copiedTool = Fassade.Clone(copied);
         copiedTool.isLocked = false;
         copiedTool.lockedBy = null;
+        copiedTool.lockTimestamp = null;
+        copiedOperations = (await Fassade.GetOperationsFromTool(copied.toolID)).Select(op => op.Clone()).ToList();
     }
 
     public void CloneOperation(Operation copied)
     {
         copiedOperation = Fassade.Clone(copied);
+        copiedOperation.isLocked = false;
+        copiedOperation.lockedBy = null;
+        copiedOperation.lockTimestamp = null;
     }
 
     public async Task InsertTool()
@@ -672,8 +1027,20 @@
             copiedTool.toolShortname = newName;
         }
 
+
         await Fassade.AddTool(copiedTool);
-        await SignalRService.SendMessageToServer("ToolChanged");
+		
+        
+        copiedTool = await Fassade.GetToolByName(copiedTool.toolShortname, selectedStation.stationID.Value);
+        await SignalRService.SendMessageToServer($"ToolCreated;{copiedTool.toolID}");
+        foreach(var operation in copiedOperations)
+        {
+            operation.toolID = copiedTool.toolID;
+            await Fassade.AddOperation(operation);
+			var signalOperation = await Fassade.GetOperationByName(operation.operationShortname, copiedTool.toolID.Value);
+            await SignalRService.SendMessageToServer($"OperationCreated;{signalOperation.operationID}");
+        }
+
         await DirtyManagerService.setClean();
 
 
@@ -707,7 +1074,8 @@
         }
 
         await Fassade.AddOperation(copiedOperation);
-        await SignalRService.SendMessageToServer("OperationChanged");
+		copiedOperation = await Fassade.GetOperationByName(copiedOperation.operationShortname, selectedTool.toolID.Value);
+        await SignalRService.SendMessageToServer($"OperationCreated;{copiedOperation.operationID}");
         await DirtyManagerService.setClean();
 
 
@@ -787,7 +1155,7 @@
     #endregion
 
     #region Badge
-    
+
     private static string GetBadgeColour(Status status)
     {
         return status switch
@@ -805,7 +1173,7 @@
         var map = toolsList
                 .GroupBy(op => op.Status)
                 .ToDictionary(g => g.Key, g => g.Count());
-        
+
         if (map.TryGetValue(Status.Red, out var redCount) && redCount >= 1)
             worstStatus = Status.Red;
         else if (map.TryGetValue(Status.Yellow, out var yellowCount) && yellowCount >= 1)
@@ -870,6 +1238,9 @@
             {
 
                 selectedStation = station;
+                stationFormularModel = station.Clone();
+                stationFormularModel.lineID = selectedStation.lineID;
+                stationFormularModel.stationID = selectedStation.stationID;
                 tools = await Fassade.GetToolsFromStation(station.stationID);
 
                 if (savedSelection.ToolID.HasValue)
@@ -878,7 +1249,13 @@
                     if (tool != null)
                     {
                         selectedTool = tool;
+
+                        toolFormularModel = tool.Clone();
+                        toolFormularModel.stationID = selectedTool.stationID;
+						toolFormularModel.toolID = selectedTool.toolID;
+                       
                         toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != UsernameService.Username;
+
 
                         if (savedSelection.OperationID.HasValue)
                         {
@@ -886,7 +1263,13 @@
                             if (operation != null && operation.toolID == tool.toolID)
                             {
                                 selectedOperation = operation;
+
+                                operationFormularModel = operation.Clone();
+                                operationFormularModel.operationID = selectedOperation.operationID;
+								operationFormularModel.toolID = selectedOperation.toolID;
+
                                 operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != UsernameService.Username;
+
 
                                 // Operation-Formular anzeigen
                                 showOperationFormular = true;
