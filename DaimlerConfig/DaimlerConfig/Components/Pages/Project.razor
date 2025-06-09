@@ -294,13 +294,18 @@
     }
     private Station? stationFormularModel;
 
-    private void ToggleStationFormular(bool isNewStation)
+    private async Task ToggleStationFormular(bool isNewStation)
     {
         if (isNewStation)
         {
+            await UnlockOperation();
+            await UnlockTool();
             selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
             stationFormularModel = selectedStation.Clone();
             stationFormularModel.lineID = selectedStation.lineID;
+            tools = Enumerable.Empty<Tool>();
+            allOperations = Enumerable.Empty<Operation>();
+
         }
         else if (selectedStation != null)
         {
@@ -361,8 +366,11 @@
     {
         if (isNewTool)
         {
+            await UnlockOperation();
+            await UnlockTool();
             selectedTool = await CreateDummyTool();
-            toolFormularModel = selectedTool.Clone(); // Kopie für neues Tool
+            toolFormularModel = selectedTool.Clone();
+            toolReadOnly = false;
         }
         else if (selectedTool != null)
         {
@@ -455,8 +463,11 @@
     {
         if (isNewOperation)
         {
+            await UnlockOperation();
+            await UnlockTool();
             selectedOperation = await CreateDummyOP();
             operationFormularModel = selectedOperation.Clone(); // Kopie für neue Operation
+            operationReadOnly = false;
         }
         else if (selectedOperation != null)
         {
