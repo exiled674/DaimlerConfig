@@ -159,14 +159,14 @@
                     @if (showToolFormular && toolFormularModel != null)
                     {
 
-                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@toolFormularModel" UsernameService.Username=@UsernameService.Username ToolVersions=@toolVersions />
+                        <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@toolFormularModel" CurrentUser=@UsernameService.Username ToolVersions=@toolVersions />
 
                     }
 
                     @if (showOperationFormular && operationFormularModel != null)
                     {
 
-                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@operationFormularModel" UsernameService.Username="@UsernameService.Username" OperationVersions=operationVersions />
+                        <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@operationFormularModel" CurrentUser="@UsernameService.Username" OperationVersions=operationVersions />
 
 
 
@@ -378,6 +378,11 @@
 
     private async Task ToggleToolFormular(bool isNewTool)
     {
+        if (selectedStation == null)
+        {
+            // Optional: Benutzerfeedback, z.B. eine Meldung anzeigen
+            return;
+        }
 
         if (isNewTool)
         {
@@ -390,12 +395,10 @@
         }
         else if (selectedTool != null)
         {
-            // WICHTIG: Kopie erstellen für bestehendes Tool
             toolFormularModel = selectedTool.Clone();
             toolFormularModel.toolID = selectedTool.toolID;
             toolFormularModel.stationID = selectedTool.stationID;
         }
-
 
         showToolFormular = true;
         showOperationFormular = false;
@@ -411,6 +414,7 @@
 
         StateHasChanged();
     }
+
 
     public async Task UnlockTool()
     {
