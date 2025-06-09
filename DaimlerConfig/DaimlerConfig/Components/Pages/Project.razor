@@ -23,6 +23,7 @@
     <nav class="navbar fixed-top bg-white border-bottom">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h2">Project: @line?.lineName</span>
+            @UsernameService.Username
         </div>
     </nav>
 
@@ -188,8 +189,37 @@
 </body>
 
 @code {
+
+
     //private readonly string currentUser = DaimlerConfig.MauiProgram.Username;
 
+
+    public static string SetzeOderErsetzeGuiId(string identifier)
+    {
+        if (string.IsNullOrWhiteSpace(identifier))
+            throw new ArgumentException("Der Identifier darf nicht leer sein.", nameof(identifier));
+
+        string neueGuiID = Guid.NewGuid().ToString();
+
+        int trennerIndex = identifier.IndexOf(';');
+
+        if (trennerIndex >= 0)
+        {
+            string nameTeil = identifier.Substring(0, trennerIndex);
+            return $"{nameTeil};{neueGuiID}";
+        }
+        else
+        {
+            return $"{identifier};{neueGuiID}";
+        }
+    }
+
+
+    protected override void OnParametersSet()
+    {
+
+        
+    }
 
     private StationFormular? stationFormular;
     private ToolFormular? toolFormular;
@@ -567,7 +597,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+
         UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+        UsernameService.UpdateUsername(SetzeOderErsetzeGuiId(UsernameService.Username));
+
         LifecycleService.OnAppClosing += HandleAppClosingAsync;
         SignalRService.RegisterResponseHandler(async (string msg) =>
     {
