@@ -402,7 +402,7 @@
             selectedTool.isLocked = false;
             selectedTool.lockedBy = null;
             await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer("ToolUpdated");
+            await SignalRService.SendMessageToServer($"ToolUpdated;{selectedTool.toolID}");
             await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
         }
     }
@@ -506,7 +506,7 @@
             selectedOperation.isLocked = false;
             selectedOperation.lockedBy = null;
             await Fassade.UpdateOperation(selectedOperation);
-            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer($"OperationUpdated;{selectedOperation.operationID}");
             await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
         }
     }
@@ -1015,14 +1015,16 @@
 
 
         await Fassade.AddTool(copiedTool);
-        await SignalRService.SendMessageToServer("ToolChanged");
+		
+        
         copiedTool = await Fassade.GetToolByName(copiedTool.toolShortname, selectedStation.stationID.Value);
-
+        await SignalRService.SendMessageToServer($"ToolCreated;{copiedTool.toolID}");
         foreach(var operation in copiedOperations)
         {
             operation.toolID = copiedTool.toolID;
             await Fassade.AddOperation(operation);
-            await SignalRService.SendMessageToServer("OperationChanged");
+			var signalOperation = await Fassade.GetOperationByName(operation.operationShortname, copiedTool.toolID.Value);
+            await SignalRService.SendMessageToServer($"OperationCreated;{signalOperation.operationID}");
         }
 
         await DirtyManagerService.setClean();
@@ -1058,7 +1060,8 @@
         }
 
         await Fassade.AddOperation(copiedOperation);
-        await SignalRService.SendMessageToServer("OperationChanged");
+		copiedOperation = await Fassade.GetOperationByName(copiedOperation.operationShortname, selectedTool.toolID.Value);
+        await SignalRService.SendMessageToServer($"OperationCreated;{copiedOperation.operationID}");
         await DirtyManagerService.setClean();
 
 
