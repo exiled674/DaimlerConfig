@@ -370,7 +370,7 @@
             await UnlockTool();
             selectedTool = await CreateDummyTool();
             toolFormularModel = selectedTool.Clone();
-			toolFormularModel.stationID = selectedStation.stationID;
+            toolFormularModel.stationID = selectedStation.stationID;
             toolReadOnly = false;
         }
         else if (selectedTool != null)
@@ -468,7 +468,7 @@
             await UnlockTool();
             selectedOperation = await CreateDummyOP();
             operationFormularModel = selectedOperation.Clone(); // Kopie für neue Operation
-			operationFormularModel.toolID = selectedTool.toolID;
+            operationFormularModel.toolID = selectedTool.toolID;
             operationReadOnly = false;
         }
         else if (selectedOperation != null)
@@ -558,7 +558,7 @@
                         StateHasChanged();
                     }
                 }
-               
+
                 if ( selectedOperation != null && selectedOperation?.operationID == operationID)
                 {
                     operationReadOnly = false;
@@ -587,7 +587,7 @@
                         StateHasChanged();
                     }
                 }
-               
+
                 if ( selectedOperation != null && selectedOperation?.lockedBy != currentUser && selectedOperation.operationID == operationID)
                 {
                     operationReadOnly = true;
@@ -621,7 +621,7 @@
                     }
 
                 }
-                
+
                 if (selectedTool != null && selectedTool?.toolID == toolID)
                 {
                     toolReadOnly = false;
@@ -655,33 +655,13 @@
                     }
 
                 }
-               
+
                 if (selectedTool != null && selectedTool?.lockedBy != currentUser && selectedTool.toolID == toolID)
                 {
                     toolReadOnly = true;
                 }
             }
-            else if (msg.StartsWith("ToolClassChanged"))
-            {
-                var id = int.Parse(msg.Split(';')[1]);
-                if(selectedTool != null)
-                {
-                    var operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                }
-                if(operations != null)
-                {
-                    foreach (var op in operations)
-                    {
-                        op.decisionClassID = 1;
-                        op.verificationClassID = 0;
-                        op.savingClassID = 0;
-                        op.generationClassID = 0;
-                        await Fassade.UpdateOperation(op);
-                        await SignalRService.SendMessageToServer($"OperationUpdated;{op.operationID}");
-                    }
-                   
-                }
-            }
+            
             else
             {
                 switch (msg)
@@ -824,6 +804,49 @@
                             break;
                         }
 
+                    case var msg when msg.StartsWith("ToolClassChanged;"):
+                        {
+                            var id = msg.Split(';')[1];
+                            var operations = Enumerable.Empty<Operation>();
+                            if (selectedTool != null)
+                            {
+                                operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                            }
+                            if (operations != null)
+                            {
+                                foreach (var op in operations)
+                                {
+                                    op.decisionClassID = 1;
+                                    op.verificationClassID = 0;
+                                    op.savingClassID = 0;
+                                    op.generationClassID = 0;
+                                    await Fassade.UpdateOperation(op);
+                                    var operationID = op.operationID;
+                                    var operationList = allOperations.ToList();
+                                    var idx = operationList.FindIndex(s => s.operationID == operationID);
+                                    if (idx >= 0)
+                                    {
+                                        var updatedOperation = await Fassade.GetOperation(operationID);
+                                        if (updatedOperation != null)
+                                        {
+                                            operationList[idx] = updatedOperation;
+                                            allOperations = operationList.AsEnumerable();
+                                            if (showOperationFormular && selectedOperation?.operationID == operationID)
+                                            {
+                                                selectedOperation = updatedOperation;
+                                                operationFormularModel = selectedOperation.Clone();
+                                                operationFormularModel.operationID = selectedOperation.operationID;
+                                                operationFormularModel.toolID = selectedOperation.toolID;
+                                            }
+                                            StateHasChanged();
+                                        }
+                                    }
+                                }
+
+                            }
+                            break;
+                        }
+
                     case var msg when msg.StartsWith("OperationUpdated;"):
                         {
                             var parts = msg.Split(';');
@@ -888,40 +911,7 @@
 
 
 
-                    case "StationChanged":
-                        if (line != null)
-                        {
-                            stations = await Fassade.GetStationsFromLine(line.lineID);
-                            if (selectedStation != null)
-                            {
-                                // Hole die aktualisierte Station aus der Datenbank
-                                selectedStation = stations.FirstOrDefault(s => s.stationID == selectedStation.stationID);
-                            }
-                        }
-                        break;
-                    case "ToolChanged":
-                        if (selectedStation != null)
-                        {
-                            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
-                            if (selectedTool != null)
-                            {
-                                // Aktualisiere das ausgewählte Tool aus der neuen Liste
-                                selectedTool = tools.FirstOrDefault(t => t.toolID == selectedTool.toolID);
-                            }
-                        }
-                        break;
-                    case "OperationChanged":
-                        if (selectedTool != null)
-                        {
-                            operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
-                            if (selectedOperation != null)
-                            {
-                                // Aktualisiere die ausgewählte Operation aus der neuen Liste
-                                selectedOperation = operations.FirstOrDefault(o => o.operationID == selectedOperation.operationID);
-                            }
-                        }
-                        allOperations = await Fassade.GetAllOperations();
-                        break;
+                    
                     case "LineDeleted":
 
                         if (line != null)

@@ -427,7 +427,7 @@
             SelectedTool.toolClassID = selectedId;
             toolTypes = await Fassade.FindToolTypes(selectedId);
             SelectedTool.toolTypeID = toolTypes.FirstOrDefault()?.toolTypeID ?? 0;
-			await SignalRService.SendMessageToServer("ToolClassChanged;" + SelectedTool.toolID.ToString());
+			await SignalRService.SendMessageToServer($"ToolClassChanged;{SelectedTool.toolID}");
         }
     }
 
