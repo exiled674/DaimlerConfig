@@ -302,9 +302,11 @@
         }
 
     }
+
     private Station? stationFormularModel;
 
     private async Task ToggleStationFormular(bool isNewStation)
+
     {
         if (isNewStation)
         {
@@ -376,6 +378,7 @@
 
     private async Task ToggleToolFormular(bool isNewTool)
     {
+
         if (isNewTool)
         {
             await UnlockOperation();
@@ -392,6 +395,7 @@
             toolFormularModel.toolID = selectedTool.toolID;
             toolFormularModel.stationID = selectedTool.stationID;
         }
+
 
         showToolFormular = true;
         showOperationFormular = false;
@@ -436,7 +440,9 @@
     private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
     private IEnumerable<Operation> allOperations;
     private Operation? selectedOperation;
+
     private Operation? operationFormularModel; // NEU: Separate Kopie für das Formular
+
     private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
@@ -449,6 +455,16 @@
         }
         else
         {
+            var opsList = allOperations.ToList();
+            var idx = opsList.FindIndex(o => o.operationID == operation.operationID);
+            if (idx >= 0)
+            {
+                var freshOp = await Fassade.GetOperation(operation.operationID);
+                if (freshOp != null)
+                    opsList[idx] = freshOp;
+            }
+            allOperations = opsList.AsEnumerable();
+
             if (selectedOperation != null && selectedOperation.operationID != operation.operationID)
                 await UnlockOperation();
 
@@ -466,9 +482,14 @@
                     operationID: operation.operationID
                 );
             }
-
+            
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
-            StateHasChanged();
+
+            showOperationFormular = true;
+            showToolFormular = false;
+            showStationFormular = false;
+            StateHasChanged();  
+
         }
     }
 
