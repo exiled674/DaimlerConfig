@@ -675,8 +675,9 @@
                         op.savingClassID = 0;
                         op.generationClassID = 0;
                         await Fassade.UpdateOperation(op);
+                        await SignalRService.SendMessageToServer($"OperationUpdated;{op.operationID}");
                     }
-                    await SignalRService.SendMessageToServer("OperationChanged");
+                   
                 }
             }
             else
