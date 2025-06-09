@@ -19,21 +19,36 @@
 @inject DirtyManagerService DirtyManagerService
 @using DaimlerConfig.Components.Models
 
+@using MudBlazor
+@inject IDialogService DialogService
 
 <!-- Navbar -->
+
 <nav class="navbar fixed-top bg-white border-bottom">
     <div class="container">
         <span class="navbar-brand mb-0 h2">DaimlerConfig</span>
+        <MudIconButton Icon="@Icons.Material.Filled.Settings"
+        Color="Color.Primary"
+        OnClick="OpenSettings"
+        aria-label="Settings" />
+
+        @if (ShowSettings)
+        {
+            <Settings OnClosing="CLoseSetting"></Settings>
+        }
+
     </div>
 </nav>
 
+
 <!-- Main Content -->
 <div class="ProjectManager container">
-
-   <!-- div with search and sort-->
-   <div class="projects">
-    <p class="lineLabel">Lines:</p>
-    <hr/>
+    <h1 class="mt-5">Project Manager</h1>
+    <p class="text-muted">Manage your projects and lines here.</p>
+    <!-- div with search and sort-->
+    <div class="projects">
+        <p class="lineLabel">Lines:</p>
+        <hr/>
         <div class="row g-3 mb-3">
             <!-- Search Input -->
             <div class="col">
@@ -44,10 +59,10 @@
                         </svg>
                     </span>
                     <input type="text"
-                           class="form-control bg-body-tertiary border-start-0"
-                           placeholder="Search"
-                           @oninput="OnSearchTextChanged"
-                           value="@searchText">
+                    class="form-control bg-body-tertiary border-start-0"
+                    placeholder="Search"
+                    @oninput="OnSearchTextChanged"
+                    value="@searchText">
                 </div>
             </div>
 
@@ -59,112 +74,111 @@
                     </button>
                     @if (ShowDropdown)
                     {
-                            <ul class="dropdown-menu show w-100" aria-labelledby="sortDropdown">
+                        <ul class="dropdown-menu show w-100" aria-labelledby="sortDropdown">
                             <li><button class="dropdown-item @(selectedSort == "date" ? "active" : "")" @onclick="@(() => OnSortChanged(new ChangeEventArgs { Value = "date" }))">Sorted by date descending</button></li>
                             <li><button class="dropdown-item @(selectedSort == "name" ? "active" : "")" @onclick="@(() => OnSortChanged(new ChangeEventArgs { Value = "name" }))">Sorted by name ascending</button></li>
-                            </ul>
+                        </ul>
 
                     }
                     @if (ShowDropdown)
                     {
-                            <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:900;"
-                                 @onclick="() => ShowDropdown = false"></div>
+                        <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:900;"
+                        @onclick="() => ShowDropdown = false"></div>
                     }
 
                 </div>
             </div>
         </div>
-        </div>
+    </div>
 
     <!-- Lines List -->
-        @if (FilteredLines is not null && FilteredLines.Any())
+    @if (FilteredLines is not null && FilteredLines.Any())
+    {
+        foreach (var line in FilteredLines)
         {
-            foreach (var line in FilteredLines)
-            {
-                    <div class="line-div border rounded d-flex align-items-center justify-content-between mb-2 p-0 overflow-visible position-relative">
+            <div class="line-div border rounded d-flex align-items-center justify-content-between mb-2 p-0 overflow-visible position-relative">
 
-                        <!-- Editing Line -->
-                    @if (EditingLines.Contains(line))
-                    {
-                                <div class="d-flex align-items-center flex-grow-1 p-2">
-                                    <input class="form-control @(isDuplicateName ? "is-invalid" : "")"
-                                           value="@line.lineName"
-                                           @onchange="e => ConfirmEdit(line, e)"
-                                           autofocus />
-                            @if (isDuplicateName)
-                            {
-                                 <div class="invalid-feedback px-2 ms-2">The name already exists.</div>
-                            }
-                                    <button class="btn btn-secondary ms-2" title="Cancel" @onclick="() => CancelEdit(line)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                             viewBox="0 0 16 16">
-                                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1
+                <!-- Editing Line -->
+                @if (EditingLines.Contains(line))
+                {
+                    <div class="d-flex align-items-center flex-grow-1 p-2">
+                        <input class="form-control @(isDuplicateName ? "is-invalid" : "")"
+                        value="@line.lineName"
+                        @onchange="e => ConfirmEdit(line, e)"
+                        autofocus />
+                        @if (isDuplicateName)
+                        {
+                            <div class="invalid-feedback px-2 ms-2">The name already exists.</div>
+                        }
+                        <button class="btn btn-secondary ms-2" title="Cancel" @onclick="() => CancelEdit(line)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1
                                    .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646
                                    2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                                        </svg>
-                                    </button>
+                            </svg>
+                        </button>
 
-                                </div>
-                    }
-                    // Normal Line Display
-                    else
-                    {
-                                    <div class="d-flex align-items-center justify-content-between flex-grow-1 p-2"
-                                         style="cursor: pointer;"
-                                         @onclick="@(() => NavigateToLine(line.lineName))">
-
-                                         <span>@line.lineName</span>
-
-                                         <div class="d-flex align-items-center gap-2">
-                                         <span class="text-muted">last modified: @line.lastModified</span>
-
-
-                                        <div class="dropdown" @onclick:stopPropagation>
-                                            <button class="btn btn-sm btn-outline-secondary border-0 dropdown-toggle"
-                                                    @onclick="@(() => ToggleContextMenu(line))">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                                     class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                                                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                                                </svg>
-                                            </button>
-
-                                    @if (ActiveContextMenuLine == line)
-                                    {
-                                                    <div class="dropdown-menu show position-absolute end-0" >
-                                                        <button class="dropdown-item" @onclick="@(() => StartEditing(line))">Edit</button>
-                                                        <button class="dropdown-item" @onclick="@(() => DeleteLine(line))">Delete</button>
-                                                        <button class="dropdown-item" @onclick="FilePick">Export to Excel</button>
-                                                        <button class="dropdown-item" @onclick="FilePickJson">Export to Json</button>
-                                                    </div>
-
-                                    }
-                                    @if (ActiveContextMenuLine == line)
-                                    {
-                                                    <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:900;"
-                                                         @onclick="() => ActiveContextMenuLine = null"></div>
-                                    }
-                                        </div>
-                                        </div>
-                                    </div>
-                    }
                     </div>
-            }
+                }
+                // Normal Line Display
+                else
+                {
+                    <div class="d-flex align-items-center justify-content-between flex-grow-1 p-2"
+                    style="cursor: pointer;"
+                    @onclick="@(() => NavigateToLine(line.lineName))">
+
+                        <span>@line.lineName</span>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted">last modified: @line.lastModified</span>
+
+
+                            <div class="dropdown" @onclick:stopPropagation>
+                                <button class="btn btn-sm btn-outline-secondary border-0 dropdown-toggle"
+                                @onclick="@(() => ToggleContextMenu(line))">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                    </svg>
+                                </button>
+
+                                @if (ActiveContextMenuLine == line)
+                                {
+                                    <div class="dropdown-menu show position-absolute end-0" >
+                                        <button class="dropdown-item" @onclick="@(() => StartEditing(line))">Edit</button>
+                                        <button class="dropdown-item" @onclick="@(() => DeleteLine(line))">Delete</button>
+                                        <button class="dropdown-item" @onclick="FilePick">Export to Excel</button>
+                                        <button class="dropdown-item" @onclick="FilePickJson">Export to Json</button>
+                                    </div>
+
+                                }
+                                @if (ActiveContextMenuLine == line)
+                                {
+                                    <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:900;"
+                                    @onclick="() => ActiveContextMenuLine = null"></div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         }
+    }
 
 
 
 
-        else
-        {
-            <p class="text-muted">Keine Lines gefunden.</p>
-        }
+    else
+    {
+        <p class="text-muted">Keine Lines gefunden.</p>
+    }
 
     <div>
-    <button class="btn btn-block btn-primary pt-2" @onclick="CreateNewLine">
-                <span class="plus-icon">+</span>
-                Create Empty Project
-    </button>
-
+        <button class="btn btn-block btn-primary pt-2" @onclick="CreateNewLine">
+            <span class="plus-icon">+</span>
+            Create Empty Project
+        </button>
     </div>
 </div>
 
@@ -181,7 +195,8 @@
     private string selectedSort = "date";
     private bool isDuplicateName = false;
     private Line? ActiveContextMenuLine = null;
-	private bool ShowDropdown = false;
+    private bool ShowDropdown = false;
+    private bool ShowSettings = false;
 
     private void ToggleContextMenu(Line line)
     {
@@ -324,59 +339,59 @@
     {
         Navigation.NavigateTo($"/line/{Uri.EscapeDataString(lineName)}");
     }
-    
+
     private async Task FilePick()
     {
-    var line = ActiveContextMenuLine;
-    ActiveContextMenuLine = null;
+        var line = ActiveContextMenuLine;
+        ActiveContextMenuLine = null;
 
-    try 
-    {
-        // Vorbereiten der Daten
-        var tools = new List<Tool>();
-        var operations = new List<Operation>();
-        var stations = await Fassade.GetStationsFromLine(line.lineID);
-        foreach (var station in stations)
+        try
         {
-            tools.AddRange(await Fassade.GetToolsFromStation(station.stationID));
+            // Vorbereiten der Daten
+            var tools = new List<Tool>();
+            var operations = new List<Operation>();
+            var stations = await Fassade.GetStationsFromLine(line.lineID);
+            foreach (var station in stations)
+            {
+                tools.AddRange(await Fassade.GetToolsFromStation(station.stationID));
+            }
+            foreach (var tool in tools)
+            {
+                operations.AddRange(await Fassade.GetOperationsFromTool(tool.toolID));
+            }
+
+            var stationTypes = await Fassade.StationTypeRepository.GetAll();
+            var toolTypes = await Fassade.ToolTypeRepository.GetAll();
+            var toolClasses = await Fassade.ToolClassRepository.GetAll();
+
+            // Excel-Datei erstellen und in MemoryStream speichern
+            using var stream = new MemoryStream();
+            using (var workbook = new XLWorkbook())
+            {
+                Fassade.ExcelExport.Export(stream, line, stations.ToArray(), tools.ToArray(), stationTypes.ToArray(), toolTypes.ToArray(), toolClasses.ToArray());
+            }
+
+            // Standard-Dateispeicherdialog verwenden
+            var fileName = $"ExcelExport-{line.lineName ?? "line"}_{DateTime.Now:yyyyMMdd}.xlsx";
+            var result = await FileSaver.Default.SaveAsync(
+                fileName,
+                stream,
+                new CancellationToken()
+            );
+
+            if (result.IsSuccessful)
+            {
+                await Application.Current.MainPage.DisplayAlert("Success", "The file was saved successfully.", "OK");
+            }
         }
-        foreach (var tool in tools)
+        catch (Exception ex)
         {
-            operations.AddRange(await Fassade.GetOperationsFromTool(tool.toolID));
+            await Application.Current.MainPage.DisplayAlert("Error",
+                "An error occurred while saving the file: " + ex.Message, "OK");
         }
 
-        var stationTypes = await Fassade.StationTypeRepository.GetAll();
-        var toolTypes = await Fassade.ToolTypeRepository.GetAll();
-        var toolClasses = await Fassade.ToolClassRepository.GetAll();
-
-        // Excel-Datei erstellen und in MemoryStream speichern
-        using var stream = new MemoryStream();
-        using (var workbook = new XLWorkbook())
-        {
-            Fassade.ExcelExport.Export(stream, line, stations.ToArray(), tools.ToArray(), stationTypes.ToArray(), toolTypes.ToArray(), toolClasses.ToArray());
-        }
-
-        // Standard-Dateispeicherdialog verwenden
-        var fileName = $"ExcelExport-{line.lineName ?? "line"}_{DateTime.Now:yyyyMMdd}.xlsx";
-        var result = await FileSaver.Default.SaveAsync(
-            fileName,
-            stream,
-            new CancellationToken()
-        );
-
-        if (result.IsSuccessful)
-        {
-            await Application.Current.MainPage.DisplayAlert("Success", "The file was saved successfully.", "OK");
-        }
     }
-    catch (Exception ex)
-    {
-        await Application.Current.MainPage.DisplayAlert("Error", 
-            "An error occurred while saving the file: " + ex.Message, "OK");
-    }
-    
-    }
-    
+
     private async Task FilePickJson()
     {
         var line = ActiveContextMenuLine;
@@ -399,8 +414,25 @@
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", 
+            await Application.Current.MainPage.DisplayAlert("Error",
                 "An error occurred while saving the file: " + ex.Message, "OK");
         }
     }
+
+    #region Settings
+
+    private void OpenSettings()
+    {
+        if (ShowSettings) return;
+
+        ShowSettings = true;
+    }
+
+	private void CLoseSetting()
+	{
+		
+        ShowSettings = false;
+	}
+
+    #endregion
 }

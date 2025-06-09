@@ -65,6 +65,7 @@ namespace DaimlerConfig.Components.Models
                 && stationID == other.stationID
                 && string.Equals(toolShortname, other.toolShortname, StringComparison.Ordinal)
                 && string.Equals(toolDescription, other.toolDescription, StringComparison.Ordinal)
+                && toolClassID == other.toolClassID
                 && toolTypeID == other.toolTypeID
                 && string.Equals(ipAddressDevice, other.ipAddressDevice, StringComparison.Ordinal)
                 && string.Equals(plcName, other.plcName, StringComparison.Ordinal)
@@ -73,8 +74,12 @@ namespace DaimlerConfig.Components.Models
                 && preCheckByte == other.preCheckByte
                 && string.Equals(addressSendDB, other.addressSendDB, StringComparison.Ordinal)
                 && string.Equals(addressReceiveDB, other.addressReceiveDB, StringComparison.Ordinal)
-                && string.Equals(modifiedBy, other.modifiedBy, StringComparison.Ordinal);
+                && Nullable.Equals(lastModified, other.lastModified)
+                && string.Equals(modifiedBy, other.modifiedBy, StringComparison.Ordinal)
+                && string.Equals(Comment, other.Comment, StringComparison.Ordinal)
+                && Status == other.Status;
         }
+
 
 
     }

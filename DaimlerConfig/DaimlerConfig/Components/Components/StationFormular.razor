@@ -123,8 +123,8 @@
 		if (await ValidateData() == false) return;
 		SelectedStation.modifiedBy = DaimlerConfig.MauiProgram.Username;
 		if (!await Fassade.UpdateStation(SelectedStation)) return;
-
-		await SignalRService.SendMessageToServer("StationChanged");
+		var signalStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
+		await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
 		await DirtyManagerService.setClean();
 	}
 
@@ -137,7 +137,11 @@
 		if (await ValidateData() == false) return;
 		if (!await Fassade.AddStation(SelectedStation)) return;
 
-		await SignalRService.SendMessageToServer("StationChanged");
+		var createdStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
+		if (createdStation != null)
+		{
+			await SignalRService.SendMessageToServer($"StationCreated;{createdStation.stationID}");
+		}
 		await DirtyManagerService.setClean();
 	}
 
@@ -146,7 +150,7 @@
 	{
 		if (SelectedStation == null || !await Fassade.DeleteStation(SelectedStation)) return;
 
-		await SignalRService.SendMessageToServer("StationChanged");
+		await SignalRService.SendMessageToServer($"StationDeleted;{SelectedStation.stationID}");
 		await DirtyManagerService.setClean();
 	}
 
@@ -199,13 +203,10 @@
 
 	public async Task ResetStation()
 	{
-		if (OriginalStation != null)
-		{
-			SelectedStation = OriginalStation.Clone();
-			SelectedStation.stationID = OriginalStation.stationID;
-			SelectedStation.lineID = OriginalStation.lineID;
-		}
-		await SignalRService.SendMessageToServer("StationChanged");
+		
+		var signalStation = await Fassade.GetStation(SelectedStation.stationID.Value);
+		await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
+		await DirtyManagerService.setClean();
 	}
 	#endregion
 

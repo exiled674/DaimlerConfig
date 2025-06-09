@@ -200,7 +200,7 @@
     private IEnumerable<VerificationClass> verificationClasses = Enumerable.Empty<VerificationClass>();
 
     private IEnumerable<GenerationClass> generationClasses = Enumerable.Empty<GenerationClass>();
-    
+
     private IEnumerable<ToolTypeHasTemplate> toolTypeHasTemplates = Enumerable.Empty<ToolTypeHasTemplate>();
 
     protected override async Task OnParametersSetAsync()
@@ -216,9 +216,9 @@
             if(currentTool != null)
             {
                 var toolTypeId = currentTool?.toolTypeID ?? 0;
-                
+
                 toolTypeHasTemplates = await Fassade.ToolTypeHasTemplateRepository.Find(t=>t.ToolTypeId ==toolTypeId);
-                
+
                 currentTemplates.Clear();
                 foreach (var toolTypeHasTemplate in toolTypeHasTemplates)
                 {
@@ -226,8 +226,10 @@
                 }
             }
             await InitializeClasses();
+
 			OperationVersions = await Fassade.GetOperationVersions(SelectedOperation.operationID.Value);
             selectedVersionId = -1;
+
             StateHasChanged();
         }
     }
@@ -238,8 +240,14 @@
         ResetValidationState();
 
 
-        if (!await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation))
+        //if (!await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation))
+        //return;
+
+        var dbOperation = await Fassade.GetOperation(SelectedOperation.operationID);
+        if (dbOperation.Equals(SelectedOperation))
+        {
             return;
+        }
 
 
 
@@ -251,7 +259,7 @@
         if (!await Fassade.UpdateOperationWithVersion(SelectedOperation, OriginalOperation))
             return;
 
-        await SignalRService.SendMessageToServer("OperationChanged");
+        await SignalRService.SendMessageToServer($"OperationUpdated;{SelectedOperation.operationID}");
         await DirtyManagerService.setClean();
     }
 
@@ -264,8 +272,8 @@
 
         if (!await Fassade.AddOperation(SelectedOperation))
             return;
-
-        await SignalRService.SendMessageToServer("OperationChanged");
+		var createdOperation = await Fassade.GetOperationByName(SelectedOperation.operationShortname, SelectedOperation.toolID.Value);
+        await SignalRService.SendMessageToServer($"OperationCreated;{createdOperation.operationID}");
         await DirtyManagerService.setClean();
     }
 
@@ -276,7 +284,7 @@
             if (!await Fassade.DeleteOperation(SelectedOperation))
                 return;
 
-            await SignalRService.SendMessageToServer("OperationChanged");
+            await SignalRService.SendMessageToServer($"OperationDeleted;{SelectedOperation.operationID}");
             await DirtyManagerService.setClean();
         }
     }
@@ -328,13 +336,9 @@
 
     public async Task ResetOperation()
     {
-        if (OriginalOperation != null)
-        {
-            SelectedOperation = OriginalOperation.Clone();
-            SelectedOperation.operationID = OriginalOperation.operationID;
-            SelectedOperation.toolID = OriginalOperation.toolID;
-        }
-        await SignalRService.SendMessageToServer("OperationChanged");
+        var signaloperation = await Fassade.GetOperation(SelectedOperation.operationID.Value);
+        await SignalRService.SendMessageToServer($"OperationUpdated;{signaloperation.operationID}");
+        await DirtyManagerService.setClean();
     }
     #endregion
 
@@ -357,8 +361,8 @@
 			SelectedOperation.lockTimestamp = DateTime.Now;
             await Fassade.UpdateOperation(SelectedOperation);
             
-            await SignalRService.SendMessageToServer("OperationChanged");
-            await SignalRService.SendMessageToServer("OperationLocked;" + SelectedOperation.operationID.ToString());
+           
+            await SignalRService.SendMessageToServer($"OperationLocked;{SelectedOperation.operationID}");
             ReadOnly = false;
 			StateHasChanged();
 			StartUnlockTimer();
@@ -400,8 +404,8 @@
         SelectedOperation.lockTimestamp = null;
         await Fassade.UpdateOperation(SelectedOperation);
 
-        await SignalRService.SendMessageToServer("OperationChanged");
-        await SignalRService.SendMessageToServer("OperationUnlocked;" + SelectedOperation.operationID.ToString());
+        
+        await SignalRService.SendMessageToServer($"OperationUnlocked;{SelectedOperation.operationID}");
 
         ReadOnly = true;
         StateHasChanged();
