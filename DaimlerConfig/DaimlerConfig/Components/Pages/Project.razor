@@ -370,6 +370,7 @@
             await UnlockTool();
             selectedTool = await CreateDummyTool();
             toolFormularModel = selectedTool.Clone();
+			toolFormularModel.stationID = selectedStation.stationID;
             toolReadOnly = false;
         }
         else if (selectedTool != null)
@@ -467,6 +468,7 @@
             await UnlockTool();
             selectedOperation = await CreateDummyOP();
             operationFormularModel = selectedOperation.Clone(); // Kopie für neue Operation
+			operationFormularModel.toolID = selectedTool.toolID;
             operationReadOnly = false;
         }
         else if (selectedOperation != null)
