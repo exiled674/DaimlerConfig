@@ -171,10 +171,16 @@
     }
 
     <div>
-        <button class="btn btn-block btn-primary pt-2" @onclick="CreateNewLine">
-            <span class="plus-icon">+</span>
-            Create Empty Project
-        </button>
+        <MudFab Icon="@Icons.Material.Filled.Add"
+        Color="Color.Primary"
+        Size="Size.Large"
+        Style="position:fixed;bottom:32px;right:32px;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,0.18);border-radius:32px;"
+        OnClick="CreateNewLine"
+        Label="Create Empty Project"
+        Class="mud-elevation-8 px-4 py-2"
+        />
+
+
     </div>
 </div>
 
