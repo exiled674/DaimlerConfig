@@ -104,7 +104,7 @@
                     <div class="d-flex align-items-center flex-grow-1 p-2">
                         <input class="form-control @(isDuplicateName ? "is-invalid" : "")"
                         value="@line.lineName"
-                        @onkeydown="e => HandleKeyDown(e, line)"
+                        @onchange="e => ConfirmEdit(line, e)"
                         autofocus />
                         @if (isDuplicateName)
                         {
@@ -217,7 +217,7 @@
         await Fassade.DeleteLine(line);
         AllLines.Remove(line);
         EditingLines.Remove(line);
-        await SignalRService.SendMessageToServer("LineChanged");
+        await SignalRService.SendMessageToServer($"LineDeleted;{line.lineID}");
         ActiveContextMenuLine = null;
         ApplyFilters();
     }
@@ -270,6 +270,20 @@
                             }
                             break;
                         }
+
+                    case var msg when msg.StartsWith("LineDeleted;"):
+						{
+							var parts = msg.Split(';');
+							var lineID = int.Parse(parts[1]);
+							var lineToRemove = AllLines.FirstOrDefault(l => l.lineID == lineID);
+							if (lineToRemove != null)
+							{
+								AllLines.Remove(lineToRemove);
+								EditingLines.Remove(lineToRemove);
+								ApplyFilters();
+							}
+							break;
+						}
                 }
 
 
@@ -333,17 +347,11 @@
 
     }
 
-    private async Task HandleKeyDown(KeyboardEventArgs e, Line line)
-    {
-        if (e.Key == "Enter")
-        {
-            await ConfirmEdit(line, line.lineName);
-        }
-    }
 
-    private async Task ConfirmEdit(Line line, string newName)
+
+    private async Task ConfirmEdit(Line line, ChangeEventArgs e)
     {
-        newName = newName?.Trim();
+        var newName = e.Value?.ToString()?.Trim();
         isDuplicateName = await Fassade.LineExistsByName(newName);
 
         if (!string.IsNullOrEmpty(newName) && newName != "Enter a name" && !isDuplicateName)
@@ -351,18 +359,19 @@
             line.lineName = newName;
             line.lastModified = DateTime.Now;
 
-            if (line.lineID == 0)
+            if (line.lineID == 0) // ❗ prüft, ob es eine neue Line ist
             {
                 await Fassade.LineRepository.Add(line);
                 var signalLine = await Fassade.GetLineByName(line.lineName);
                 await SignalRService.SendMessageToServer($"LineAdded;{signalLine.lineID}");
+
             }
             else
             {
-                await Fassade.LineRepository.Update(line);
+              await Fassade.LineRepository.Update(line);
                 await SignalRService.SendMessageToServer($"LineUpdated;{line.lineID}");
             }
-
+           
             EditingLines.Remove(line);
             ApplyFilters();
         }
