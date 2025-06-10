@@ -304,7 +304,7 @@
             var xy = await Fassade.GetToolsFromStation(station.stationID);
             tools = xy;
 
-        allOperations = await Fassade.GetAllOperations();
+            allOperations = await Fassade.GetAllOperations();
             tools = xy;
             SelectionState.SaveSelection(stationID: station.stationID);
 
@@ -555,7 +555,7 @@
             selectedOperation.isLocked = false;
             selectedOperation.lockedBy = null;
             await Fassade.UpdateOperation(selectedOperation);
-       
+
             await SignalRService.SendMessageToServer($"OperationUnlocked;{selectedOperation.operationID}");
         }
     }
@@ -848,7 +848,7 @@
                             {
                                 toolList.Add(newTool);
                                 tools = toolList.AsEnumerable();
-                                
+
 
                                 if(newTool.modifiedBy == UsernameService.Username)
                                 {
@@ -942,7 +942,7 @@
                                         selectedOperation = updatedOperation;
                                         operationFormularModel = selectedOperation.Clone();
                                         operationFormularModel.operationID = selectedOperation.operationID;
-										operationFormularModel.toolID = selectedOperation.toolID;
+                                        operationFormularModel.toolID = selectedOperation.toolID;
                                     }
                                     StateHasChanged();
                                 }
@@ -960,7 +960,7 @@
                             {
                                 operationList.Add(newOperation);
                                 allOperations = operationList.AsEnumerable();
-                                
+
 
                                 if(newOperation.modifiedBy == UsernameService.Username)
                                 {
@@ -996,21 +996,25 @@
 
 
 
-                    
-                    case "LineDeleted":
 
-                        if (line != null)
+                    case var msg when msg.StartsWith("LineDeleted;"):
                         {
-                            var stillExists = await Fassade.GetLineByName(lineName);
-                            if (stillExists == null)
+                            var parts = msg.Split(';');
+                            var lineID = int.Parse(parts[1]);
+                            if (line != null)
                             {
+                                var stillExists = await Fassade.GetLine(lineID);
+                                if (stillExists == null && line.lineID == lineID)
+                                {
 
-                                NavState.SetCurrentRoute("/");
-                                Navigation.NavigateTo("/", replace: true);
-                                return;
+                                    NavState.SetCurrentRoute("/");
+                                    Navigation.NavigateTo("/", replace: true);
+                                    return;
+                                }
                             }
+                            break;
                         }
-                        break;
+                        
                 }
             }
             StateHasChanged();
