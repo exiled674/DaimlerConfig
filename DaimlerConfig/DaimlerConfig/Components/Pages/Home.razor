@@ -24,21 +24,18 @@
 
 <!-- Navbar -->
 
-<nav class="navbar fixed-top bg-white border-bottom">
-    <div class="container">
-        <span class="navbar-brand mb-0 h2">DaimlerConfig</span>
-        <MudIconButton Icon="@Icons.Material.Filled.Settings"
-        Color="Color.Primary"
-        OnClick="OpenSettings"
-        aria-label="Settings" />
 
-        @if (ShowSettings)
-        {
-            <Settings OnClosing="CLoseSetting"></Settings>
-        }
+<MudAppBar Elevation="1" Color="Color.Primary">
+    <MudText Typo="Typo.h6" Class="ml-2">DaimlerConfig</MudText>
+    <MudSpacer />
+    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Inherit" OnClick="OpenSettings" />
+</MudAppBar>
 
-    </div>
-</nav>
+@if (ShowSettings)
+{
+        <Settings OnClosing="CLoseSetting" />
+}
+
 
 
 <!-- Main Content -->

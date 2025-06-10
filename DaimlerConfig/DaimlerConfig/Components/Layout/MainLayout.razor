@@ -1,27 +1,28 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.Extensions.Configuration
-
 @inject IConfiguration Configuration
-
 @using DaimlerConfig.Services
 @inject AppStartupValidationService ValidationService
+@using MudBlazor
+
+@inject IConfiguration Configuration
+@inject AppStartupValidationService ValidationService
+
+
 
 @code {
     private bool showOnlySettings => ValidationService.HasErrors;
 }
 
+<MudThemeProvider  Theme="@CustomTheme.Themetheme"/> 
+<MudPopoverProvider />
+<MudDialogProvider />
+ <MudSnackbarProvider />
+
+
+
 @if (showOnlySettings)
 {
-    @* Required *@
-    <MudThemeProvider />
-    <MudPopoverProvider />
-
-    @* Needed for dialogs *@
-    <MudDialogProvider />
-
-    @* Needed for snackbars *@
-    <MudSnackbarProvider />
-    
     <Settings />
 }
 else
@@ -29,18 +30,9 @@ else
     <div class="page">
         <main>
             <article class="content">
-                @* Required *@
-                <MudThemeProvider />
-                <MudPopoverProvider />
-
-                @* Needed for dialogs *@
-                <MudDialogProvider />
-
-                @* Needed for snackbars *@
-                <MudSnackbarProvider />
-
                 @Body
             </article>
         </main>
     </div>
 }
+
