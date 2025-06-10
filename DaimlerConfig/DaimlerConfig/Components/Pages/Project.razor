@@ -847,7 +847,7 @@
                             {
                                 toolList.Add(newTool);
                                 tools = toolList.AsEnumerable();
-                                StateHasChanged();
+                                
 
                                 if(newTool.modifiedBy == UsernameService.Username)
                                 {
@@ -855,6 +855,7 @@
                                     toolFormularModel = selectedTool.Clone();
                                     toolFormularModel.stationID = selectedStation.stationID;
                                 }
+                                StateHasChanged();
                             }
                             break;
                         }
@@ -958,6 +959,14 @@
                             {
                                 operationList.Add(newOperation);
                                 allOperations = operationList.AsEnumerable();
+                                
+
+                                if(newOperation.modifiedBy == UsernameService.Username)
+                                {
+                                    selectedOperation = await CreateDummyOP();
+                                    operationFormularModel = selectedOperation.Clone();
+                                    operationFormularModel.toolID = selectedTool.toolID;
+                                }
                                 StateHasChanged();
                             }
                             break;
