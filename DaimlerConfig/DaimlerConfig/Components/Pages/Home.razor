@@ -43,45 +43,47 @@
     <h1 class="mt-5">Project Manager</h1>
     <!-- div with search and sort-->
     <div class="projects">
-        <p class="lineLabel">Lines:</p>
         <hr/>
-        <div class="row g-3 mb-3">
+        <div class="d-flex align-items-center gap-3 mb-3">
+
             <!-- Search Input -->
-            <div class="col">
-                <MudTextField @bind-Value="searchText"
-              Placeholder="Search"
-              Adornment="Adornment.Start"
-              AdornmentIcon="@Icons.Material.Filled.Search"
-              Immediate="true"
-              OnInput="OnSearchTextChanged"
-              Class="w-100"
-              Margin="Margin.Dense"
-              Variant="Variant.Outlined"
-              Style="border-radius: 9999px;" />
-            </div>
+
+              <MudTextField @bind-Value="searchText"
+                  Placeholder="Search"
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  Immediate="true"
+                  OnInput="OnSearchTextChanged"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  Dense="true"
+                  Class="flex-grow-1" />
+
 
             <!-- Sort Dropdown -->
-            <div class=" col-md-auto position-relative">
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start overflow-hidden" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false" @onclick="() => ShowDropdown = !ShowDropdown">
-                        @GetSortDisplayText()
-                    </button>
-                    @if (ShowDropdown)
-                    {
-                        <ul class="dropdown-menu show w-100" aria-labelledby="sortDropdown">
-                            <li><button class="dropdown-item @(selectedSort == "date" ? "active" : "")" @onclick="@(() => OnSortChanged(new ChangeEventArgs { Value = "date" }))">Sorted by date descending</button></li>
-                            <li><button class="dropdown-item @(selectedSort == "name" ? "active" : "")" @onclick="@(() => OnSortChanged(new ChangeEventArgs { Value = "name" }))">Sorted by name ascending</button></li>
-                        </ul>
+            <div style="min-width: 220px">
 
-                    }
-                    @if (ShowDropdown)
-                    {
-                        <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:900;"
-                        @onclick="() => ShowDropdown = false"></div>
-                    }
-
-                </div>
-            </div>
+                <MudSelect T="string" 
+                           Value="@selectedSort" 
+                           Label="Sort by"
+                           Variant="Variant.Outlined"
+                           Dense="true"
+                           FullWidth="true"
+                           AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@("date")">
+                        <div class="d-flex align-items-center">
+                            <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="me-2" />
+                            Sorted by date descending
+                        </div>
+                    </MudSelectItem>
+                    <MudSelectItem Value="@("name")">
+                        <div class="d-flex align-items-center">
+                            <MudIcon Icon="@Icons.Material.Filled.SortByAlpha" Size="Size.Small" Class="me-2" />
+                            Sorted by name ascending
+                        </div>
+                    </MudSelectItem>
+                </MudSelect>
+           </div>
         </div>
     </div>
 
