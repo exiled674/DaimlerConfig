@@ -98,10 +98,19 @@
                 @if (EditingLines.Contains(line))
                 {
                     <div class="d-flex align-items-center flex-grow-1 p-2">
-                        <input class="form-control @(isDuplicateName ? "is-invalid" : "")"
-                        value="@line.lineName"
-                        @onchange="e => ConfirmEdit(line, e)"
-                        autofocus />
+                        
+                                    <MudTextField T="string"
+                          @bind-Value="line.lineName"
+                          Placeholder="Line name"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Dense="true"
+                          Immediate="true"
+                          Class="flex-grow-1"
+                          Error="@isDuplicateName"
+                          ErrorText="The name already exists."
+                          OnBlur="@(e => ConfirmEdit(line, new ChangeEventArgs { Value = line.lineName }))"
+                          AutoFocus="true" />
                         @if (isDuplicateName)
                         {
                             <div class="invalid-feedback px-2 ms-2">The name already exists.</div>
