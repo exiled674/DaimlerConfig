@@ -408,7 +408,7 @@
         await Fassade.UpdateTool(SelectedTool);
 
        
-        await SignalRService.SendMessageToServer($"ToolUnlocked;{SelectedTool.toolID};{UsernameService.Username}");
+        await SignalRService.SendMessageToServer($"ToolUnlocked;{SelectedTool.toolID}");
 
         ReadOnly = true;
         StateHasChanged();

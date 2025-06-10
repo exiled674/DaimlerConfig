@@ -303,7 +303,7 @@
             selectedOperation = await CreateDummyOP();
 
             tools = await Fassade.GetToolsFromStation(station.stationID);
-            StateHasChanged();
+             
             allOperations = await Fassade.GetAllOperations();
 
             SelectionState.SaveSelection(stationID: station.stationID);
@@ -654,8 +654,7 @@
             {
                 var parts = msg.Split(';');
                 var toolID = int.Parse(parts[1]);
-                var username = parts[2];
-                if (username == UsernameService.Username) return;
+
                 var toolList = tools.ToList();
                 var idx = toolList.FindIndex(s => s.toolID == toolID);
 
@@ -663,7 +662,7 @@
                 {
 
                     var updatedTool = await Fassade.GetTool(toolID);
-                    if (updatedTool != null)
+                    if (updatedTool != null )
                     {
                         toolList[idx] = updatedTool;
                         tools = toolList.AsEnumerable();
