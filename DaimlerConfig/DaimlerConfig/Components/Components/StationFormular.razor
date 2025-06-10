@@ -4,6 +4,7 @@
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
+@inject UsernameService UsernameService
 @using System.Linq
 
 <div class="container-lg px-3">
@@ -121,7 +122,7 @@
 	{
 		ResetValidationState();
 		if (await ValidateData() == false) return;
-		SelectedStation.modifiedBy = DaimlerConfig.MauiProgram.Username;
+		SelectedStation.modifiedBy = UsernameService.Username;
 		if (!await Fassade.UpdateStation(SelectedStation)) return;
 		var signalStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
 		await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
@@ -135,6 +136,7 @@
 	private async Task CreateStationAsync()
 	{
 		if (await ValidateData() == false) return;
+		SelectedStation.modifiedBy = UsernameService.Username;
 		if (!await Fassade.AddStation(SelectedStation)) return;
 
 		var createdStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);

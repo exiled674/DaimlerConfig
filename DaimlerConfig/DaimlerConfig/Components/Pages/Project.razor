@@ -17,7 +17,7 @@
 @inject IJSRuntime JS;
 
 <body>
-    
+
 
     <!-- Navbar -->
     <nav class="navbar fixed-top bg-white border-bottom">
@@ -197,7 +197,7 @@
     protected override void OnParametersSet()
     {
 
-        
+
     }
 
     private StationFormular? stationFormular;
@@ -495,7 +495,7 @@
                     operationID: operation.operationID
                 );
             }
-            
+
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
 
             showOperationFormular = true;
@@ -642,7 +642,7 @@
                 if ( selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
 
                 {
-                    
+
                     if (selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
                     {
                         operationReadOnly = true;
@@ -719,7 +719,7 @@
                     toolReadOnly = true;
                 }
             }
-            
+
             else
             {
                 switch (msg)
@@ -768,6 +768,16 @@
 
                                 stationList.Add(newStation);
                                 stations = stationList.AsEnumerable();
+                               
+
+                                if (newStation.modifiedBy.Trim() == UsernameService.Username)
+                                {
+                                    selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
+                                    stationFormularModel = selectedStation.Clone();
+                                    stationFormularModel.lineID = selectedStation.lineID;
+                                    tools = Enumerable.Empty<Tool>();
+                                    allOperations = Enumerable.Empty<Operation>();
+                                }
                                 StateHasChanged();
                             }
                             break;
