@@ -245,6 +245,7 @@
                                 {
                                     AllLines.Add(line);
                                     ApplyFilters();
+                                    StateHasChanged();
                                 }
 
                             }
@@ -266,6 +267,7 @@
                                 {
                                     AllLines[idx] = line;
                                     ApplyFilters();
+                                    StateHasChanged();
                                 }
                             }
                             break;
