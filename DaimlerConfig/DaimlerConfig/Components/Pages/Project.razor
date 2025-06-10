@@ -843,7 +843,7 @@
                             var toolID = int.Parse(parts[1]);
                             var toolList = tools.ToList();
                             var newTool = await Fassade.GetTool(toolID);
-                            if (newTool != null && !toolList.Any(s => s.toolID == toolID))
+                            if (newTool != null && !toolList.Any(s => s.toolID == toolID) && newTool.stationID == selectedStation.stationID)
                             {
                                 toolList.Add(newTool);
                                 tools = toolList.AsEnumerable();
