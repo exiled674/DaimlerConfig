@@ -301,11 +301,11 @@
 
             await UnlockOperation();
             selectedOperation = await CreateDummyOP();
+            var xy = await Fassade.GetToolsFromStation(station.stationID);
+            tools = xy;
 
-            tools = await Fassade.GetToolsFromStation(station.stationID);
-             
-            allOperations = await Fassade.GetAllOperations();
-
+        allOperations = await Fassade.GetAllOperations();
+            tools = xy;
             SelectionState.SaveSelection(stationID: station.stationID);
 
             StateHasChanged();
@@ -433,8 +433,8 @@
             selectedTool.isLocked = false;
             selectedTool.lockedBy = null;
             await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer($"ToolUpdated;{selectedTool.toolID}");
-            await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+
+            await SignalRService.SendMessageToServer($"ToolUnlocked;{selectedTool.toolID}");
         }
     }
 
@@ -555,8 +555,8 @@
             selectedOperation.isLocked = false;
             selectedOperation.lockedBy = null;
             await Fassade.UpdateOperation(selectedOperation);
-            await SignalRService.SendMessageToServer($"OperationUpdated;{selectedOperation.operationID}");
-            await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+       
+            await SignalRService.SendMessageToServer($"OperationUnlocked;{selectedOperation.operationID}");
         }
     }
 
