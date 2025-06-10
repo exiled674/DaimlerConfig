@@ -66,6 +66,11 @@ namespace DaimlerConfig.Components.Fassade
             return await LineRepository.GetAll();
         }
 
+        public async Task<Line> GetLine(int id)
+        {
+            return await LineRepository.Get(id);
+        }
+
         public async Task<IEnumerable<Line>> GetAllLinesSortedByDate()
         {
             return await LineRepository.getAllOrderedByDate();

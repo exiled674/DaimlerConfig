@@ -104,7 +104,7 @@
                     <div class="d-flex align-items-center flex-grow-1 p-2">
                         <input class="form-control @(isDuplicateName ? "is-invalid" : "")"
                         value="@line.lineName"
-                        @onchange="e => ConfirmEdit(line, e)"
+                        @onkeydown="e => HandleKeyDown(e, line)"
                         autofocus />
                         @if (isDuplicateName)
                         {
@@ -184,10 +184,10 @@
 
 @code {
 
-	public void Test()
-	{
-		Navigation.NavigateTo("/test");
-	}
+    public void Test()
+    {
+        Navigation.NavigateTo("/test");
+    }
     private List<Line> AllLines = new();
     private List<Line> FilteredLines = new();
     private HashSet<Line> EditingLines = new();
@@ -232,10 +232,48 @@
         {
             await InvokeAsync(async () =>
             {
-                var result = await Fassade.GetAllLinesAsync();
-                AllLines = result.ToList();
-                ApplyFilters();
-                StateHasChanged();
+                switch(msg)
+                {
+                    case var msg when msg.StartsWith("LineAdded;"):
+                        {
+                            var parts = msg.Split(';');
+                            var lineID = int.Parse(parts[1]);
+                            if (!AllLines.Any(l => l.lineID == lineID))
+                            {
+                                var line = await Fassade.GetLine(lineID);
+                                if (line != null)
+                                {
+                                    AllLines.Add(line);
+                                    ApplyFilters();
+                                }
+
+                            }
+
+
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("LineUpdated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var lineID = int.Parse(parts[1]);
+
+                            var idx = AllLines.FindIndex(l => l.lineID == lineID);
+                            if (idx >= 0)
+                            {
+                                var line = await Fassade.GetLine(lineID);
+                                if (line != null)
+                                {
+                                    AllLines[idx] = line;
+                                    ApplyFilters();
+                                }
+                            }
+                            break;
+                        }
+                }
+
+
+
             });
         });
         await SignalRService.StartConnectionAsync();
@@ -295,9 +333,17 @@
 
     }
 
-    private async Task ConfirmEdit(Line line, ChangeEventArgs e)
+    private async Task HandleKeyDown(KeyboardEventArgs e, Line line)
     {
-        var newName = e.Value?.ToString()?.Trim();
+        if (e.Key == "Enter")
+        {
+            await ConfirmEdit(line, line.lineName);
+        }
+    }
+
+    private async Task ConfirmEdit(Line line, string newName)
+    {
+        newName = newName?.Trim();
         isDuplicateName = await Fassade.LineExistsByName(newName);
 
         if (!string.IsNullOrEmpty(newName) && newName != "Enter a name" && !isDuplicateName)
@@ -305,17 +351,18 @@
             line.lineName = newName;
             line.lastModified = DateTime.Now;
 
-            if (line.lineID == 0) // ❗ prüft, ob es eine neue Line ist
+            if (line.lineID == 0)
             {
                 await Fassade.LineRepository.Add(line);
-
+                var signalLine = await Fassade.GetLineByName(line.lineName);
+                await SignalRService.SendMessageToServer($"LineAdded;{signalLine.lineID}");
             }
             else
             {
                 await Fassade.LineRepository.Update(line);
+                await SignalRService.SendMessageToServer($"LineUpdated;{line.lineID}");
             }
-            // SignalR-Nachricht senden
-            await SignalRService.SendMessageToServer("LineChanged");
+
             EditingLines.Remove(line);
             ApplyFilters();
         }
