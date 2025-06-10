@@ -58,3 +58,16 @@ hr {
         border-color: #1976d2 !important;
     }
 
+
+.line-hover:hover {
+    background-color: rgba(var(--mud-palette-primary), 0.1) !important;
+}
+
+.hover-highlight {
+    transition: background-color 0.2s ease;
+}
+
+    .hover-highlight:hover {
+        background-color: #e3f2fd; /* leichtes Blau */
+        cursor: pointer;
+    }
