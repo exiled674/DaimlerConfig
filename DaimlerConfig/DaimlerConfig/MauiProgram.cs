@@ -19,6 +19,7 @@ using Microsoft.Maui.LifecycleEvents;
 using DaimlerConfig.Security;
 using MudBlazor.Services;
 
+
 #if WINDOWS
 using Microsoft.UI.Xaml;
 #endif
@@ -31,9 +32,33 @@ namespace DaimlerConfig
         public static IServiceProvider Services { get; private set; }
         public static string Username { get; private set; } = $"{Environment.UserName};{Guid.NewGuid()}";
 
+
+        public static string SetzeOderErsetzeGuiId(string identifier)
+        {
+            if (string.IsNullOrWhiteSpace(identifier))
+                throw new ArgumentException("Der Identifier darf nicht leer sein.", nameof(identifier));
+
+            string neueGuiID = Guid.NewGuid().ToString();
+
+            int trennerIndex = identifier.IndexOf(';');
+
+            if (trennerIndex >= 0)
+            {
+                string nameTeil = identifier.Substring(0, trennerIndex);
+                return $"{nameTeil};{neueGuiID}";
+            }
+            else
+            {
+                return $"{identifier};{neueGuiID}";
+            }
+        }
+
+        
+
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+            
 
             builder
                 .UseMauiApp<App>()
@@ -74,6 +99,7 @@ namespace DaimlerConfig
             builder.Services.AddScoped<SettingsValidationService>();
             builder.Services.AddSingleton<UsernameService>();
 
+            
 
             builder.Services.AddMudServices();
 
@@ -113,6 +139,9 @@ namespace DaimlerConfig
 
             // Services-Provider speichern für globalen Zugriff
             Services = app.Services;
+            var usernameService = app.Services.GetService<UsernameService>();
+
+            usernameService.UpdateUsername(SetzeOderErsetzeGuiId(usernameService.Username));
 
             return app;
         }
