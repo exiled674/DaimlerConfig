@@ -43,3 +43,18 @@ hr {
     color: #333;
 }
 
+
+/* Modernes MudTextField Styling mit Hover-Effekt */
+.mud-modern-textfield .mud-input-root {
+    border-radius: 12px !important;
+    transition: box-shadow 0.2s, background 0.2s;
+    background: #fafbfc;
+}
+
+    .mud-modern-textfield .mud-input-root:hover,
+    .mud-modern-textfield .mud-input-root:focus-within {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        background: #f0f4f8;
+        border-color: #1976d2 !important;
+    }
+
