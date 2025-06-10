@@ -768,7 +768,7 @@
 
                                 stationList.Add(newStation);
                                 stations = stationList.AsEnumerable();
-                               
+
 
                                 if (newStation.modifiedBy.Trim() == UsernameService.Username)
                                 {
@@ -848,6 +848,13 @@
                                 toolList.Add(newTool);
                                 tools = toolList.AsEnumerable();
                                 StateHasChanged();
+
+                                if(newTool.modifiedBy == UsernameService.Username)
+                                {
+                                    selectedTool = await CreateDummyTool();
+                                    toolFormularModel = selectedTool.Clone();
+                                    toolFormularModel.stationID = selectedStation.stationID;
+                                }
                             }
                             break;
                         }
