@@ -241,9 +241,9 @@
         showPopup = false;
 
 
-        if (stationFormular != null)
+        if (stationFormular != null && DirtyManagerService.dirtyEntity == "Station" )
         {
-            if(await stationFormular.ValidateData() == true)
+            if (await stationFormular.ValidateData() == true )
             {
                 await stationFormular.UpdateStationAsync();
             }
@@ -256,9 +256,9 @@
 
 
 
-        if (toolFormular != null)
+        if (toolFormular != null && DirtyManagerService.dirtyEntity == "Tool")
         {
-            if (await toolFormular.ValidateData() == true)
+            if (await toolFormular.ValidateData() == true )
             {
                 await toolFormular.UpdateToolAsync();
             }
@@ -269,9 +269,9 @@
         }
 
 
-        if (operationFormular != null)
+        if (operationFormular != null && DirtyManagerService.dirtyEntity == "Operation")
         {
-            if (await operationFormular.ValidateData() == true)
+            if (await operationFormular.ValidateData() == true  )
             {
                 await operationFormular.UpdateOperationAsync();
             }
@@ -353,7 +353,7 @@
             tools = xy;
 
             allOperations = await Fassade.GetAllOperations();
-            tools = xy;
+           // tools = xy;
             SelectionState.SaveSelection(stationID: station.stationID);
 
             StateHasChanged();
@@ -441,11 +441,7 @@
 
     private async Task ToggleToolFormular(bool isNewTool)
     {
-        if (selectedStation == null)
-        {
-            // Optional: Benutzerfeedback, z.B. eine Meldung anzeigen
-            return;
-        }
+       
 
 
         if (isNewTool)
