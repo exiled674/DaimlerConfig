@@ -214,6 +214,12 @@
         if (DirtyManagerService.dirtyEntity == "Tool") toolFormular.ResetTool();
         if (DirtyManagerService.dirtyEntity == "Operation") operationFormular.ResetOperation();
         DirtyManagerService.setClean();
+
+        if(pendingStation != null)
+        {
+            await SelectStation(pendingStation);
+            await ToggleStationFormular(false);
+        }
     }
 
     private async Task HandleSave()
@@ -225,12 +231,13 @@
         {
             if(await stationFormular.ValidateData() == true)
             {
-                stationFormular.UpdateStationAsync();
+                await stationFormular.UpdateStationAsync();
             }
             else
             {
-                stationFormular.ResetStation();
+                await stationFormular.ResetStation();
             }
+			
         }
 
 
@@ -239,11 +246,11 @@
         {
             if (await toolFormular.ValidateData() == true)
             {
-                toolFormular.UpdateToolAsync();
+                await toolFormular.UpdateToolAsync();
             }
             else
             {
-                toolFormular.ResetTool();
+                await toolFormular.ResetTool();
             }
         }
 
@@ -252,14 +259,20 @@
         {
             if (await operationFormular.ValidateData() == true)
             {
-                operationFormular.UpdateOperationAsync();
+                await operationFormular.UpdateOperationAsync();
             }
             else
             {
-                operationFormular.ResetOperation();
+                await operationFormular.ResetOperation();
             }
         }
         DirtyManagerService.setClean();
+
+        if (pendingStation != null)
+        {
+            await SelectStation(pendingStation);
+            await ToggleStationFormular(false);
+        }
 
     }
     #endregion
@@ -286,17 +299,20 @@
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
     private Station? selectedStation;
     private bool showStationFormular = false;
+    private Station? pendingStation;
 
     private async Task SelectStation(Station station)
     {
         if (DirtyManagerService.IsDirty().Result == true)
         {
+            pendingStation = station;
             selectedStation = stationFormularModel;
             showPopup = true;
             return;
         }
         else
         {
+            pendingStation = null;
             selectedStation = station;
 
             await UnlockTool();
@@ -310,7 +326,7 @@
             allOperations = await Fassade.GetAllOperations();
             tools = xy;
             SelectionState.SaveSelection(stationID: station.stationID);
-
+            
             StateHasChanged();
         }
 
