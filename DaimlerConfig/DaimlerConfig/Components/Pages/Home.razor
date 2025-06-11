@@ -132,11 +132,12 @@
                         <MudText Typo="Typo.subtitle1" Class="font-weight-medium ma-0 pa-0">
                                     @line.lineName
                         </MudText>
-                        <MudChip T="string" 
-                                 Class="mt-1 ma-0" Size="Size.Small" 
-                                 Color="Color.Secondary" 
-                                 Icon="Icons.Material.Filled.Update"
-                                 Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
+                                   <MudChip T="string"
+                     Class="mt-1 mx-2 text-center"
+                     Style="min-width: 150px; justify-content: center;"
+                     Size="Size.Small"
+                     Color="Color.Secondary"
+                     Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
                     </div>
                 </MudItem>
 
