@@ -52,26 +52,29 @@
         <div class="d-flex align-items-end gap-3 mb-4 pt-3">
             <div class="flex-grow-1">
                 <MudTextField @bind-Value="searchText"
-                      Placeholder="Search projects..."
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search"
-                      Immediate="true"
-                      OnInput="OnSearchTextChanged"
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Normal"
-                      Class="flex-grow-1" />
+              Placeholder="Search projects..."
+              Adornment="Adornment.Start"
+              AdornmentIcon="@Icons.Material.Filled.Search"
+              Immediate="true"
+              OnInput="OnSearchTextChanged"
+              Variant="Variant.Outlined"
+              Margin="Margin.Normal"
+              Class="flex-grow-1 search-field-enhanced"
+              Style="background: white; border-radius: 12px;" />
             </div>
 
 
             <!-- Sort Dropdown -->
             <div style="width: auto">
                 <MudSelect T="string" 
-                           Value="@selectedSort" 
-                           Variant="Variant.Outlined"
-                           Dense="true"
-                           Margin="Margin.Normal"
-                           FullWidth="true"
-                           AnchorOrigin="Origin.BottomCenter">
+           Value="@selectedSort" 
+           Variant="Variant.Outlined"
+           Dense="true"
+           Margin="Margin.Normal"
+           FullWidth="true"
+           AnchorOrigin="Origin.BottomCenter"
+           Class="sort-dropdown-enhanced"
+           Style="background: white; border-radius: 12px;">
                     <MudSelectItem Value="@("date")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="me-2" />
@@ -94,9 +97,9 @@
     {
         foreach (var line in FilteredLines)
         {
-                        <MudCard Class="my-3 hover-lift hover-highlight" 
-                 Elevation="1" 
-                 Style="border-radius: 8px; margin: 0 0 16px 0;">
+                               <MudCard Class="my-3 hover-lift hover-highlight" 
+                 Elevation="3" 
+                 Style="border-radius: 12px; margin: 0 0 20px 0; border: 1px solid rgba(0,0,0,0.08); background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);">
                     <!-- Editing Line -->
                 @if (EditingLines.Contains(line))
                 {
@@ -186,13 +189,12 @@
 
     <div>
         <MudFab Icon="@Icons.Material.Filled.Add"
-        Color="Color.Primary"
-        Size="Size.Large"
-        Style="position:fixed;bottom:32px;right:32px;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,0.18);border-radius:32px;"
-        OnClick="CreateNewLine"
-        Label="Create Empty Project"
-        Class="mud-elevation-8 px-4 py-2"
-        />
+       Color="Color.Primary"
+       Size="Size.Large"
+       Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:32px;"
+       OnClick="CreateNewLine"
+       Label="Create Empty Project"
+       Class="fab-enhanced px-4 py-2" />
 
 
     </div>
@@ -224,6 +226,44 @@
         background-color: color-mix(in srgb, var(--mud-palette-primary) 10%, white);
         cursor: pointer;
     }
+
+
+
+    .search-field-enhanced {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+    transition: box-shadow 0.2s ease-in-out !important;
+}
+
+.search-field-enhanced:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.search-field-enhanced .mud-input-outlined {
+    background: white !important;
+    border-radius: 12px !important;
+}
+
+
+.sort-dropdown-enhanced {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+    transition: box-shadow 0.2s ease-in-out !important;
+}
+
+.sort-dropdown-enhanced:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+
+.fab-enhanced {
+    box-shadow: 0 12px 32px rgba(25, 118, 210, 0.4), 0 6px 16px rgba(0,0,0,0.15) !important;
+    transition: all 0.3s ease-in-out !important;
+    transform: translateY(0px);
+}
+
+.fab-enhanced:hover {
+    box-shadow: 0 16px 40px rgba(25, 118, 210, 0.5), 0 8px 20px rgba(0,0,0,0.2) !important;
+    transform: translateY(-4px) !important;
+}
 </style>
 
 @code {
