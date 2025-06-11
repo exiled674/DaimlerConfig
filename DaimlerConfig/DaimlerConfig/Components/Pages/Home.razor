@@ -131,19 +131,18 @@
                 // Normal Line Display
                 else
                 {
-                            <MudGrid AlignItems="Center" Class="pa-4 cursor-pointer"
-                                    @onclick="@(() => NavigateToLine(line.lineName))">
-                             <MudItem xs="6" Class="cursor-pointer" >
-                                    <MudText Typo="Typo.body1" Class="font-weight-medium">
-                                @line.lineName
-                                    </MudText>
-                                </MudItem>
-                                <MudItem xs="4" Class="d-flex justify-center">
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                        last modified: @line.lastModified
-                                    </MudText>
-                                </MudItem>
-                                <MudItem xs="2" Class="d-flex justify-end">
+                                  <MudGrid AlignItems="Center" Class="pa-4">
+                                    <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
+                                        <MudText Typo="Typo.subtitle1" Class="mb-2 font-weight-medium">
+                                                    @line.lineName
+                                        </MudText>
+                                        <MudChip T="string" 
+                                                 Size="Size.Small" 
+                                                 Color="Color.Secondary" 
+                                                 Icon="Icons.Material.Filled.Update"
+                                                 Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
+                                    </MudItem>
+                                    <MudItem xs="2" Class="d-flex justify-end">
                                     <div @onclick:stopPropagation>
                                         <MudMenu Icon="@Icons.Material.Filled.MoreVert" 
                                                Size="Size.Small" 
@@ -222,7 +221,7 @@
     }
 
     .hover-highlight:hover {
-        background-color: #e3f2fd; /* leichtes Blau */
+        background-color: color-mix(in srgb, var(--mud-palette-primary) 10%, white);
         cursor: pointer;
     }
 </style>

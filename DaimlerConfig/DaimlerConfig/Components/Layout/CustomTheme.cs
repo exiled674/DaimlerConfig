@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office.Word;
 using MudBlazor;
 
 namespace DaimlerConfig.Components.Layout
@@ -82,6 +83,8 @@ MudBlazor Default Theme
                 GrayDarker = "#616161",
                 OverlayDark = "rgba(33,33,33,0.4980392156862745)",
                 OverlayLight = "rgba(255,255,255,0.4980392156862745)",
+
+                
             },
             PaletteDark = new PaletteDark()
             {
