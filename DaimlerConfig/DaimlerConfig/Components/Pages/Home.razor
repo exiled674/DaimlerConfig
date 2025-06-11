@@ -24,12 +24,13 @@
 
 <!-- Navbar -->
 <MudAppBar Elevation="2" Color="Color.Primary" Class="navbar-aligned">
-    <MudText Typo="Typo.h6" Class="ml-0">DaimlerConfig</MudText>
+    <MudText Typo="Typo.h6" Class="ml-0">Project Manager</MudText>
     <MudSpacer />
     <MudIconButton Icon="@Icons.Material.Filled.Settings" 
                    Color="Color.Inherit" 
                    Size="Size.Medium"
-                   OnClick="OpenSettings" />
+                   OnClick="OpenSettings"
+                   Class="settings-aligned"/>
 </MudAppBar>
 
 @if (ShowSettings)
@@ -262,6 +263,13 @@
 .navbar-aligned {
     padding-left: 0px !important;
     padding-right: 24px !important;
+}
+
+.settings-aligned{
+    position: absolute;
+    right: 9px;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
 }
 </style>
 
