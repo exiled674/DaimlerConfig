@@ -220,6 +220,20 @@
             await SelectStation(pendingStation);
             await ToggleStationFormular(false);
         }
+
+        if(pendingTool != null)
+        {
+            await SelectTool(pendingTool);
+            await ToggleToolFormular(false);
+        }
+
+        if(pendingOperation != null)
+        {
+            await SelectOperation(pendingOperation);
+			await ToggleOperationFormular(false);
+        }
+
+
     }
 
     private async Task HandleSave()
@@ -273,6 +287,18 @@
             await SelectStation(pendingStation);
             await ToggleStationFormular(false);
         }
+
+        if (pendingTool != null)
+        {
+            await SelectTool(pendingTool);
+            await ToggleToolFormular(false);
+        }
+
+		if (pendingOperation != null)
+		{
+			await SelectOperation(pendingOperation);
+			await ToggleOperationFormular(false);
+		}
 
     }
     #endregion
@@ -329,7 +355,7 @@
             allOperations = await Fassade.GetAllOperations();
             tools = xy;
             SelectionState.SaveSelection(stationID: station.stationID);
-            
+
             StateHasChanged();
         }
 
@@ -373,17 +399,20 @@
 
     private bool toolReadOnly = false;
     private bool showToolFormular = false;
+    private Tool? pendingTool;
 
     private async Task SelectTool(Tool tool)
     {
         if (DirtyManagerService.IsDirty().Result == true)
         {
+            pendingTool = tool;
             selectedTool = toolFormularModel;
             showPopup = true;
             return;
         }
         else
         {
+            pendingTool = null;
             if (selectedTool != null && tool.toolID != selectedTool.toolID) await UnlockTool();
             selectedTool = tool;
 
@@ -396,6 +425,7 @@
             await UnlockOperation();
 
             selectedOperation = await CreateDummyOP();
+            operationFormularModel = null;
 
             tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
 
@@ -484,17 +514,19 @@
     private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
-
+    private Operation? pendingOperation;
     private async Task SelectOperation(Operation operation)
     {
         if (DirtyManagerService.IsDirty().Result)
         {
+            pendingOperation = operation;
             selectedOperation = operationFormularModel;
             showPopup = true;
             return;
         }
         else
         {
+            pendingOperation = null;
             var opsList = allOperations.ToList();
             var idx = opsList.FindIndex(o => o.operationID == operation.operationID);
             if (idx >= 0)
