@@ -130,20 +130,21 @@
                 // Normal Line Display
                 else
                 {
-                                   <MudGrid AlignItems="Center" Class="pa-4">
-                                    <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
-                                        <div class="d-flex align-items-center justify-space-between">
-                                            <MudText Typo="Typo.subtitle1" Class="font-weight-medium">
-                                                        @line.lineName
-                                            </MudText>
-                                            <MudChip T="string" 
-                                                     Size="Size.Small" 
-                                                     Color="Color.Secondary" 
-                                                     Icon="Icons.Material.Filled.Update"
-                                                     Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
-                                        </div>
-                                    </MudItem>
-                                    <MudItem xs="2" Class="d-flex justify-end">
+                                            <MudGrid AlignItems="Center" Class="pa-4">
+                <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
+                    <div class="d-flex flex-column align-items-start ma-0 pa-0">
+                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium ma-0 pa-0">
+                                    @line.lineName
+                        </MudText>
+                        <MudChip T="string" 
+                                 Class="mt-1 ma-0" Size="Size.Small" 
+                                 Color="Color.Primary" 
+                                 Icon="Icons.Material.Filled.Update"
+                                 Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
+                    </div>
+                </MudItem>
+
+                <MudItem xs="2" Class="d-flex justify-end">
                                     <div @onclick:stopPropagation>
                                         <MudMenu Icon="@Icons.Material.Filled.MoreVert" 
                                                Size="Size.Small" 
