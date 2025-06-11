@@ -20,9 +20,9 @@ MudBlazor Default Theme
             {
                 Black = "rgba(89,74,226,1)",
                 White = "rgba(255,255,255,1)",
-                Primary = "#594ae2ff",
+                Primary = "#2E4B6E",
                 PrimaryContrastText = "rgba(255,255,255,1)",
-                Secondary = "rgba(255,64,129,1)",
+                Secondary = "#A9B7C6",
                 SecondaryContrastText = "rgba(255,255,255,1)",
                 Tertiary = "rgba(30,200,165,1)",
                 TertiaryContrastText = "rgba(255,255,255,1)",
