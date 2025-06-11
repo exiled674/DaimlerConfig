@@ -230,7 +230,7 @@
         if(pendingOperation != null)
         {
             await SelectOperation(pendingOperation);
-			await ToggleOperationFormular(false);
+            await ToggleOperationFormular(false);
         }
 
 
@@ -294,11 +294,11 @@
             await ToggleToolFormular(false);
         }
 
-		if (pendingOperation != null)
-		{
-			await SelectOperation(pendingOperation);
-			await ToggleOperationFormular(false);
-		}
+        if (pendingOperation != null)
+        {
+            await SelectOperation(pendingOperation);
+            await ToggleOperationFormular(false);
+        }
 
     }
     #endregion
@@ -353,7 +353,7 @@
             tools = xy;
 
             allOperations = await Fassade.GetAllOperations();
-           // tools = xy;
+            tools = xy;
             SelectionState.SaveSelection(stationID: station.stationID);
 
             StateHasChanged();
