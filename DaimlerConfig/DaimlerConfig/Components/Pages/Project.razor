@@ -237,7 +237,7 @@
             {
                 await stationFormular.ResetStation();
             }
-			
+
         }
 
 
@@ -307,6 +307,7 @@
         {
             pendingStation = station;
             selectedStation = stationFormularModel;
+
             showPopup = true;
             return;
         }
@@ -317,9 +318,11 @@
 
             await UnlockTool();
             selectedTool = await CreateDummyTool();
+            toolFormularModel = null;
 
             await UnlockOperation();
             selectedOperation = await CreateDummyOP();
+            operationFormularModel = null;
             var xy = await Fassade.GetToolsFromStation(station.stationID);
             tools = xy;
 
