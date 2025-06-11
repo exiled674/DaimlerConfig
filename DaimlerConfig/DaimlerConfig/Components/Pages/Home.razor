@@ -130,16 +130,18 @@
                 // Normal Line Display
                 else
                 {
-                                  <MudGrid AlignItems="Center" Class="pa-4">
+                                   <MudGrid AlignItems="Center" Class="pa-4">
                                     <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
-                                        <MudText Typo="Typo.subtitle1" Class="mb-2 font-weight-medium">
-                                                    @line.lineName
-                                        </MudText>
-                                        <MudChip T="string" 
-                                                 Size="Size.Small" 
-                                                 Color="Color.Primary" 
-                                                 Icon="Icons.Material.Filled.Update"
-                                                 Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
+                                        <div class="d-flex align-items-center justify-space-between">
+                                            <MudText Typo="Typo.subtitle1" Class="font-weight-medium">
+                                                        @line.lineName
+                                            </MudText>
+                                            <MudChip T="string" 
+                                                     Size="Size.Small" 
+                                                     Color="Color.Secondary" 
+                                                     Icon="Icons.Material.Filled.Update"
+                                                     Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
+                                        </div>
                                     </MudItem>
                                     <MudItem xs="2" Class="d-flex justify-end">
                                     <div @onclick:stopPropagation>
