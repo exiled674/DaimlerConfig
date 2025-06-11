@@ -50,6 +50,7 @@
 
               <MudTextField @bind-Value="searchText"
                   Placeholder="Search"
+                  Label="Search"
                   Adornment="Adornment.Start"
                   AdornmentIcon="@Icons.Material.Filled.Search"
                   Immediate="true"
@@ -61,8 +62,7 @@
 
 
             <!-- Sort Dropdown -->
-            <div style="min-width: 220px">
-
+            <div style="width: auto">
                 <MudSelect T="string" 
                            Value="@selectedSort" 
                            Label="Sort by"
