@@ -200,7 +200,7 @@
 	{
 		if (SelectedStation?.stationID == 0)
 			return false;
-		return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation);
+		return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation, "Station");
 	}
 
 	public async Task ResetStation()

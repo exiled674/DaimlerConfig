@@ -209,16 +209,17 @@
     private async Task HandleDismiss()
     {
         showPopup = false;
+
+        if (DirtyManagerService.dirtyEntity == "Station") stationFormular.ResetStation();
+        if (DirtyManagerService.dirtyEntity == "Tool") toolFormular.ResetTool();
+        if (DirtyManagerService.dirtyEntity == "Operation") operationFormular.ResetOperation();
         DirtyManagerService.setClean();
-        if (stationFormular != null) stationFormular.ResetStation();
-        if (toolFormular != null) toolFormular.ResetTool();
-        if (operationFormular != null) operationFormular.ResetOperation();
     }
 
     private async Task HandleSave()
     {
         showPopup = false;
-        DirtyManagerService.setClean();
+
 
         if (stationFormular != null)
         {
@@ -258,6 +259,7 @@
                 operationFormular.ResetOperation();
             }
         }
+        DirtyManagerService.setClean();
 
     }
     #endregion
@@ -289,6 +291,7 @@
     {
         if (DirtyManagerService.IsDirty().Result == true)
         {
+            selectedStation = stationFormularModel;
             showPopup = true;
             return;
         }
@@ -356,6 +359,7 @@
     {
         if (DirtyManagerService.IsDirty().Result == true)
         {
+            selectedTool = toolFormularModel;
             showPopup = true;
             return;
         }
@@ -393,6 +397,7 @@
             // Optional: Benutzerfeedback, z.B. eine Meldung anzeigen
             return;
         }
+
 
         if (isNewTool)
         {
@@ -465,7 +470,9 @@
     {
         if (DirtyManagerService.IsDirty().Result)
         {
+            selectedOperation = operationFormularModel;
             showPopup = true;
+            return;
         }
         else
         {
