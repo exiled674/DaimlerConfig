@@ -71,3 +71,13 @@ hr {
         background-color: #e3f2fd; /* leichtes Blau */
         cursor: pointer;
     }
+
+
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }

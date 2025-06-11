@@ -68,6 +68,7 @@
                            Label="Sort by"
                            Variant="Variant.Outlined"
                            Dense="true"
+                           Margin="Margin.Dense"
                            FullWidth="true"
                            AnchorOrigin="Origin.BottomCenter">
                     <MudSelectItem Value="@("date")">
@@ -88,12 +89,11 @@
     </div>
 
 <!-- Lines List -->
-<!-- Lines List -->
     @if (FilteredLines is not null && FilteredLines.Any())
     {
         foreach (var line in FilteredLines)
         {
-                        <MudPaper Class="my-8 hover-highlight" Elevation="3" Style="border-radius: 12px; margin: 32px 8px; max-width: 95%;">
+                <MudCard Class="my-8 hover-lift hover-highlight" Elevation="3" Style="border-radius: 12px; margin: 32px 8px; max-width: 95%;">
                     <!-- Editing Line -->
                 @if (EditingLines.Contains(line))
                 {
@@ -167,7 +167,7 @@
                                 </MudItem>
                             </MudGrid>
                 }
-                </MudPaper>
+                </MudCard>
         }
     }
 
@@ -192,6 +192,34 @@
 
     </div>
 </div>
+
+
+<style>
+    .hover-lift {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .mud-fab-extended {
+        border-radius: 28px !important;
+    }
+
+    .hover-highlight {
+    transition: background-color 0.2s ease;
+    }
+
+    .hover-highlight:hover {
+        background-color: #e3f2fd; /* leichtes Blau */
+        cursor: pointer;
+    }
+</style>
 
 @code {
 
