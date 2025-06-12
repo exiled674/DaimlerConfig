@@ -301,7 +301,14 @@
 
         var lineNames = usernameService.LoadList();
 
-        Star = lineNames.Select(name => Fassade.GetLineByName(name).Result).Where(line => line != null).ToList();
+        foreach (var name in lineNames)
+        {
+            var line = await Fassade.GetLineByName(name);
+            if (line != null)
+            {
+                Star.Add(line);
+            }
+        }
 
     }
 
