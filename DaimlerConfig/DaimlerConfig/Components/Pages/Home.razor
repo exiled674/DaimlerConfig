@@ -20,6 +20,7 @@
 @using MudBlazor
 @inject IDialogService DialogService
 
+
 <!-- Navbar -->
 <MudAppBar Elevation="2" Color="Color.Primary" Class="navbar-aligned">
     <MudText Typo="Typo.h6" Class="ml-0">Project Manager</MudText>
@@ -180,7 +181,7 @@
                 Color="Color.Primary"
                 Size="Size.Large"
                 Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:32px;"
-                OnClick="CreateNewLine"
+                Onclick="OpenDialogAsync"
                 Label="Create new Project"
                 Class="fab-enhanced px-4 py-2" />
     </div>
@@ -251,7 +252,6 @@
         .fab-enhanced:hover {
             box-shadow: 0 16px 40px rgba(25, 118, 210, 0.5), 0 8px 20px rgba(0,0,0,0.2) !important;
             transform: translateY(-4px) !important;
-            background-color: var(--mud-palette-primary) !important;
         }
 
     .navbar-aligned {
@@ -608,6 +608,22 @@
     private void CLoseSetting()
     {
         ShowSettings = false;
+    }
+    #endregion
+
+
+    #region popup
+    private async Task OpenDialogAsync()
+    {
+        var dialog = DialogService.Show<CreateProjectPopup>("Neues Projekt");
+        var resultReference = await dialog.Result;
+        var result = resultReference as DialogResult;
+
+        if (result != null && result.Canceled == false)
+        {
+            var name = result.Data?.ToString();
+            Console.WriteLine($"Projektname: {name}");
+        }
     }
     #endregion
 }

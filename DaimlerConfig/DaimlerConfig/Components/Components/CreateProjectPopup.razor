@@ -1,0 +1,71 @@
+﻿<MudDialog Style="width:500px; max-width:90vw; border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Class="mt-2 ml-2">Neues Projekt</MudText>
+    </TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form" OnValidSubmit="HandleValidSubmit">
+            <MudPaper Class="p-4" Elevation="0" Style="border-radius:12px;">
+                <MudTextField @bind-Value="_inputValue"
+                              Label="Projektname"
+                              Variant="Variant.Filled"
+                              AutoFocus="true"
+                              Margin="Margin.Dense"
+                              Class="search-field-enhanced" />
+            </MudPaper>
+
+            <!-- Optionaler versteckter Submit-Button für Enter-Taste -->
+            <MudButton Type="ButtonType.Submit" Style="display:none;" />
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">Abbrechen</MudButton>
+        <MudButton Type="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="HandleValidSubmit"
+                   Class="rounded-button">
+            OK
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .rounded-input .mud-input {
+        border-radius: 10px;
+    }
+
+    .rounded-button {
+        border-radius: 12px;
+        min-width: 100px;
+    }
+
+
+    .search-field-enhanced {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+        transition: box-shadow 0.2s ease-in-out !important;
+    }
+
+        .search-field-enhanced:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
+</style>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private MudForm _form;
+    private string _inputValue;
+
+    private void HandleValidSubmit()
+    {
+        MudDialog.Close(DialogResult.Ok(_inputValue));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
