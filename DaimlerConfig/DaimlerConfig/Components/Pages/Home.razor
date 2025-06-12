@@ -400,7 +400,7 @@
         // Erst filtern nach Suchtext
         var filtered = AllLines.Where(line =>
             string.IsNullOrEmpty(searchText) ||
-            line.lineName.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            line.lineName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
 
         // Dann sortieren
         FilteredLines = selectedSort switch
