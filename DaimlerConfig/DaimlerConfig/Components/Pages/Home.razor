@@ -133,7 +133,7 @@
                                 <MudChip T="string"
                                          Class="mt-1 ma-0" Size="Size.Small"
                                          Color="Color.Secondary"
-                                         Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
+                                         Text=@($"Modified on {line.lastModified:dd.MM.yyyy} by {line.modifiedBy?.Split(';')[0] ?? "Unknown"}") />
                             </div>
                         </MudItem>
 

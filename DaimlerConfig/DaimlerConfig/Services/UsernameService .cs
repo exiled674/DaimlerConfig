@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Maui.Storage;
+using System.Text.Json;
 
 public class UsernameService : INotifyPropertyChanged
 {
@@ -59,4 +60,19 @@ public class UsernameService : INotifyPropertyChanged
         Preferences.Default.Set(UsernameKey, windowsUsername);
         Username = windowsUsername;
     }
+
+
+    public void SaveList(List<string> items)
+    {
+        var json = JsonSerializer.Serialize(items);
+        Preferences.Default.Set("star", json);
+    }
+
+    public List<string> LoadList()
+    {
+        var json = Preferences.Default.Get("star", "[]");
+        return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+    }
+
+
 }
