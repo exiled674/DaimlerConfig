@@ -107,6 +107,8 @@
                                           Error="@isDuplicateName"
                                           ErrorText="The name already exists."
                                           @onblur="@(e => ConfirmEdit(line))"
+                                          @onkeydown="@(e => OnEditKeyDown(e, line))"
+                                          @onkeyup="@(e => OnEditKeyUp(e, line))"
                                           AutoFocus="true" />
                         </MudItem>
                         <MudItem xs="2" Class="d-flex justify-end">
@@ -172,6 +174,7 @@
         <p class="text-muted">Keine Lines gefunden.</p>
     }
 
+
     <div>
         <MudFab Icon="@Icons.Material.Filled.Add"
                 Color="Color.Primary"
@@ -182,6 +185,7 @@
                 Class="fab-enhanced px-4 py-2" />
     </div>
 </div>
+
 
 <style>
     .hover-lift {
@@ -264,8 +268,6 @@
 </style>
 
 
-
-
 @code {
     private List<Line> AllLines = new();
     private List<Line> FilteredLines = new();
@@ -274,6 +276,7 @@
     private string selectedSort = "date";
     private bool isDuplicateName = false;
     private bool ShowSettings = false;
+    private Dictionary<Line, bool> pendingConfirmation = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -353,6 +356,7 @@
         {
             AllLines.Remove(lineToRemove);
             EditingLines.Remove(lineToRemove);
+            pendingConfirmation.Remove(lineToRemove);
             UpdateFilteredLines();
             StateHasChanged();
         }
@@ -362,6 +366,33 @@
     {
         selectedSort = newSortValue;
         UpdateFilteredLines();
+    }
+
+    // Verbesserte Keyboard-Event-Handler
+    private async Task OnEditKeyDown(KeyboardEventArgs e, Line line)
+    {
+        if (e.Key == "Enter")
+        {
+            // Verhindere mehrfache Ausführung
+            if (!pendingConfirmation.GetValueOrDefault(line, false))
+            {
+                pendingConfirmation[line] = true;
+                await ConfirmEdit(line);
+            }
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelEdit(line);
+        }
+    }
+
+    private void OnEditKeyUp(KeyboardEventArgs e, Line line)
+    {
+        // Reset pending confirmation nach KeyUp
+        if (e.Key == "Enter")
+        {
+            pendingConfirmation[line] = false;
+        }
     }
 
     private void UpdateFilteredLines()
@@ -385,6 +416,7 @@
     private void StartEditing(Line line)
     {
         EditingLines.Add(line);
+        pendingConfirmation[line] = false; // Reset pending status
     }
 
     private async Task DeleteLine(Line line)
@@ -392,6 +424,7 @@
         await Fassade.DeleteLine(line);
         AllLines.Remove(line);
         EditingLines.Remove(line);
+        pendingConfirmation.Remove(line);
         await SignalRService.SendMessageToServer($"LineDeleted;{line.lineID}");
         UpdateFilteredLines();
     }
@@ -407,6 +440,7 @@
 
         AllLines.Insert(0, newLine);
         EditingLines.Add(newLine);
+        pendingConfirmation[newLine] = false; // Initialize pending status
         UpdateFilteredLines();
     }
 
@@ -418,6 +452,7 @@
         if (string.IsNullOrEmpty(newName) || newName == "Enter a name")
         {
             isDuplicateName = false;
+            pendingConfirmation[line] = false;
             return;
         }
 
@@ -427,6 +462,7 @@
 
         if (isDuplicateName)
         {
+            pendingConfirmation[line] = false;
             StateHasChanged();
             return;
         }
@@ -447,7 +483,7 @@
                     var index = AllLines.IndexOf(line);
                     AllLines[index] = savedLine;
                     EditingLines.Remove(line);
-                    EditingLines.Add(savedLine);
+                    pendingConfirmation.Remove(line);
 
                     await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
                 }
@@ -456,9 +492,10 @@
             {
                 await Fassade.UpdateLine(line);
                 await SignalRService.SendMessageToServer($"LineUpdated;{line.lineID}");
+                EditingLines.Remove(line);
+                pendingConfirmation.Remove(line);
             }
 
-            EditingLines.Remove(line);
             isDuplicateName = false;
             UpdateFilteredLines();
         }
@@ -466,6 +503,7 @@
         {
             // Fehlerbehandlung - hier könntest du eine Benachrichtigung anzeigen
             Console.WriteLine($"Fehler beim Speichern: {ex.Message}");
+            pendingConfirmation[line] = false;
         }
     }
 
@@ -482,6 +520,7 @@
         }
 
         EditingLines.Remove(line);
+        pendingConfirmation.Remove(line);
         isDuplicateName = false;
         UpdateFilteredLines();
     }
