@@ -1,0 +1,51 @@
+﻿<MudDialog Style="border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+    <DialogContent>
+        <div class="d-flex align-items-center mb-3">
+            <MudIcon Icon="@Icons.Material.Filled.Warning"
+                     Color="Color.Warning"
+                     Size="Size.Large"
+                     Class="me-3" />
+            <MudText Typo="Typo.h6">Bestätigung</MudText>
+        </div>
+        <MudText Typo="Typo.body1">@ContentText</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel"
+                   Variant="Variant.Text"
+                   Color="Color.Default"
+                   Class="rounded-button">
+            Abbrechen
+        </MudButton>
+        <MudButton Color="@Color"
+                   Variant="Variant.Filled"
+                   OnClick="Submit"
+                   Class="rounded-button">
+            @ButtonText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .rounded-button {
+        border-radius: 12px;
+        min-width: 100px;
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public string ContentText { get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; }
+
+    [Parameter]
+    public Color Color { get; set; }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog.Cancel();
+}
