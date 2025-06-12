@@ -321,44 +321,106 @@
         });
     }
 
-    private async Task HandleLineAdded(int lineID)
-    {
-        if (AllLines.Any(l => l.lineID == lineID)) return;
-
-        var line = await Fassade.GetLine(lineID);
-        if (line != null)
-        {
-            AllLines.Add(line);
-            UpdateFilteredLines();
-            StateHasChanged();
-        }
-    }
 
     private async Task HandleLineUpdated(int lineID)
     {
-        var existingLine = AllLines.FirstOrDefault(l => l.lineID == lineID);
-        if (existingLine == null) return;
-
-        var updatedLine = await Fassade.GetLine(lineID);
-        if (updatedLine != null)
+        try
         {
-            var index = AllLines.IndexOf(existingLine);
-            AllLines[index] = updatedLine;
+            var existingLine = AllLines.FirstOrDefault(l => l.lineID == lineID);
+            if (existingLine == null)
+            {
+                // Line existiert nicht in der lokalen Liste - möglicherweise von einem anderen Client hinzugefügt
+                await HandleLineAdded(lineID);
+                return;
+            }
+
+            var updatedLine = await Fassade.GetLine(lineID);
+            if (updatedLine != null)
+            {
+                var index = AllLines.IndexOf(existingLine);
+                if (index >= 0 && index < AllLines.Count)
+                {
+                    AllLines[index] = updatedLine;
+
+                    // Auch aus EditingLines entfernen falls vorhanden
+                    if (EditingLines.Contains(existingLine))
+                    {
+                        EditingLines.Remove(existingLine);
+                        EditingLines.Add(updatedLine);
+                    }
+
+                    UpdateFilteredLines();
+                    StateHasChanged();
+                }
+                else
+                {
+                    // Index ist ungültig - Liste neu laden
+                    await LoadAllLines();
+                    UpdateFilteredLines();
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fehler in HandleLineUpdated: {ex.Message}");
+            // Im Fehlerfall komplette Liste neu laden
+            await LoadAllLines();
             UpdateFilteredLines();
             StateHasChanged();
         }
     }
 
-    private void HandleLineDeleted(int lineID)
+    // Zusätzlich: Verbesserte HandleLineAdded Methode
+    private async Task HandleLineAdded(int lineID)
     {
-        var lineToRemove = AllLines.FirstOrDefault(l => l.lineID == lineID);
-        if (lineToRemove != null)
+        try
         {
-            AllLines.Remove(lineToRemove);
-            EditingLines.Remove(lineToRemove);
-            pendingConfirmation.Remove(lineToRemove);
+            if (AllLines.Any(l => l.lineID == lineID)) return;
+
+            var line = await Fassade.GetLine(lineID);
+            if (line != null)
+            {
+                AllLines.Add(line);
+                UpdateFilteredLines();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fehler in HandleLineAdded: {ex.Message}");
+            // Im Fehlerfall komplette Liste neu laden
+            await LoadAllLines();
             UpdateFilteredLines();
             StateHasChanged();
+        }
+    }
+
+    // Zusätzlich: Verbesserte HandleLineDeleted Methode
+    private void HandleLineDeleted(int lineID)
+    {
+        try
+        {
+            var lineToRemove = AllLines.FirstOrDefault(l => l.lineID == lineID);
+            if (lineToRemove != null)
+            {
+                AllLines.Remove(lineToRemove);
+                EditingLines.Remove(lineToRemove);
+                pendingConfirmation.Remove(lineToRemove);
+                UpdateFilteredLines();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fehler in HandleLineDeleted: {ex.Message}");
+            // Im Fehlerfall komplette Liste neu laden
+            InvokeAsync(async () =>
+            {
+                await LoadAllLines();
+                UpdateFilteredLines();
+                StateHasChanged();
+            });
         }
     }
 
@@ -413,11 +475,12 @@
         StateHasChanged();
     }
 
+    /*
     private void StartEditing(Line line)
     {
         EditingLines.Add(line);
         pendingConfirmation[line] = false; // Reset pending status
-    }
+    }*/
 
     private async Task DeleteLine(Line line)
     {
@@ -612,7 +675,35 @@
     #endregion
 
 
+    
+
+
+
     #region popup
+
+    private async Task StartEditing(Line line)
+    {
+        var parameters = new DialogParameters<CreateProjectPopup>
+    {
+        { x => x.ExistingLine, line }
+    };
+
+        var dialog = DialogService.Show<CreateProjectPopup>("Projekt bearbeiten", parameters);
+        var resultReference = await dialog.Result;
+        var result = resultReference as DialogResult;
+
+        if (result != null && result.Canceled == false)
+        {
+            var newName = result.Data?.ToString();
+            Console.WriteLine($"Projekt wurde bearbeitet: {newName}");
+
+            // Die Daten werden bereits durch SignalR aktualisiert
+            // Aber für den Fall, dass SignalR nicht funktioniert:
+            await LoadAllLines();
+            UpdateFilteredLines();
+        }
+    }
+
     private async Task OpenDialogAsync()
     {
         var dialog = DialogService.Show<CreateProjectPopup>("Neues Projekt");
@@ -624,6 +715,10 @@
             var name = result.Data?.ToString();
             Console.WriteLine($"Projektname: {name}");
 
+            // Die Daten werden bereits durch SignalR aktualisiert
+            // Aber für den Fall, dass SignalR nicht funktioniert:
+            await LoadAllLines();
+            UpdateFilteredLines();
         }
     }
     #endregion

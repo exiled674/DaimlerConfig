@@ -6,20 +6,20 @@
 
 <MudDialog Style="width:500px; max-width:90vw; border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
     <TitleContent>
-        <MudText Typo="Typo.h6" Class="mt-2 ml-2">Neues Projekt</MudText>
+        <MudText Typo="Typo.h6" Class="mt-2 ml-2">@(IsEditMode ? "Projekt bearbeiten" : "Neues Projekt")</MudText>
     </TitleContent>
 
     <DialogContent>
         <MudForm @ref="_form" OnValidSubmit="HandleValidSubmit">
             <MudPaper Class="p-4" Elevation="0" Style="border-radius:12px;">
                 <MudTextField @bind-Value="_inputValue"
-                Label="Projektname"
-                Variant="Variant.Filled"
-                AutoFocus="true"
-                Margin="Margin.Dense"
-                Class="search-field-enhanced" 
-                Error="@lineExists"
-                ErrorText="@errorText"/>
+                              Label="Projektname"
+                              Variant="Variant.Filled"
+                              AutoFocus="true"
+                              Margin="Margin.Dense"
+                              Class="search-field-enhanced"
+                              Error="@lineExists"
+                              ErrorText="@errorText" />
             </MudPaper>
 
             <!-- Optionaler versteckter Submit-Button für Enter-Taste -->
@@ -30,93 +30,137 @@
     <DialogActions>
         <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">Abbrechen</MudButton>
         <MudButton Type="ButtonType.Submit"
-        Variant="Variant.Filled"
-        Color="Color.Primary"
-        OnClick="HandleValidSubmit"
-        Class="rounded-button">
-            OK
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="HandleValidSubmit"
+                   Class="rounded-button">
+            @(IsEditMode ? "Speichern" : "OK")
         </MudButton>
     </DialogActions>
 </MudDialog>
 
 <style>
     .rounded-input .mud-input {
-    border-radius: 10px;
+        border-radius: 10px;
     }
 
     .rounded-button {
-    border-radius: 12px;
-    min-width: 100px;
+        border-radius: 12px;
+        min-width: 100px;
     }
-
 
     .search-field-enhanced {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-    transition: box-shadow 0.2s ease-in-out !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+        transition: box-shadow 0.2s ease-in-out !important;
     }
 
-    .search-field-enhanced:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
-    }
+        .search-field-enhanced:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
 </style>
 
 @code {
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
+    [Parameter]
+    public Line ExistingLine { get; set; }
+
     private MudForm _form;
     private string _inputValue;
     private bool lineExists;
     private string errorText;
+    private string _originalValue;
+
+    private bool IsEditMode => ExistingLine != null;
 
     protected override void OnInitialized()
     {
         usernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
-        _inputValue = string.Empty;
+
+        if (IsEditMode)
+        {
+            _inputValue = ExistingLine.lineName;
+            _originalValue = ExistingLine.lineName;
+        }
+        else
+        {
+            _inputValue = string.Empty;
+        }
+
         lineExists = false;
     }
 
     private async Task HandleValidSubmit()
     {
-
-        if (await Fassade.LineExistsByName(_inputValue))
-        {
-            lineExists = true;
-            errorText = "Project already exists. Please choose a different name.";
-        }
-        else if (string.IsNullOrWhiteSpace(_inputValue))
+        // Prüfung auf leeren Namen
+        if (string.IsNullOrWhiteSpace(_inputValue))
         {
             lineExists = true;
             errorText = "Project name cannot be empty. Please enter a valid name.";
-
+            return;
         }
-        else
+
+        // Prüfung auf doppelte Namen (außer bei sich selbst im Edit-Modus)
+        bool nameExists = await Fassade.LineExistsByName(_inputValue);
+        if (nameExists && (!IsEditMode || _inputValue != _originalValue))
         {
+            lineExists = true;
+            errorText = "Project already exists. Please choose a different name.";
+            return;
+        }
+
+        try
+        {
+            if (IsEditMode)
+            {
+                // Bearbeiten eines bestehenden Projekts
+                ExistingLine.lineName = _inputValue;
+                ExistingLine.lastModified = DateTime.Now;
+                ExistingLine.modifiedBy = usernameService.Username;
+
+                if (!(await Fassade.UpdateLine(ExistingLine)))
+                {
+                    lineExists = true;
+                    errorText = "Error updating project in database";
+                    return;
+                }
+
+                await SignalRService.SendMessageToServer($"LineUpdated;{ExistingLine.lineID}");
+            }
+            else
+            {
+                // Erstellen eines neuen Projekts
+                Line line = new Line
+                    {
+                        lineName = _inputValue,
+                        lastModified = DateTime.Now,
+                        modifiedBy = usernameService.Username,
+                        lineID = 0,
+                    };
+
+                if (!(await Fassade.AddLine(line)))
+                {
+                    lineExists = true;
+                    errorText = "Error with database";
+                    return;
+                }
+
+                var savedLine = await Fassade.GetLineByName(line.lineName);
+                if (savedLine != null)
+                {
+                    await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
+                }
+            }
+
             lineExists = false;
-            Line line = new Line
-            {
-                lineName = _inputValue,
-				lastModified = DateTime.Now,
-                modifiedBy = usernameService.Username,
-                lineID = 0,
-            };  
-
-            if (!(await Fassade.AddLine(line)))
-            {
-                lineExists = true;
-				errorText = "Error with database";
-                
-            }
-
-
-            var savedLine = await Fassade.GetLineByName(line.lineName);
-            if (savedLine != null)
-            {
-                await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
-            }
             MudDialog.Close(DialogResult.Ok(_inputValue));
         }
-
+        catch (Exception ex)
+        {
+            lineExists = true;
+            errorText = $"An error occurred: {ex.Message}";
+        }
     }
 
     private void Cancel()
