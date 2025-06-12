@@ -16,6 +16,7 @@
 @using Microsoft.Maui.Storage
 @inject DirtyManagerService DirtyManagerService
 @using DaimlerConfig.Components.Models
+@inject UsernameService usernameService
 
 @using MudBlazor
 @inject IDialogService DialogService
@@ -26,10 +27,10 @@
     <MudText Typo="Typo.h6" Class="ml-0">Project Manager</MudText>
     <MudSpacer />
     <MudIconButton Icon="@Icons.Material.Filled.Settings"
-                   Color="Color.Inherit"
-                   Size="Size.Medium"
-                   OnClick="OpenSettings"
-                   Class="settings-aligned" />
+    Color="Color.Inherit"
+    Size="Size.Medium"
+    OnClick="OpenSettings"
+    Class="settings-aligned" />
 </MudAppBar>
 
 @if (ShowSettings)
@@ -44,29 +45,29 @@
         <div class="d-flex align-items-end gap-3 mb-4 pt-3">
             <div class="flex-grow-1">
                 <MudTextField @bind-Value="searchText"
-                              @bind-Value:after="UpdateFilteredLines"
-                              Placeholder="Search projects..."
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search"
-                              Immediate="true"
-                              Variant="Variant.Outlined"
-                              Margin="Margin.Normal"
-                              Class="flex-grow-1 search-field-enhanced"
-                              Style="background: white; border-radius: 12px;" />
+                @bind-Value:after="UpdateFilteredLines"
+                Placeholder="Search projects..."
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Filled.Search"
+                Immediate="true"
+                Variant="Variant.Outlined"
+                Margin="Margin.Normal"
+                Class="flex-grow-1 search-field-enhanced"
+                Style="background: white; border-radius: 12px;" />
             </div>
 
             <!-- Sort Dropdown -->
             <div style="width: auto">
                 <MudSelect T="string"
-                           Value="selectedSort"
-                           ValueChanged="OnSortChanged"
-                           Variant="Variant.Outlined"
-                           Dense="true"
-                           Margin="Margin.Normal"
-                           FullWidth="true"
-                           AnchorOrigin="Origin.BottomCenter"
-                           Class="sort-dropdown-enhanced"
-                           Style="background: white; border-radius: 12px;">
+                Value="selectedSort"
+                ValueChanged="OnSortChanged"
+                Variant="Variant.Outlined"
+                Dense="true"
+                Margin="Margin.Normal"
+                FullWidth="true"
+                AnchorOrigin="Origin.BottomCenter"
+                Class="sort-dropdown-enhanced"
+                Style="background: white; border-radius: 12px;">
                     <MudSelectItem Value="@("date")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="me-2" />
@@ -90,34 +91,34 @@
         @foreach (var line in FilteredLines)
         {
             <MudCard Class="my-3 hover-lift hover-highlight"
-                     Elevation="3"
-                     Style="border-radius: 12px; margin: 0 0 20px 0; border: 1px solid rgba(0,0,0,0.08);">
+            Elevation="3"
+            Style="border-radius: 12px; margin: 0 0 20px 0; border: 1px solid rgba(0,0,0,0.08);">
                 <!-- Editing Line -->
                 @if (EditingLines.Contains(line))
                 {
                     <MudGrid AlignItems="Center" Class="pa-5">
                         <MudItem xs="10">
                             <MudTextField T="string"
-                                          @bind-Value="line.lineName"
-                                          Placeholder="Line name"
-                                          Variant="Variant.Outlined"
-                                          Margin="Margin.Dense"
-                                          Dense="true"
-                                          Immediate="true"
-                                          FullWidth="true"
-                                          Error="@isDuplicateName"
-                                          ErrorText="The name already exists."
-                                          @onblur="@(e => ConfirmEdit(line))"
-                                          @onkeydown="@(e => OnEditKeyDown(e, line))"
-                                          @onkeyup="@(e => OnEditKeyUp(e, line))"
-                                          AutoFocus="true" />
+                            @bind-Value="line.lineName"
+                            Placeholder="Line name"
+                            Variant="Variant.Outlined"
+                            Margin="Margin.Dense"
+                            Dense="true"
+                            Immediate="true"
+                            FullWidth="true"
+                            Error="@isDuplicateName"
+                            ErrorText="The name already exists."
+                            @onblur="@(e => ConfirmEdit(line))"
+                            @onkeydown="@(e => OnEditKeyDown(e, line))"
+                            @onkeyup="@(e => OnEditKeyUp(e, line))"
+                            AutoFocus="true" />
                         </MudItem>
                         <MudItem xs="2" Class="d-flex justify-end">
                             <MudIconButton Icon="@Icons.Material.Filled.Close"
-                                           Color="Color.Secondary"
-                                           Size="Size.Small"
-                                           OnClick="() => CancelEdit(line)"
-                                           Title="Cancel" />
+                            Color="Color.Secondary"
+                            Size="Size.Small"
+                            OnClick="() => CancelEdit(line)"
+                            Title="Cancel" />
                         </MudItem>
                     </MudGrid>
                 }
@@ -131,35 +132,42 @@
                                     @line.lineName
                                 </MudText>
                                 <MudChip T="string"
-                                         Class="mt-1 ma-0" Size="Size.Small"
-                                         Color="Color.Secondary"
-                                         Text=@($"Modified on {line.lastModified:dd.MM.yyyy} by {line.modifiedBy?.Split(';')[0] ?? "Unknown"}") />
+                                Class="mt-1 ma-0" Size="Size.Small"
+                                Color="Color.Secondary"
+                                Text=@($"Modified on {line.lastModified:dd.MM.yyyy} by {line.modifiedBy?.Split(';')[0] ?? "Unknown"}") />
                             </div>
                         </MudItem>
 
                         <MudItem xs="2" Class="d-flex justify-end">
                             <div @onclick:stopPropagation>
                                 <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                         Size="Size.Small"
-                                         Dense="true"
-                                         AnchorOrigin="Origin.BottomRight"
-                                         TransformOrigin="Origin.TopRight">
+                                Size="Size.Small"
+                                Dense="true"
+                                AnchorOrigin="Origin.BottomRight"
+                                TransformOrigin="Origin.TopRight">
+
+                                    <MudMenuItem OnClick="@(() => StarLine(line))"
+                                    Icon="@Icons.Material.Filled.Star"
+                                    IconColor="Color.Warning">
+                                        Add to favorites
+                                    </MudMenuItem>
+
                                     <MudMenuItem OnClick="@(() => StartEditing(line))"
-                                                 Icon="@Icons.Material.Filled.Edit">
+                                    Icon="@Icons.Material.Filled.Edit">
                                         Edit
                                     </MudMenuItem>
                                     <MudMenuItem OnClick="@(() => DeleteLine(line))"
-                                                 Icon="@Icons.Material.Filled.Delete"
-                                                 IconColor="Color.Error">
+                                    Icon="@Icons.Material.Filled.Delete"
+                                    IconColor="Color.Error">
                                         Delete
                                     </MudMenuItem>
                                     <MudDivider />
                                     <MudMenuItem OnClick="@(() => ExportToExcel(line))"
-                                                 Icon="@Icons.Material.Filled.FileDownload">
+                                    Icon="@Icons.Material.Filled.FileDownload">
                                         Export to Excel
                                     </MudMenuItem>
                                     <MudMenuItem OnClick="@(() => ExportToJson(line))"
-                                                 Icon="@Icons.Material.Filled.FileDownload">
+                                    Icon="@Icons.Material.Filled.FileDownload">
                                         Export to Json
                                     </MudMenuItem>
                                 </MudMenu>
@@ -178,92 +186,92 @@
 
     <div>
         <MudFab Icon="@Icons.Material.Filled.Add"
-                Color="Color.Primary"
-                Size="Size.Large"
-                Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:32px;"
-                Onclick="OpenDialogAsync"
-                Label="Create new Project"
-                Class="fab-enhanced px-4 py-2" />
+        Color="Color.Primary"
+        Size="Size.Large"
+        Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:32px;"
+        Onclick="OpenDialogAsync"
+        Label="Create new Project"
+        Class="fab-enhanced px-4 py-2" />
     </div>
 </div>
 
 
 <style>
     .hover-lift {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     }
 
-        .hover-lift:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-        }
+    .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
 
     .cursor-pointer {
-        cursor: pointer;
+    cursor: pointer;
     }
 
     .mud-fab-extended {
-        border-radius: 28px !important;
+    border-radius: 28px !important;
     }
 
     .hover-highlight {
-        transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease;
     }
 
-        .hover-highlight:hover {
-            background-color: color-mix(in srgb, var(--mud-palette-primary) 10%, white);
-            cursor: pointer;
-        }
+    .hover-highlight:hover {
+    background-color: color-mix(in srgb, var(--mud-palette-primary) 10%, white);
+    cursor: pointer;
+    }
 
 
 
     .search-field-enhanced {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-        transition: box-shadow 0.2s ease-in-out !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+    transition: box-shadow 0.2s ease-in-out !important;
     }
 
-        .search-field-enhanced:hover {
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
-        }
+    .search-field-enhanced:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+    }
 
-        .search-field-enhanced .mud-input-outlined {
-            background: white !important;
-            border-radius: 12px !important;
-        }
+    .search-field-enhanced .mud-input-outlined {
+    background: white !important;
+    border-radius: 12px !important;
+    }
 
 
     .sort-dropdown-enhanced {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-        transition: box-shadow 0.2s ease-in-out !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+    transition: box-shadow 0.2s ease-in-out !important;
     }
 
-        .sort-dropdown-enhanced:hover {
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
-        }
+    .sort-dropdown-enhanced:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+    }
 
 
     .fab-enhanced {
-        box-shadow: 0 12px 32px rgba(25, 118, 210, 0.4), 0 6px 16px rgba(0,0,0,0.15) !important;
-        transition: all 0.3s ease-in-out !important;
-        transform: translateY(0px);
+    box-shadow: 0 12px 32px rgba(25, 118, 210, 0.4), 0 6px 16px rgba(0,0,0,0.15) !important;
+    transition: all 0.3s ease-in-out !important;
+    transform: translateY(0px);
     }
 
 
-        .fab-enhanced:hover {
-            box-shadow: 0 16px 40px rgba(25, 118, 210, 0.5), 0 8px 20px rgba(0,0,0,0.2) !important;
-            transform: translateY(-4px) !important;
-        }
+    .fab-enhanced:hover {
+    box-shadow: 0 16px 40px rgba(25, 118, 210, 0.5), 0 8px 20px rgba(0,0,0,0.2) !important;
+    transform: translateY(-4px) !important;
+    }
 
     .navbar-aligned {
-        padding-left: 0px !important;
-        padding-right: 24px !important;
+    padding-left: 0px !important;
+    padding-right: 24px !important;
     }
 
     .settings-aligned {
-        position: absolute;
-        right: 9px;
-        padding-left: 0px !important;
-        padding-right: 0px !important;
+    position: absolute;
+    right: 9px;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
     }
 </style>
 
@@ -272,6 +280,7 @@
     private List<Line> AllLines = new();
     private List<Line> FilteredLines = new();
     private HashSet<Line> EditingLines = new();
+    private List<Line> Star = new();
     private string searchText = "";
     private string selectedSort = "date";
     private bool isDuplicateName = false;
@@ -289,6 +298,11 @@
         // Initiales Laden der Daten
         await LoadAllLines();
         UpdateFilteredLines();
+
+        var lineNames = usernameService.LoadList();
+
+        Star = lineNames.Select(name => Fassade.GetLineByName(name).Result).Where(line => line != null).ToList();
+
     }
 
     private async Task LoadAllLines()
@@ -480,7 +494,7 @@
     {
         EditingLines.Add(line);
         pendingConfirmation[line] = false; // Reset pending status
-    }*/
+        }*/
 
     private async Task DeleteLine(Line line)
     {
@@ -703,7 +717,7 @@
     #endregion
 
 
-    
+
 
 
 
@@ -749,5 +763,19 @@
             UpdateFilteredLines();
         }
     }
+    #endregion
+
+
+
+    #region starLine
+
+    public void StarLine(Line line)
+    {
+        Star.Add(line);
+        var names = Star.Select(line => line.lineName).ToList();
+        usernameService.SaveList(names);
+
+    }
+
     #endregion
 }
