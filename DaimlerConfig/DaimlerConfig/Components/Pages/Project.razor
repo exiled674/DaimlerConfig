@@ -63,7 +63,7 @@
                 }
 
                 <li class="sidebar-item">
-                    <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
+                    <a class="sidebar-link clickable" @onclick="() => { ToggleStationFormular(true); HandleDismiss(); } ">
                         <i class="lni lni-plus"></i>
                         <span>Add Station</span>
                     </a>
@@ -92,7 +92,7 @@
                             {
                                 <button class="btn btn-primary btn-sm" @onclick="() => InsertTool()">Insert Tool</button>
                             }
-                            <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
+                            <button class="btn btn-primary btn-sm" @onclick="() => { ToggleToolFormular(true) ; HandleDismiss(); }">+ Tool</button>
                         }
 
                     </div>
@@ -116,7 +116,7 @@
                                         <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
                                         <div>
                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
+                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); HandleDismiss(); }">+</button>
                                             @if (selectedTool != null)
                                             {
                                                 if (copiedOperation != null)
@@ -367,7 +367,7 @@
 
     {
         if (isNewStation)
-        {
+        { 
             await UnlockOperation();
             await UnlockTool();
             selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
