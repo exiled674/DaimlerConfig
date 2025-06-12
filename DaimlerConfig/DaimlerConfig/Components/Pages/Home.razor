@@ -7,8 +7,6 @@
 @inject NavigationManager Navigation
 @inject NavigationStateService NavState
 
-
-
 @using CommunityToolkit.Maui.Storage;
 @using System.Text.Json
 @using System.IO
@@ -26,19 +24,17 @@
 <MudAppBar Elevation="2" Color="Color.Primary" Class="navbar-aligned">
     <MudText Typo="Typo.h6" Class="ml-0">Project Manager</MudText>
     <MudSpacer />
-    <MudIconButton Icon="@Icons.Material.Filled.Settings" 
-                   Color="Color.Inherit" 
+    <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                   Color="Color.Inherit"
                    Size="Size.Medium"
                    OnClick="OpenSettings"
-                   Class="settings-aligned"/>
+                   Class="settings-aligned" />
 </MudAppBar>
 
 @if (ShowSettings)
 {
-        <Settings OnClosing="CLoseSetting" />
+    <Settings OnClosing="CLoseSetting" />
 }
-
-
 
 <!-- Main Content -->
 <div class="ProjectManager container-fluid px-4">
@@ -47,29 +43,29 @@
         <div class="d-flex align-items-end gap-3 mb-4 pt-3">
             <div class="flex-grow-1">
                 <MudTextField @bind-Value="searchText"
-              Placeholder="Search projects..."
-              Adornment="Adornment.Start"
-              AdornmentIcon="@Icons.Material.Filled.Search"
-              Immediate="true"
-              OnInput="OnSearchTextChanged"
-              Variant="Variant.Outlined"
-              Margin="Margin.Normal"
-              Class="flex-grow-1 search-field-enhanced"
-              Style="background: white; border-radius: 12px;" />
+                              @bind-Value:after="UpdateFilteredLines"
+                              Placeholder="Search projects..."
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              Immediate="true"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              Class="flex-grow-1 search-field-enhanced"
+                              Style="background: white; border-radius: 12px;" />
             </div>
-
 
             <!-- Sort Dropdown -->
             <div style="width: auto">
-                <MudSelect T="string" 
-           Value="@selectedSort" 
-           Variant="Variant.Outlined"
-           Dense="true"
-           Margin="Margin.Normal"
-           FullWidth="true"
-           AnchorOrigin="Origin.BottomCenter"
-           Class="sort-dropdown-enhanced"
-           Style="background: white; border-radius: 12px;">
+                <MudSelect T="string"
+                           Value="selectedSort"
+                           ValueChanged="OnSortChanged"
+                           Variant="Variant.Outlined"
+                           Dense="true"
+                           Margin="Margin.Normal"
+                           FullWidth="true"
+                           AnchorOrigin="Origin.BottomCenter"
+                           Class="sort-dropdown-enhanced"
+                           Style="background: white; border-radius: 12px;">
                     <MudSelectItem Value="@("date")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="me-2" />
@@ -83,99 +79,94 @@
                         </div>
                     </MudSelectItem>
                 </MudSelect>
-           </div>
+            </div>
         </div>
     </div>
 
-<!-- Lines List -->
-    @if (FilteredLines is not null && FilteredLines.Any())
+    <!-- Lines List -->
+    @if (FilteredLines?.Any() == true)
     {
-        foreach (var line in FilteredLines)
+        @foreach (var line in FilteredLines)
         {
-                               <MudCard Class="my-3 hover-lift hover-highlight" 
-                 Elevation="3" 
-                 Style="border-radius: 12px; margin: 0 0 20px 0; border: 1px solid rgba(0,0,0,0.08);">
-                    <!-- Editing Line -->
+            <MudCard Class="my-3 hover-lift hover-highlight"
+                     Elevation="3"
+                     Style="border-radius: 12px; margin: 0 0 20px 0; border: 1px solid rgba(0,0,0,0.08);">
+                <!-- Editing Line -->
                 @if (EditingLines.Contains(line))
                 {
-                            <MudGrid AlignItems="Center" Class="pa-5">
-                                <MudItem xs="10">
-                                    <MudTextField T="string"
-                                                @bind-Value="line.lineName"
-                                                Placeholder="Line name"
-                                                Variant="Variant.Outlined"
-                                                Margin="Margin.Dense"
-                                                Dense="true"
-                                                Immediate="true"
-                                                FullWidth="true"
-                                                Error="@isDuplicateName"
-                                                ErrorText="The name already exists."
-                                                OnBlur="@(e => ConfirmEdit(line, new ChangeEventArgs { Value = line.lineName }))"
-                                                AutoFocus="true"
-                                                />
-                                </MudItem>
-                                <MudItem xs="2" Class="d-flex justify-end">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Close" 
-                                                 Color="Color.Secondary" 
-                                                 Size="Size.Small"
-                                                 OnClick="() => CancelEdit(line)"
-                                                 Title="Cancel" />
-                                </MudItem>
-                            </MudGrid>
+                    <MudGrid AlignItems="Center" Class="pa-5">
+                        <MudItem xs="10">
+                            <MudTextField T="string"
+                                          @bind-Value="line.lineName"
+                                          Placeholder="Line name"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense"
+                                          Dense="true"
+                                          Immediate="true"
+                                          FullWidth="true"
+                                          Error="@isDuplicateName"
+                                          ErrorText="The name already exists."
+                                          @onblur="@(e => ConfirmEdit(line))"
+                                          AutoFocus="true" />
+                        </MudItem>
+                        <MudItem xs="2" Class="d-flex justify-end">
+                            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                           Color="Color.Secondary"
+                                           Size="Size.Small"
+                                           OnClick="() => CancelEdit(line)"
+                                           Title="Cancel" />
+                        </MudItem>
+                    </MudGrid>
                 }
                 // Normal Line Display
                 else
                 {
-                                            <MudGrid AlignItems="Center" Class="pa-4">
-                <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
-                    <div class="d-flex flex-column align-items-start ma-0 pa-0">
-                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium ma-0 pa-0">
+                    <MudGrid AlignItems="Center" Class="pa-4">
+                        <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
+                            <div class="d-flex flex-column align-items-start ma-0 pa-0">
+                                <MudText Typo="Typo.subtitle1" Class="font-weight-medium ma-0 pa-0">
                                     @line.lineName
-                        </MudText>
-                                               <MudChip T="string" 
-                      Class="mt-1 ma-0" Size="Size.Small" 
-                      Color="Color.Secondary" 
-                      Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
-                    </div>
-                </MudItem>
+                                </MudText>
+                                <MudChip T="string"
+                                         Class="mt-1 ma-0" Size="Size.Small"
+                                         Color="Color.Secondary"
+                                         Text="@($"Modified: {line.lastModified:dd.MM.yyyy}")" />
+                            </div>
+                        </MudItem>
 
-                <MudItem xs="2" Class="d-flex justify-end">
-                                    <div @onclick:stopPropagation>
-                                        <MudMenu Icon="@Icons.Material.Filled.MoreVert" 
-                                               Size="Size.Small" 
-                                               Dense="true"
-                                               AnchorOrigin="Origin.BottomRight"
-                                               TransformOrigin="Origin.TopRight">
-                                            <MudMenuItem OnClick="@(() => StartEditing(line))" 
-                                                       Icon="@Icons.Material.Filled.Edit">
-                                                Edit
-                                            </MudMenuItem>
-                                            <MudMenuItem OnClick="@(() => DeleteLine(line))" 
-                                                       Icon="@Icons.Material.Filled.Delete"
-                                                       IconColor="Color.Error">
-                                                Delete
-                                            </MudMenuItem>
-                                            <MudDivider />
-                                            <MudMenuItem OnClick="FilePick" 
-                                                       Icon="@Icons.Material.Filled.FileDownload">
-                                                Export to Excel
-                                            </MudMenuItem>
-                                            <MudMenuItem OnClick="FilePickJson" 
-                                                       Icon="@Icons.Material.Filled.FileDownload">
-                                                Export to Json
-                                            </MudMenuItem>
-                                        </MudMenu>
-                                    </div>
-                                </MudItem>
-                            </MudGrid>
+                        <MudItem xs="2" Class="d-flex justify-end">
+                            <div @onclick:stopPropagation>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                         Size="Size.Small"
+                                         Dense="true"
+                                         AnchorOrigin="Origin.BottomRight"
+                                         TransformOrigin="Origin.TopRight">
+                                    <MudMenuItem OnClick="@(() => StartEditing(line))"
+                                                 Icon="@Icons.Material.Filled.Edit">
+                                        Edit
+                                    </MudMenuItem>
+                                    <MudMenuItem OnClick="@(() => DeleteLine(line))"
+                                                 Icon="@Icons.Material.Filled.Delete"
+                                                 IconColor="Color.Error">
+                                        Delete
+                                    </MudMenuItem>
+                                    <MudDivider />
+                                    <MudMenuItem OnClick="@(() => ExportToExcel(line))"
+                                                 Icon="@Icons.Material.Filled.FileDownload">
+                                        Export to Excel
+                                    </MudMenuItem>
+                                    <MudMenuItem OnClick="@(() => ExportToJson(line))"
+                                                 Icon="@Icons.Material.Filled.FileDownload">
+                                        Export to Json
+                                    </MudMenuItem>
+                                </MudMenu>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
                 }
-                </MudCard>
+            </MudCard>
         }
     }
-
-
-
-
     else
     {
         <p class="text-muted">Keine Lines gefunden.</p>
@@ -183,26 +174,24 @@
 
     <div>
         <MudFab Icon="@Icons.Material.Filled.Add"
-       Color="Color.Primary"
-       Size="Size.Large"
-       Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:32px;"
-       OnClick="CreateNewLine"
-       Label="Create new Project"
-       Class="fab-enhanced px-4 py-2" />
-
-
+                Color="Color.Primary"
+                Size="Size.Large"
+                Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:32px;"
+                OnClick="CreateNewLine"
+                Label="Create new Project"
+                Class="fab-enhanced px-4 py-2" />
     </div>
 </div>
-
 
 <style>
     .hover-lift {
         transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     }
-    .hover-lift:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-    }
+
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
 
     .cursor-pointer {
         cursor: pointer;
@@ -213,95 +202,189 @@
     }
 
     .hover-highlight {
-    transition: background-color 0.2s ease;
+        transition: background-color 0.2s ease;
     }
 
-    .hover-highlight:hover {
-        background-color: color-mix(in srgb, var(--mud-palette-primary) 10%, white);
-        cursor: pointer;
-    }
+        .hover-highlight:hover {
+            background-color: color-mix(in srgb, var(--mud-palette-primary) 10%, white);
+            cursor: pointer;
+        }
 
 
 
     .search-field-enhanced {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-    transition: box-shadow 0.2s ease-in-out !important;
-}
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+        transition: box-shadow 0.2s ease-in-out !important;
+    }
 
-.search-field-enhanced:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
-}
+        .search-field-enhanced:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
 
-.search-field-enhanced .mud-input-outlined {
-    background: white !important;
-    border-radius: 12px !important;
-}
-
-
-.sort-dropdown-enhanced {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-    transition: box-shadow 0.2s ease-in-out !important;
-}
-
-.sort-dropdown-enhanced:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
-}
+        .search-field-enhanced .mud-input-outlined {
+            background: white !important;
+            border-radius: 12px !important;
+        }
 
 
-.fab-enhanced {
-    box-shadow: 0 12px 32px rgba(25, 118, 210, 0.4), 0 6px 16px rgba(0,0,0,0.15) !important;
-    transition: all 0.3s ease-in-out !important;
-    transform: translateY(0px);
-}
+    .sort-dropdown-enhanced {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+        transition: box-shadow 0.2s ease-in-out !important;
+    }
+
+        .sort-dropdown-enhanced:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
 
 
-.fab-enhanced:hover {
-    box-shadow: 0 16px 40px rgba(25, 118, 210, 0.5), 0 8px 20px rgba(0,0,0,0.2) !important;
-    transform: translateY(-4px) !important;
-    background-color: var(--mud-palette-primary) !important;
-}
+    .fab-enhanced {
+        box-shadow: 0 12px 32px rgba(25, 118, 210, 0.4), 0 6px 16px rgba(0,0,0,0.15) !important;
+        transition: all 0.3s ease-in-out !important;
+        transform: translateY(0px);
+    }
 
-.navbar-aligned {
-    padding-left: 0px !important;
-    padding-right: 24px !important;
-}
 
-.settings-aligned{
-    position: absolute;
-    right: 9px;
-    padding-left: 0px !important;
-    padding-right: 0px !important;
-}
+        .fab-enhanced:hover {
+            box-shadow: 0 16px 40px rgba(25, 118, 210, 0.5), 0 8px 20px rgba(0,0,0,0.2) !important;
+            transform: translateY(-4px) !important;
+            background-color: var(--mud-palette-primary) !important;
+        }
+
+    .navbar-aligned {
+        padding-left: 0px !important;
+        padding-right: 24px !important;
+    }
+
+    .settings-aligned {
+        position: absolute;
+        right: 9px;
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
 </style>
 
-@code {
 
-    public void Test()
-    {
-        Navigation.NavigateTo("/test");
-    }
+
+
+@code {
     private List<Line> AllLines = new();
     private List<Line> FilteredLines = new();
     private HashSet<Line> EditingLines = new();
     private string searchText = "";
     private string selectedSort = "date";
     private bool isDuplicateName = false;
-    private Line? ActiveContextMenuLine = null;
-    private bool ShowDropdown = false;
     private bool ShowSettings = false;
 
-    private void ToggleContextMenu(Line line)
+    protected override async Task OnInitializedAsync()
     {
-        if (ActiveContextMenuLine == line)
-            ActiveContextMenuLine = null;
-        else
-            ActiveContextMenuLine = line;
+        NavState.SetCurrentRoute("/");
+
+        // SignalR Event Handler registrieren
+        SignalRService.RegisterResponseHandler(async (string message) => await HandleSignalRMessage(message));
+        await SignalRService.StartConnectionAsync();
+
+        // Initiales Laden der Daten
+        await LoadAllLines();
+        UpdateFilteredLines();
+    }
+
+    private async Task LoadAllLines()
+    {
+        var result = await Fassade.GetAllLinesAsync();
+        AllLines = result.ToList();
+    }
+
+    private async Task HandleSignalRMessage(string message)
+    {
+        await InvokeAsync(async () =>
+        {
+            var parts = message.Split(';');
+            if (parts.Length < 2) return;
+
+            var lineID = int.Parse(parts[1]);
+
+            switch (parts[0])
+            {
+                case "LineAdded":
+                    await HandleLineAdded(lineID);
+                    break;
+                case "LineUpdated":
+                    await HandleLineUpdated(lineID);
+                    break;
+                case "LineDeleted":
+                    HandleLineDeleted(lineID);
+                    break;
+            }
+        });
+    }
+
+    private async Task HandleLineAdded(int lineID)
+    {
+        if (AllLines.Any(l => l.lineID == lineID)) return;
+
+        var line = await Fassade.GetLine(lineID);
+        if (line != null)
+        {
+            AllLines.Add(line);
+            UpdateFilteredLines();
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleLineUpdated(int lineID)
+    {
+        var existingLine = AllLines.FirstOrDefault(l => l.lineID == lineID);
+        if (existingLine == null) return;
+
+        var updatedLine = await Fassade.GetLine(lineID);
+        if (updatedLine != null)
+        {
+            var index = AllLines.IndexOf(existingLine);
+            AllLines[index] = updatedLine;
+            UpdateFilteredLines();
+            StateHasChanged();
+        }
+    }
+
+    private void HandleLineDeleted(int lineID)
+    {
+        var lineToRemove = AllLines.FirstOrDefault(l => l.lineID == lineID);
+        if (lineToRemove != null)
+        {
+            AllLines.Remove(lineToRemove);
+            EditingLines.Remove(lineToRemove);
+            UpdateFilteredLines();
+            StateHasChanged();
+        }
+    }
+
+    private void OnSortChanged(string newSortValue)
+    {
+        selectedSort = newSortValue;
+        UpdateFilteredLines();
+    }
+
+    private void UpdateFilteredLines()
+    {
+        // Erst filtern nach Suchtext
+        var filtered = AllLines.Where(line =>
+            string.IsNullOrEmpty(searchText) ||
+            line.lineName.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+        // Dann sortieren
+        FilteredLines = selectedSort switch
+        {
+            "name" => filtered.OrderBy(l => l.lineName).ToList(),
+            "date" => filtered.OrderByDescending(l => l.lastModified).ToList(),
+            _ => filtered.OrderByDescending(l => l.lastModified).ToList()
+        };
+
+        StateHasChanged();
     }
 
     private void StartEditing(Line line)
     {
         EditingLines.Add(line);
-        ActiveContextMenuLine = null;
     }
 
     private async Task DeleteLine(Line line)
@@ -310,122 +393,7 @@
         AllLines.Remove(line);
         EditingLines.Remove(line);
         await SignalRService.SendMessageToServer($"LineDeleted;{line.lineID}");
-        ActiveContextMenuLine = null;
-        ApplyFilters();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-
-        NavState.SetCurrentRoute("/"); // für Home
-
-
-        SignalRService.RegisterResponseHandler(async (string msg) =>
-        {
-            await InvokeAsync(async () =>
-            {
-                switch(msg)
-                {
-                    case var msg when msg.StartsWith("LineAdded;"):
-                        {
-                            var parts = msg.Split(';');
-                            var lineID = int.Parse(parts[1]);
-                            if (!AllLines.Any(l => l.lineID == lineID))
-                            {
-                                var line = await Fassade.GetLine(lineID);
-                                if (line != null)
-                                {
-                                    AllLines.Add(line);
-                                    ApplyFilters();
-                                    StateHasChanged();
-                                }
-
-                            }
-
-
-                            break;
-                        }
-
-                    case var msg when msg.StartsWith("LineUpdated;"):
-                        {
-                            var parts = msg.Split(';');
-                            var lineID = int.Parse(parts[1]);
-
-                            var idx = AllLines.FindIndex(l => l.lineID == lineID);
-                            if (idx >= 0)
-                            {
-                                var line = await Fassade.GetLine(lineID);
-                                if (line != null)
-                                {
-                                    AllLines[idx] = line;
-                                    ApplyFilters();
-                                    StateHasChanged();
-                                }
-                            }
-                            break;
-                        }
-
-                    case var msg when msg.StartsWith("LineDeleted;"):
-						{
-							var parts = msg.Split(';');
-							var lineID = int.Parse(parts[1]);
-							var lineToRemove = AllLines.FirstOrDefault(l => l.lineID == lineID);
-							if (lineToRemove != null)
-							{
-								AllLines.Remove(lineToRemove);
-								EditingLines.Remove(lineToRemove);
-								ApplyFilters();
-							}
-							break;
-						}
-                }
-
-
-
-            });
-        });
-        await SignalRService.StartConnectionAsync();
-
-        // Initiales Laden
-        var result = await Fassade.GetAllLinesAsync();
-        AllLines = result.ToList();
-        ApplyFilters();
-    }
-
-    private void OnSearchTextChanged(ChangeEventArgs e)
-    {
-        searchText = e.Value?.ToString() ?? "";
-        ApplyFilters();
-    }
-
-    private void OnSortChanged(ChangeEventArgs e)
-    {
-        selectedSort = e.Value?.ToString() ?? "date";
-        ShowDropdown = false; // Diese Zeile hinzufügen
-        ApplyFilters();
-    }
-
-    private string GetSortDisplayText()
-    {
-        return selectedSort switch
-        {
-            "name" => "Sorted by name ascending",
-            "date" => "Sorted by date descending",
-            _ => "Sorted by date descending"
-        };
-    }
-
-    private void ApplyFilters()
-    {
-        var filtered = AllLines
-            .Where(line => line.lineName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
-
-        FilteredLines = selectedSort switch
-        {
-            "name" => filtered.OrderBy(l => l.lineName).ToList(),
-            "date" => filtered.OrderByDescending(l => l.lastModified).ToList(),
-            _ => filtered.ToList()
-        };
+        UpdateFilteredLines();
     }
 
     private void CreateNewLine()
@@ -433,56 +401,89 @@
         var newLine = new Line
             {
                 lineName = "Enter a name",
-                lastModified = DateTime.Now
+                lastModified = DateTime.Now,
+                lineID = 0 // Kennzeichnet neue Line
             };
+
         AllLines.Insert(0, newLine);
         EditingLines.Add(newLine);
-        ApplyFilters();
-
+        UpdateFilteredLines();
     }
 
-
-
-    private async Task ConfirmEdit(Line line, ChangeEventArgs e)
+    private async Task ConfirmEdit(Line line)
     {
-        var newName = e.Value?.ToString()?.Trim();
-        isDuplicateName = await Fassade.LineExistsByName(newName);
+        var newName = line.lineName?.Trim();
 
-        if (!string.IsNullOrEmpty(newName) && newName != "Enter a name" && !isDuplicateName)
+        // Validierung
+        if (string.IsNullOrEmpty(newName) || newName == "Enter a name")
         {
-            line.lineName = newName;
-            line.lastModified = DateTime.Now;
+            isDuplicateName = false;
+            return;
+        }
 
-            if (line.lineID == 0) // ❗ prüft, ob es eine neue Line ist
+        // Prüfung auf doppelte Namen (außer bei sich selbst)
+        isDuplicateName = AllLines.Any(l => l != line &&
+            string.Equals(l.lineName, newName, StringComparison.OrdinalIgnoreCase));
+
+        if (isDuplicateName)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        // Speichern
+        line.lineName = newName;
+        line.lastModified = DateTime.Now;
+
+        try
+        {
+            if (line.lineID == 0) // Neue Line
             {
-                await Fassade.LineRepository.Add(line);
-                var signalLine = await Fassade.GetLineByName(line.lineName);
-                await SignalRService.SendMessageToServer($"LineAdded;{signalLine.lineID}");
+                await Fassade.AddLine(line);
+                var savedLine = await Fassade.GetLineByName(line.lineName);
+                if (savedLine != null)
+                {
+                    // Ersetze die temporäre Line mit der gespeicherten
+                    var index = AllLines.IndexOf(line);
+                    AllLines[index] = savedLine;
+                    EditingLines.Remove(line);
+                    EditingLines.Add(savedLine);
 
+                    await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
+                }
             }
-            else
+            else // Bestehende Line aktualisieren
             {
-              await Fassade.LineRepository.Update(line);
+                await Fassade.UpdateLine(line);
                 await SignalRService.SendMessageToServer($"LineUpdated;{line.lineID}");
             }
-           
+
             EditingLines.Remove(line);
-            ApplyFilters();
+            isDuplicateName = false;
+            UpdateFilteredLines();
+        }
+        catch (Exception ex)
+        {
+            // Fehlerbehandlung - hier könntest du eine Benachrichtigung anzeigen
+            Console.WriteLine($"Fehler beim Speichern: {ex.Message}");
         }
     }
 
-
     private void CancelEdit(Line line)
     {
-        if (line.lineName == "Enter a name")
+        if (line.lineID == 0) // Neue Line wurde abgebrochen
         {
-            // Bei neu erstellten Lines: löschen
             AllLines.Remove(line);
+        }
+        else
+        {
+            // Bei bestehenden Lines: Änderungen zurücksetzen
+            // Hier könntest du die ursprünglichen Werte wiederherstellen
         }
 
         EditingLines.Remove(line);
         isDuplicateName = false;
-        ApplyFilters();
+        UpdateFilteredLines();
     }
 
     private void NavigateToLine(string lineName)
@@ -490,21 +491,20 @@
         Navigation.NavigateTo($"/line/{Uri.EscapeDataString(lineName)}");
     }
 
-    private async Task FilePick()
+    private async Task ExportToExcel(Line line)
     {
-        var line = ActiveContextMenuLine;
-        ActiveContextMenuLine = null;
-
         try
         {
             // Vorbereiten der Daten
             var tools = new List<Tool>();
             var operations = new List<Operation>();
             var stations = await Fassade.GetStationsFromLine(line.lineID);
+
             foreach (var station in stations)
             {
                 tools.AddRange(await Fassade.GetToolsFromStation(station.stationID));
             }
+
             foreach (var tool in tools)
             {
                 operations.AddRange(await Fassade.GetOperationsFromTool(tool.toolID));
@@ -514,20 +514,16 @@
             var toolTypes = await Fassade.ToolTypeRepository.GetAll();
             var toolClasses = await Fassade.ToolClassRepository.GetAll();
 
-            // Excel-Datei erstellen und in MemoryStream speichern
+            // Excel-Datei erstellen und speichern
             using var stream = new MemoryStream();
             using (var workbook = new XLWorkbook())
             {
-                Fassade.ExcelExport.Export(stream, line, stations.ToArray(), tools.ToArray(), stationTypes.ToArray(), toolTypes.ToArray(), toolClasses.ToArray());
+                Fassade.ExcelExport.Export(stream, line, stations.ToArray(), tools.ToArray(),
+                    stationTypes.ToArray(), toolTypes.ToArray(), toolClasses.ToArray());
             }
 
-            // Standard-Dateispeicherdialog verwenden
             var fileName = $"ExcelExport-{line.lineName ?? "line"}_{DateTime.Now:yyyyMMdd}.xlsx";
-            var result = await FileSaver.Default.SaveAsync(
-                fileName,
-                stream,
-                new CancellationToken()
-            );
+            var result = await FileSaver.Default.SaveAsync(fileName, stream, new CancellationToken());
 
             if (result.IsSuccessful)
             {
@@ -539,24 +535,18 @@
             await Application.Current.MainPage.DisplayAlert("Error",
                 "An error occurred while saving the file: " + ex.Message, "OK");
         }
-
     }
 
-    private async Task FilePickJson()
+    private async Task ExportToJson(Line line)
     {
-        var line = ActiveContextMenuLine;
-        ActiveContextMenuLine = null;
-
         try
         {
             var json = await Fassade.Export(line);
             var bytes = Encoding.UTF8.GetBytes(json);
             var fileName = $"JsonExport-{line.lineName ?? "line"}_{DateTime.Now:yyyyMMdd}.json";
-            var result = await FileSaver.Default.SaveAsync(
-                fileName,
-                new MemoryStream(bytes),
-                new CancellationToken()
-            );
+
+            var result = await FileSaver.Default.SaveAsync(fileName, new MemoryStream(bytes), new CancellationToken());
+
             if (result.IsSuccessful)
             {
                 await Application.Current.MainPage.DisplayAlert("Success", "The file was saved successfully.", "OK");
@@ -570,19 +560,15 @@
     }
 
     #region Settings
-
     private void OpenSettings()
     {
         if (ShowSettings) return;
-
         ShowSettings = true;
     }
 
-	private void CLoseSetting()
-	{
-		
+    private void CLoseSetting()
+    {
         ShowSettings = false;
-	}
-
+    }
     #endregion
 }
