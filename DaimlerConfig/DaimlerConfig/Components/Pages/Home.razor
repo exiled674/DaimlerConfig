@@ -512,14 +512,10 @@
                 await SignalRService.SendMessageToServer($"LineDeleted;{line.lineID}");
                 UpdateFilteredLines();
 
-                // Optional: Erfolgs-Nachricht anzeigen
-                // Snackbar.Add($"Projekt \"{line.lineName}\" wurde erfolgreich gelöscht.", Severity.Success);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Fehler beim Löschen: {ex.Message}");
-                // Optional: Fehler-Nachricht anzeigen
-                // Snackbar.Add($"Fehler beim Löschen des Projekts: {ex.Message}", Severity.Error);
+
             }
         }
     }
