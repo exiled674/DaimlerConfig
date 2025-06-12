@@ -105,13 +105,15 @@
             {
                 lineExists = true;
 				errorText = "Error with database";
-                var savedLine = await Fassade.GetLineByName(line.lineName);
-                if (savedLine != null)
-                {
-                    await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
-                }
+                
             }
 
+
+            var savedLine = await Fassade.GetLineByName(line.lineName);
+            if (savedLine != null)
+            {
+                await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
+            }
             MudDialog.Close(DialogResult.Ok(_inputValue));
         }
 
