@@ -2,6 +2,7 @@
 @using DaimlerConfig.Components.Models
 @using DaimlerConfig.Services
 @inject UsernameService usernameService
+@inject SignalRService SignalRService
 
 <MudDialog Style="width:500px; max-width:90vw; border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
     <TitleContent>
@@ -104,7 +105,13 @@
             {
                 lineExists = true;
 				errorText = "Error with database";
+                var savedLine = await Fassade.GetLineByName(line.lineName);
+                if (savedLine != null)
+                {
+                    await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
+                }
             }
+
             MudDialog.Close(DialogResult.Ok(_inputValue));
         }
 
