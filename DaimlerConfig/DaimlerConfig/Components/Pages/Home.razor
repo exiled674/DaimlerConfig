@@ -80,6 +80,12 @@
                             Sorted by name ascending
                         </div>
                     </MudSelectItem>
+                    <MudSelectItem Value="@("favorites")">
+                        <div class="d-flex align-items-center">
+                            <MudIcon Icon="@Icons.Material.Filled.SortByAlpha" Size="Size.Small" Class="me-2" />
+                            Sorted by favorites
+                        </div>
+                    </MudSelectItem>
                 </MudSelect>
             </div>
         </div>
@@ -129,6 +135,10 @@
                         <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
                             <div class="d-flex flex-column align-items-start ma-0 pa-0">
                                 <MudText Typo="Typo.subtitle1" Class="font-weight-medium ma-0 pa-0">
+                                    @if (Star.Any(l => l.lineName == line.lineName))
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
+                                    }
                                     @line.lineName
                                 </MudText>
                                 <MudChip T="string"
@@ -146,11 +156,22 @@
                                 AnchorOrigin="Origin.BottomRight"
                                 TransformOrigin="Origin.TopRight">
 
-                                    <MudMenuItem OnClick="@(() => StarLine(line))"
-                                    Icon="@Icons.Material.Filled.Star"
-                                    IconColor="Color.Warning">
-                                        Add to favorites
-                                    </MudMenuItem>
+                                    @if (!Star.Any(l => l.lineName == line.lineName))
+                                    {
+                                        <MudMenuItem OnClick="@(() => StarLine(line))"
+                                        Icon="@Icons.Material.Filled.Star"
+                                        IconColor="Color.Warning">
+                                            Add to favorites
+                                        </MudMenuItem>
+                                    }
+                                    else
+                                    {
+                                        <MudMenuItem OnClick="@(() => DeleteStar(line))"
+                                        Icon="@Icons.Material.Outlined.StarOutline"
+                                        IconColor="Color.Warning">
+                                            Remove from favorites
+                                        </MudMenuItem>
+                                    }
 
                                     <MudMenuItem OnClick="@(() => StartEditing(line))"
                                     Icon="@Icons.Material.Filled.Edit">
@@ -282,7 +303,7 @@
     private HashSet<Line> EditingLines = new();
     private List<Line> Star = new();
     private string searchText = "";
-    private string selectedSort = "date";
+    private string selectedSort = "favorites";
     private bool isDuplicateName = false;
     private bool ShowSettings = false;
     private Dictionary<Line, bool> pendingConfirmation = new();
@@ -490,11 +511,16 @@
         {
             "name" => filtered.OrderBy(l => l.lineName).ToList(),
             "date" => filtered.OrderByDescending(l => l.lastModified).ToList(),
+            "favorites" => filtered
+                .OrderByDescending(l => Star.Any(s => s.lineName == l.lineName)) // Favoriten zuerst
+                .ThenBy(l => l.lineName) // Innerhalb beider Gruppen alphabetisch
+                .ToList(),
             _ => filtered.OrderByDescending(l => l.lastModified).ToList()
         };
 
         StateHasChanged();
     }
+
 
     /*
     private void StartEditing(Line line)
@@ -778,11 +804,26 @@
 
     public void StarLine(Line line)
     {
-        Star.Add(line);
-        var names = Star.Select(line => line.lineName).ToList();
-        usernameService.SaveList(names);
+        if (!Star.Any(l => l.lineName == line.lineName))
+        {
+            Star.Add(line);
+            var names = Star.Select(l => l.lineName).ToList();
+            usernameService.SaveList(names);
+        }
 
     }
+
+    public void DeleteStar(Line line)
+    {
+        var existing = Star.FirstOrDefault(l => l.lineName == line.lineName);
+        if (existing != null)
+        {
+            Star.Remove(existing);
+            var names = Star.Select(l => l.lineName).ToList();
+            usernameService.SaveList(names);
+        }
+    }
+
 
     #endregion
 }
