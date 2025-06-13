@@ -323,7 +323,7 @@
 
         // Initiales Laden der Daten
         await LoadAllLines();
-        UpdateFilteredLines();
+       
 
         var lineNames = usernameService.LoadList();
 
@@ -335,6 +335,7 @@
                 Star.Add(line);
             }
         }
+        UpdateFilteredLines();
 
     }
 
@@ -814,6 +815,8 @@
             Star.Add(line);
             var names = Star.Select(l => l.lineName).ToList();
             usernameService.SaveList(names);
+            UpdateFilteredLines();   
+            StateHasChanged();
         }
 
     }
@@ -826,6 +829,8 @@
             Star.Remove(existing);
             var names = Star.Select(l => l.lineName).ToList();
             usernameService.SaveList(names);
+            UpdateFilteredLines();   
+            StateHasChanged();
         }
     }
 
