@@ -24,50 +24,43 @@
     <Navbar Title="@(UsernameService.Username?.Split(';')[0] ?? "Unknown User")" />
 
     <div class="d-flex sidebar bg-white">
+
+
         <!-- Sidebar -->
-        <aside id="sidebar" class="@SidebarClass border-end ">
+<!-- Sidebar -->
+        <aside id="sidebar" class="@SidebarClass">
+            <MudNavMenu>
 
-            <ul class="sidebar-nav p-0">
-                <li class="sidebar-item">
-                    <a href="/" class="sidebar-link" @onclick="() => UnlockTool()">
-                        <span>Home</span>
-                    </a>
-                </li>
-                <li class="sidebar-header">
+                <MudDivider Class="my-2" />
+
+                <MudText Typo="Typo.subtitle2" Class="px-4 py-2 mud-text-secondary">
                     Stations
-                </li>
+                </MudText>
 
-                @foreach (var station in stations)
-                {
-                    <li class="sidebar-item justify-content-between draggable">
-                        <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
-                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-
-                            <div class="d-flex align-items-center">
-                                <Badge colour="@GetBadgeColour(station.Status)"/>
-                                <span class="ms-2">@station.assemblystation</span>
+            @foreach (var station in stations)
+            {
+                        <MudPaper Class="@($"pa-2 ma-1 mud-ripple {(selectedStation?.stationID == station.stationID ? "mud-theme-primary" : "")}")" 
+                                  Style="cursor: pointer;" 
+                                  @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center;">
+                                    <Badge colour="@GetBadgeColour(station.Status)"/>
+                                    <MudText Class="ml-2">@station.assemblystation</MudText>
+                                </div>
+                                <MudIcon Icon="@Icons.Material.Filled.DragIndicator" Size="Size.Small" />
                             </div>
+                        </MudPaper>
+            }
 
-                            <div class=" ms-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-grip-vertical" viewBox="0 0 16 16">
-                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                                </svg>
-                            </div>
-                        </a>
-                    </li>
-                }
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
-                        <i class="lni lni-plus"></i>
-                        <span>Add Station</span>
-                    </a>
-                </li>
-            </ul>
+                <MudNavLink Icon="@Icons.Material.Filled.Add" @onclick="() => ToggleStationFormular(true)">
+                    Add Station
+                </MudNavLink>
+            </MudNavMenu>
         </aside>
+<!--Sitebar end -->
 
-        <!-- Sidebar ends-->
+
+
         <!-- Main Content -->
         <div class="main">
             <nav class="navbar navbar-expand">
