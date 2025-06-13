@@ -183,10 +183,15 @@
                                         Delete
                                     </MudMenuItem>
                                     <MudDivider />
-                                    <MudMenuItem OnClick="@(() => ExportToExcel(line))"
-                                    Icon="@Icons.Material.Filled.FileDownload">
-                                        Export to Excel
-                                    </MudMenuItem>
+
+                                               <MudMenuItem OnClick="@(() => ExportToExcel(line))" Style="text-align: left;">
+                <div class="d-flex align-items-center">
+                    <img src="icons/excel.svg" width="20" height="20" class="me-2" alt="Excel Icon" />
+                    Export to Excel
+                </div>
+            </MudMenuItem>
+
+
                                     <MudMenuItem OnClick="@(() => ExportToJson(line))"
                                     Icon="@Icons.Material.Filled.FileDownload">
                                         Export to Json
