@@ -18,21 +18,38 @@
 @using MudBlazor
 
 
-<body>
     
 
-    
+    <!-- Navbar -->
+    <MudAppBar Elevation="2" Color="Color.Primary" Class="navbar-aligned" Style="height: 64px;">
+    <!-- Haus Icon links -->
+    <MudIconButton href="/" Icon="@Icons.Material.Filled.Home"
+                   Color="Color.Inherit"
+                   Size="Size.Large"
+                   Class="mr-3" />
 
-     <!-- Navbar -->
-    <MudAppBar Elevation="2" Color="Color.Primary" Class="navbar-aligned">
-        <MudText Typo="Typo.h6" Class="ml-0">Project: @line?.lineName</MudText>
-        <MudSpacer />
+    <!-- Linienname in der Mitte -->
+    <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center pa-0" Style="flex-grow: 1;">
+        <MudText Typo="Typo.h5" Class="text-center font-weight-medium">
+                @(line?.lineName ?? "Project")
+        </MudText>
+    </MudContainer>
+
+    <!-- Rechte Seite: Username und Einstellungen -->
+    <div class="d-flex align-center">
+        <!-- Benutzername -->
+        <MudText Typo="Typo.subtitle1" Class="mr-3 font-weight-medium" Style="white-space: nowrap;">
+                @(UsernameService.Username?.Split(';')[0] ?? "Unknown User")
+        </MudText>
+
+        <!-- Einstellungen -->
         <MudIconButton Icon="@Icons.Material.Filled.Settings"
-        Color="Color.Inherit"
-        Size="Size.Medium"
-        OnClick="OpenSettings"
-        Class="settings-aligned" />
-    </MudAppBar>
+                       Color="Color.Inherit"
+                       Size="Size.Large"
+                       OnClick="OpenSettings"
+                       Class="settings-aligned" />
+    </div>
+</MudAppBar>
 
     @if (ShowSettings)
     {
@@ -198,7 +215,6 @@
     {
         <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
     }
-</body>
 
 @code {
     private bool ShowSettings = false;
