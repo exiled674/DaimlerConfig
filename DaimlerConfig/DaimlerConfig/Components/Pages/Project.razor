@@ -73,7 +73,22 @@
         </MudText>
     </MudDrawerHeader>
 
+
+
     <div class="pa-2">
+            <MudButton StartIcon="@Icons.Material.Filled.Add"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+
+                       Class="add-station-btn w-100 justify-start pa-3"
+                       @onclick="() => ToggleStationFormular(true)">
+                Add Station
+            </MudButton>
+
+
+
+
+            <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
             @foreach (var station in stations)
             {
                 <MudCard Class="@($"station-card mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
@@ -100,15 +115,9 @@
                 </MudCard>
             }
 
-        <MudDivider Class="my-3" />
+     
 
-        <MudButton StartIcon="@Icons.Material.Filled.Add"
-                   Variant="Variant.Text"
-                   Color="Color.Primary"
-                   Class="add-station-btn w-100 justify-start pa-3"
-                   @onclick="() => ToggleStationFormular(true)">
-            Add Station
-        </MudButton>
+       
     </div>
 </MudDrawer>
     
@@ -265,17 +274,19 @@
     opacity: 1;
 }
 
-.add-station-btn {
-    border: 1px dashed rgba(25, 118, 210, 0.3) !important;
-    border-radius: 8px !important;
-    color: var(--mud-palette-primary) !important;
-    transition: all 0.2s ease-in-out;
-}
+    .add-station-btn {
+        border-radius: 8px !important;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease-in-out;
+        background-color: var(--mud-palette-primary);
+        color: white !important;
+    }
 
-.add-station-btn:hover {
-    border-color: var(--mud-palette-primary) !important;
-    background: color-mix(in srgb, var(--mud-palette-primary) 5%, white) !important;
-}
+        .add-station-btn:hover {
+            background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
 
 .text-muted {
     color: var(--mud-palette-text-secondary) !important;
