@@ -27,9 +27,9 @@
         <!-- Sidebar -->
     <aside id="sidebar" class="@SidebarClass border-end" style="min-width: 220px; min-height: 100vh;">
         <ul class="sidebar-nav p-0" style="list-style: none; margin: 0; padding: 0;">
-            <li class="sidebar-header" style="padding: 0.75rem 1rem; font-weight: 600; font-size: 0.9rem; color: #555;">
+            <MudText Typo="Typo.subtitle2" Class="px-3 pt-3 pb-1 text-muted">
                 Stations
-            </li>
+            </MudText>
             @foreach (var station in stations)
             {
                 <li class="sidebar-item justify-content-between draggable">
@@ -42,12 +42,16 @@
                     </a>
                 </li>
             }
+
+            <MudDivider Class="mx-3 my-2" />
+
             <li class="sidebar-item">
                 <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
                     <MudIcon Icon="@Icons.Material.Filled.Add" Class="me-2" />
                     <span>Add Station</span>
                 </a>
             </li>
+            
         </ul>
     </aside>
 
