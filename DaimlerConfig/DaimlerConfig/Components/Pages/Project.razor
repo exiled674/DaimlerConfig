@@ -67,11 +67,12 @@
 
 
         <MudDrawer @bind-Open="@_open" Elevation="0" Fixed="true" Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.12);">
-    <MudDrawerHeader Class="px-4 py-3" Style="border-bottom: 1px solid rgba(0,0,0,0.12);">
-        <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-            Stations
-        </MudText>
-    </MudDrawerHeader>
+        <MudDrawerHeader Class="d-flex align-items-center px-4 py-3" Style="border-bottom: 1px solid rgba(0,0,0,0.12);">
+            <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
+                Stations
+            </MudText>
+        </MudDrawerHeader>
+
 
 
 
@@ -129,9 +130,11 @@
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
-                <div class="tool-operation-panel p-5" style="width: 500px;">
+                <div class="tool-operation-panel p-5 py-2" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6>Tools and Operations</h6>
+                        <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
+                            Tools und Operationen
+                        </MudText>
                         @if (selectedStation != null)
                         {
                             if (copiedTool != null)
