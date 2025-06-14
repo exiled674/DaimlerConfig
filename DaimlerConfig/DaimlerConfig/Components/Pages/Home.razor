@@ -22,7 +22,36 @@
 @inject IDialogService DialogService
 
 <!-- Navbar -->
-<Navbar Title="Project Manager" />
+<MudAppBar Elevation="2" Color="Color.Primary" Class="navbar-aligned" Style="height: 64px;">
+    
+
+    <!-- Titel in der Mitte -->
+    <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center pa-0" Style="flex-grow: 1;">
+        <MudText Typo="Typo.h5" Class="text-center font-weight-medium">
+            Project Manager
+        </MudText>
+    </MudContainer>
+
+    <!-- Rechte Seite: Username und Einstellungen -->
+    <div class="d-flex align-center">
+        <!-- Benutzername -->
+        <MudText Typo="Typo.subtitle1" Class="mr-8 font-weight-medium" Style="white-space: nowrap;">
+            @(usernameService.Username?.Split(';')[0] ?? "Unknown User")
+        </MudText>
+
+        <!-- Einstellungen -->
+        <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                       Color="Color.Inherit"
+                       Size="Size.Large"
+                       OnClick="OpenSettings"
+                       Class="settings-aligned" />
+    </div>
+</MudAppBar>
+
+@if (ShowSettings)
+{
+                <Settings OnClosing="CloseSetting" />
+}
 
 <!-- Main Content -->
 <div class="ProjectManager container-fluid px-4">
@@ -734,7 +763,7 @@
         ShowSettings = true;
     }
 
-    private void CLoseSetting()
+    private void CloseSetting()
     {
         ShowSettings = false;
     }
