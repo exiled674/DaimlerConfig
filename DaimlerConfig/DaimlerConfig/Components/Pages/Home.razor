@@ -115,38 +115,8 @@
             <MudCard Class="my-3 hover-lift hover-highlight"
             Elevation="3"
             Style="border-radius: 12px; margin: 0 0 20px 0; border: 1px solid rgba(0,0,0,0.08);">
-                <!-- Editing Line -->
-                @if (EditingLines.Contains(line))
-                {
-                    <MudGrid AlignItems="Center" Class="pa-5">
-                        <MudItem xs="10">
-                            <MudTextField T="string"
-                            @bind-Value="line.lineName"
-                            Placeholder="Line name"
-                            Variant="Variant.Outlined"
-                            Margin="Margin.Dense"
-                            Dense="true"
-                            Immediate="true"
-                            FullWidth="true"
-                            Error="@isDuplicateName"
-                            ErrorText="The name already exists."
-                            @onblur="@(e => ConfirmEdit(line))"
-                            @onkeydown="@(e => OnEditKeyDown(e, line))"
-                            @onkeyup="@(e => OnEditKeyUp(e, line))"
-                            AutoFocus="true" />
-                        </MudItem>
-                        <MudItem xs="2" Class="d-flex justify-end">
-                            <MudIconButton Icon="@Icons.Material.Filled.Close"
-                            Color="Color.Secondary"
-                            Size="Size.Small"
-                            OnClick="() => CancelEdit(line)"
-                            Title="Cancel" />
-                        </MudItem>
-                    </MudGrid>
-                }
-                // Normal Line Display
-                else
-                {
+               
+                
                     <MudGrid AlignItems="Center" Class="pa-4">
                         <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
                             <div class="d-flex flex-column align-items-start ma-0 pa-0">
@@ -214,7 +184,7 @@
                             </div>
                         </MudItem>
                     </MudGrid>
-                }
+                
             </MudCard>
         }
     }
