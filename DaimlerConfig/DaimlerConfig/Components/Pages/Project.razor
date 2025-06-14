@@ -21,12 +21,7 @@
     
 
     <!-- Navbar -->
-
-
-<MudLayout>
-
-
-    <!-- Navbar -->
+        <!-- Navbar -->
 <MudAppBar Elevation="2" Color="Color.Primary" Class="navbar-aligned" Style="height: 64px;">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
 
@@ -40,7 +35,7 @@
     <!-- Titel in der Mitte -->
     <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center pa-0" Style="flex-grow: 1;">
         <MudText Typo="Typo.h5" Class="text-center font-weight-medium">
-                @lineName
+            @lineName
         </MudText>
     </MudContainer>
 
@@ -48,7 +43,7 @@
     <div class="d-flex align-center">
         <!-- Benutzername -->
         <MudText Typo="Typo.subtitle1" Class="mr-8 font-weight-medium" Style="white-space: nowrap;">
-                @(UsernameService.Username?.Split(';')[0] ?? "Unknown User")
+            @(UsernameService.Username?.Split(';')[0] ?? "Unknown User")
         </MudText>
 
         <!-- Einstellungen -->
@@ -60,13 +55,16 @@
     </div>
 </MudAppBar>
 
-    @if (ShowSettings)
-    {
-                <Settings OnClosing="CloseSetting" />
-    }
+@if (ShowSettings)
+{
+                    <Settings OnClosing="CloseSetting" />
+}
+
+<MudLayout>
 
 
-        <MudDrawer @bind-Open="@_open" Elevation="1">
+
+        <MudDrawer @bind-Open="@_open" Elevation="1" Fixed="true" Style="top: 64px;">
             
             <MudDrawerHeader>
                 <MudText Typo="Typo.h5" Style="color: black;" Class="text-center">
