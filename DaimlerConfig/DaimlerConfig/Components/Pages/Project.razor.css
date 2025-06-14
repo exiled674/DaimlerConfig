@@ -74,7 +74,7 @@ a.sidebar-link {
 
 .tool-operation-panel {
     width: 50% !important;
-    background-color: #f8f9fa;
+    background-color: white;
     border-right: 1px solid #dee2e6;
     padding: 20px;
     overflow-y: auto;
