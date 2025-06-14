@@ -25,7 +25,15 @@
 
     <div class="d-flex sidebar bg-white">
         <!-- Sidebar -->
-    <aside id="sidebar" class="@SidebarClass border-end" style="min-width: 220px; min-height: 100vh;">
+
+        <MudLayout>
+    <MudAppBar Elevation="1">
+        
+    </MudAppBar>
+
+        <MudDrawer @bind-Open="@_open" Elevation="1">
+
+
         <ul class="sidebar-nav p-0" style="list-style: none; margin: 0; padding: 0;">
             <MudText Typo="Typo.subtitle2" Class="px-3 pt-3 pb-1 text-muted">
                 Stations
@@ -53,17 +61,15 @@
             </li>
             
         </ul>
-    </aside>
-
+	</MudDrawer>
+    </MudLayout>
+    
 
         <!-- Sidebar ends-->
         <!-- Main Content -->
         <div class="main">
             <nav class="navbar navbar-expand">
-                <button class="toggler-btn" @onclick="ToggleSidebar" type="button">
-                    <i class="lni lni-menu-hamburger-1"></i>
-                </button>
-                <h5><span>Current Station: @(selectedStation != null ? selectedStation.assemblystation : "Please choose a station")</span></h5>
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
             </nav>
             <main class="p-3 pb-0 d-flex gap-3">
 
@@ -1372,5 +1378,11 @@
 
     #endregion
 
+    private bool _open = false;
+
+    private void ToggleDrawer()
+    {
+        _open = !_open;
+    }
 }
 
