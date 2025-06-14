@@ -21,53 +21,49 @@
     
 
     <!-- Navbar -->
-    <Navbar Title="@(UsernameService.Username?.Split(';')[0] ?? "Unknown User")" />
-
-    <div class="d-flex sidebar bg-white">
+<Navbar Title="@(lineName?? "Unknown line")" />
 
 
-        <!-- Sidebar -->
-<!-- Sidebar -->
-        <aside id="sidebar" class="@SidebarClass">
-            <MudNavMenu>
 
-                <MudDivider Class="my-2" />
+<MudLayout>
 
-                <MudText Typo="Typo.subtitle2" Class="px-4 py-2 mud-text-secondary">
-                    Stations
-                </MudText>
+        <MudDrawer @bind-Open="@_open" Elevation="1">
 
+        <ul class="sidebar-nav p-0" style="list-style: none; margin: 0; padding: 0;">
+            <MudText Typo="Typo.subtitle2" Class="px-3 pt-3 pb-1 text-muted">
+                Stations
+            </MudText>
             @foreach (var station in stations)
             {
-                        <MudPaper Class="@($"pa-2 ma-1 mud-ripple {(selectedStation?.stationID == station.stationID ? "mud-theme-primary" : "")}")" 
-                                  Style="cursor: pointer;" 
-                                  @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <div style="display: flex; align-items: center;">
-                                    <Badge colour="@GetBadgeColour(station.Status)"/>
-                                    <MudText Class="ml-2">@station.assemblystation</MudText>
-                                </div>
-                                <MudIcon Icon="@Icons.Material.Filled.DragIndicator" Size="Size.Small" />
-                            </div>
-                        </MudPaper>
+                <li class="sidebar-item justify-content-between draggable">
+                    <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
+                       @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                        <div class="d-flex align-items-center">
+                            <Badge colour="@GetBadgeColour(station.Status)" />
+                            <span class="ms-2">@station.assemblystation</span>
+                        </div>
+                    </a>
+                </li>
             }
 
-                <MudNavLink Icon="@Icons.Material.Filled.Add" @onclick="() => ToggleStationFormular(true)">
-                    Add Station
-                </MudNavLink>
-            </MudNavMenu>
-        </aside>
-<!--Sitebar end -->
+            <MudDivider Class="mx-3 my-2" />
 
-
+            <li class="sidebar-item">
+                <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="me-2" />
+                    <span>Add Station</span>
+                </a>
+            </li>
+            
+        </ul>
+	</MudDrawer>
+    
+     <MudMainContent Class="pt-16 px-16">
 
         <!-- Main Content -->
         <div class="main">
             <nav class="navbar navbar-expand">
-                <button class="toggler-btn" @onclick="ToggleSidebar" type="button">
-                    <i class="lni lni-menu-hamburger-1"></i>
-                </button>
-                <h5><span>Current Station: @(selectedStation != null ? selectedStation.assemblystation : "Please choose a station")</span></h5>
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
             </nav>
             <main class="p-3 pb-0 d-flex gap-3">
 
@@ -169,12 +165,13 @@
                 </div>
             </main>
         </div>
-
-    </div>
     @if (showPopup)
     {
         <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
     }
+
+    </MudMainContent>
+    </MudLayout>
 
 @code {
     private bool ShowSettings = false;
@@ -1370,5 +1367,17 @@
     }
     #endregion
 
+
+    #region n
+    private string SidebarPaperClass => $"{SidebarClass} border-end mud-width-full";
+
+    #endregion
+
+    private bool _open = false;
+
+    private void ToggleDrawer()
+    {
+        _open = !_open;
+    }
 }
 
