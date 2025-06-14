@@ -91,9 +91,7 @@ a.sidebar-link {
     min-height: 100vh;
 }
 
-main {
-    min-height: 70vh;
-}
+
 
 .clickable {
     cursor: pointer;
