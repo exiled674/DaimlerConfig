@@ -21,7 +21,44 @@
     
 
     <!-- Navbar -->
-<Navbar Title="@(lineName?? "Unknown line")" />
+<!-- Navbar -->
+<MudAppBar Elevation="2" Color="Color.Primary" Class="navbar-aligned" Style="height: 64px;">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+    
+    
+    <!-- Haus Icon links -->
+    <MudIconButton href="/" Icon="@Icons.Material.Filled.Home"
+                   Color="Color.Inherit"
+                   Size="Size.Large"
+                   Class="mr-3" />
+
+    <!-- Titel in der Mitte -->
+    <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center pa-0" Style="flex-grow: 1;">
+        <MudText Typo="Typo.h5" Class="text-center font-weight-medium">
+            @lineName
+        </MudText>
+    </MudContainer>
+
+    <!-- Rechte Seite: Username und Einstellungen -->
+    <div class="d-flex align-center">
+        <!-- Benutzername -->
+        <MudText Typo="Typo.subtitle1" Class="mr-8 font-weight-medium" Style="white-space: nowrap;">
+            @(UsernameService.Username?.Split(';')[0] ?? "Unknown User")
+        </MudText>
+
+        <!-- Einstellungen -->
+        <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                       Color="Color.Inherit"
+                       Size="Size.Large"
+                       OnClick="OpenSettings"
+                       Class="settings-aligned" />
+    </div>
+</MudAppBar>
+
+@if (ShowSettings)
+{
+            <Settings OnClosing="CloseSetting" />
+}
 
 
 <MudLayout>
@@ -63,9 +100,6 @@
         <!-- Sidebar ends-->
         <!-- Main Content -->
         <div class="main">
-            <nav class="navbar navbar-expand">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-            </nav>
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
@@ -1362,7 +1396,7 @@
         ShowSettings = true;
     }
 
-    private void CLoseSetting()
+    private void CloseSetting()
     {
         ShowSettings = false;
     }
