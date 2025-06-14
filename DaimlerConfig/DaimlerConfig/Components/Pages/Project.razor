@@ -21,51 +21,36 @@
     
 
     <!-- Navbar -->
-    <Navbar Title="@(UsernameService.Username?.Split(';')[0] ?? "Unknown User")" />
+<Navbar Title="@(lineName?? "Unknown line")" />
 
     <div class="d-flex sidebar bg-white">
         <!-- Sidebar -->
-        <aside id="sidebar" class="@SidebarClass border-end ">
-
-            <ul class="sidebar-nav p-0">
-                <li class="sidebar-item">
-                    <a href="/" class="sidebar-link" @onclick="() => UnlockTool()">
-                        <span>Home</span>
+    <aside id="sidebar" class="@SidebarClass border-end" style="min-width: 220px; min-height: 100vh;">
+        <ul class="sidebar-nav p-0" style="list-style: none; margin: 0; padding: 0;">
+            <li class="sidebar-header" style="padding: 0.75rem 1rem; font-weight: 600; font-size: 0.9rem; color: #555;">
+                Stations
+            </li>
+            @foreach (var station in stations)
+            {
+                <li class="sidebar-item justify-content-between draggable">
+                    <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
+                       @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                        <div class="d-flex align-items-center">
+                            <Badge colour="@GetBadgeColour(station.Status)" />
+                            <span class="ms-2">@station.assemblystation</span>
+                        </div>
                     </a>
                 </li>
-                <li class="sidebar-header">
-                    Stations
-                </li>
+            }
+            <li class="sidebar-item">
+                <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="me-2" />
+                    <span>Add Station</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
 
-                @foreach (var station in stations)
-                {
-                    <li class="sidebar-item justify-content-between draggable">
-                        <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
-                        @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-
-                            <div class="d-flex align-items-center">
-                                <Badge colour="@GetBadgeColour(station.Status)"/>
-                                <span class="ms-2">@station.assemblystation</span>
-                            </div>
-
-                            <div class=" ms-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-grip-vertical" viewBox="0 0 16 16">
-                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                                </svg>
-                            </div>
-                        </a>
-                    </li>
-                }
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
-                        <i class="lni lni-plus"></i>
-                        <span>Add Station</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
 
         <!-- Sidebar ends-->
         <!-- Main Content -->
@@ -1375,6 +1360,12 @@
     {
         ShowSettings = false;
     }
+    #endregion
+
+
+    #region n
+    private string SidebarPaperClass => $"{SidebarClass} border-end mud-width-full";
+
     #endregion
 
 }
