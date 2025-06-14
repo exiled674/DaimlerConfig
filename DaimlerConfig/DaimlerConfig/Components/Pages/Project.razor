@@ -66,41 +66,56 @@
 
 
 
-        <MudDrawer @bind-Open="@_open" Elevation="1" Fixed="true" Style="top: 64px;">
-            
-            <MudDrawerHeader>
-                <MudText Typo="Typo.h5" Style="color: black;" Class="text-center">
-                    Stations
-                </MudText>
-			</MudDrawerHeader>
+        <MudDrawer @bind-Open="@_open" Elevation="0" Fixed="true" Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.12);">
+    <MudDrawerHeader Class="px-4 py-3" Style="border-bottom: 1px solid rgba(0,0,0,0.12);">
+        <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
+            Stations
+        </MudText>
+    </MudDrawerHeader>
 
-        <ul class="sidebar-nav p-0" style="list-style: none; margin: 0; padding: 0;">
+    <div class="pa-2">
             @foreach (var station in stations)
             {
-                <MudNavLink Class="@($"draggable justify-content-between {(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")}")"
-                            @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                    <div class="d-flex align-items-center justify-content-between w-100">
-                        <div class="d-flex align-items-center">
-                            <Badge colour="@GetBadgeColour(station.Status)" />
-                            <MudText Class="ms-2">@station.assemblystation</MudText>
-                        </div>
-
-                        <MudIcon Icon="@Icons.Material.Filled.DragIndicator" Size="Size.Small" />
-                    </div>
-                </MudNavLink>
+                <MudCard Class="@($"station-card mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
+                         Elevation="0"
+                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                    <MudCardContent Class="pa-3">
+                        <MudGrid AlignItems="Center" Spacing="0">
+                            <MudItem xs="10">
+                                <div class="d-flex align-items-center">
+                                    <Badge colour="@GetBadgeColour(station.Status)" />
+                                    <div class="ml-3">
+                                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
+                                            @station.assemblystation
+                                        </MudText>
+                                        <MudText Typo="Typo.caption" Class="text-muted">
+                                            Status: @station.Status
+                                        </MudText>
+                                    </div>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="2" Class="d-flex justify-end">
+                                <MudIconButton Icon="@Icons.Material.Filled.DragIndicator" 
+                                             Size="Size.Small" 
+                                             Class="drag-handle"
+                                             Style="color: var(--mud-palette-text-secondary);" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                </MudCard>
             }
 
-            <MudDivider Class="mx-3 my-2" />
+        <MudDivider Class="my-3" />
 
-            <li class="sidebar-item">
-                <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
-                    <MudIcon Icon="@Icons.Material.Filled.Add" Class="me-2" />
-                    <span>Add Station</span>
-                </a>
-            </li>
-            
-        </ul>
-	</MudDrawer>
+        <MudButton StartIcon="@Icons.Material.Filled.Add"
+                   Variant="Variant.Text"
+                   Color="Color.Primary"
+                   Class="add-station-btn w-100 justify-start pa-3"
+                   @onclick="() => ToggleStationFormular(true)">
+            Add Station
+        </MudButton>
+    </div>
+</MudDrawer>
     
      <MudMainContent Class="pt-16 pe-16 ps-0">
 
@@ -214,6 +229,60 @@
 
     </MudMainContent>
     </MudLayout>
+
+
+
+
+    <style>
+.station-card {
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px !important;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    background: white;
+}
+
+.station-card:hover {
+    border-color: rgba(25, 118, 210, 0.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.station-selected {
+    border-color: var(--mud-palette-primary) !important;
+    background: color-mix(in srgb, var(--mud-palette-primary) 5%, white) !important;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+}
+
+.station-selected:hover {
+    transform: none;
+}
+
+.drag-handle {
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.station-card:hover .drag-handle {
+    opacity: 1;
+}
+
+.add-station-btn {
+    border: 1px dashed rgba(25, 118, 210, 0.3) !important;
+    border-radius: 8px !important;
+    color: var(--mud-palette-primary) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.add-station-btn:hover {
+    border-color: var(--mud-palette-primary) !important;
+    background: color-mix(in srgb, var(--mud-palette-primary) 5%, white) !important;
+}
+
+.text-muted {
+    color: var(--mud-palette-text-secondary) !important;
+}
+</style>
 
 @code {
     private bool ShowSettings = false;
