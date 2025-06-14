@@ -23,16 +23,10 @@
     <!-- Navbar -->
 <Navbar Title="@(lineName?? "Unknown line")" />
 
-    <div class="d-flex sidebar bg-white">
-        <!-- Sidebar -->
 
-        <MudLayout>
-    <MudAppBar Elevation="1">
-        
-    </MudAppBar>
+<MudLayout>
 
         <MudDrawer @bind-Open="@_open" Elevation="1">
-
 
         <ul class="sidebar-nav p-0" style="list-style: none; margin: 0; padding: 0;">
             <MudText Typo="Typo.subtitle2" Class="px-3 pt-3 pb-1 text-muted">
@@ -62,8 +56,8 @@
             
         </ul>
 	</MudDrawer>
-    </MudLayout>
     
+     <MudMainContent Class="pt-16 px-16">
 
         <!-- Sidebar ends-->
         <!-- Main Content -->
@@ -171,12 +165,13 @@
                 </div>
             </main>
         </div>
-
-    </div>
     @if (showPopup)
     {
         <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
     }
+
+    </MudMainContent>
+    </MudLayout>
 
 @code {
     private bool ShowSettings = false;
