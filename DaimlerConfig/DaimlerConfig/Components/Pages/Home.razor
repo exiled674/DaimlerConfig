@@ -112,13 +112,13 @@
     {
         @foreach (var line in FilteredLines)
         {
-            <MudCard Class="my-3 hover-lift hover-highlight"
+            <MudCard Class="my-3 line-card"
             Elevation="3"
-            Style="border-radius: 12px; margin: 0 0 20px 0; border: 1px solid rgba(0,0,0,0.08);">
+           >
                
                 
                     <MudGrid AlignItems="Center" Class="pa-4">
-                        <MudItem xs="10" Class="cursor-pointer" @onclick="@(() => NavigateToLine(line.lineName))">
+                        <MudItem xs="10"  @onclick="@(() => NavigateToLine(line.lineName))">
                             <div class="d-flex flex-column align-items-start ma-0 pa-0">
                                 <MudText Typo="Typo.subtitle1" Class="font-weight-medium ma-0 pa-0">
                                     @if (Star.Any(l => l.lineName == line.lineName))
@@ -207,31 +207,29 @@
 
 
 <style>
-    .hover-lift {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    .line-card {
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 8px !important;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        background: white;
     }
 
-    .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-    }
-
-    .cursor-pointer {
-    cursor: pointer;
-    }
+        .line-card:hover {
+            border-color: rgba(25, 118, 210, 0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+   
 
     .mud-fab-extended {
     border-radius: 28px !important;
     }
 
-    .hover-highlight {
-    transition: background-color 0.2s ease;
-    }
+   
 
-    .hover-highlight:hover {
-    background-color: color-mix(in srgb, var(--mud-palette-primary) 10%, white);
-    cursor: pointer;
-    }
+  
+    
 
 
 
