@@ -169,12 +169,8 @@
                                                     <div class="d-flex align-items-center justify-content-between" style="width: 100%;">
                                                         <!-- Linke Seite -->
                                                         <div class="d-flex align-items-center" style="gap: 8px;">
-                                                            <!-- Chevron Icon -->
-                                                            <div style="position: relative; top: -4px; margin-right: 4px;">
-                                                                <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
-                                                                               Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
-                                                                               @onclick="() => ToggleExpand(tool.toolID.Value)" />
-                                                            </div>
+                                                           
+                                                            
 
                                                             <!-- Status Badge -->
                                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CycleColour(tool)">
@@ -201,12 +197,21 @@
                                                 </MudItem>
                                             </MudGrid>
 
-                                           <MudStack Spacing="1" Class="mt-3 mb-2">
-    <MudDivider Class="thick-divider" />
-    <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
-    Operationen
-</MudText>
-</MudStack>
+                                            <MudStack Spacing="1" Class="mt-3 mb-2">
+                                                <MudDivider Class="thick-divider" />
+
+                                                <div style="display: flex; align-items: center; gap: 4px;">
+                                                    <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                                                                   Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
+                                                                   Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
+                                                                   @onclick="() => ToggleExpand(tool.toolID.Value)" />
+                                                    <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
+                                                        Operationen
+                                                    </MudText>
+                                                </div>
+                                            </MudStack>
+
+
 
 
 
