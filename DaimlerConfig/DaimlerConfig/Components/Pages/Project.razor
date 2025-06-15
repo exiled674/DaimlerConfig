@@ -162,7 +162,19 @@
                                 {
                                     <MudListItem T="string" class="tool-section tool-draggable" data-tool-id="@tool.toolID">
                                         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                            <div style="display: flex; align-items: center; gap: 8px; position: relative;">
+                                                <!-- Chevron Icon links neben Tool -->
+                                                <div style="position: relative; top: -4px; margin-right: 4px;">
+                                                    @if (expandedTools.Contains(tool.toolID.Value))
+                                                    {
+                                                        <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" @onclick="() => ToggleExpand(tool.toolID.Value)" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" @onclick="() => ToggleExpand(tool.toolID.Value)" />
+                                                    }
+                                                </div>
+
                                                 <!-- Status Badge (original logic) -->
                                                 <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CycleColour(tool)">
                                                     <Badge colour="@GetBadgeColour(tool.Status)" />
@@ -184,17 +196,6 @@
                                                 {
                                                     <button class="btn btn-primary btn-sm" @onclick="() => { SelectTool(tool); InsertOperation(); }">Insert Operation</button>
                                                 }
-
-                                                <button class="btn btn-link p-0" style="width:24px; height:24px;" @onclick="() => ToggleExpand(tool.toolID.Value)">
-                                                    @if (expandedTools.Contains(tool.toolID.Value))
-                                                    {
-                                                        <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" @onclick="() => ToggleExpand(tool.toolID.Value)" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <MudIconButton Icon="@Icons.Material.Filled.ExpandLess" @onclick="() => ToggleExpand(tool.toolID.Value)" />
-                                                    }
-                                                </button>
                                             </div>
                                         </div>
 
