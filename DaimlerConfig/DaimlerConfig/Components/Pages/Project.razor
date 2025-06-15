@@ -183,16 +183,28 @@
                                                             </span>
                                                         </div>
 
-                                                        <!-- Rechte Seite (Buttons) -->
-                                                        <div class="d-flex align-items-center" style="gap: 4px;">
-                                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CloneTool(tool)">copy</button>
-                                                           
+                                                        <MudItem xs="2" Class="d-flex justify-end">
+                                                            <div @onclick:stopPropagation>
+                                                                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                                                         Size="Size.Small"
+                                                                         Dense="true"
+                                                                         AnchorOrigin="Origin.BottomRight"
+                                                                         TransformOrigin="Origin.TopRight">
 
-                                                            @if (selectedTool != null && copiedOperation != null)
-                                                            {
-                                                                <button class="btn btn-primary btn-sm" @onclick="() => { SelectTool(tool); InsertOperation(); }">Insert Operation</button>
-                                                            }
-                                                        </div>
+                                                                    
+
+                                                                    <MudMenuItem OnClick="@(() => CloneTool(tool))"
+                                                                                 Icon="@Icons.Material.Filled.ContentCopy">
+                                                                        Copy
+                                                                    </MudMenuItem>
+                                                                    <MudMenuItem 
+                                                                                 Icon="@Icons.Material.Filled.Delete"
+                                                                                 IconColor="Color.Error">
+                                                                        Delete
+                                                                    </MudMenuItem>
+                                                                </MudMenu>
+                                                            </div>
+                                                        </MudItem>
                                                     </div>
                                                 </MudItem>
                                             </MudGrid>
