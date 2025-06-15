@@ -82,9 +82,9 @@
                        Variant="Variant.Filled"
                        Color="Color.Primary"
 
-                       Class="add-station-btn w-100 justify-start pa-3"
+                       Class="add-station-btn w-100 justify-start px-3 py-2"
                        @onclick="() => ToggleStationFormular(true)">
-                Add Station
+                Station
             </MudButton>
 
 
@@ -142,7 +142,15 @@
                             {
                                 <button class="btn btn-primary btn-sm" @onclick="() => InsertTool()">Insert Tool</button>
                             }
-                            <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button>
+                                   <MudButton StartIcon="@Icons.Material.Filled.Add"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="add-station-btn justify-start px-3 py-2"
+               Style="width: 213px; height: 40.5px;"
+               @onclick="() => ToggleToolFormular(true)">
+        Tool
+    </MudButton>
+
                         }
 
                     </div>
@@ -228,7 +236,7 @@
                            Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
                            @onclick="() => ToggleExpand(tool.toolID.Value)" />
             <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
-                Operationen
+                        Operationen (@allOperations.Count(op => op.toolID == tool.toolID))
             </MudText>
         </div>
 
