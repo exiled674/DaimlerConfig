@@ -157,49 +157,91 @@
                         }
                         else
                         {
-                            @foreach (var tool in tools)
-                            {
-                                <div class="tool-section tool-draggable" data-tool-id="@tool.toolID">
-                                    <div class="tool-header d-flex justify-content-between align-items-center">
-                                        <button class="btn btn-secondary btn-sm mr-2"@onclick="() =>CycleColour(tool)"><Badge colour="@GetBadgeColour(tool.Status)"/></button>
-                                        <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
-                                        <div>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))">copy</button>
-                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
-                                            @if (selectedTool != null)
+                            <MudList T="string" Clickable="false">
+                                @foreach (var tool in tools)
+                                {
+                                    <MudListItem Text="@tool.toolShortname" class="tool-section tool-draggable" data-tool-id="@tool.toolID">
+                                        <ChildContent>
+                                            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Style="width: 100%;">
+                                                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                                    <!-- Status Badge (original logic) -->
+                                                    <MudIconButton Size="Size.Small"
+                                                                   OnClick="() => CycleColour(tool)">
+                                                        <Badge colour="@GetBadgeColour(tool.Status)" />
+                                                    </MudIconButton>
+
+                                                    <!-- Tool Name -->
+                                                    <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
+                                                </MudStack>
+
+                                                <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                                    <!-- Copy Button -->
+                                                    <MudIconButton Icon="Icons.Material.Filled.ContentCopy"
+                                                                   Size="Size.Small"
+                                                                   OnClick="() => CloneTool(tool)" />
+
+                                                    <!-- Add Operation Button -->
+                                                    <MudIconButton Icon="Icons.Material.Filled.Add"
+                                                                   Size="Size.Small"
+                                                                   OnClick="() => { SelectTool(tool); ToggleOperationFormular(true); }" />
+
+                                                    <!-- Insert Operation Button (conditional) -->
+                                                    @if (selectedTool != null && copiedOperation != null)
+                                                    {
+                                                        <MudButton Size="Size.Small"
+                                                                   Variant="Variant.Filled"
+                                                                   Color="Color.Primary"
+                                                                   OnClick="() => { SelectTool(tool); InsertOperation(); }">
+                                                            Insert Operation
+                                                        </MudButton>
+                                                    }
+
+                                                    <!-- Drag Handle -->
+                                                    <MudIcon Icon="Icons.Material.Filled.DragIndicator"
+                                                             Class="drag-handle" />
+                                                </MudStack>
+                                            </MudStack>
+                                        </ChildContent>
+
+                                        <NestedList>
+                                            @if (allOperations.Where(op => op.toolID == tool.toolID).Any())
                                             {
-                                                if (copiedOperation != null)
+                                                @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                                 {
-                                                    <button class="btn btn-primary btn-sm" @onclick="() => { SelectTool(tool); InsertOperation(); }">Insert Operation</button>
+                                                    <MudListItem Text="@operation.operationShortname" class="operation-section operation-draggable" data-operation-id="@operation.operationID">
+                                                        <ChildContent>
+                                                            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Style="width: 100%;">
+                                                                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                                                    <!-- Operation Status Badge (original logic) -->
+                                                                    <MudIconButton Size="Size.Small"
+                                                                                   OnClick="() => CycleColour(operation)">
+                                                                        <Badge colour="@GetBadgeColour(operation.Status)" />
+                                                                    </MudIconButton>
+
+                                                                    <!-- Operation Name -->
+                                                                    <span class="clickable" @onclick="() => OnOperationClicked(operation, false)">@operation.operationShortname</span>
+                                                                </MudStack>
+
+                                                                <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                                                    <!-- Copy Operation Button -->
+                                                                    <MudIconButton Icon="Icons.Material.Filled.ContentCopy"
+                                                                                   Size="Size.Small"
+                                                                                   OnClick="() => CloneOperation(operation)" />
+
+                                                                    <!-- Drag Handle (smaller) -->
+                                                                    <MudIcon Icon="Icons.Material.Filled.DragIndicator"
+                                                                             Class="drag-handle-small"
+                                                                             Size="Size.Small" />
+                                                                </MudStack>
+                                                            </MudStack>
+                                                        </ChildContent>
+                                                    </MudListItem>
                                                 }
                                             }
-                                            <!-- Drag handle for tools -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                            class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
-                                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    @if (allOperations.Where(op => op.toolID == tool.toolID).Any())
-                                    {
-                                        <div class="operation-list">
-                                            @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
-                                            {
-                                                <div class="operation-section operation-draggable d-flex justify-content-between align-items-center" data-operation-id="@operation.operationID">
-                                                    <button class="btn btn-secondary btn-sm mr-2"@onclick="() =>CycleColour(operation)"><Badge colour="@GetBadgeColour(operation.Status)"/></button>
-                                                    <span class="clickable" @onclick="() => { OnOperationClicked(operation, false); }">@operation.operationShortname</span>
-                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))">copy</button>
-                                                    <!-- Drag handle for operations -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
-                                                    class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
-                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
-                                                    </svg>
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            }
+                                        </NestedList>
+                                    </MudListItem>
+                                }
+                            </MudList>
                         }
                     </div>
                 </div>
@@ -1501,6 +1543,19 @@
     private void ToggleDrawer()
     {
         _open = !_open;
+    }
+
+    private Color GetMudColor(string status)
+    {
+        // Diese Methode sollte entsprechend der ursprünglichen GetBadgeColour Logik implementiert werden
+        return status switch
+        {
+            "Active" => Color.Success,
+            "Error" => Color.Error,
+            "Warning" => Color.Warning,
+            "Pending" => Color.Info,
+            _ => Color.Default
+        };
     }
 }
 
