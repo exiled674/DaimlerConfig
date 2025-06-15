@@ -16,6 +16,7 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
 @using MudBlazor
+@inject IDialogService DialogService
 
 
     
@@ -205,7 +206,7 @@
                                                                     </MudMenuItem>
 
 
-                                                                    <MudMenuItem 
+                                                                    <MudMenuItem OnClick="@(() => DeleteTool(tool))"
                                                                                  Icon="@Icons.Material.Filled.Delete"
                                                                                  IconColor="Color.Error">
                                                                         Delete
@@ -1709,5 +1710,46 @@
             _ => Color.Default
         };
     }
+
+
+
+    private async Task DeleteTool(Tool tool)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+    {
+        { x => x.ContentText, $"Möchten Sie das Tool \"{tool.toolShortname}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden." },
+        { x => x.ButtonText, "Löschen" },
+        { x => x.Color, Color.Error }
+    };
+
+        var options = new DialogOptions()
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                CloseOnEscapeKey = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Projekt löschen", parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                await Fassade.DeleteTool(tool);
+
+
+                await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+
+
 }
 
