@@ -92,7 +92,7 @@
             <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
             @foreach (var station in stations)
             {
-                <MudCard Class="@($"station-card mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
+                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
                          Elevation="3"
                          @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                     <MudCardContent Class="pa-3">
@@ -336,6 +336,76 @@
 .text-muted {
     color: var(--mud-palette-text-secondary) !important;
 }
+
+
+
+
+    /* Drag and drop zeug */
+
+    .draggable {
+        user-select: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        position: relative;
+        z-index: 1;
+        cursor: grab;
+    }
+
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        .draggable.dragging,
+        .is-dragging {
+            opacity: 0.8;
+            background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
+            border: 2px solid var(--mud-palette-primary);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: scale(1.03) rotate(1deg);
+            z-index: 999;
+            cursor: grabbing;
+        }
+
+    /* Drop Zone Styling - wie im Bild */
+    #toolsList.drag-active,
+    .operation-list.drag-active,
+    .drop-zone.drag-active {
+        background-color: rgba(33, 150, 243, 0.03);
+        border: 2px dashed #2196f3;
+        border-radius: 12px;
+        padding: 8px;
+        margin: 4px 0;
+        min-height: 60px;
+        transition: all 0.3s ease;
+    }
+
+        /* Drop Zone Hover Effect */
+        #toolsList.drag-active:hover,
+        .operation-list.drag-active:hover,
+        .drop-zone.drag-active:hover {
+            background-color: rgba(33, 150, 243, 0.06);
+            border-color: #1976d2;
+        }
+
+    /* Placeholder für leere Drop Zone */
+    .drop-zone-placeholder {
+        background-color: rgba(33, 150, 243, 0.02);
+        border: 2px dashed rgba(33, 150, 243, 0.3);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        color: rgba(33, 150, 243, 0.6);
+        font-style: italic;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+        .drop-zone-placeholder:hover {
+            border-color: rgba(33, 150, 243, 0.5);
+            background-color: rgba(33, 150, 243, 0.04);
+        }
 </style>
 
 @code {
