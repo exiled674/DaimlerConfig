@@ -261,9 +261,32 @@
                                                                 </span>
                                                             </div>
 
-                                                            <div>
-                                                                <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CloneOperation(operation)">copy</button>
+                                                             <MudItem xs="2" Class="d-flex justify-end">
+                                                            <div @onclick:stopPropagation>
+                                                                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                                                         Size="Size.Small"
+                                                                         Dense="true"
+                                                                         AnchorOrigin="Origin.BottomRight"
+                                                                         TransformOrigin="Origin.TopRight">
+
+                                                                    
+
+                                                                    <MudMenuItem OnClick="@(() => CloneOperation(operation))"
+                                                                                 Icon="@Icons.Material.Filled.ContentCopy">
+                                                                        Copy
+                                                                    </MudMenuItem>
+
+                                                                  
+
+
+                                                                    <MudMenuItem 
+                                                                                 Icon="@Icons.Material.Filled.Delete"
+                                                                                 IconColor="Color.Error">
+                                                                        Delete
+                                                                    </MudMenuItem>
+                                                                </MudMenu>
                                                             </div>
+                                                        </MudItem>
                                                         </div>
                                                     }
                                                 </div>
