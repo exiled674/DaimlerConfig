@@ -186,7 +186,7 @@
                                                         <!-- Rechte Seite (Buttons) -->
                                                         <div class="d-flex align-items-center" style="gap: 4px;">
                                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CloneTool(tool)">copy</button>
-                                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
+                                                           
 
                                                             @if (selectedTool != null && copiedOperation != null)
                                                             {
@@ -198,18 +198,27 @@
                                             </MudGrid>
 
                                             <MudStack Spacing="1" Class="mt-3 mb-2">
-                                                <MudDivider Class="thick-divider" />
+    <MudDivider Class="thick-divider" />
 
-                                                <div style="display: flex; align-items: center; gap: 4px;">
-                                                    <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
-                                                                   Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
-                                                                   Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
-                                                                   @onclick="() => ToggleExpand(tool.toolID.Value)" />
-                                                    <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
-                                                        Operationen
-                                                    </MudText>
-                                                </div>
-                                            </MudStack>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 4px;">
+            <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                           Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
+                           Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
+                           @onclick="() => ToggleExpand(tool.toolID.Value)" />
+            <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
+                Operationen
+            </MudText>
+        </div>
+
+        <MudIconButton Icon="@Icons.Material.Filled.Add"
+                       Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 28px; height: 28px; padding: 0;"
+                       @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }"
+                       AriaLabel="Add Operation" />
+    </div>
+</MudStack>
+
+
 
 
 
