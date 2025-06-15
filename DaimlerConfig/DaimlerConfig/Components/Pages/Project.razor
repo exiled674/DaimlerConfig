@@ -185,8 +185,7 @@
                                                     <button class="btn btn-primary btn-sm" @onclick="() => { SelectTool(tool); InsertOperation(); }">Insert Operation</button>
                                                 }
 
-                                               
-                                                <button class="btn btn-link p-0" style="width:24px; height:24px;">
+                                                <button class="btn btn-link p-0" style="width:24px; height:24px;" @onclick="() => ToggleExpand(tool.toolID.Value)">
                                                     @if (expandedTools.Contains(tool.toolID.Value))
                                                     {
                                                         <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" @onclick="() => ToggleExpand(tool.toolID.Value)" />
@@ -199,9 +198,8 @@
                                             </div>
                                         </div>
 
-                                        <!-- Operationen direkt unter Tool anzeigen -->
-                                        @if (expandedTools.Contains(tool.toolID.Value) && allOperations.Any(op => op.toolID == tool.toolID))
-                                        {
+                                        <!-- Operationen direkt unter Tool anzeigen mit MudCollapse -->
+                                        <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)">
                                             <div style="margin-top: 8px; padding-left: 24px;">
                                                 @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                                 {
@@ -220,17 +218,15 @@
                                                         <div style="display: flex; align-items: center; gap: 4px;">
                                                             <!-- Copy Operation Button -->
                                                             <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CloneOperation(operation)">copy</button>
-
-                                                           
-
                                                         </div>
                                                     </div>
                                                 }
                                             </div>
-                                        }
+                                        </MudCollapse>
                                     </MudListItem>
                                 }
                             </MudList>
+
 
                         }
                     </div>
