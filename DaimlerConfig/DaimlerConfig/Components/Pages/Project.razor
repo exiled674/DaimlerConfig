@@ -165,14 +165,10 @@
                                             <div style="display: flex; align-items: center; gap: 8px; position: relative;">
                                                 <!-- Chevron Icon links neben Tool -->
                                                 <div style="position: relative; top: -4px; margin-right: 4px;">
-                                                    @if (expandedTools.Contains(tool.toolID.Value))
-                                                    {
-                                                        <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" @onclick="() => ToggleExpand(tool.toolID.Value)" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" @onclick="() => ToggleExpand(tool.toolID.Value)" />
-                                                    }
+                                                    <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                                                                   Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
+                                                                   @onclick="() => ToggleExpand(tool.toolID.Value)" />
+
                                                 </div>
 
                                                 <!-- Status Badge (original logic) -->
@@ -282,6 +278,14 @@
 
 
     <style>
+
+    .chevron-icon {
+        transition: transform 0.3s ease;
+    }
+
+        .chevron-icon.rotated {
+            transform: rotate(90deg);
+        }
 .station-card {
     border: 2px solid rgba(0,0,0,0.08);
     border-radius: 8px !important;
