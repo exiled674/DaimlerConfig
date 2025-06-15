@@ -92,7 +92,7 @@
             <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
             @foreach (var station in stations)
             {
-                <MudCard  Class="@($"station-card mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
+                <MudCard  Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
                          Elevation="3"
                          @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                     <MudCardContent Class="pa-3">
@@ -331,7 +331,7 @@
 
 
     /* Drag and drop zeug */
-    /*
+    
     .draggable {
         user-select: none;
         transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
@@ -397,7 +397,7 @@
             cursor: pointer;
         }
 
-    */
+    
 </style>
 
 @code {
