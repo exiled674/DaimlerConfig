@@ -197,6 +197,14 @@
                                                                                  Icon="@Icons.Material.Filled.ContentCopy">
                                                                         Copy
                                                                     </MudMenuItem>
+
+                                                                    <MudMenuItem OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
+                                                                                 Icon="@Icons.Material.Filled.ContentPaste"
+                                                                                 Disabled="@(copiedOperation == null || selectedTool == null)">
+                                                                        Insert Operation
+                                                                    </MudMenuItem>
+
+
                                                                     <MudMenuItem 
                                                                                  Icon="@Icons.Material.Filled.Delete"
                                                                                  IconColor="Color.Error">
