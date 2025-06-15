@@ -186,14 +186,14 @@
                                                 }
 
                                                
-                                                <button class="btn btn-link p-0" style="width:24px; height:24px;" @onclick="() => ToggleExpand(tool.toolID.Value)">
+                                                <button class="btn btn-link p-0" style="width:24px; height:24px;">
                                                     @if (expandedTools.Contains(tool.toolID.Value))
                                                     {
-                                                        <i class="bi bi-chevron-down"></i>  <!-- expanded -->
+                                                        <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" @onclick="() => ToggleExpand(tool.toolID.Value)" />
                                                     }
                                                     else
                                                     {
-                                                        <i class="bi bi-chevron-right"></i> <!-- collapsed -->
+                                                        <MudIconButton Icon="@Icons.Material.Filled.ExpandLess" @onclick="() => ToggleExpand(tool.toolID.Value)" />
                                                     }
                                                 </button>
                                             </div>
