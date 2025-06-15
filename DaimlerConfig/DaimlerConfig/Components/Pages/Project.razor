@@ -161,80 +161,92 @@
                                 @foreach (var tool in tools)
                                 {
                                     <MudListItem T="string" class="tool-section tool-draggable" data-tool-id="@tool.toolID">
-                                        <ChildContent>
-                                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    <!-- Status Badge (original logic) -->
-                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CycleColour(tool)">
-                                                        <Badge colour="@GetBadgeColour(tool.Status)" />
-                                                    </button>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <!-- Status Badge (original logic) -->
+                                                <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CycleColour(tool)">
+                                                    <Badge colour="@GetBadgeColour(tool.Status)" />
+                                                </button>
 
-                                                    <!-- Tool Name -->
-                                                    <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
-                                                </div>
-
-                                                <div style="display: flex; align-items: center; gap: 4px;">
-                                                    <!-- Copy Button -->
-                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CloneTool(tool)">copy</button>
-
-                                                    <!-- Add Operation Button -->
-                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
-
-                                                    <!-- Insert Operation Button (conditional) -->
-                                                    @if (selectedTool != null && copiedOperation != null)
-                                                    {
-                                                        <button class="btn btn-primary btn-sm" @onclick="() => { SelectTool(tool); InsertOperation(); }">Insert Operation</button>
-                                                    }
-
-                                                    <!-- Drag Handle -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                                         class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16">
-                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                                                    </svg>
-                                                </div>
+                                                <!-- Tool Name -->
+                                                <span class="clickable" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }">@tool.toolShortname</span>
                                             </div>
-                                        </ChildContent>
 
-                                        <NestedList>
-                                            @if (allOperations.Where(op => op.toolID == tool.toolID).Any())
-                                            {
+                                            <div style="display: flex; align-items: center; gap: 4px;">
+                                                <!-- Copy Button -->
+                                                <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CloneTool(tool)">copy</button>
+
+                                                <!-- Add Operation Button -->
+                                                <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }">+</button>
+
+                                                <!-- Insert Operation Button (conditional) -->
+                                                @if (selectedTool != null && copiedOperation != null)
+                                                {
+                                                    <button class="btn btn-primary btn-sm" @onclick="() => { SelectTool(tool); InsertOperation(); }">Insert Operation</button>
+                                                }
+
+                                               
+                                                <button class="btn btn-link p-0" style="width:24px; height:24px;" @onclick="() => ToggleExpand(tool.toolID.Value)">
+                                                    @if (expandedTools.Contains(tool.toolID.Value))
+                                                    {
+                                                        <i class="bi bi-chevron-down"></i>  <!-- expanded -->
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-chevron-right"></i> <!-- collapsed -->
+                                                    }
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Operationen direkt unter Tool anzeigen -->
+                                        @if (expandedTools.Contains(tool.toolID.Value) && allOperations.Any(op => op.toolID == tool.toolID))
+                                        {
+                                            <div style="margin-top: 8px; padding-left: 24px;">
                                                 @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                                 {
-                                                    <MudListItem T="string" class="operation-section operation-draggable" data-operation-id="@operation.operationID">
-                                                        <ChildContent>
-                                                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                                    <!-- Operation Status Badge (original logic) -->
-                                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CycleColour(operation)">
-                                                                        <Badge colour="@GetBadgeColour(operation.Status)" />
-                                                                    </button>
+                                                    <div class="operation-section operation-draggable" data-operation-id="@operation.operationID"
+                                                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                                            <!-- Operation Status Badge -->
+                                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CycleColour(operation)">
+                                                                <Badge colour="@GetBadgeColour(operation.Status)" />
+                                                            </button>
 
-                                                                    <!-- Operation Name -->
-                                                                    <span class="clickable" @onclick="() => OnOperationClicked(operation, false)">@operation.operationShortname</span>
-                                                                </div>
+                                                            <!-- Operation Name -->
+                                                            <span class="clickable" @onclick="() => OnOperationClicked(operation, false)">@operation.operationShortname</span>
+                                                        </div>
 
-                                                                <div style="display: flex; align-items: center; gap: 4px;">
-                                                                    <!-- Copy Operation Button -->
-                                                                    <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CloneOperation(operation)">copy</button>
+                                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                                            <!-- Copy Operation Button -->
+                                                            <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CloneOperation(operation)">copy</button>
 
-                                                                    <!-- Drag Handle (smaller) -->
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor"
-                                                                         class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16">
-                                                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                                                                    </svg>
-                                                                </div>
-                                                            </div>
-                                                        </ChildContent>
-                                                    </MudListItem>
+                                                           
+
+                                                        </div>
+                                                    </div>
                                                 }
-                                            }
-                                        </NestedList>
+                                            </div>
+                                        }
                                     </MudListItem>
                                 }
                             </MudList>
+
                         }
                     </div>
                 </div>
+
+                @code {
+        private HashSet<int> expandedTools = new();
+
+        private void ToggleExpand(int toolID)
+        {
+            if (expandedTools.Contains(toolID))
+                    expandedTools.Remove(toolID);
+            else
+                    expandedTools.Add(toolID);
+        }
+                }
 
                 <!-- Rechte Spalte: Content -->
                 <div class="content-panel flex-fill">
