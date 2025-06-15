@@ -250,9 +250,8 @@
                                                 <div class="mt-2 pl-4">
                                                     @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                                     {
-                                                        <div class="operation-section operation-draggable d-flex align-items-center justify-content-between mb-1"
-                                                             data-operation-id="@operation.operationID">
-                                                            <div class="d-flex align-items-center" style="gap: 8px;">
+                                                        <MudGrid AlignItems="Center" Class="mb-1">
+                                                            <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
                                                                 <button class="btn btn-secondary btn-sm mr-2" @onclick="() => CycleColour(operation)">
                                                                     <Badge colour="@GetBadgeColour(operation.Status)" />
                                                                 </button>
@@ -260,35 +259,28 @@
                                                                 <span class="clickable" @onclick="() => OnOperationClicked(operation, false)">
                                                                     @operation.operationShortname
                                                                 </span>
-                                                            </div>
+                                                            </MudItem>
 
-                                                             <MudItem xs="2" Class="d-flex justify-end">
-                                                            <div @onclick:stopPropagation>
-                                                                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                                                         Size="Size.Small"
-                                                                         Dense="true"
-                                                                         AnchorOrigin="Origin.BottomRight"
-                                                                         TransformOrigin="Origin.TopRight">
+                                                            <MudItem xs="2" Class="d-flex justify-end">
+                                                                <div @onclick:stopPropagation>
+                                                                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                                                             Size="Size.Small"
+                                                                             Dense="true"
+                                                                             AnchorOrigin="Origin.BottomRight"
+                                                                             TransformOrigin="Origin.TopRight">
+                                                                        <MudMenuItem OnClick="@(() => CloneOperation(operation))"
+                                                                                     Icon="@Icons.Material.Filled.ContentCopy">
+                                                                            Copy
+                                                                        </MudMenuItem>
 
-                                                                    
-
-                                                                    <MudMenuItem OnClick="@(() => CloneOperation(operation))"
-                                                                                 Icon="@Icons.Material.Filled.ContentCopy">
-                                                                        Copy
-                                                                    </MudMenuItem>
-
-                                                                  
-
-
-                                                                    <MudMenuItem 
-                                                                                 Icon="@Icons.Material.Filled.Delete"
-                                                                                 IconColor="Color.Error">
-                                                                        Delete
-                                                                    </MudMenuItem>
-                                                                </MudMenu>
-                                                            </div>
-                                                        </MudItem>
-                                                        </div>
+                                                                        <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                                                                     IconColor="Color.Error">
+                                                                            Delete
+                                                                        </MudMenuItem>
+                                                                    </MudMenu>
+                                                                </div>
+                                                            </MudItem>
+                                                        </MudGrid>
                                                     }
                                                 </div>
                                             </MudCollapse>
