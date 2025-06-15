@@ -66,7 +66,7 @@
 
 
 
-        <MudDrawer @bind-Open="@_open" Elevation="4" Fixed="true" Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.12);">
+    <MudDrawer @bind-Open="@_open" Elevation="4" Fixed="true" Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.12); background: color-mix(in srgb, var(--mud-palette-primary) 20%, white);">
         <MudDrawerHeader Class="d-flex align-items-center px-4 py-3" Style="border-bottom: 1px solid rgba(0,0,0,0.12);">
             <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
                 Stations
@@ -92,7 +92,7 @@
             <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
             @foreach (var station in stations)
             {
-                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
+                <MudCard  Class="@($"station-card mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
                          Elevation="3"
                          @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                     <MudCardContent Class="pa-3">
@@ -278,7 +278,7 @@
     border-radius: 8px !important;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
-    background: white;
+        background: color-mix(in srgb, var(--mud-palette-primary) 20%, white);
 }
 
 .station-card:hover {
@@ -331,7 +331,7 @@
 
 
     /* Drag and drop zeug */
-
+    /*
     .draggable {
         user-select: none;
         transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
@@ -351,7 +351,7 @@
             cursor: pointer;
         }
 
-    /* Drop Zone Styling - wie im Bild */
+
     #toolsList.drag-active,
     .operation-list.drag-active,
     .drop-zone.drag-active {
@@ -365,7 +365,7 @@
         cursor: pointer;
     }
 
-        /* Drop Zone Hover Effect */
+
         #toolsList.drag-active:hover,
         .operation-list.drag-active:hover,
         .drop-zone.drag-active:hover {
@@ -374,7 +374,7 @@
             cursor: pointer;
         }
 
-    /* Placeholder für leere Drop Zone */
+
     .drop-zone-placeholder {
         background-color: rgba(33, 150, 243, 0.02);
         border: 2px dashed rgba(33, 150, 243, 0.3);
@@ -396,6 +396,8 @@
             background-color: rgba(33, 150, 243, 0.04);
             cursor: pointer;
         }
+
+    */
 </style>
 
 @code {
