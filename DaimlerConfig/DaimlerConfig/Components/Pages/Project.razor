@@ -201,6 +201,15 @@
                                                 </MudItem>
                                             </MudGrid>
 
+                                           <MudStack Spacing="1" Class="mt-3 mb-2">
+    <MudDivider Class="thick-divider" />
+    <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
+    Operationen
+</MudText>
+</MudStack>
+
+
+
                                             <!-- Operationen -->
                                             <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)">
                                                 <div class="mt-2 pl-4">
@@ -285,6 +294,10 @@
 
 
     <style>
+    .thick-divider {
+        border-top: #333333;
+    }
+    
 
     .chevron-icon {
         transition: transform 0.3s ease;
