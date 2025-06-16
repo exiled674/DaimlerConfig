@@ -94,7 +94,7 @@
             <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
             @foreach (var station in stations)
             {
-                <MudCard  Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
+                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
                          Elevation="3"
                          @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                     <MudCardContent Class="pa-3">
@@ -112,11 +112,37 @@
                                     </div>
                                 </div>
                             </MudItem>
-                            
+
+                            <MudItem xs="2" Class="d-flex justify-end">
+                                <div @onclick:stopPropagation="true">
+                                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                             Size="Size.Small"
+                                             Dense="true"
+                                             AnchorOrigin="Origin.BottomRight"
+                                             TransformOrigin="Origin.TopRight">
+
+
+
+                                        <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
+                                                     Icon="@Icons.Material.Filled.ContentPaste"
+                                                     Disabled="@(copiedTool == null || selectedStation == null)">
+                                            Insert Tool
+                                        </MudMenuItem>
+
+
+                                        <MudMenuItem 
+                                                     Icon="@Icons.Material.Filled.Delete"
+                                                     IconColor="Color.Error">
+                                            Delete
+                                        </MudMenuItem>
+                                    </MudMenu>
+                                </div>
+                            </MudItem>
                         </MudGrid>
                     </MudCardContent>
                 </MudCard>
             }
+
 
      
 
