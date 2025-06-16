@@ -50,55 +50,58 @@
 
 	<div class="layout position-relative">
 		<div class="stationColoumn">
-
 			<MudTextField @bind-Value="SelectedStation.assemblystation"
-			  Label="Assemblystation"
-			  Variant="Variant.Filled"
-			  MaxLength="10"
-			  Class="search-field-enhanced"
-			  Margin="Margin.Dense"
-			  Immediate="true"
-			  OnBlur="CheckIfDirty"
-			  Error="@errorMessages.ContainsKey("Assemblystation")"
-			  ErrorText="@errorMessages.GetValueOrDefault("Assemblystation")" />
-			<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-							@($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
-			</span>
+	Label="Assemblystation"
+	Variant="Variant.Filled"
+	MaxLength="10"
+	Class="search-field-enhanced"
+	Margin="Margin.Dense"
+	Immediate="true"
+	OnBlur="CheckIfDirty"
+	Error="@errorMessages.ContainsKey("Assemblystation")"
+	ErrorText="@errorMessages.GetValueOrDefault("Assemblystation")"
+	Style="background: white;" />
 
+<MudTextField @bind-Value="SelectedStation.stationName"
+	Label="Assemblystation Description"
+	Variant="Variant.Filled"
+	MaxLength="50"
+	Class="search-field-enhanced"
+	Margin="Margin.Dense"
+	Immediate="true"
+	OnBlur="CheckIfDirty"
+	Style="background: white;" />
 
-			<MudTextField @bind-Value="SelectedStation.stationName"
-			  Label="Assemblystation Description"
-			  Variant="Variant.Filled"
-			  MaxLength="50"
-			  Class="search-field-enhanced"
-			  Margin="Margin.Dense"
-			  Immediate="true"
-			  OnBlur="CheckIfDirty" />
-			<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-							@($"{SelectedStation?.stationName?.Length ?? 0}/50")
-			</span>
-
-			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID"
-		   Variant="Variant.Filled" Class="search-field-enhanced" Margin="Margin.Dense" OnBlur="CheckIfDirty">
+<MudSelect T="int" Label="Station Type"
+	@bind-Value="SelectedStation.stationTypeID"
+	Class="search-field-enhanced"
+	Margin="Margin.Dense"
+	OnBlur="CheckIfDirty"
+	Style="background: white;">
 				@if (stationTypes != null)
 				{
 					@foreach (var stationType in stationTypes)
 					{
-					<MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
+					<MudSelectItem T="int" Value="@stationType.stationTypeID" Style="background: white;">
+							@stationType.stationTypeName
+					</MudSelectItem>
 					}
 				}
-           </MudSelect>
+</MudSelect>
 
-			<MudTextField @bind-Value="SelectedStation.Comment"
-			  Label="Comment"
-			  Variant="Variant.Filled"
-			  Class="search-field-enhanced"
-			  Margin="Margin.Dense"
-			  Immediate="true"
-			  OnBlur="CheckIfDirty"
-			  MaxLength="1000"
-			  Lines="5"
-			  TextArea="true" />
+<MudTextField @bind-Value="SelectedStation.Comment"
+	Label="Comment"
+	Variant="Variant.Filled"
+	Class="search-field-enhanced"
+	Margin="Margin.Dense"
+	Immediate="true"
+	OnBlur="CheckIfDirty"
+	MaxLength="1000"
+	Lines="5"
+	TextArea="true"
+	Style="background: white;" />
+
+			
 				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
 								@($"{SelectedStation?.Comment.Length ?? 0}/1000")
 				</span>
@@ -113,31 +116,45 @@
 
 <style>
 
-	.search-field-enhanced {
-	background-color: #f0f5fa !important; /* leicht kühles, helles Grau */
-	border-radius: 12px !important;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-	transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out !important;
+/* Elevation-Simulation wie Material Design */
+.elevation-3 {
+	box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16), 0px 3px 6px rgba(0, 0, 0, 0.23);
 }
 
+.elevation-6 {
+	box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.19), 0px 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+/* Allgemeine Anpassung der Inputs */
+.search-field-enhanced {
+	border-radius: 12px !important;
+	background-color: white !important;
+	transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+	box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16), 0px 3px 6px rgba(0, 0, 0, 0.23); /* elevation-3 */
+}
+
+/* Hover-Effekt (Elevation-6-Simulation) */
 .search-field-enhanced:hover {
-	background-color: #e4ecf7 !important; /* etwas dunkleres Grau beim Hover */
-	box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+	box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.19), 0px 6px 6px rgba(0, 0, 0, 0.23);
+	transform: translateY(-1px);
 }
 
-/* Falls du auch Outlined-Variante benutzt, setzen wir den Hintergrund hier auch */
-.search-field-enhanced .mud-input-outlined {
-	background: #f0f5fa !important;
+/* Für MudBlazor intern – gefüllter Stil */
+.search-field-enhanced .mud-input-root.mud-input-filled {
+	background-color: white !important;
 	border-radius: 12px !important;
+	border: none !important;
+	box-shadow: none !important;
 }
 
-.add-station-btn {
-		border-radius: 8px !important;
-		box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
-		transition: all 0.2s ease-in-out;
-		background-color: var(--mud-palette-primary);
-		color: white !important;
-	}
+/* Optional: Outlined Style */
+.search-field-enhanced .mud-input-outlined {
+	background-color: white !important;
+	border: none !important;
+	border-radius: 12px !important;
+	box-shadow: none !important;
+}
+
 </style>
 
 @code {
