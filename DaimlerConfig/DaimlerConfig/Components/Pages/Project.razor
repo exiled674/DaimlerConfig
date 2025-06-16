@@ -19,7 +19,7 @@
 @inject IDialogService DialogService
 
 
-    
+
 
     <!-- Navbar -->
         <!-- Navbar -->
@@ -61,6 +61,7 @@
 {
                     <Settings OnClosing="CloseSetting" />
 }
+
 
 
 <MudLayout>
@@ -126,6 +127,7 @@
     <MudMainContent Class="pt-0 pe-16 ps-0" style=" min-height: 100vh;">
 
 
+
         <!-- Main Content -->
         <div class="main">
             <main class="p-3 pb-0 d-flex gap-3">
@@ -142,6 +144,7 @@
                             {
                                 <button class="btn btn-primary btn-sm" @onclick="() => InsertTool()">Insert Tool</button>
                             }
+
                                    <MudButton StartIcon="@Icons.Material.Filled.Add"
                Variant="Variant.Filled"
                Color="Color.Primary"
@@ -150,6 +153,7 @@
                @onclick="() => ToggleToolFormular(true)">
         Tool
     </MudButton>
+
 
                         }
 
@@ -166,6 +170,7 @@
                         }
                         else
                         {
+
                             <MudList T="string" Clickable="false">
     @foreach (var tool in tools)
     {
@@ -184,6 +189,7 @@
                                     <button class="btn btn-secondary btn-sm mr-2">
                                         <Badge colour="@GetBadgeColour(tool.Status)" />
                                     </button>
+
                                 </div>
 
                                 <!-- Tool Name -->
@@ -546,7 +552,7 @@
     protected override void OnParametersSet()
     {
 
-        
+
     }
 
     private StationFormular? stationFormular;
@@ -558,54 +564,95 @@
     private async Task HandleDismiss()
     {
         showPopup = false;
+
+        if (DirtyManagerService.dirtyEntity == "Station") stationFormular.ResetStation();
+        if (DirtyManagerService.dirtyEntity == "Tool") toolFormular.ResetTool();
+        if (DirtyManagerService.dirtyEntity == "Operation") operationFormular.ResetOperation();
         DirtyManagerService.setClean();
-        if (stationFormular != null) stationFormular.ResetStation();
-        if (toolFormular != null) toolFormular.ResetTool();
-        if (operationFormular != null) operationFormular.ResetOperation();
+
+        if(pendingStation != null)
+        {
+            await SelectStation(pendingStation);
+            await ToggleStationFormular(false);
+        }
+
+        if(pendingTool != null)
+        {
+            await SelectTool(pendingTool);
+            await ToggleToolFormular(false);
+        }
+
+        if(pendingOperation != null)
+        {
+            await SelectOperation(pendingOperation);
+            await ToggleOperationFormular(false);
+        }
+
+
     }
 
     private async Task HandleSave()
     {
         showPopup = false;
+
+
+        if (stationFormular != null && DirtyManagerService.dirtyEntity == "Station" )
+        {
+            if (await stationFormular.ValidateData() == true )
+            {
+                await stationFormular.UpdateStationAsync();
+            }
+            else
+            {
+                await stationFormular.ResetStation();
+            }
+
+        }
+
+
+
+        if (toolFormular != null && DirtyManagerService.dirtyEntity == "Tool")
+        {
+            if (await toolFormular.ValidateData() == true )
+            {
+                await toolFormular.UpdateToolAsync();
+            }
+            else
+            {
+                await toolFormular.ResetTool();
+            }
+        }
+
+
+        if (operationFormular != null && DirtyManagerService.dirtyEntity == "Operation")
+        {
+            if (await operationFormular.ValidateData() == true  )
+            {
+                await operationFormular.UpdateOperationAsync();
+            }
+            else
+            {
+                await operationFormular.ResetOperation();
+            }
+        }
         DirtyManagerService.setClean();
 
-        if (stationFormular != null)
+        if (pendingStation != null)
         {
-            if(await stationFormular.ValidateData() == true)
-            {
-                stationFormular.UpdateStationAsync();
-            }
-            else
-            {
-                stationFormular.ResetStation();
-            }
+            await SelectStation(pendingStation);
+            await ToggleStationFormular(false);
         }
 
-
-
-        if (toolFormular != null)
+        if (pendingTool != null)
         {
-            if (await toolFormular.ValidateData() == true)
-            {
-                toolFormular.UpdateToolAsync();
-            }
-            else
-            {
-                toolFormular.ResetTool();
-            }
+            await SelectTool(pendingTool);
+            await ToggleToolFormular(false);
         }
 
-
-        if (operationFormular != null)
+        if (pendingOperation != null)
         {
-            if (await operationFormular.ValidateData() == true)
-            {
-                operationFormular.UpdateOperationAsync();
-            }
-            else
-            {
-                operationFormular.ResetOperation();
-            }
+            await SelectOperation(pendingOperation);
+            await ToggleOperationFormular(false);
         }
 
     }
@@ -633,27 +680,35 @@
     private IEnumerable<Station> stations = Enumerable.Empty<Station>();
     private Station? selectedStation;
     private bool showStationFormular = false;
+    private Station? pendingStation;
 
     private async Task SelectStation(Station station)
     {
         if (DirtyManagerService.IsDirty().Result == true)
         {
+            pendingStation = station;
+            selectedStation = stationFormularModel;
+
             showPopup = true;
             return;
         }
         else
         {
+            pendingStation = null;
             selectedStation = station;
 
             await UnlockTool();
             selectedTool = await CreateDummyTool();
+            toolFormularModel = null;
 
             await UnlockOperation();
             selectedOperation = await CreateDummyOP();
+            operationFormularModel = null;
+            var xy = await Fassade.GetToolsFromStation(station.stationID);
+            tools = xy;
 
-            tools = await Fassade.GetToolsFromStation(station.stationID);
             allOperations = await Fassade.GetAllOperations();
-
+            tools = xy;
             SelectionState.SaveSelection(stationID: station.stationID);
 
             StateHasChanged();
@@ -667,7 +722,7 @@
 
     {
         if (isNewStation)
-        {
+        { 
             await UnlockOperation();
             await UnlockTool();
             selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
@@ -699,16 +754,20 @@
 
     private bool toolReadOnly = false;
     private bool showToolFormular = false;
+    private Tool? pendingTool;
 
     private async Task SelectTool(Tool tool)
     {
         if (DirtyManagerService.IsDirty().Result == true)
         {
+            pendingTool = tool;
+            selectedTool = toolFormularModel;
             showPopup = true;
             return;
         }
         else
         {
+            pendingTool = null;
             if (selectedTool != null && tool.toolID != selectedTool.toolID) await UnlockTool();
             selectedTool = tool;
 
@@ -721,6 +780,7 @@
             await UnlockOperation();
 
             selectedOperation = await CreateDummyOP();
+            operationFormularModel = null;
 
             tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
 
@@ -736,11 +796,8 @@
 
     private async Task ToggleToolFormular(bool isNewTool)
     {
-        if (selectedStation == null)
-        {
-            // Optional: Benutzerfeedback, z.B. eine Meldung anzeigen
-            return;
-        }
+       
+
 
         if (isNewTool)
         {
@@ -781,8 +838,8 @@
             selectedTool.isLocked = false;
             selectedTool.lockedBy = null;
             await Fassade.UpdateTool(selectedTool);
-            await SignalRService.SendMessageToServer($"ToolUpdated;{selectedTool.toolID}");
-            await SignalRService.SendMessageToServer("ToolUnlocked;" + selectedTool.toolID.ToString());
+
+            await SignalRService.SendMessageToServer($"ToolUnlocked;{selectedTool.toolID}");
         }
     }
 
@@ -808,15 +865,19 @@
     private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
     private bool operationReadOnly = false;
     private bool showOperationFormular = false;
-
+    private Operation? pendingOperation;
     private async Task SelectOperation(Operation operation)
     {
         if (DirtyManagerService.IsDirty().Result)
         {
+            pendingOperation = operation;
+            selectedOperation = operationFormularModel;
             showPopup = true;
+            return;
         }
         else
         {
+            pendingOperation = null;
             var opsList = allOperations.ToList();
             var idx = opsList.FindIndex(o => o.operationID == operation.operationID);
             if (idx >= 0)
@@ -844,7 +905,7 @@
                     operationID: operation.operationID
                 );
             }
-            
+
             operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
 
             showOperationFormular = true;
@@ -903,8 +964,8 @@
             selectedOperation.isLocked = false;
             selectedOperation.lockedBy = null;
             await Fassade.UpdateOperation(selectedOperation);
-            await SignalRService.SendMessageToServer($"OperationUpdated;{selectedOperation.operationID}");
-            await SignalRService.SendMessageToServer("OperationUnlocked;" + selectedOperation.operationID.ToString());
+
+            await SignalRService.SendMessageToServer($"OperationUnlocked;{selectedOperation.operationID}");
         }
     }
 
@@ -991,7 +1052,7 @@
                 if ( selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
 
                 {
-                    
+
                     if (selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
                     {
                         operationReadOnly = true;
@@ -1010,7 +1071,7 @@
                 {
 
                     var updatedTool = await Fassade.GetTool(toolID);
-                    if (updatedTool != null)
+                    if (updatedTool != null )
                     {
                         toolList[idx] = updatedTool;
                         tools = toolList.AsEnumerable();
@@ -1068,7 +1129,7 @@
                     toolReadOnly = true;
                 }
             }
-            
+
             else
             {
                 switch (msg)
@@ -1117,6 +1178,16 @@
 
                                 stationList.Add(newStation);
                                 stations = stationList.AsEnumerable();
+
+
+                                if (newStation.modifiedBy.Trim() == UsernameService.Username)
+                                {
+                                    selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
+                                    stationFormularModel = selectedStation.Clone();
+                                    stationFormularModel.lineID = selectedStation.lineID;
+                                    tools = Enumerable.Empty<Tool>();
+                                    allOperations = Enumerable.Empty<Operation>();
+                                }
                                 StateHasChanged();
                             }
                             break;
@@ -1182,10 +1253,18 @@
                             var toolID = int.Parse(parts[1]);
                             var toolList = tools.ToList();
                             var newTool = await Fassade.GetTool(toolID);
-                            if (newTool != null && !toolList.Any(s => s.toolID == toolID))
+                            if (newTool != null && !toolList.Any(s => s.toolID == toolID) && newTool.stationID == selectedStation.stationID)
                             {
                                 toolList.Add(newTool);
                                 tools = toolList.AsEnumerable();
+
+
+                                if(newTool.modifiedBy == UsernameService.Username)
+                                {
+                                    selectedTool = await CreateDummyTool();
+                                    toolFormularModel = selectedTool.Clone();
+                                    toolFormularModel.stationID = selectedStation.stationID;
+                                }
                                 StateHasChanged();
                             }
                             break;
@@ -1272,7 +1351,7 @@
                                         selectedOperation = updatedOperation;
                                         operationFormularModel = selectedOperation.Clone();
                                         operationFormularModel.operationID = selectedOperation.operationID;
-										operationFormularModel.toolID = selectedOperation.toolID;
+                                        operationFormularModel.toolID = selectedOperation.toolID;
                                     }
                                     StateHasChanged();
                                 }
@@ -1290,6 +1369,14 @@
                             {
                                 operationList.Add(newOperation);
                                 allOperations = operationList.AsEnumerable();
+
+
+                                if(newOperation.modifiedBy == UsernameService.Username)
+                                {
+                                    selectedOperation = await CreateDummyOP();
+                                    operationFormularModel = selectedOperation.Clone();
+                                    operationFormularModel.toolID = selectedTool.toolID;
+                                }
                                 StateHasChanged();
                             }
                             break;
@@ -1318,21 +1405,25 @@
 
 
 
-                    
-                    case "LineDeleted":
 
-                        if (line != null)
+                    case var msg when msg.StartsWith("LineDeleted;"):
                         {
-                            var stillExists = await Fassade.GetLineByName(lineName);
-                            if (stillExists == null)
+                            var parts = msg.Split(';');
+                            var lineID = int.Parse(parts[1]);
+                            if (line != null)
                             {
+                                var stillExists = await Fassade.GetLine(lineID);
+                                if (stillExists == null && line.lineID == lineID)
+                                {
 
-                                NavState.SetCurrentRoute("/");
-                                Navigation.NavigateTo("/", replace: true);
-                                return;
+                                    NavState.SetCurrentRoute("/");
+                                    Navigation.NavigateTo("/", replace: true);
+                                    return;
+                                }
                             }
+                            break;
                         }
-                        break;
+                        
                 }
             }
             StateHasChanged();
