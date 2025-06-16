@@ -10,7 +10,10 @@
 <div class="container-lg px-3">
 
 	<div class="class-header justify-content-between align-items-center">
-		<h2>Station</h2>
+		
+		<MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
+							Station
+		</MudText>
 		<div class="d-flex justify-content-end align-items-center gap-2"> 
 			@if (errorMessages.ContainsKey("General"))
 			{
@@ -27,16 +30,19 @@
 			@if (SelectedStation?.stationID != 0)
 			{
 				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm"  @onclick="UpdateStationAsync">Update</button>
+						<MudButton StartIcon="@Icons.Material.Filled.Add"
+							   Variant="Variant.Filled"
+							   Color="Color.Primary"
+								   Class="btn btn-primary btn-sm add-station-btn"
+							   @onclick="UpdateStationAsync">
+						Save
+					</MudButton>
 				</div>
+
+
+					
 			}
 
-			@if (SelectedStation?.stationID != 0)
-			{
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<button class="btn btn-primary btn-sm" @onclick="DeleteStationAsync">Delete</button>
-				</div>
-			}
 		</div>
 	</div>
 
@@ -45,50 +51,94 @@
 	<div class="layout position-relative">
 		<div class="stationColoumn">
 
-			<div class="form-floating mb-3">
-				<input type="text" class="form-control @(errorMessages.ContainsKey("Assemblystation") ? "is-invalid" : "")" maxlength="10" placeholder="" @onblur="CheckIfDirty" @bind="SelectedStation.assemblystation">
-				<label>Assemblystation</label>
-				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-					@($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
-				</span>
-				@if (errorMessages.ContainsKey("Assemblystation"))
+			<MudTextField @bind-Value="SelectedStation.assemblystation"
+			  Label="Assemblystation"
+			  Variant="Variant.Filled"
+			  MaxLength="10"
+			  Class="search-field-enhanced"
+			  Margin="Margin.Dense"
+			  Immediate="true"
+			  OnBlur="CheckIfDirty"
+			  Error="@errorMessages.ContainsKey("Assemblystation")"
+			  ErrorText="@errorMessages.GetValueOrDefault("Assemblystation")" />
+			<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+							@($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
+			</span>
+
+
+			<MudTextField @bind-Value="SelectedStation.stationName"
+			  Label="Assemblystation Description"
+			  Variant="Variant.Filled"
+			  MaxLength="50"
+			  Class="search-field-enhanced"
+			  Margin="Margin.Dense"
+			  Immediate="true"
+			  OnBlur="CheckIfDirty" />
+			<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+							@($"{SelectedStation?.stationName?.Length ?? 0}/50")
+			</span>
+
+			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID"
+		   Variant="Variant.Filled" Class="search-field-enhanced" Margin="Margin.Dense" OnBlur="CheckIfDirty">
+				@if (stationTypes != null)
 				{
-					<div class="invalid-feedback">@errorMessages["Assemblystation"]</div>
-				}
-			</div>
-
-			<div class="form-floating mb-3">
-				<input type="text" class="form-control" placeholder="" maxlength="50" @onblur="CheckIfDirty" @bind="SelectedStation.stationName">
-				<label>Assemblystation Description</label>
-				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-					@($"{SelectedStation?.stationName?.Length ?? 0}/50")
-				</span>
-			</div>
-
-			<div class="form-floating mb-3">
-				<select class="form-select " id="StationType" @onblur="CheckIfDirty"  @bind="SelectedStation.stationTypeID">
-					@if (stationTypes != null)
+					@foreach (var stationType in stationTypes)
 					{
-						@foreach (var stationType in stationTypes)
-						{
-							<option value="@stationType.stationTypeID">@stationType.stationTypeName</option>
-						}
+					<MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
 					}
-				</select>
-				<label for="StationType">Station Type</label>
-			</div>
-			<div class="form-floating mb-3">
-				<textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" @onblur="CheckIfDirty" @bind="SelectedStation.Comment" maxlength="1000"></textarea>
-				<label>Comment</label>
+				}
+           </MudSelect>
+
+			<MudTextField @bind-Value="SelectedStation.Comment"
+			  Label="Comment"
+			  Variant="Variant.Filled"
+			  Class="search-field-enhanced"
+			  Margin="Margin.Dense"
+			  Immediate="true"
+			  OnBlur="CheckIfDirty"
+			  MaxLength="1000"
+			  Lines="5"
+			  TextArea="true" />
 				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-					@($"{SelectedStation?.Comment.Length ?? 0}/1000")
+								@($"{SelectedStation?.Comment.Length ?? 0}/1000")
 				</span>
-			</div>
+
 
 		</div>
 
 	</div>
 </div>
+
+
+
+<style>
+
+	.search-field-enhanced {
+	background-color: #f0f5fa !important; /* leicht kühles, helles Grau */
+	border-radius: 12px !important;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+	transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out !important;
+}
+
+.search-field-enhanced:hover {
+	background-color: #e4ecf7 !important; /* etwas dunkleres Grau beim Hover */
+	box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Falls du auch Outlined-Variante benutzt, setzen wir den Hintergrund hier auch */
+.search-field-enhanced .mud-input-outlined {
+	background: #f0f5fa !important;
+	border-radius: 12px !important;
+}
+
+.add-station-btn {
+		border-radius: 8px !important;
+		box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
+		transition: all 0.2s ease-in-out;
+		background-color: var(--mud-palette-primary);
+		color: white !important;
+	}
+</style>
 
 @code {
 
