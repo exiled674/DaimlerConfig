@@ -15,14 +15,16 @@
 
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
+@inject ISnackbar Snackbar
+@implements IAsyncDisposable
 @using MudBlazor
 @inject IDialogService DialogService
 
 
 
 
-    <!-- Navbar -->
-        <!-- Navbar -->
+<!-- Navbar -->
+<!-- Navbar -->
 <MudAppBar Elevation="4" Color="Color.Primary" Class="navbar-aligned" Style="height: 64px;">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
 
@@ -30,9 +32,9 @@
 
     <!-- Haus Icon links -->
     <MudIconButton href="/" Icon="@Icons.Material.Filled.Home"
-                   Color="Color.Inherit"
-                   Size="Size.Large"
-                   Class="mr-3" />
+    Color="Color.Inherit"
+    Size="Size.Large"
+    Class="mr-3" />
 
     <!-- Titel in der Mitte -->
     <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center pa-0" Style="flex-grow: 1;">
@@ -50,16 +52,16 @@
 
         <!-- Einstellungen -->
         <MudIconButton Icon="@Icons.Material.Filled.Settings"
-                       Color="Color.Inherit"
-                       Size="Size.Large"
-                       OnClick="OpenSettings"
-                       Class="settings-aligned" />
+        Color="Color.Inherit"
+        Size="Size.Large"
+        OnClick="OpenSettings"
+        Class="settings-aligned" />
     </div>
 </MudAppBar>
 
 @if (ShowSettings)
 {
-                    <Settings OnClosing="CloseSetting" />
+    <Settings OnClosing="CloseSetting" />
 }
 
 
@@ -78,13 +80,13 @@
 
 
 
-    <div class="pa-2">
+        <div class="pa-2">
             <MudButton StartIcon="@Icons.Material.Filled.Add"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
+            Variant="Variant.Filled"
+            Color="Color.Primary"
 
-                       Class="add-station-btn w-100 justify-start px-3 py-2"
-                       @onclick="() => ToggleStationFormular(true)">
+            Class="add-station-btn w-100 justify-start px-3 py-2"
+            @onclick="() => ToggleStationFormular(true)">
                 Station
             </MudButton>
 
@@ -95,8 +97,8 @@
             @foreach (var station in stations)
             {
                 <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
-                         Elevation="3"
-                         @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                Elevation="3"
+                @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
                     <MudCardContent Class="pa-3">
                         <MudGrid AlignItems="Center" Spacing="0">
                             <MudItem xs="10">
@@ -116,23 +118,23 @@
                             <MudItem xs="2" Class="d-flex justify-end">
                                 <div @onclick:stopPropagation="true">
                                     <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                             Size="Size.Small"
-                                             Dense="true"
-                                             AnchorOrigin="Origin.BottomRight"
-                                             TransformOrigin="Origin.TopRight">
+                                    Size="Size.Small"
+                                    Dense="true"
+                                    AnchorOrigin="Origin.BottomRight"
+                                    TransformOrigin="Origin.TopRight">
 
 
 
                                         <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
-                                                     Icon="@Icons.Material.Filled.ContentPaste"
-                                                     Disabled="@(copiedTool == null || selectedStation == null)">
+                                        Icon="@Icons.Material.Filled.ContentPaste"
+                                        Disabled="@(copiedTool == null || selectedStation == null)">
                                             Insert Tool
                                         </MudMenuItem>
 
 
                                         <MudMenuItem OnClick="@(() => DeleteStation(station))"
-                                                     Icon="@Icons.Material.Filled.Delete"
-                                                     IconColor="Color.Error">
+                                        Icon="@Icons.Material.Filled.Delete"
+                                        IconColor="Color.Error">
                                             Delete
                                         </MudMenuItem>
                                     </MudMenu>
@@ -144,11 +146,11 @@
             }
 
 
-     
 
-       
-    </div>
-</MudDrawer>
+
+
+        </div>
+    </MudDrawer>
 
     <MudMainContent Class="pt-0 pe-16 ps-0" style=" min-height: 100vh;">
 
@@ -166,16 +168,16 @@
                         </MudText>
                         @if (selectedStation != null)
                         {
-                         
 
-                                   <MudButton StartIcon="@Icons.Material.Filled.Add"
-               Variant="Variant.Filled"
-               Color="Color.Primary"
-               Class="add-station-btn justify-start px-3 py-2"
-               Style="width: 213px; height: 40.5px;"
-               @onclick="() => ToggleToolFormular(true)">
-        Tool
-    </MudButton>
+
+                            <MudButton StartIcon="@Icons.Material.Filled.Add"
+                            Variant="Variant.Filled"
+                            Color="Color.Primary"
+                            Class="add-station-btn justify-start px-3 py-2"
+                            Style="width: 213px; height: 40.5px;"
+                            @onclick="() => ToggleToolFormular(true)">
+                                Tool
+                            </MudButton>
 
 
                         }
@@ -195,144 +197,144 @@
                         {
 
                             <MudList T="string" Clickable="false">
-    @foreach (var tool in tools)
-    {
-                                    <MudCard Class="@($"station-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")"
-                                             Elevation="3">
-            <MudCardContent Class="pa-0">
-                <!-- Tool Header als klickbarer Bereich -->
-                <MudListItem Class="pa-3"
-                             @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }"
-                             Selected="@(selectedTool?.toolID == tool.toolID)">
-                    <MudGrid AlignItems="Center" Spacing="0">
-                        <MudItem xs="10">
-                            <div class="d-flex align-items-center" style="gap: 8px;">
-                                <!-- Status Badge -->
-                                <div @onclick="() => CycleColour(tool)" @onclick:stopPropagation="true">
-                                    <button class="btn btn-secondary btn-sm mr-2">
-                                        <Badge colour="@GetBadgeColour(tool.Status)" />
-                                    </button>
-
-                                </div>
-
-                                <!-- Tool Name -->
-                                <span class="tool-name">
-                                    @tool.toolShortname
-                                </span>
-                            </div>
-                        </MudItem>
-
-                        <MudItem xs="2" Class="d-flex justify-end">
-                            <div @onclick:stopPropagation="true">
-                                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                         Size="Size.Small"
-                                         Dense="true"
-                                         AnchorOrigin="Origin.BottomRight"
-                                         TransformOrigin="Origin.TopRight">
-
-                                    <MudMenuItem OnClick="@(() => CloneTool(tool))"
-                                                 Icon="@Icons.Material.Filled.ContentCopy">
-                                        Copy
-                                    </MudMenuItem>
-
-                                    <MudMenuItem OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
-                                                 Icon="@Icons.Material.Filled.ContentPaste"
-                                                 Disabled="@(copiedOperation == null || selectedTool == null)">
-                                        Insert Operation
-                                    </MudMenuItem>
-
-                                    <MudMenuItem OnClick="@(() => DeleteTool(tool))"
-                                                 Icon="@Icons.Material.Filled.Delete"
-                                                 IconColor="Color.Error">
-                                        Delete
-                                    </MudMenuItem>
-                                </MudMenu>
-                            </div>
-                        </MudItem>
-                    </MudGrid>
-                </MudListItem>
-
-                <!-- Operations Section -->
-                <MudStack Spacing="1" Class="mt-0 mb-2 px-3">
-                    <MudDivider Class="thick-divider" />
-
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
-                                           Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
-                                           Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
-                                           @onclick="() => ToggleExpand(tool.toolID.Value)" />
-                            <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
-                                Operationen (@allOperations.Count(op => op.toolID == tool.toolID))
-                            </MudText>
-                        </div>
-
-                        <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                       Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 28px; height: 28px; padding: 0;"
-                                       @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }"
-                                       AriaLabel="Add Operation" />
-                    </div>
-                </MudStack>
-
-                <!-- Operationen -->
-                <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)">
-                    <div class="pl-3 pr-3 pb-3">
-                        <MudList T="Operation" Dense="true">
-                            @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
-                            {
-                                                            <MudListItem Class="@($"px-2 py-1 {(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
-                                                                         @onclick="() => OnOperationClicked(operation, false)"
-                                                                         Selected="@(selectedOperation?.operationID == operation.operationID)">
-                                    
-                                    <MudGrid AlignItems="Center" Spacing="0">
-                                        <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
-                                            <div @onclick="() => CycleColour(operation)" @onclick:stopPropagation="true">
-                                                <button class="btn btn-secondary btn-sm mr-2">
-                                                    <Badge colour="@GetBadgeColour(operation.Status)" />
-                                                </button>
-                                            </div>
-
-                                            <span class="operation-name">
-                                                @operation.operationShortname
-                                            </span>
-                                        </MudItem>
-
-                                        <MudItem xs="2" Class="d-flex justify-end">
-                                            <div @onclick:stopPropagation="true">
-                                                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                                         Size="Size.Small"
-                                                         Dense="true"
-                                                         AnchorOrigin="Origin.BottomRight"
-                                                         TransformOrigin="Origin.TopRight">
-                                                    <MudMenuItem OnClick="@(() => CloneOperation(operation))"
-                                                                 Icon="@Icons.Material.Filled.ContentCopy">
-                                                        Copy
-                                                    </MudMenuItem>
-
-                                                    <MudMenuItem OnClick="@(() => DeleteOperation(operation))"
-                                                                 Icon="@Icons.Material.Filled.Delete"
-                                                                 IconColor="Color.Error">
-                                                        Delete
-                                                    </MudMenuItem>
-                                                </MudMenu>
-                                            </div>
-                                        </MudItem>
-                                    </MudGrid>
-                                </MudListItem>
-                                
-                                <!-- Divider zwischen Operationen (außer bei der letzten) -->
-                                @if (operation != allOperations.Where(op => op.toolID == tool.toolID).Last())
+                                @foreach (var tool in tools)
                                 {
-                                    <MudDivider />
+                                    <MudCard Class="@($"station-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")"
+                                    Elevation="3">
+                                        <MudCardContent Class="pa-0">
+                                            <!-- Tool Header als klickbarer Bereich -->
+                                            <MudListItem Class="pa-3"
+                                            @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }"
+                                            Selected="@(selectedTool?.toolID == tool.toolID)">
+                                                <MudGrid AlignItems="Center" Spacing="0">
+                                                    <MudItem xs="10">
+                                                        <div class="d-flex align-items-center" style="gap: 8px;">
+                                                            <!-- Status Badge -->
+                                                            <div @onclick="() => CycleColour(tool)" @onclick:stopPropagation="true">
+                                                                <button class="btn btn-secondary btn-sm mr-2">
+                                                                    <Badge colour="@GetBadgeColour(tool.Status)" />
+                                                                </button>
+
+                                                            </div>
+
+                                                            <!-- Tool Name -->
+                                                            <span class="tool-name">
+                                                                @tool.toolShortname
+                                                            </span>
+                                                        </div>
+                                                    </MudItem>
+
+                                                    <MudItem xs="2" Class="d-flex justify-end">
+                                                        <div @onclick:stopPropagation="true">
+                                                            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                                            Size="Size.Small"
+                                                            Dense="true"
+                                                            AnchorOrigin="Origin.BottomRight"
+                                                            TransformOrigin="Origin.TopRight">
+
+                                                                <MudMenuItem OnClick="@(() => CloneTool(tool))"
+                                                                Icon="@Icons.Material.Filled.ContentCopy">
+                                                                    Copy
+                                                                </MudMenuItem>
+
+                                                                <MudMenuItem OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
+                                                                Icon="@Icons.Material.Filled.ContentPaste"
+                                                                Disabled="@(copiedOperation == null || selectedTool == null)">
+                                                                    Insert Operation
+                                                                </MudMenuItem>
+
+                                                                <MudMenuItem OnClick="@(() => DeleteTool(tool))"
+                                                                Icon="@Icons.Material.Filled.Delete"
+                                                                IconColor="Color.Error">
+                                                                    Delete
+                                                                </MudMenuItem>
+                                                            </MudMenu>
+                                                        </div>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            </MudListItem>
+
+                                            <!-- Operations Section -->
+                                            <MudStack Spacing="1" Class="mt-0 mb-2 px-3">
+                                                <MudDivider Class="thick-divider" />
+
+                                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                                        <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                                                        Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
+                                                        Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
+                                                        @onclick="() => ToggleExpand(tool.toolID.Value)" />
+                                                        <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
+                                                            Operationen (@allOperations.Count(op => op.toolID == tool.toolID))
+                                                        </MudText>
+                                                    </div>
+
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                    Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 28px; height: 28px; padding: 0;"
+                                                    @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }"
+                                                    AriaLabel="Add Operation" />
+                                                </div>
+                                            </MudStack>
+
+                                            <!-- Operationen -->
+                                            <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)">
+                                                <div class="pl-3 pr-3 pb-3">
+                                                    <MudList T="Operation" Dense="true">
+                                                        @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
+                                                        {
+                                                            <MudListItem Class="@($"px-2 py-1 {(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
+                                                            @onclick="() => { OnOperationClicked(operation, false); SelectItem(operation); }"
+                                                            Selected="@(selectedOperation?.operationID == operation.operationID)">
+
+                                                                <MudGrid AlignItems="Center" Spacing="0">
+                                                                    <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
+                                                                        <div @onclick="() => CycleColour(operation)" @onclick:stopPropagation="true">
+                                                                            <button class="btn btn-secondary btn-sm mr-2">
+                                                                                <Badge colour="@GetBadgeColour(operation.Status)" />
+                                                                            </button>
+                                                                        </div>
+
+                                                                        <span class="operation-name">
+                                                                            @operation.operationShortname
+                                                                        </span>
+                                                                    </MudItem>
+
+                                                                    <MudItem xs="2" Class="d-flex justify-end">
+                                                                        <div @onclick:stopPropagation="true">
+                                                                            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                                                            Size="Size.Small"
+                                                                            Dense="true"
+                                                                            AnchorOrigin="Origin.BottomRight"
+                                                                            TransformOrigin="Origin.TopRight">
+                                                                                <MudMenuItem OnClick="@(() => CloneOperation(operation))"
+                                                                                Icon="@Icons.Material.Filled.ContentCopy">
+                                                                                    Copy
+                                                                                </MudMenuItem>
+
+                                                                                <MudMenuItem OnClick="@(() => DeleteOperation(operation))"
+                                                                                Icon="@Icons.Material.Filled.Delete"
+                                                                                IconColor="Color.Error">
+                                                                                    Delete
+                                                                                </MudMenuItem>
+                                                                            </MudMenu>
+                                                                        </div>
+                                                                    </MudItem>
+                                                                </MudGrid>
+                                                            </MudListItem>
+
+                                                            <!-- Divider zwischen Operationen (außer bei der letzten) -->
+                                                            @if (operation != allOperations.Where(op => op.toolID == tool.toolID).Last())
+                                                            {
+                                                                <MudDivider />
+                                                            }
+                                                        }
+                                                    </MudList>
+                                                </div>
+                                            </MudCollapse>
+                                        </MudCardContent>
+                                    </MudCard>
                                 }
-                            }
-                        </MudList>
-                    </div>
-                </MudCollapse>
-            </MudCardContent>
-        </MudCard>
-    }
-</MudList>
+                            </MudList>
 
 
                         }
@@ -376,195 +378,195 @@
                 </div>
             </main>
         </div>
-    @if (showPopup)
-    {
-        <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
-    }
+        @if (showPopup)
+        {
+            <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
+        }
 
     </MudMainContent>
-    </MudLayout>
+</MudLayout>
 
 
 
 
-    <style>
+<style>
 
     /* Auswahl-Hervorhebung für Operationen */
     .mud-list-item.mud-selected {
-        background-color: rgba(0, 123, 255, 0.1) !important; /* sanftes Blau bei Auswahl */
+    background-color: rgba(0, 123, 255, 0.1) !important; /* sanftes Blau bei Auswahl */
     }
 
     /* Hover-Effekt für bessere UX */
     .mud-list-item:hover:not(.mud-selected) {
-        background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(0, 0, 0, 0.04);
     }
 
     .operation-name {
-        pointer-events: none; /* Verhindert doppelte Klick-Events */
+    pointer-events: none; /* Verhindert doppelte Klick-Events */
     }
 
     .thick-divider {
-        border-top: #333333;
+    border-top: #333333;
     }
-    
+
 
     .chevron-icon {
-        transition: transform 0.3s ease;
+    transition: transform 0.3s ease;
     }
 
-        .chevron-icon.rotated {
-            transform: rotate(90deg);
-        }
-.station-card {
+    .chevron-icon.rotated {
+    transform: rotate(90deg);
+    }
+    .station-card {
     border: 2px solid rgba(0,0,0,0.08);
     border-radius: 8px !important;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
     background:  white;
-}
-
-.station-card:hover {
-            border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 50%, white) !important;
-            box-shadow: 0px 27px 20px rgba(0, 0, 0, 0.12);
-    transform: translateY(-1px);
-}
-
-.station-selected {
-    border-color: var(--mud-palette-primary) !important;
-   
-        box-shadow: 0px 27px 20px rgba(0, 0, 0, 0.12);
-        transform: translateY(-1px);
-}
-
-.station-selected:hover {
-     border-color: var(--mud-palette-primary) !important;
-}
-
-
-
-.drag-handle {
-    opacity: 0.6;
-    transition: opacity 0.2s ease;
-}
-
-.station-card:hover .drag-handle {
-    opacity: 1;
-}
-
-    .add-station-btn {
-        border-radius: 8px !important;
-        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
-        transition: all 0.2s ease-in-out;
-        background-color: var(--mud-palette-primary);
-        color: white !important;
     }
 
-        .add-station-btn:hover {
-            background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
-            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
-        }
+    .station-card:hover {
+    border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 50%, white) !important;
+    box-shadow: 0px 27px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+    }
+
+    .station-selected {
+    border-color: var(--mud-palette-primary) !important;
+
+    box-shadow: 0px 27px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+    }
+
+    .station-selected:hover {
+    border-color: var(--mud-palette-primary) !important;
+    }
 
 
-.text-muted {
+
+    .drag-handle {
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    }
+
+    .station-card:hover .drag-handle {
+    opacity: 1;
+    }
+
+    .add-station-btn {
+    border-radius: 8px !important;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease-in-out;
+    background-color: var(--mud-palette-primary);
+    color: white !important;
+    }
+
+    .add-station-btn:hover {
+    background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+
+    .text-muted {
     color: var(--mud-palette-text-secondary) !important;
-}
+    }
 
 
 
 
     /* Drag and drop zeug */
-    
+
     .draggable {
-        user-select: none;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-        position: relative;
-        z-index: 1;
-        cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
     }
 
-        .draggable.dragging,
-        .is-dragging {
-            opacity: 0.8;
-            background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
-            border: 2px solid var(--mud-palette-primary);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            transform: scale(1.03) rotate(1deg);
-            z-index: 999;
-            cursor: pointer;
-        }
+    .draggable.dragging,
+    .is-dragging {
+    opacity: 0.8;
+    background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
+    border: 2px solid var(--mud-palette-primary);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(1.03) rotate(1deg);
+    z-index: 999;
+    cursor: pointer;
+    }
 
 
     #toolsList.drag-active,
     .operation-list.drag-active,
     .drop-zone.drag-active {
-        background-color: rgba(33, 150, 243, 0.03);
-        border: 2px dashed #2196f3;
-        border-radius: 12px;
-        padding: 8px;
-        margin: 4px 0;
-        min-height: 60px;
-        transition: all 0.3s ease;
-        cursor: pointer;
+    background-color: rgba(33, 150, 243, 0.03);
+    border: 2px dashed #2196f3;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 4px 0;
+    min-height: 60px;
+    transition: all 0.3s ease;
+    cursor: pointer;
     }
 
 
-        #toolsList.drag-active:hover,
-        .operation-list.drag-active:hover,
-        .drop-zone.drag-active:hover {
-            background-color: rgba(33, 150, 243, 0.06);
-            border-color: #1976d2;
-            cursor: pointer;
-        }
+    #toolsList.drag-active:hover,
+    .operation-list.drag-active:hover,
+    .drop-zone.drag-active:hover {
+    background-color: rgba(33, 150, 243, 0.06);
+    border-color: #1976d2;
+    cursor: pointer;
+    }
 
 
     .drop-zone-placeholder {
-        background-color: rgba(33, 150, 243, 0.02);
-        border: 2px dashed rgba(33, 150, 243, 0.3);
-        border-radius: 12px;
-        padding: 16px;
-        text-align: center;
-        color: rgba(33, 150, 243, 0.6);
-        font-style: italic;
-        min-height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        cursor: pointer;
+    background-color: rgba(33, 150, 243, 0.02);
+    border: 2px dashed rgba(33, 150, 243, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    color: rgba(33, 150, 243, 0.6);
+    font-style: italic;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
     }
 
-        .drop-zone-placeholder:hover {
-            border-color: rgba(33, 150, 243, 0.5);
-            background-color: rgba(33, 150, 243, 0.04);
-            cursor: pointer;
-        }
+    .drop-zone-placeholder:hover {
+    border-color: rgba(33, 150, 243, 0.5);
+    background-color: rgba(33, 150, 243, 0.04);
+    cursor: pointer;
+    }
 
 
 
     .operation-item-wrapper {
-        position: relative;
+    position: relative;
     }
 
     .operation-clickable-area {
-        cursor: pointer;
-        border-radius: 4px;
-        padding: 4px 8px;
-        transition: background-color 0.2s ease;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px 8px;
+    transition: background-color 0.2s ease;
     }
 
-        .operation-clickable-area:hover {
-            background-color: rgba(0, 0, 0, 0.04);
-        }
+    .operation-clickable-area:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    }
 
     .operation-name {
-        pointer-events: none; /* Verhindert doppelte Klick-Events */
+    pointer-events: none; /* Verhindert doppelte Klick-Events */
     }
 
     /* Entfernt den clickable Cursor von ursprünglichen Elementen, da jetzt der Container klickbar ist */
     .operation-clickable-area .clickable {
-        cursor: inherit;
+    cursor: inherit;
     }
-    
+
 </style>
 
 @code {
@@ -720,6 +722,7 @@
         {
             pendingStation = null;
             selectedStation = station;
+            selectedItem = null;
 
             await UnlockTool();
             selectedTool = await CreateDummyTool();
@@ -820,7 +823,7 @@
 
     private async Task ToggleToolFormular(bool isNewTool)
     {
-       
+
 
 
         if (isNewTool)
@@ -1277,7 +1280,7 @@
                             var toolID = int.Parse(parts[1]);
                             var toolList = tools.ToList();
                             var newTool = await Fassade.GetTool(toolID);
-                            if (newTool != null && !toolList.Any(s => s.toolID == toolID) && newTool.stationID == selectedStation.stationID)
+                            if (selectedStation != null && newTool != null && !toolList.Any(s => s.toolID == toolID) && newTool.stationID == selectedStation.stationID)
                             {
                                 toolList.Add(newTool);
                                 tools = toolList.AsEnumerable();
@@ -1447,7 +1450,7 @@
                             }
                             break;
                         }
-                        
+
                 }
             }
             StateHasChanged();
@@ -1490,7 +1493,7 @@
     private Operation? copiedOperation;
     public async Task CloneTool(Tool copied)
     {
-
+        if (copiedOperation != null) copiedOperation = null;
         copiedTool = Fassade.Clone(copied);
         copiedTool.isLocked = false;
         copiedTool.lockedBy = null;
@@ -1500,6 +1503,7 @@
 
     public void CloneOperation(Operation copied)
     {
+        if (copiedTool != null) copiedTool = null;
         copiedOperation = Fassade.Clone(copied);
         copiedOperation.isLocked = false;
         copiedOperation.lockedBy = null;
@@ -1530,15 +1534,15 @@
 
 
         await Fassade.AddTool(copiedTool);
-		
-        
+
+
         copiedTool = await Fassade.GetToolByName(copiedTool.toolShortname, selectedStation.stationID.Value);
         await SignalRService.SendMessageToServer($"ToolCreated;{copiedTool.toolID}");
         foreach(var operation in copiedOperations)
         {
             operation.toolID = copiedTool.toolID;
             await Fassade.AddOperation(operation);
-			var signalOperation = await Fassade.GetOperationByName(operation.operationShortname, copiedTool.toolID.Value);
+            var signalOperation = await Fassade.GetOperationByName(operation.operationShortname, copiedTool.toolID.Value);
             await SignalRService.SendMessageToServer($"OperationCreated;{signalOperation.operationID}");
         }
 
@@ -1575,7 +1579,7 @@
         }
 
         await Fassade.AddOperation(copiedOperation);
-		copiedOperation = await Fassade.GetOperationByName(copiedOperation.operationShortname, selectedTool.toolID.Value);
+        copiedOperation = await Fassade.GetOperationByName(copiedOperation.operationShortname, selectedTool.toolID.Value);
         await SignalRService.SendMessageToServer($"OperationCreated;{copiedOperation.operationID}");
         await DirtyManagerService.setClean();
 
@@ -1593,6 +1597,9 @@
         if (firstRender && !_initialized)
         {
             _initialized = true;
+
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("keyboardHandler.addKeyListener", objRef);
 
             // Initialize drag and drop for stations
             await JS.InvokeVoidAsync("initializeStationDragDrop");
@@ -1753,8 +1760,8 @@
 
                         toolFormularModel = tool.Clone();
                         toolFormularModel.stationID = selectedTool.stationID;
-						toolFormularModel.toolID = selectedTool.toolID;
-                       
+                        toolFormularModel.toolID = selectedTool.toolID;
+
                         toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != UsernameService.Username;
 
 
@@ -1767,7 +1774,7 @@
 
                                 operationFormularModel = operation.Clone();
                                 operationFormularModel.operationID = selectedOperation.operationID;
-								operationFormularModel.toolID = selectedOperation.toolID;
+                                operationFormularModel.toolID = selectedOperation.toolID;
 
                                 operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != UsernameService.Username;
 
@@ -1988,6 +1995,114 @@
             {
 
             }
+        }
+    }
+
+
+
+
+
+
+    private DotNetObjectReference<Project>? objRef;
+
+    private object? selectedItem;
+
+    void SelectItem(object? item)
+    {
+        selectedItem = item;
+        StateHasChanged(); // UI aktualisieren
+    }
+    // JavaScript-aufrufbare Methoden
+    [JSInvokable]
+    public async Task<bool> HandleCtrlC()
+    {
+        if (selectedItem != null)
+        {
+            if (selectedItem is Tool tool)
+            {
+                if (await Fassade.ToolExistsByName(tool.toolShortname) == true)
+                {
+                    CloneTool(tool);
+                    Snackbar.Add($"Tool '{tool.toolShortname}' wurde kopiert", Severity.Success);
+                    StateHasChanged();
+                    return true;
+                }
+            }
+            else if (selectedItem is Operation operation)
+            {
+                if (await Fassade.OperationExistsByName(operation.operationShortname) == true)
+                {
+                    CloneOperation(operation);
+                    Snackbar.Add($"Operation '{operation.operationShortname}' wurde kopiert", Severity.Success);
+                    StateHasChanged();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    [JSInvokable]
+    public async Task<bool> HandleCtrlV()
+    {
+        if (copiedOperation != null && selectedItem is Tool toolForOperation)
+        {
+            await SelectTool(toolForOperation);
+            await InsertOperation();
+            Snackbar.Add("Operation wurde eingefügt", Severity.Success);
+            StateHasChanged();
+            return true;
+        }
+        else if (copiedTool != null)
+        {
+            await InsertTool();
+            Snackbar.Add("Tool wurde eingefügt", Severity.Success);
+            StateHasChanged();
+            return true;
+        }
+
+        return false;
+    }
+
+
+    [JSInvokable]
+    public async Task<bool> HandleDelete()
+    {
+        if (selectedTool != null)
+        {
+            await DeleteTool(selectedTool);
+            Snackbar.Add($"Tool '{selectedTool.toolShortname}' wurde gelöscht", Severity.Warning);
+            StateHasChanged();
+            return true;
+        }
+        else if (selectedOperation != null)
+        {
+            await DeleteOperation(selectedOperation);
+            Snackbar.Add($"Operation '{selectedOperation.operationShortname}' wurde gelöscht", Severity.Warning);
+            StateHasChanged();
+            return true;
+        }
+
+        return false;
+    }
+
+    [JSInvokable]
+    public async Task HandleEscape()
+    {
+        selectedTool = null;
+        selectedOperation = null;
+        Snackbar.Add("Auswahl aufgehoben", Severity.Info);
+        StateHasChanged();
+    }
+
+    // Cleanup beim Dispose
+    public async ValueTask DisposeAsync()
+    {
+        if (objRef != null)
+        {
+            await JS.InvokeVoidAsync("keyboardHandler.removeKeyListener");
+            objRef.Dispose();
         }
     }
 
