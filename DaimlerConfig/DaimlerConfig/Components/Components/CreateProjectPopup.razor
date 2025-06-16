@@ -4,7 +4,7 @@
 @inject UsernameService usernameService
 @inject SignalRService SignalRService
 
-<MudDialog Style="width:500px; max-width:90vw; border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+<MudDialog Close="true" Style="width:500px; max-width:90vw; border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
     <TitleContent>
         <MudText Typo="Typo.h6" Class="mt-2 ml-2">@(IsEditMode ? "Projekt bearbeiten" : "Neues Projekt")</MudText>
     </TitleContent>

@@ -759,17 +759,22 @@
         { x => x.ExistingLine, line }
     };
 
-        var dialog = DialogService.Show<CreateProjectPopup>("Projekt bearbeiten", parameters);
+        var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+            // DisableBackdropClick = false // Falls deine MudBlazor-Version das unterstützt, sonst weglassen
+            };
+
+        var dialog = DialogService.Show<CreateProjectPopup>("Projekt bearbeiten", parameters, options);
         var resultReference = await dialog.Result;
         var result = resultReference as DialogResult;
 
-        if (result != null && result.Canceled == false)
+        if (result != null && !result.Canceled)
         {
             var newName = result.Data?.ToString();
             Console.WriteLine($"Projekt wurde bearbeitet: {newName}");
 
-            // Die Daten werden bereits durch SignalR aktualisiert
-            // Aber für den Fall, dass SignalR nicht funktioniert:
+            // Daten neu laden falls SignalR nicht funktioniert
             await LoadAllLines();
             UpdateFilteredLines();
         }
@@ -777,21 +782,27 @@
 
     private async Task OpenDialogAsync()
     {
-        var dialog = DialogService.Show<CreateProjectPopup>("Neues Projekt");
+        var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+            // DisableBackdropClick = false // Optional je nach MudBlazor-Version
+            };
+
+        var dialog = DialogService.Show<CreateProjectPopup>("Neues Projekt", options: options);
         var resultReference = await dialog.Result;
         var result = resultReference as DialogResult;
 
-        if (result != null && result.Canceled == false)
+        if (result != null && !result.Canceled)
         {
             var name = result.Data?.ToString();
             Console.WriteLine($"Projektname: {name}");
 
-            // Die Daten werden bereits durch SignalR aktualisiert
-            // Aber für den Fall, dass SignalR nicht funktioniert:
+            // Daten neu laden falls SignalR nicht funktioniert
             await LoadAllLines();
             UpdateFilteredLines();
         }
     }
+
     #endregion
 
 

@@ -31,7 +31,7 @@
 
 
     <!-- Haus Icon links -->
-    <MudIconButton href="/" Icon="@Icons.Material.Filled.Home"
+    <MudIconButton href="/" Icon="@Icons.Material.Filled.Home" OnClick="@(() => { UnlockTool(); UnlockOperation(); })"
     Color="Color.Inherit"
     Size="Size.Large"
     Class="mr-3" />
@@ -2090,10 +2090,10 @@
     [JSInvokable]
     public async Task HandleEscape()
     {
-        selectedTool = null;
+        /*  selectedTool = null;
         selectedOperation = null;
         Snackbar.Add("Auswahl aufgehoben", Severity.Info);
-        StateHasChanged();
+        StateHasChanged();*/
     }
 
     // Cleanup beim Dispose
