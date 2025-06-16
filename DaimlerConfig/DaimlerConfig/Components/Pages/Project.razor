@@ -256,51 +256,55 @@
                                             <!-- Operationen -->
                                             <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)">
                                                 <div class="mt-2 pl-4">
-                                                    @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
-                                                    {
-                                                        <div class="operation-item-wrapper">
-                                                            <MudGrid AlignItems="Center" Class="mb-1 operation-clickable-area"
-                                                                     @onclick="() => OnOperationClicked(operation, false)">
-                                                                <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
-                                                                    <div @onclick="() => CycleColour(operation)" @onclick:stopPropagation="true">
-                                                                        <button class="btn btn-secondary btn-sm mr-2">
-                                                                            <Badge colour="@GetBadgeColour(operation.Status)" />
-                                                                        </button>
-                                                                    </div>
+                                                    <MudList T="Operation" Dense="true">
+                                                        @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
+                                                        {
+                                                            <MudListItem Class="px-2 py-1"
+                                                                         @onclick="() => OnOperationClicked(operation, false)"
+                                                                         Selected="@(selectedOperation?.operationID == operation.operationID)">
 
-                                                                    <span class="operation-name">
-                                                                        @operation.operationShortname
-                                                                    </span>
-                                                                </MudItem>
+                                                                <MudGrid AlignItems="Center" Spacing="0">
+                                                                    <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
+                                                                        <div @onclick="() => CycleColour(operation)" @onclick:stopPropagation="true">
+                                                                            <button class="btn btn-secondary btn-sm mr-2">
+                                                                                <Badge colour="@GetBadgeColour(operation.Status)" />
+                                                                            </button>
+                                                                        </div>
 
-                                                                <MudItem xs="2" Class="d-flex justify-end">
-                                                                    <div @onclick:stopPropagation="true">
-                                                                        <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                                                                 Size="Size.Small"
-                                                                                 Dense="true"
-                                                                                 AnchorOrigin="Origin.BottomRight"
-                                                                                 TransformOrigin="Origin.TopRight">
-                                                                            <MudMenuItem OnClick="@(() => CloneOperation(operation))"
-                                                                                         Icon="@Icons.Material.Filled.ContentCopy">
-                                                                                Copy
-                                                                            </MudMenuItem>
+                                                                        <span class="operation-name">
+                                                                            @operation.operationShortname
+                                                                        </span>
+                                                                    </MudItem>
 
-                                                                            <MudMenuItem Icon="@Icons.Material.Filled.Delete"
-                                                                                         IconColor="Color.Error">
-                                                                                Delete
-                                                                            </MudMenuItem>
-                                                                        </MudMenu>
-                                                                    </div>
-                                                                </MudItem>
-                                                            </MudGrid>
+                                                                    <MudItem xs="2" Class="d-flex justify-end">
+                                                                        <div @onclick:stopPropagation="true">
+                                                                            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                                                                     Size="Size.Small"
+                                                                                     Dense="true"
+                                                                                     AnchorOrigin="Origin.BottomRight"
+                                                                                     TransformOrigin="Origin.TopRight">
+                                                                                <MudMenuItem OnClick="@(() => CloneOperation(operation))"
+                                                                                             Icon="@Icons.Material.Filled.ContentCopy">
+                                                                                    Copy
+                                                                                </MudMenuItem>
+
+                                                                                <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                                                                             IconColor="Color.Error">
+                                                                                    Delete
+                                                                                </MudMenuItem>
+                                                                            </MudMenu>
+                                                                        </div>
+                                                                    </MudItem>
+                                                                </MudGrid>
+                                                            </MudListItem>
 
                                                             <!-- Divider zwischen Operationen (außer bei der letzten) -->
                                                             @if (operation != allOperations.Where(op => op.toolID == tool.toolID).Last())
                                                             {
-                                                                <MudDivider Class="my-1" Style="margin-left: 0; margin-right: 0;" />
+                                                                <MudDivider />
                                                             }
-                                                        </div>
-                                                    }
+                                                        }
+                                                    </MudList>
                                                 </div>
                                             </MudCollapse>
                                         </MudCardContent>
@@ -363,6 +367,21 @@
 
 
     <style>
+
+    /* Auswahl-Hervorhebung für Operationen */
+    .mud-list-item.mud-selected {
+        background-color: rgba(0, 123, 255, 0.1) !important; /* sanftes Blau bei Auswahl */
+    }
+
+    /* Hover-Effekt für bessere UX */
+    .mud-list-item:hover:not(.mud-selected) {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .operation-name {
+        pointer-events: none; /* Verhindert doppelte Klick-Events */
+    }
+
     .thick-divider {
         border-top: #333333;
     }
