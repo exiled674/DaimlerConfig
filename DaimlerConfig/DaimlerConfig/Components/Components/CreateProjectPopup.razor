@@ -40,23 +40,25 @@
 </MudDialog>
 
 <style>
-    .rounded-input .mud-input {
-        border-radius: 10px;
-    }
-
-    .rounded-button {
+    /* Card Hintergrundfarbe */
+    .mud-paper.p-4 {
+        background-color: white !important; /* sehr helles kühles Grau */
         border-radius: 12px;
-        min-width: 100px;
     }
 
-    .search-field-enhanced {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-        transition: box-shadow 0.2s ease-in-out !important;
+    /* Input Hintergrundfarbe etwas dunkler als Card */
+    .search-field-enhanced .mud-input-root {
+        background-color: #e1e8ef !important; /* kühles, helles Grau-Blau, etwas dunkler als Card */
+        color: #202020;
+        border-radius: 12px;
     }
 
-        .search-field-enhanced:hover {
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+        /* Fokuszustand Input */
+        .search-field-enhanced .mud-input-root.mud-focused {
+            background-color: #cbd6e3 !important; /* noch etwas dunkler beim Fokus */
+            box-shadow: 0 0 8px rgba(70,130,180,0.3) !important;
         }
+
 </style>
 
 @code {
