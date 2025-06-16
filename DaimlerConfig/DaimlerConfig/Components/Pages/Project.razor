@@ -1877,6 +1877,7 @@
 
 
                 await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
+                await DirtyManagerService.setClean();
 
 
             }
