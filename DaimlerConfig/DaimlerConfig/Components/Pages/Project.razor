@@ -130,7 +130,7 @@
                                         </MudMenuItem>
 
 
-                                        <MudMenuItem 
+                                        <MudMenuItem OnClick="@(() => DeleteStation(station))"
                                                      Icon="@Icons.Material.Filled.Delete"
                                                      IconColor="Color.Error">
                                             Delete
@@ -1940,6 +1940,46 @@
 
 
                 await SignalRService.SendMessageToServer($"OperationDeleted;{operation.operationID}");
+                await DirtyManagerService.setClean();
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+
+
+
+    private async Task DeleteStation(Station station)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+    {
+        { x => x.ContentText, $"Möchten Sie die Station \"{station.assemblystation}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden." },
+        { x => x.ButtonText, "Löschen" },
+        { x => x.Color, Color.Error }
+    };
+
+        var options = new DialogOptions()
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                CloseOnEscapeKey = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Projekt löschen", parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                await Fassade.DeleteStation(station);
+
+
+                await SignalRService.SendMessageToServer($"StationDeleted;{station.stationID}");
                 await DirtyManagerService.setClean();
 
 
