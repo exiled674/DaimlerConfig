@@ -286,7 +286,8 @@
                                                         Copy
                                                     </MudMenuItem>
 
-                                                    <MudMenuItem Icon="@Icons.Material.Filled.Delete"
+                                                    <MudMenuItem OnClick="@(() => DeleteOperation(operation))"
+                                                                 Icon="@Icons.Material.Filled.Delete"
                                                                  IconColor="Color.Error">
                                                         Delete
                                                     </MudMenuItem>
@@ -1877,6 +1878,45 @@
 
 
                 await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
+                await DirtyManagerService.setClean();
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+
+
+    private async Task DeleteOperation(Operation operation)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+    {
+        { x => x.ContentText, $"Möchten Sie die Operation \"{operation.operationShortname}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden." },
+        { x => x.ButtonText, "Löschen" },
+        { x => x.Color, Color.Error }
+    };
+
+        var options = new DialogOptions()
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                CloseOnEscapeKey = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Projekt löschen", parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                await Fassade.DeleteOperation(operation);
+
+
+                await SignalRService.SendMessageToServer($"OperationDeleted;{operation.operationID}");
                 await DirtyManagerService.setClean();
 
 
