@@ -43,3 +43,41 @@ hr {
     color: #333;
 }
 
+
+/* Modernes MudTextField Styling mit Hover-Effekt */
+.mud-modern-textfield .mud-input-root {
+    border-radius: 12px !important;
+    transition: box-shadow 0.2s, background 0.2s;
+    background: #fafbfc;
+}
+
+    .mud-modern-textfield .mud-input-root:hover,
+    .mud-modern-textfield .mud-input-root:focus-within {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        background: #f0f4f8;
+        border-color: #1976d2 !important;
+    }
+
+
+.line-hover:hover {
+    background-color: rgba(var(--mud-palette-primary), 0.1) !important;
+}
+
+.hover-highlight {
+    transition: background-color 0.2s ease;
+}
+
+    .hover-highlight:hover {
+        background-color: #e3f2fd; /* leichtes Blau */
+        cursor: pointer;
+    }
+
+
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }

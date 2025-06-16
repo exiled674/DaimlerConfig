@@ -8,7 +8,6 @@ a {
 }
 
 .main {
-    min-height: 100vh;
     width: 100%;
     overflow: hidden;
     background: white;
@@ -75,9 +74,10 @@ a.sidebar-link {
 
 .tool-operation-panel {
     width: 50% !important;
-    background-color: #f8f9fa;
+    background-color: white;
     border-right: 1px solid #dee2e6;
     padding: 20px;
+    padding-top: 0px;
     overflow-y: auto;
 }
 
@@ -92,9 +92,7 @@ a.sidebar-link {
     min-height: 100vh;
 }
 
-main {
-    min-height: 89vh;
-}
+
 
 .clickable {
     cursor: pointer;
@@ -150,6 +148,7 @@ h6 {
         border-left: 3px solid #0d6efd;
     }
 
+
 /* Enhanced draggable styles */
 .draggable {
     user-select: none;
@@ -167,7 +166,7 @@ h6 {
     }
 
     .draggable:active {
-        cursor: grabbing;
+        cursor: pointer;
     }
 
     /* Enhanced drag states */
@@ -263,7 +262,7 @@ li.sidebar-item {
 }
 
 .tool-draggable {
-    cursor: move;
+    cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
     position: relative;
@@ -312,7 +311,7 @@ li.sidebar-item {
 .drag-handle {
     opacity: 0.4;
     transition: opacity 0.2s ease;
-    cursor: grab;
+    cursor: pointer;
     margin-left: 8px;
 }
 
@@ -321,13 +320,13 @@ li.sidebar-item {
     }
 
     .drag-handle:active {
-        cursor: grabbing;
+        cursor: pointer;
     }
 
 .drag-handle-small {
     opacity: 0.3;
     transition: opacity 0.2s ease;
-    cursor: grab;
+    cursor: pointer;
 }
 
     .drag-handle-small:hover {
