@@ -141,7 +141,7 @@
                         lineID = 0,
                     };
 
-                if (!(await Fassade.AddLine(line)))
+               /**/ if (!(await Fassade.AddLine(line)))
                 {
                     lineExists = true;
                     errorText = "Error with database";

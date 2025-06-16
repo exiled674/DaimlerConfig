@@ -411,7 +411,7 @@
             if (AllLines.Any(l => l.lineID == lineID)) return;
 
             var line = await Fassade.GetLine(lineID);
-            if (line != null)
+            if (line != null && line.modifiedBy != usernameService.Username)
             {
                 AllLines.Add(line);
                 UpdateFilteredLines();
@@ -496,20 +496,26 @@
             string.IsNullOrEmpty(searchText) ||
             line.lineName.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
 
+        // Duplikate entfernen basierend auf lineName
+        var distinctFiltered = filtered
+            .GroupBy(l => l.lineName)
+            .Select(g => g.First()); // oder g.Last(), je nachdem welches behalten werden soll
+
         // Dann sortieren
         FilteredLines = selectedSort switch
         {
-            "name" => filtered.OrderBy(l => l.lineName).ToList(),
-            "date" => filtered.OrderByDescending(l => l.lastModified).ToList(),
-            "favorites" => filtered
+            "name" => distinctFiltered.OrderBy(l => l.lineName).ToList(),
+            "date" => distinctFiltered.OrderByDescending(l => l.lastModified).ToList(),
+            "favorites" => distinctFiltered
                 .OrderByDescending(l => Star.Any(s => s.lineName == l.lineName)) // Favoriten zuerst
                 .ThenBy(l => l.lineName) // Innerhalb beider Gruppen alphabetisch
                 .ToList(),
-            _ => filtered.OrderByDescending(l => l.lastModified).ToList()
+            _ => distinctFiltered.OrderByDescending(l => l.lastModified).ToList()
         };
 
         StateHasChanged();
     }
+
 
 
     /*
