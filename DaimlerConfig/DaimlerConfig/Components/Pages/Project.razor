@@ -105,46 +105,7 @@
                                     <div class="ml-3">
                                         <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
                                             @station.assemblystation
-<<<<<<< HEAD
-                            </MudText>
-                            <MudText Typo="Typo.caption" Class="text-muted">
-                                Status: @station.Status
-                            </MudText>
-                        </div>
-                    </div>
-                </MudItem>
-                <MudItem xs="2" Class="d-flex justify-end">
-                    <div @onclick:stopPropagation="true">
-                        <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                        Size="Size.Small"
-                        Dense="true"
-                        AnchorOrigin="Origin.BottomRight"
-                        TransformOrigin="Origin.TopRight">
-                            <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
-                            Icon="@Icons.Material.Filled.ContentPaste"
-                            Disabled="@(copiedTool == null || selectedStation == null)">
-                                Insert Tool
-                            </MudMenuItem>
-                            <MudMenuItem OnClick="@(() => DeleteStation(station))"
-                            Icon="@Icons.Material.Filled.Delete"
-                            IconColor="Color.Error">
-                                Delete
-                            </MudMenuItem>
 
-                            <MudMenuItem Icon="@Icons.Material.Filled.Circle"
-                            IconColor="Color.Default">
-                                      <MudMenu ActivationEvent="@MouseEvent.MouseOver"
-                                        AnchorOrigin="Origin.TopRight"
-                                        TransformOrigin="Origin.TopLeft">
-                                    <ActivatorContent>
-                                        <span>Status</span>
-                                    </ActivatorContent>
-                                    <ChildContent>
-                                        <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
-                                                Icon="@Icons.Material.Filled.DoneAll"
-                                        IconColor="Color.Success">
-                                            Grün
-=======
                                         </MudText>
                                         <MudText Typo="Typo.caption" Class="text-muted">
                                             @Fassade.Language.Status @station.Status
@@ -187,8 +148,7 @@
                                                     <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
                                                                  Icon="@Icons.Material.Filled.DoneAll"
                                                                  IconColor="Color.Success">
-                                                        Grün
->>>>>>> 01f81a87d307a8bd971efa47b39c38e80159a59b
+                                                                Grün
                                         </MudMenuItem>
                                         <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
                                             Icon="@Icons.Material.Filled.ReportProblem"
