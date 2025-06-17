@@ -15,27 +15,16 @@
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <MudSelect T="int"
-           Label="@Fassade.Language.Versions"
-           @bind-Value="selectedVersionId"
-           Variant="Variant.Outlined"
-           Margin="Margin.Normal"
-           Style="background: white; border-radius: 12px;"
-           Class="flex-grow-1 search-field-enhanced"
-           OnBlur="CheckIfDirty">
-
-    <MudSelectItem T="int" Value="-1">Aktuelle Version</MudSelectItem>
-
-                    @if (ToolVersions != null)
+                <select class="form-select" id="ToolVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
+                    <option value="-1">Aktuelle Version</option>
+                    @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
-                        @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
-                        {
-                    <MudSelectItem T="int" Value="@version.toolVersionID.Value">
-                                @version.modifiedBy?.Split(';')[0] - @version.lastModified
-                    </MudSelectItem>
-                        }
+                        <option value="@version.toolVersionID">
+                            @version.modifiedBy?.Split(';')[0] - @version.lastModified
+                        </option>
                     }
-        </MudSelect>
+                </select>
+
            
 
               
