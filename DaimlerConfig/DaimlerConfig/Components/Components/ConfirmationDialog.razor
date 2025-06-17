@@ -1,5 +1,5 @@
 ﻿@inject DaimlerConfig.Components.Fassade.Fassade Fassade
-<MudDialog Style="border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+<MudDialog Style="border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);" @onkeydown="OnKeyDown">
     <DialogContent>
         <div class="d-flex align-items-center mb-3">
             <MudIcon Icon="@Icons.Material.Filled.Warning"
@@ -49,4 +49,12 @@
     private void Submit() => MudDialog.Close(DialogResult.Ok(true));
 
     private void Cancel() => MudDialog.Cancel();
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            Submit();
+        }
+    }
 }

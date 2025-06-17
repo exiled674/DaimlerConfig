@@ -96,7 +96,7 @@
             {
                 <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
                 Elevation="3"
-                @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
                     <MudCardContent Class="pa-3">
                         <MudGrid AlignItems="Center" Spacing="0">
                             <MudItem xs="10">
@@ -105,16 +105,16 @@
 
                                     <div class="ml-3">
                                         <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
-                                          
-                                                     <MudIcon Icon="@GetStatusIcon(station.Status)"
-             Size="Size.Small"
-             Class="mr-1"
-             Color="@GetStatusColor(station.Status)" />
-                                            
+
+                                            <MudIcon Icon="@GetStatusIcon(station.Status)"
+                                            Size="Size.Small"
+                                            Class="mr-1"
+                                            Color="@GetStatusColor(station.Status)" />
+
 
                                             @station.assemblystation
-                                           </MudText>
-                                       
+                                        </MudText>
+
                                     </div>
                                 </div>
                             </MudItem>
@@ -142,44 +142,44 @@
                                             @Fassade.Language.Delete
                                         </MudMenuItem>
                                         <MudMenuItem Icon="@Icons.Material.Filled.Circle"
-                                                     IconColor="Color.Default">
+                                        IconColor="Color.Default">
                                             <MudMenu ActivationEvent="@MouseEvent.MouseOver"
-                                                     AnchorOrigin="Origin.TopRight"
-                                                     TransformOrigin="Origin.TopLeft">
+                                            AnchorOrigin="Origin.TopRight"
+                                            TransformOrigin="Origin.TopLeft">
                                                 <ActivatorContent>
                                                     <span>Status</span>
                                                 </ActivatorContent>
                                                 <ChildContent>
                                                     <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
-                                                                 Icon="@Icons.Material.Filled.DoneAll"
-                                                                 IconColor="Color.Success">
-                                                                Grün
+                                                    Icon="@Icons.Material.Filled.DoneAll"
+                                                    IconColor="Color.Success">
+                                                        Grün
+                                                    </MudMenuItem>
+                                                    <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
+                                                    Icon="@Icons.Material.Filled.ReportProblem"
+                                                    IconColor="Color.Warning">
+                                                        Gelb
+                                                    </MudMenuItem>
+                                                    <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
+                                                    Icon="@Icons.Material.Filled.Cancel"
+                                                    IconColor="Color.Error">
+                                                        Rot
+                                                    </MudMenuItem>
+                                                    <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
+                                                    Icon="@Icons.Material.Filled.Help"
+                                                    IconColor="Color.Default">
+                                                        Undefined
+                                                    </MudMenuItem>
+                                                </ChildContent>
+                                            </MudMenu>
                                         </MudMenuItem>
-                                        <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
-                                            Icon="@Icons.Material.Filled.ReportProblem"
-                                        IconColor="Color.Warning">
-                                            Gelb
-                                        </MudMenuItem>
-                                        <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
-                                            Icon="@Icons.Material.Filled.Cancel"
-                                        IconColor="Color.Error">
-                                            Rot
-                                        </MudMenuItem>
-                                            <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
-                                            Icon="@Icons.Material.Filled.Help"
-                                        IconColor="Color.Default">
-                                            Undefined
-                                        </MudMenuItem>
-                                    </ChildContent>
-                                </MudMenu>
-                            </MudMenuItem>
 
-                        </MudMenu>
-                    </div>
-                </MudItem>
-            </MudGrid>
-        </MudCardContent>
-    </MudCard>
+                                    </MudMenu>
+                                </div>
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                </MudCard>
             }
 
 
@@ -244,17 +244,17 @@
                                             @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }"
                                             Selected="@(selectedTool?.toolID == tool.toolID)">
                                                 <MudGrid AlignItems="Center" Spacing="0">
-                                                          <MudItem xs="10">
-            <div class="d-flex align-items-center" style="gap: 8px;">
-                <MudIcon Icon="@GetStatusIcon(tool.Status)"
-                         Size="Size.Small"
-                         Class="mr-1"
-                         Color="@GetStatusColor(tool.Status)" />
-                <span class="tool-name">
+                                                    <MudItem xs="10">
+                                                        <div class="d-flex align-items-center" style="gap: 8px;">
+                                                            <MudIcon Icon="@GetStatusIcon(tool.Status)"
+                                                            Size="Size.Small"
+                                                            Class="mr-1"
+                                                            Color="@GetStatusColor(tool.Status)" />
+                                                            <span class="tool-name">
                                                                 @tool.toolShortname
-                </span>
-            </div>
-        </MudItem>
+                                                            </span>
+                                                        </div>
+                                                    </MudItem>
 
 
                                                     <MudItem xs="2" Class="d-flex justify-end">
@@ -283,41 +283,41 @@
                                                                 </MudMenuItem>
 
 
-                                                                
-                            <MudMenuItem Icon="@Icons.Material.Filled.Circle"
-                            IconColor="Color.Default">
-                                      <MudMenu ActivationEvent="@MouseEvent.MouseOver"
-                                        AnchorOrigin="Origin.TopRight"
-                                        TransformOrigin="Origin.TopLeft">
-                                    <ActivatorContent>
-                                        <span>Status</span>
-                                    </ActivatorContent>
-                                    <ChildContent>
-                                        <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
-                                                Icon="@Icons.Material.Filled.DoneAll"
-                                        IconColor="Color.Success">
-                                            Grün
-                                        </MudMenuItem>
-                                        <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
-                                            Icon="@Icons.Material.Filled.ReportProblem"
-                                        IconColor="Color.Warning">
-                                            Gelb
-                                        </MudMenuItem>
-                                        <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
-                                            Icon="@Icons.Material.Filled.Cancel"
-                                        IconColor="Color.Error">
-                                            Rot
-                                        </MudMenuItem>
 
-                                        <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
-                                        Icon="@Icons.Material.Filled.Help"
-                                    IconColor="Color.Default">
-                                        Undefined
-                                    </MudMenuItem>
+                                                                <MudMenuItem Icon="@Icons.Material.Filled.Circle"
+                                                                IconColor="Color.Default">
+                                                                    <MudMenu ActivationEvent="@MouseEvent.MouseOver"
+                                                                    AnchorOrigin="Origin.TopRight"
+                                                                    TransformOrigin="Origin.TopLeft">
+                                                                        <ActivatorContent>
+                                                                            <span>Status</span>
+                                                                        </ActivatorContent>
+                                                                        <ChildContent>
+                                                                            <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
+                                                                            Icon="@Icons.Material.Filled.DoneAll"
+                                                                            IconColor="Color.Success">
+                                                                                Grün
+                                                                            </MudMenuItem>
+                                                                            <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
+                                                                            Icon="@Icons.Material.Filled.ReportProblem"
+                                                                            IconColor="Color.Warning">
+                                                                                Gelb
+                                                                            </MudMenuItem>
+                                                                            <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
+                                                                            Icon="@Icons.Material.Filled.Cancel"
+                                                                            IconColor="Color.Error">
+                                                                                Rot
+                                                                            </MudMenuItem>
 
-                                    </ChildContent>
-                                </MudMenu>
-                            </MudMenuItem>
+                                                                            <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
+                                                                            Icon="@Icons.Material.Filled.Help"
+                                                                            IconColor="Color.Default">
+                                                                                Undefined
+                                                                            </MudMenuItem>
+
+                                                                        </ChildContent>
+                                                                    </MudMenu>
+                                                                </MudMenuItem>
 
 
 
@@ -360,15 +360,15 @@
                                                             Selected="@(selectedOperation?.operationID == operation.operationID)">
 
                                                                 <MudGrid AlignItems="Center" Spacing="0">
-                                                                              <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
-                <MudIcon Icon="@GetStatusIcon(operation.Status)"
-                         Size="Size.Small"
-                         Class="mr-1"
-                         Color="@GetStatusColor(operation.Status)" />
-                <span class="operation-name">
+                                                                    <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
+                                                                        <MudIcon Icon="@GetStatusIcon(operation.Status)"
+                                                                        Size="Size.Small"
+                                                                        Class="mr-1"
+                                                                        Color="@GetStatusColor(operation.Status)" />
+                                                                        <span class="operation-name">
                                                                             @operation.operationShortname
-                </span>
-            </MudItem>
+                                                                        </span>
+                                                                    </MudItem>
 
 
                                                                     <MudItem xs="2" Class="d-flex justify-end">
@@ -390,42 +390,42 @@
                                                                                 </MudMenuItem>
 
 
-                                                                                
-                            <MudMenuItem Icon="@Icons.Material.Filled.Circle"
-                            IconColor="Color.Default">
-                                      <MudMenu ActivationEvent="@MouseEvent.MouseOver"
-                                        AnchorOrigin="Origin.TopRight"
-                                        TransformOrigin="Origin.TopLeft">
-                                    <ActivatorContent>
-                                        <span>Status</span>
-                                    </ActivatorContent>
-                                    <ChildContent>
-                                        <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
-                                                Icon="@Icons.Material.Filled.DoneAll"
-                                        IconColor="Color.Success">
-                                            Grün
-                                        </MudMenuItem>
-                                        <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
-                                            Icon="@Icons.Material.Filled.ReportProblem"
-                                        IconColor="Color.Warning">
-                                            Gelb
-                                        </MudMenuItem>
-                                        <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
-                                            Icon="@Icons.Material.Filled.Cancel"
-                                        IconColor="Color.Error">
-                                            Rot
-                                        </MudMenuItem>
 
-                                        <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
-                                        Icon="@Icons.Material.Filled.Help"
-                                    IconColor="Color.Default">
-                                        Undefined
-                                    </MudMenuItem>
+                                                                                <MudMenuItem Icon="@Icons.Material.Filled.Circle"
+                                                                                IconColor="Color.Default">
+                                                                                    <MudMenu ActivationEvent="@MouseEvent.MouseOver"
+                                                                                    AnchorOrigin="Origin.TopRight"
+                                                                                    TransformOrigin="Origin.TopLeft">
+                                                                                        <ActivatorContent>
+                                                                                            <span>Status</span>
+                                                                                        </ActivatorContent>
+                                                                                        <ChildContent>
+                                                                                            <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
+                                                                                            Icon="@Icons.Material.Filled.DoneAll"
+                                                                                            IconColor="Color.Success">
+                                                                                                Grün
+                                                                                            </MudMenuItem>
+                                                                                            <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
+                                                                                            Icon="@Icons.Material.Filled.ReportProblem"
+                                                                                            IconColor="Color.Warning">
+                                                                                                Gelb
+                                                                                            </MudMenuItem>
+                                                                                            <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
+                                                                                            Icon="@Icons.Material.Filled.Cancel"
+                                                                                            IconColor="Color.Error">
+                                                                                                Rot
+                                                                                            </MudMenuItem>
+
+                                                                                            <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
+                                                                                            Icon="@Icons.Material.Filled.Help"
+                                                                                            IconColor="Color.Default">
+                                                                                                Undefined
+                                                                                            </MudMenuItem>
 
 
-                                    </ChildContent>
-                                </MudMenu>
-                            </MudMenuItem>
+                                                                                        </ChildContent>
+                                                                                    </MudMenu>
+                                                                                </MudMenuItem>
 
 
 
@@ -2155,6 +2155,7 @@
     {
         if (selectedItem != null)
         {
+            if (selectedItem is Station) return false;
             if (selectedItem is Tool tool)
             {
                 if (await Fassade.ToolExistsByName(tool.toolShortname) == true)
@@ -2183,11 +2184,13 @@
     [JSInvokable]
     public async Task<bool> HandleCtrlV()
     {
+
         if (copiedOperation != null && selectedItem is Tool toolForOperation)
         {
             await SelectTool(toolForOperation);
             await InsertOperation();
             Snackbar.Add("Operation wurde eingefügt", Severity.Success);
+            selectedItem = null;
             StateHasChanged();
             return true;
         }
@@ -2195,6 +2198,7 @@
         {
             await InsertTool();
             Snackbar.Add("Tool wurde eingefügt", Severity.Success);
+            selectedItem = null;
             StateHasChanged();
             return true;
         }
@@ -2206,19 +2210,26 @@
     [JSInvokable]
     public async Task<bool> HandleDelete()
     {
-        if (selectedTool != null)
+        if (selectedItem != null)
         {
-            await DeleteTool(selectedTool);
-            Snackbar.Add($"Tool '{selectedTool.toolShortname}' wurde gelöscht", Severity.Warning);
-            StateHasChanged();
-            return true;
-        }
-        else if (selectedOperation != null)
-        {
-            await DeleteOperation(selectedOperation);
-            Snackbar.Add($"Operation '{selectedOperation.operationShortname}' wurde gelöscht", Severity.Warning);
-            StateHasChanged();
-            return true;
+            if(selectedItem is Tool tool)
+            {
+                await DeleteTool(tool);
+                selectedItem = null;
+                return true;
+            }
+            else if (selectedItem is Operation operation)
+            {
+                await DeleteOperation(operation);
+                selectedItem = null;
+                return true;
+            }
+            else if (selectedItem is Station station)
+            {
+                await DeleteStation(station);
+                selectedItem = null;
+                return true;
+            }
         }
 
         return false;
