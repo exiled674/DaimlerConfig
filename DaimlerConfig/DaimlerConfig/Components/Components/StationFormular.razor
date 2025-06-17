@@ -12,7 +12,7 @@
 	<div class="class-header justify-content-between align-items-center">
 
 		<MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-							Station
+							@Fassade.Language.Station
 		</MudText>
 		<div class="d-flex justify-content-end align-items-center gap-2"> 
 			@if (errorMessages.ContainsKey("General"))
@@ -26,7 +26,7 @@
 			   Color="Color.Primary"
 			   Class="btn btn-primary btn-sm add-station-btn"
 			   @onclick="CreateStationAsync">
-						Create
+						@Fassade.Language.Create
 					</MudButton>
 			}
 
@@ -39,7 +39,7 @@
 									   Color="Color.Primary"
 									   Class="btn btn-primary btn-sm add-station-btn"
 									   @onclick="UpdateStationAsync">
-								Save
+									@Fassade.Language.Save
 							</MudButton>
 					</div>
 
@@ -56,7 +56,7 @@
 		<div class="stationColoumn">
 
 			<MudTextField @bind-Value="SelectedStation.assemblystation"
-			  Label="Assemblystation"
+			  Label="@Fassade.Language.AssemblyStation"
 			  Variant="Variant.Outlined"
 			  MaxLength="10"
 			  Class="search-field-enhanced"
@@ -74,7 +74,7 @@
 
 
 			<MudTextField @bind-Value="SelectedStation.stationName"
-			  Label="Assemblystation Description"
+			  Label="@Fassade.Language.AssemblyStationDesc"
 			  Variant="Variant.Outlined"
 			  MaxLength="50"
 			  Class="flex-grow-1 search-field-enhanced"
@@ -86,7 +86,7 @@
 				@($"{SelectedStation?.stationName?.Length ?? 0}/50")
 			</span>
 
-			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID" Variant="Variant.Outlined"
+			<MudSelect T="int" Label="@Fassade.Language.StationType" @bind-Value="SelectedStation.stationTypeID" Variant="Variant.Outlined"
 			Class="flex-grow-1 search-field-enhanced" Style="background: white; border-radius: 12px;"
 							   Margin="Margin.Normal" OnBlur="CheckIfDirty">
 				@if (stationTypes != null)
@@ -99,7 +99,7 @@
 		   </MudSelect>
 
 			<MudTextField @bind-Value="SelectedStation.Comment"
-			  Label="Comment"
+			  Label="@Fassade.Language.Comment"
 			  Variant="Variant.Outlined"
 			  Class="flex-grow-1 search-field-enhanced"
 				Style="background: white; border-radius: 12px;"
@@ -126,7 +126,6 @@
 .search-field-enhanced {
 	box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
 	transition: box-shadow 0.2s ease-in-out !important;
-	
 	}
 
 	.search-field-enhanced:hover {
@@ -137,7 +136,6 @@
 	background: white !important;
 	border-radius: 12px !important;
 	}
-
 </style>
 
 @code {
@@ -217,19 +215,19 @@
 		//Objekt
 		if (SelectedStation is null)
 		{
-			errorMessages["General"] = "Station data is missing";
+			errorMessages["General"] = Fassade.Language.MissingStationData;
 			return false;
 		}
 
 		//Assemblystation
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
 		{
-			errorMessages["Assemblystation"] = "Assembly station is required";
+			errorMessages["Assemblystation"] = Fassade.Language.MissingAssemblyStation;
 		}
 
 		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.stationID.Value, SelectedStation.lineID.Value)) 
 		{
-			errorMessages["Assemblystation"] = "This station already exists in the line";
+			errorMessages["Assemblystation"] = Fassade.Language.StationAlreadyExists;
 		}
 
 		showErrors = errorMessages.Any();

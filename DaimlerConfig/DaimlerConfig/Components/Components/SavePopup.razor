@@ -1,13 +1,13 @@
 ﻿@using DaimlerConfig.Services
 @inject DirtyManagerService DirtyManagerService
-
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
 @if (isVisible)
 {
     <div class="popup-backdrop">
         <div class="popup-dialog">
-            <p>Du hast ungespeicherte Änderungen. Möchtest du speichern oder verwerfen?</p>
-            <button class="btn btn-primary" @onclick="SaveChanges">Speichern</button>
-            <button class="btn btn-secondary" @onclick="DismissChanges">Verwerfen</button>
+            <p>@Fassade.Language.UnchangedChanges </p>
+            <button class="btn btn-primary" @onclick="SaveChanges">@Fassade.Language.Save</button>
+            <button class="btn btn-secondary" @onclick="DismissChanges">@Fassade.Language.Cancel</button>
         </div>
     </div>
 }

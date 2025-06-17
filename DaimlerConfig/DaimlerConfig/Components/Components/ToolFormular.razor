@@ -10,16 +10,13 @@
 
     <div class="class-header  justify-content-between align-items-center">
         <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-            Tool
+            @Fassade.Language.Tool
         </MudText>
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-               
-                
-
                 <MudSelect T="int"
-           Label="Versionen"
+           Label="@Fassade.Language.Versions"
            @bind-Value="selectedVersionId"
            Variant="Variant.Outlined"
            Margin="Margin.Normal"
@@ -52,7 +49,7 @@
                    Color="Color.Primary"
                    Class="btn btn-primary btn-sm add-station-btn"
                        @onclick="CreateToolAsync">
-                            Create
+                        @Fassade.Language.Create
                         </MudButton>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
@@ -69,7 +66,7 @@
                                            Color="Color.Primary"
                                            Class="btn btn-primary btn-sm add-station-btn"
                                                    @onclick="UpdateToolAsync" disabled="@ReadOnly">
-                                    Save
+                                @Fassade.Language.Save
 										
                                 </MudButton>
                 </div>
@@ -95,12 +92,13 @@
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly>
-                <label>Tool ID</label>
+                <label>@Fassade.Language.ToolId</label>
             </div>
 
             <div class="form-floating mb-3">
-                <MudTextField T="string"
-              Label="Tool Shortname"
+
+              <MudTextField T="string"
+              Label="@Fassade.Language.ToolShortname"
               @bind-Value="SelectedTool.toolShortname"
               MaxLength="16"
               ReadOnly="@ReadOnly"
@@ -121,7 +119,7 @@
             
                         <div class="mb-3">
                 <MudTextField T="string"
-                              Label="Tool Description"
+                              Label="@Fassade.Language.ToolDescription"
                               @bind-Value="SelectedTool.toolDescription"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
@@ -150,7 +148,7 @@
                     }
                 </select>
 
-                <label for="ToolClass">Tool Class</label>
+                <label for="ToolClass">@Fassade.Language.ToolClass</label>
             </div>
 
             <div class="form-floating mb-3">
@@ -160,11 +158,11 @@
                         <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
                     }
                 </select>
-                <label for="ToolType">Tool Type</label>
+                <label for="ToolType">@Fassade.Language.ToolType</label>
             </div>
             <div class="form-floating mb-3">
                 <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.Comment" maxlength="1000"></textarea>
-                <label>Comment</label>
+                <label>@Fassade.Language.Comment</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedTool?.Comment.Length ?? 0}/1000")
                 </span>
@@ -175,13 +173,13 @@
     <hr />
 
     <div>
-        <h2>Network</h2>
+        <h2>@Fassade.Language.Network</h2>
 
         <div class="layout position-relative">
             <div class="toolColoumnLeft">
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control @(errorMessages.ContainsKey("IP") ? "is-invalid" : "")" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice" readonly="@ReadOnly">
-                    <label>IP-Address Device</label>
+                    <label>@Fassade.Language.IpAddressDevice</label>
                     @if (errorMessages.ContainsKey("IP"))
                     {
                         <div class="invalid-feedback">@errorMessages["IP"]</div>
@@ -189,30 +187,30 @@
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>PLC Name</label>
+                    <label>@Fassade.Language.PlcName</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>DBNo Send</label>
+                    <label>@Fassade.Language.DbNoSend</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>DBNo Receive</label>
+                    <label>@Fassade.Language.DbNoReceive</label>
                 </div>
             </div>
 
             <div class="toolColoumnRight">
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>Address in Send-DB</label>
+                    <label>@Fassade.Language.AddressSendDb</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>Address in Receive-DB</label>
+                    <label>@Fassade.Language.AddressReceiveDb</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>Byte Pre Check</label>
+                    <label>@Fassade.Language.BytePreCheck</label>
                 </div>
             </div>
         </div>
@@ -341,7 +339,7 @@
         //ToolShortname
         if (string.IsNullOrWhiteSpace(SelectedTool.toolShortname))
         {
-            errorMessages["ToolShortname"] = "ToolShortname is missing";
+            errorMessages["ToolShortname"] = Fassade.Language.MissingToolShortname;
 
         }
 
@@ -350,7 +348,7 @@
 
         if (await Fassade.ToolExistsInStation(SelectedTool.toolShortname, SelectedTool.toolID.Value, SelectedTool.stationID.Value))
         {
-            errorMessages["ToolShortname"] = "A tool with this shortname already exists in this station";
+            errorMessages["ToolShortname"] = Fassade.Language.ToolAlreadyExists;
         }
 
 
@@ -358,7 +356,7 @@
         //IP-Adresse
         if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
         {
-            errorMessages["IP"] = "IP Address is missing";
+            errorMessages["IP"] = Fassade.Language.MissingIpAddress;
 
         }
 
@@ -366,7 +364,7 @@
 
         if (!string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice) && !regex.IsMatch(SelectedTool.ipAddressDevice))
         {
-            errorMessages["IP"] = "IP Address is not valid. Please use the format xxx.xxx.xxx.xxx";
+            errorMessages["IP"] = Fassade.Language.InvalidIp;
         }
 
         showErrors = errorMessages.Any();
