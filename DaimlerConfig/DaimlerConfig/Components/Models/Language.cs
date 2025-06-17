@@ -134,6 +134,8 @@ public class Language
     public string ToolAlreadyExists { get; set; } = "A tool with this shortname already exists in this station";
     public string MissingIpAddress { get; set; } = "IP Address is missing";
     public string InvalidIp { get; set; } = "IP Address is not valid. Please use the format xxx.xxx.xxx.xxx";
-    
-    
+    public string UnknownUser { get; set; } = "Unknown user";
+    public string RemoveFromFavorites { get; set; } = "Remove from favorites";
+    public string NoLinesFound { get; set; } = "No lines found.";
+    public string InsertTool { get; set; } = "Insert Tool";
 }
