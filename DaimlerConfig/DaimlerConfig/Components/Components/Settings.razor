@@ -12,6 +12,7 @@
 @inject IConfiguration Configuration
 @inject ISnackbar Snackbar
 @using DaimlerConfig.Services
+@using Microsoft.Extensions.FileProviders
 @inject AppStartupValidationService ValidationService
 @inject SettingsValidationService SettingsValidation
 @inject UsernameService UsernameS
@@ -98,7 +99,23 @@
                 <MudTabPanel Text="General">
                     <MudPaper Class="pa-4" Elevation="1">
                         <MudText Typo="Typo.h6" GutterBottom="true">General Settings</MudText>
-                        <MudText Color="Color.Secondary">General application settings will be available here.</MudText>
+                        <MudText Color="Color.Secondary">
+                            General application settings will be available here.
+                        </MudText>
+
+                        <MudDivider Class="my-4" />
+
+                        <MudText Typo="Typo.subtitle1" GutterBottom="true">Language</MudText>
+                        <MudSelect T="string" Label="Sprache auswählen" @bind-Value="_selectedLanguage">
+                            @if (_availableLanguages != null)
+                            {
+                                @foreach (var lang in _availableLanguages)
+                                {
+                                    <MudSelectItem Value="@lang">@lang.ToUpper()</MudSelectItem>
+                                }
+                            }
+                        </MudSelect>
+
                     </MudPaper>
                 </MudTabPanel>
 
@@ -412,7 +429,9 @@
     private bool isValidating = false;
     private List<string> validationErrors = new List<string>();
 
-
+    private List<string> _availableLanguages = new();
+    private string _selectedLanguage = "en";
+    
     private void ParseConnectionString(string connStr)
     {
         if (string.IsNullOrEmpty(connStr)) return;
@@ -661,6 +680,14 @@
         await OnClosing.InvokeAsync();
     }
 
+    #region
+    private async Task OnLanguageChanged(string lang)
+    {
+        _selectedLanguage = lang;
+        var jsonPath = Path.Combine("wwwroot", "i18n", $"{lang}.json");
+        var json = await File.ReadAllTextAsync(jsonPath);
+    }
+    #endregion
 
     #region Username Change Logic
 
@@ -668,6 +695,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        //Language picker
+        var fileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "i18n"));
+        _availableLanguages = fileProvider.GetDirectoryContents("")
+            .Where(f => f.Name.EndsWith(".json"))
+            .Select(f => Path.GetFileNameWithoutExtension(f.Name))
+            .ToList();
         // Extrahiere nur den Username-Teil (vor dem Semikolon)
         _newUsername = GetDisplayUsername(UsernameS.Username);
 

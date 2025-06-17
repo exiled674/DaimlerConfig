@@ -199,10 +199,11 @@ namespace DaimlerConfig
                             var export = sp.GetRequiredService<ExcelExport>();
                             var toolversion = sp.GetRequiredService<IRepository<ToolVersion>>();
                             var operationversion = sp.GetRequiredService<IRepository<OperationVersion>>();
+                            var language = sp.GetRequiredService<Language>();
 
                             return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo,
                                 generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo,
-                                toolTypeHasTemplateRepo, templateRepo, export, toolversion, operationversion);
+                                toolTypeHasTemplateRepo, templateRepo, export, toolversion, operationversion, language);
                         });
                     }
                     else

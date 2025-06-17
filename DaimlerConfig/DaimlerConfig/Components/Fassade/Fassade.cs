@@ -31,6 +31,7 @@ namespace DaimlerConfig.Components.Fassade
         public ExcelExport ExcelExport { get; private set; }
 
         private readonly WriteJson _writeJson = new WriteJson();
+        public readonly Language Language;
 
         public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository,
                IStationRepository stationRepository, IRepository<Line> lineRepository,
@@ -39,7 +40,8 @@ namespace DaimlerConfig.Components.Fassade
                IRepository<VerificationClass> verificationClassRepository, IRepository<ToolClass> toolClassRepository,
                IRepository<ToolType> toolTypeRepository, IRepository<ToolTypeHasTemplate> toolTypeHasTemplateRepository,
                IRepository<Template> templateRepository, ExcelExport ExcelExport,
-               IRepository<ToolVersion> toolVersionRepository, IRepository<OperationVersion> operationVersionRepository)
+               IRepository<ToolVersion> toolVersionRepository, IRepository<OperationVersion> operationVersionRepository,
+               Language language)
 
         {
             ToolRepository = toolRepository;
@@ -58,6 +60,7 @@ namespace DaimlerConfig.Components.Fassade
             this.ExcelExport = ExcelExport;
             OperationVersionRepository = operationVersionRepository;
             ToolVersionRepository = toolVersionRepository;
+            Language = language;
         }
 
         #region Line
