@@ -15,16 +15,9 @@
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <select class="form-select" id="ToolVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
-                    <option value="-1">Aktuelle Version</option>
-                    @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
-                    {
-                        <option value="@version.toolVersionID">
-                            @version.modifiedBy?.Split(';')[0] - @version.lastModified
-                        </option>
-                    }
-                </select>
-                <!----
+               
+                
+
                 <MudSelect T="int"
            Label="Versionen"
            @bind-Value="selectedVersionId"
@@ -34,18 +27,21 @@
            Class="flex-grow-1 search-field-enhanced"
            OnBlur="CheckIfDirty">
 
-    <MudSelectItem Value="-1">Aktuelle Version</MudSelectItem>
+    <MudSelectItem T="int" Value="-1">Aktuelle Version</MudSelectItem>
 
-                    @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
+                    @if (ToolVersions != null)
                     {
-            <MudSelectItem Value="@version.toolVersionID">
-                            @version.modifiedBy?.Split(';')[0] - @version.lastModified
-            </MudSelectItem>
+                        @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
+                        {
+                    <MudSelectItem T="int" Value="@version.toolVersionID.Value">
+                                @version.modifiedBy?.Split(';')[0] - @version.lastModified
+                    </MudSelectItem>
+                        }
                     }
-           </MudSelect>
-           -->
+</MudSelect>
+           
 
-                <label for="ToolVersionSelect">Versionen</label>
+              
             </div>
             @if (SelectedTool?.toolID == 0)
             {
