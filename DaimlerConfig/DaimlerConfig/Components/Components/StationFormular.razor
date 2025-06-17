@@ -83,13 +83,13 @@
 			</span>
 
 			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID" 
-		   Variant="Variant.Filled" Class="flex-grow-1 search-field-enhanced"
-				Style="background: white; border-radius: 12px;" Margin="Margin.Dense" OnBlur="CheckIfDirty">
+			Class="flex-grow-1 search-field-enhanced" Style="background: white; border-radius: 12px;"
+				 Margin="Margin.Dense" OnBlur="CheckIfDirty">
 				@if (stationTypes != null)
 				{
 					@foreach (var stationType in stationTypes)
 					{
-							<MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
+									<MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
 					}
 				}
 		   </MudSelect>
