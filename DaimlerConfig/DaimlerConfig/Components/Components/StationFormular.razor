@@ -53,7 +53,7 @@
 
 			<MudTextField @bind-Value="SelectedStation.assemblystation"
 			  Label="Assemblystation"
-			  Variant="Variant.Filled"
+			  Variant="Variant.Outlined"
 			  MaxLength="10"
 			  Class="flex-grow-1 search-field-enhanced"
 			  Style="background: white; border-radius: 12px;" 
@@ -66,12 +66,12 @@
 				@($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
 			</span>
 
-
+			
 
 
 			<MudTextField @bind-Value="SelectedStation.stationName"
 			  Label="Assemblystation Description"
-			  Variant="Variant.Filled"
+			  Variant="Variant.Outlined"
 			  MaxLength="50"
 			  Class="flex-grow-1 search-field-enhanced"
 			Style="background: white; border-radius: 12px;"
@@ -82,7 +82,7 @@
 				@($"{SelectedStation?.stationName?.Length ?? 0}/50")
 			</span>
 
-			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID" 
+			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID" Variant="Variant.Outlined"
 			Class="flex-grow-1 search-field-enhanced" Style="background: white; border-radius: 12px;"
 				 Margin="Margin.Dense" OnBlur="CheckIfDirty">
 				@if (stationTypes != null)
@@ -96,7 +96,7 @@
 
 			<MudTextField @bind-Value="SelectedStation.Comment"
 			  Label="Comment"
-			  Variant="Variant.Filled"
+			  Variant="Variant.Outlined"
 			  Class="flex-grow-1 search-field-enhanced"
 				Style="background: white; border-radius: 12px;"
 			  Margin="Margin.Dense"
@@ -118,7 +118,8 @@
 
 
 <style>
-	 .search-field-enhanced {
+
+.search-field-enhanced {
 	box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
 	transition: box-shadow 0.2s ease-in-out !important;
 	}
@@ -131,6 +132,8 @@
 	background: white !important;
 	border-radius: 12px !important;
 	}
+
+
 </style>
 
 @code {
