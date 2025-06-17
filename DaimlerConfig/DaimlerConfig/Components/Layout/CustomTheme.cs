@@ -28,7 +28,7 @@ MudBlazor Default Theme
                 TertiaryContrastText = "rgba(255,255,255,1)",
                 Info = "rgba(33,150,243,1)",
                 InfoContrastText = "rgba(255,255,255,1)",
-                Success = "rgba(0,200,83,1)",
+                Success = "rgba(30,132,73,1)",
                 SuccessContrastText = "rgba(255,255,255,1)",
                 Warning = "rgba(255,152,0,1)",
                 WarningContrastText = "rgba(255,255,255,1)",

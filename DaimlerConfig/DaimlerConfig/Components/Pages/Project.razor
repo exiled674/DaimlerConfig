@@ -96,53 +96,74 @@
             <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
             @foreach (var station in stations)
             {
-                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
-                Elevation="3"
-                @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-                    <MudCardContent Class="pa-3">
-                        <MudGrid AlignItems="Center" Spacing="0">
-                            <MudItem xs="10">
-                                <div class="d-flex align-items-center">
-                                    <Badge colour="@GetBadgeColour(station.Status)" />
-                                    <div class="ml-3">
-                                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
+                                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
+    Elevation="3"
+    @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+        <MudCardContent Class="pa-3">
+            <MudGrid AlignItems="Center" Spacing="0">
+                <MudItem xs="10">
+                    <div class="d-flex align-items-center">
+                        <Badge colour="@GetBadgeColour(station.Status)" />
+                        <div class="ml-3">
+                            <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
                                             @station.assemblystation
-                                        </MudText>
-                                        <MudText Typo="Typo.caption" Class="text-muted">
-                                            Status: @station.Status
-                                        </MudText>
-                                    </div>
-                                </div>
-                            </MudItem>
-
-                            <MudItem xs="2" Class="d-flex justify-end">
-                                <div @onclick:stopPropagation="true">
-                                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                    Size="Size.Small"
-                                    Dense="true"
-                                    AnchorOrigin="Origin.BottomRight"
-                                    TransformOrigin="Origin.TopRight">
-
-
-
-                                        <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
-                                        Icon="@Icons.Material.Filled.ContentPaste"
-                                        Disabled="@(copiedTool == null || selectedStation == null)">
-                                            Insert Tool
+                            </MudText>
+                            <MudText Typo="Typo.caption" Class="text-muted">
+                                Status: @station.Status
+                            </MudText>
+                        </div>
+                    </div>
+                </MudItem>
+                <MudItem xs="2" Class="d-flex justify-end">
+                    <div @onclick:stopPropagation="true">
+                        <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                        Size="Size.Small"
+                        Dense="true"
+                        AnchorOrigin="Origin.BottomRight"
+                        TransformOrigin="Origin.TopRight">
+                            <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
+                            Icon="@Icons.Material.Filled.ContentPaste"
+                            Disabled="@(copiedTool == null || selectedStation == null)">
+                                Insert Tool
+                            </MudMenuItem>
+                            <MudMenuItem OnClick="@(() => DeleteStation(station))"
+                            Icon="@Icons.Material.Filled.Delete"
+                            IconColor="Color.Error">
+                                Delete
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.Circle"
+                            IconColor="Color.Default">
+                                      <MudMenu ActivationEvent="@MouseEvent.MouseOver"
+            AnchorOrigin="Origin.TopRight"
+            TransformOrigin="Origin.TopLeft">
+                                    <ActivatorContent>
+                                        <span>Status</span>
+                                    </ActivatorContent>
+                                    <ChildContent>
+                                        <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
+                                                Icon="@Icons.Material.Filled.DoneAll"
+                                        IconColor="Color.Success">
+                                            Grün
                                         </MudMenuItem>
-
-
-                                        <MudMenuItem OnClick="@(() => DeleteStation(station))"
-                                        Icon="@Icons.Material.Filled.Delete"
+                                        <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
+                                            Icon="@Icons.Material.Filled.ReportProblem"
+                                        IconColor="Color.Warning">
+                                            Gelb
+                                        </MudMenuItem>
+                                        <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
+                                            Icon="@Icons.Material.Filled.Cancel"
                                         IconColor="Color.Error">
-                                            Delete
+                                            Rot
                                         </MudMenuItem>
-                                    </MudMenu>
-                                </div>
-                            </MudItem>
-                        </MudGrid>
-                    </MudCardContent>
-                </MudCard>
+                                    </ChildContent>
+                                </MudMenu>
+                            </MudMenuItem>
+                        </MudMenu>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+    </MudCard>
             }
 
 
@@ -390,6 +411,7 @@
 
 
 <style>
+
 
     /* Auswahl-Hervorhebung für Operationen */
     .mud-list-item.mud-selected {
