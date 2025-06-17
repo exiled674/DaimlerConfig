@@ -13,22 +13,15 @@
         </MudText>
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <MudSelect T="int"
-                           Label="@Fassade.Language.Versions"
-                           @bind-Value="selectedVersionId"
-                           Variant="Variant.Outlined"
-                           Margin="Margin.Normal"
-                           Style="background: white; border-radius: 12px;"
-                           OnBlur="CheckIfDirty"
-                           @onchange="OnVersionChanged">
-                    <MudSelectItem T="int" Value="-1">@Fassade.Language.CurrentVersion</MudSelectItem>
+                <select class="form-select" id="OperationVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
+                    <option value="-1">Aktuelle Version</option>
                     @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                     {
-                            <MudSelectItem T="int" Value="@version.operationVersionID.Value">
+                        <option value="@version.operationVersionID">
                             @version.modifiedBy?.Split(';')[0] - @version.lastModified
-                            </MudSelectItem>
+                        </option>
                     }
-                </MudSelect>
+                </select>
             </div>
             @if (SelectedOperation.operationID == 0)
             {
