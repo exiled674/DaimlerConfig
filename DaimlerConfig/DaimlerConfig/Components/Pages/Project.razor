@@ -165,7 +165,7 @@
                                                     IconColor="Color.Error">
                                                         Rot
                                                     </MudMenuItem>
-                                                        <MudMenuItem OnClick="@(() => { SetStatus(station, Status.Undefined); })"
+                                                    <MudMenuItem OnClick="@(() => { SetStatus(station, Status.Undefined); })"
                                                     Icon="@Icons.Material.Filled.Help"
                                                     IconColor="Color.Default">
                                                         Undefined
@@ -293,23 +293,23 @@
                                                                             <span>Status</span>
                                                                         </ActivatorContent>
                                                                         <ChildContent>
-                                                                                    <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Green); })"
+                                                                            <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Green); })"
                                                                             Icon="@Icons.Material.Filled.DoneAll"
                                                                             IconColor="Color.Success">
                                                                                 Grün
                                                                             </MudMenuItem>
-                                                                                    <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Yellow); })"
+                                                                            <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Yellow); })"
                                                                             Icon="@Icons.Material.Filled.ReportProblem"
                                                                             IconColor="Color.Warning">
                                                                                 Gelb
                                                                             </MudMenuItem>
-                                                                                    <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Red); })"
+                                                                            <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Red); })"
                                                                             Icon="@Icons.Material.Filled.Cancel"
                                                                             IconColor="Color.Error">
                                                                                 Rot
                                                                             </MudMenuItem>
 
-                                                                                    <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Undefined); })"
+                                                                            <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Undefined); })"
                                                                             Icon="@Icons.Material.Filled.Help"
                                                                             IconColor="Color.Default">
                                                                                 Undefined
@@ -400,23 +400,23 @@
                                                                                             <span>Status</span>
                                                                                         </ActivatorContent>
                                                                                         <ChildContent>
-                                                                                                        <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Green); })"
+                                                                                            <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Green); })"
                                                                                             Icon="@Icons.Material.Filled.DoneAll"
                                                                                             IconColor="Color.Success">
                                                                                                 Grün
                                                                                             </MudMenuItem>
-                                                                                                        <MudMenuItem OnClick="@(() => {SetStatus(operation, Status.Yellow); })"
+                                                                                            <MudMenuItem OnClick="@(() => {SetStatus(operation, Status.Yellow); })"
                                                                                             Icon="@Icons.Material.Filled.ReportProblem"
                                                                                             IconColor="Color.Warning">
                                                                                                 Gelb
                                                                                             </MudMenuItem>
-                                                                                                        <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Red);})"
+                                                                                            <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Red);})"
                                                                                             Icon="@Icons.Material.Filled.Cancel"
                                                                                             IconColor="Color.Error">
                                                                                                 Rot
                                                                                             </MudMenuItem>
 
-                                                                                                        <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Undefined); })"
+                                                                                            <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Undefined); })"
                                                                                             Icon="@Icons.Material.Filled.Help"
                                                                                             IconColor="Color.Default">
                                                                                                 Undefined
@@ -1350,6 +1350,17 @@
                                     selectedStation = null;
                                     showStationFormular = false;
                                 }
+								if (selectedTool?.stationID == stationID && showToolFormular == true)
+								{
+									showToolFormular = false;
+									
+								}
+                                
+                                var tools1 = await Fassade.GetToolsFromStation(stationID);
+                                if (!tools1.Any(t => t.toolID == selectedOperation?.toolID) && showOperationFormular)
+                                {
+                                    showOperationFormular = false;
+                                }
 
                                 StateHasChanged();
                             }
@@ -1424,6 +1435,10 @@
                                 {
                                     selectedTool = null;
                                     showToolFormular = false;
+                                }
+                                if(selectedOperation?.toolID == toolID && showOperationFormular == true)
+                                {
+                                    showOperationFormular = false;
                                 }
                                 StateHasChanged();
                             }
@@ -1589,7 +1604,7 @@
             if (stations != null)
             {
                 allOperations = await Fassade.GetAllOperations();
-               
+
             }
             await RestoreSavedSelection();
         }
@@ -1808,32 +1823,32 @@
             await SignalRService.SendMessageToServer($"OperationUpdated;{operation.operationID}");
             StateHasChanged();
 
-            }
-            else if (o is Tool tool)
+        }
+        else if (o is Tool tool)
         {
             tool.Status = neuerStatus;
             if (!await Fassade.UpdateTool(tool)) return;
             await SignalRService.SendMessageToServer($"ToolUpdated;{tool.toolID}");
             StateHasChanged();
-            }
+        }
         else if (o is Station station)
         {
             station.Status = neuerStatus;
             if (!await Fassade.UpdateStation(station)) return;
             await SignalRService.SendMessageToServer($"StationUpdated;{station.stationID}");
-             StateHasChanged();
-           
-            }
+            StateHasChanged();
+
+        }
 
 
     }
 
 
-   
 
 
-    
-   
+
+
+
 
     #endregion
 
@@ -2001,6 +2016,7 @@
 
                 await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
                 await DirtyManagerService.setClean();
+              //  if (showOperationFormular == true) showOperationFormular = false;
 
 
             }
