@@ -91,8 +91,17 @@
         <div class="toolColoumnLeft">
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly>
-                <label>@Fassade.Language.ToolId</label>
+                <MudTextField T="int?"
+              Label="@Fassade.Language.ToolId"
+              Value="SelectedTool.toolID"
+              ReadOnly="true"
+              Variant="Variant.Outlined"
+              Margin="Margin.Normal"
+              Class="w-100"
+              Style="background: white; border-radius: 12px;"
+              Adornment="Adornment.End"
+              AdornmentIcon="@Icons.Material.Filled.Lock" />
+
             </div>
 
             <div class="form-floating mb-3">
@@ -223,42 +232,98 @@
 
         <div class="layout position-relative">
             <div class="toolColoumnLeft">
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control @(errorMessages.ContainsKey("IP") ? "is-invalid" : "")" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice" readonly="@ReadOnly">
-                    <label>@Fassade.Language.IpAddressDevice</label>
-                    @if (errorMessages.ContainsKey("IP"))
-                    {
-                        <div class="invalid-feedback">@errorMessages["IP"]</div>
-                    }
-                </div>
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>@Fassade.Language.PlcName</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>@Fassade.Language.DbNoSend</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>@Fassade.Language.DbNoReceive</label>
-                </div>
-            </div>
+    <div class="mb-3">
+        <MudTextField T="string"
+                      Label="@Fassade.Language.IpAddressDevice"
+                      @bind-Value="SelectedTool.ipAddressDevice"
+                      ReadOnly="@ReadOnly"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Normal"
+                      Class="@($"w-100 {(errorMessages.ContainsKey("IP") ? "mud-input-error" : "")}")"
+                      @onclick="LockTool"
+                      OnBlur="CheckIfDirty" 
+                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                      AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)"/>
+        @if (errorMessages.ContainsKey("IP"))
+        {
+            <div class="mud-input-error-text">@errorMessages["IP"]</div>
+        }
+    </div>
 
-            <div class="toolColoumnRight">
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>@Fassade.Language.AddressSendDb</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>@Fassade.Language.AddressReceiveDb</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>@Fassade.Language.BytePreCheck</label>
-                </div>
-            </div>
+    <div class="mb-3">
+        <MudTextField T="string"
+                      Label="@Fassade.Language.PlcName"
+                      ReadOnly="@ReadOnly"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Normal"
+                      Class="w-100"
+                      @onclick="LockTool" 
+                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                       AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)"/>
+    </div>
+
+    <div class="mb-3">
+        <MudTextField T="string"
+                      Label="@Fassade.Language.DbNoSend"
+                      ReadOnly="@ReadOnly"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Normal"
+                      Class="w-100"
+                      @onclick="LockTool" 
+                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                      AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)"/>
+    </div>
+
+    <div class="mb-3">
+        <MudTextField T="string"
+                      Label="@Fassade.Language.DbNoReceive"
+                      ReadOnly="@ReadOnly"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Normal"
+                      Class="w-100"
+                      @onclick="LockTool"
+                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                      AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)"/>
+    </div>
+</div>
+
+<div class="toolColoumnRight">
+    <div class="mb-3">
+        <MudTextField T="string"
+                      Label="@Fassade.Language.AddressSendDb"
+                      ReadOnly="@ReadOnly"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Normal"
+                      Class="w-100"
+                      @onclick="LockTool"
+                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                        AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)"/>
+    </div>
+
+    <div class="mb-3">
+        <MudTextField T="string"
+                      Label="@Fassade.Language.AddressReceiveDb"
+                      ReadOnly="@ReadOnly"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Normal"
+                      Class="w-100"
+                      @onclick="LockTool" 
+                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                      AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)"/>
+    </div>
+
+    <div class="mb-3">
+        <MudTextField T="string"
+                      Label="@Fassade.Language.BytePreCheck"
+                      ReadOnly="@ReadOnly"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Normal"
+                      Class="w-100"
+                      @onclick="LockTool" 
+                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                       AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)"/>
+    </div>
+</div>
         </div>
     </div>
 </div>
