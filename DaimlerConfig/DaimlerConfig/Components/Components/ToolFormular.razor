@@ -498,12 +498,25 @@
         return await DirtyManagerService.CheckIfDirty(SelectedTool, OriginalTool, "Tool");
     }
 
+    private bool isResettingTool = false;
+
     public async Task ResetTool()
     {
-        var signalTool = await Fassade.GetTool(SelectedTool.toolID.Value);
-        await SignalRService.SendMessageToServer($"ToolUpdated;{signalTool.toolID}");
-        await DirtyManagerService.setClean();
+        if (isResettingTool) return;
+
+        isResettingTool = true;
+        try
+        {
+            var signalTool = await Fassade.GetTool(SelectedTool.toolID.Value);
+            await SignalRService.SendMessageToServer($"ToolUpdated;{signalTool.toolID}");
+            await DirtyManagerService.setClean();
+        }
+        finally
+        {
+            isResettingTool = false;
+        }
     }
+
     #endregion
 
     #region Lock
