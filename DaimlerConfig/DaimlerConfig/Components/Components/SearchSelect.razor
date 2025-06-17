@@ -3,6 +3,7 @@
 
 @typeparam TItem
 @using MudBlazor
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
 
 <MudAutocomplete T="TItem"
                  Label="@Label"
@@ -57,7 +58,7 @@
     public Func<TItem, string>? HelpTextFunc { get; set; }
 
     [Parameter]
-    public string Placeholder { get; set; } = "Suchen...";
+    public string Placeholder { get; set; } = "";
 
     [Parameter]
     public string Label { get; set; } = "";
@@ -94,6 +95,10 @@
                 _ = OnSelectedItemIDChanged.InvokeAsync(newId);
             }
         }
+    }
+    protected override void OnInitialized()
+    {
+        Placeholder = Fassade.Language.Searching;
     }
 
     protected override void OnParametersSet()

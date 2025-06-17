@@ -1,4 +1,5 @@
-﻿using DaimlerConfig.Components.Repositories;
+﻿using System.Text.Json;
+using DaimlerConfig.Components.Repositories;
 using DaimlerConfig.Components.Models;
 using DaimlerConfig.Components.JsonHandler;
 using DaimlerConfig.Components.Export;
@@ -31,7 +32,7 @@ namespace DaimlerConfig.Components.Fassade
         public ExcelExport ExcelExport { get; private set; }
 
         private readonly WriteJson _writeJson = new WriteJson();
-        public readonly Language Language;
+        public Language Language;
 
         public Fassade(IToolRepository toolRepository, IOperationRepository operationRepository,
                IStationRepository stationRepository, IRepository<Line> lineRepository,
@@ -600,6 +601,47 @@ namespace DaimlerConfig.Components.Fassade
         }
 
 
+
+        #endregion
+        
+        #region Settings
+        public Language LoadLanguageFromJson(string jsonContent)
+        {
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+        
+                return JsonSerializer.Deserialize<Language>(jsonContent, options) ?? new Language();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler beim Deserialisieren der Sprache: {ex.Message}");
+                return new Language(); // Fallback auf Standard-Language
+            }
+        }
+
+        public async Task LoadLanguageFromFileAsync(string filePath)
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    throw new FileNotFoundException($"Sprachdatei nicht gefunden: {filePath}");
+                }
+        
+                var jsonContent = await File.ReadAllTextAsync(filePath);
+                Language = LoadLanguageFromJson(jsonContent);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fehler beim Laden der Sprachdatei: {ex.Message}");
+                Language =  new Language(); // Fallback
+            }
+        }
 
         #endregion
     }

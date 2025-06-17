@@ -9,12 +9,12 @@
 <div class="container-lg px-3">
 
     <div class="class-header  justify-content-between align-items-center">
-        <h2>Tool</h2>
+        <h2>@Fassade.Language.Tool</h2>
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
                 <select class="form-select" id="ToolVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
-                    <option value="-1">Aktuelle Version</option>
+                    <option value="-1">@Fassade.Language.Tool</option>
                     @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
                         <option value="@version.toolVersionID">
@@ -23,12 +23,12 @@
                     }
                 </select>
 
-                <label for="ToolVersionSelect">Versionen</label>
+                <label for="ToolVersionSelect">@Fassade.Language.Versions</label>
             </div>
             @if (SelectedTool?.toolID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">@Fassade.Language.Create</button>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -39,7 +39,7 @@
             @if (SelectedTool?.toolID != 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync" disabled="@ReadOnly">Update</button>
+                    <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync" disabled="@ReadOnly">@Fassade.Language.Update</button>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -49,7 +49,7 @@
             @if (SelectedTool?.toolID != 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync" disabled="@ReadOnly">Delete</button>
+                    <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync" disabled="@ReadOnly">@Fassade.Language.Delete</button>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -65,12 +65,12 @@
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control form-control" placeholder="" @bind="SelectedTool.toolID" readonly>
-                <label>Tool ID</label>
+                <label>@Fassade.Language.ToolId</label>
             </div>
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control @(errorMessages.ContainsKey("ToolShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolShortname">
-                <label>Tool Shortname</label>
+                <label>@Fassade.Language.ToolShortname</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedTool?.toolShortname?.Length ?? 0}/16")
                 </span>
@@ -83,7 +83,7 @@
 
             <div class="form-floating mb-3">
                 <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription" maxlength="1000"></textarea>
-                <label>Tool Description</label>
+                <label>@Fassade.Language.ToolDescription</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedTool?.toolDescription?.Length ?? 0}/1000")
                 </span>
@@ -99,7 +99,7 @@
                     }
                 </select>
 
-                <label for="ToolClass">Tool Class</label>
+                <label for="ToolClass">@Fassade.Language.ToolClass</label>
             </div>
 
             <div class="form-floating mb-3">
@@ -109,11 +109,11 @@
                         <option value="@toolType.toolTypeID">@toolType.toolTypeName</option>
                     }
                 </select>
-                <label for="ToolType">Tool Type</label>
+                <label for="ToolType">@Fassade.Language.ToolType</label>
             </div>
             <div class="form-floating mb-3">
                 <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.Comment" maxlength="1000"></textarea>
-                <label>Comment</label>
+                <label>@Fassade.Language.Comment</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedTool?.Comment.Length ?? 0}/1000")
                 </span>
@@ -124,13 +124,13 @@
     <hr />
 
     <div>
-        <h2>Network</h2>
+        <h2>@Fassade.Language.Network</h2>
 
         <div class="layout position-relative">
             <div class="toolColoumnLeft">
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control @(errorMessages.ContainsKey("IP") ? "is-invalid" : "")" placeholder="" @onblur="CheckIfDirty" @onclick="LockTool" @bind="SelectedTool.ipAddressDevice" readonly="@ReadOnly">
-                    <label>IP-Address Device</label>
+                    <label>@Fassade.Language.IpAddressDevice</label>
                     @if (errorMessages.ContainsKey("IP"))
                     {
                         <div class="invalid-feedback">@errorMessages["IP"]</div>
@@ -138,30 +138,30 @@
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>PLC Name</label>
+                    <label>@Fassade.Language.PlcName</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>DBNo Send</label>
+                    <label>@Fassade.Language.DbNoSend</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>DBNo Receive</label>
+                    <label>@Fassade.Language.DbNoReceive</label>
                 </div>
             </div>
 
             <div class="toolColoumnRight">
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>Address in Send-DB</label>
+                    <label>@Fassade.Language.AddressSendDb</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>Address in Receive-DB</label>
+                    <label>@Fassade.Language.AddressReceiveDb</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockTool">
-                    <label>Byte Pre Check</label>
+                    <label>@Fassade.Language.BytePreCheck</label>
                 </div>
             </div>
         </div>
@@ -290,7 +290,7 @@
         //ToolShortname
         if (string.IsNullOrWhiteSpace(SelectedTool.toolShortname))
         {
-            errorMessages["ToolShortname"] = "ToolShortname is missing";
+            errorMessages["ToolShortname"] = Fassade.Language.MissingToolShortname;
 
         }
 
@@ -299,7 +299,7 @@
 
         if (await Fassade.ToolExistsInStation(SelectedTool.toolShortname, SelectedTool.toolID.Value, SelectedTool.stationID.Value))
         {
-            errorMessages["ToolShortname"] = "A tool with this shortname already exists in this station";
+            errorMessages["ToolShortname"] = Fassade.Language.ToolAlreadyExists;
         }
 
 
@@ -307,7 +307,7 @@
         //IP-Adresse
         if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
         {
-            errorMessages["IP"] = "IP Address is missing";
+            errorMessages["IP"] = Fassade.Language.MissingIpAddress;
 
         }
 
@@ -315,7 +315,7 @@
 
         if (!string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice) && !regex.IsMatch(SelectedTool.ipAddressDevice))
         {
-            errorMessages["IP"] = "IP Address is not valid. Please use the format xxx.xxx.xxx.xxx";
+            errorMessages["IP"] = Fassade.Language.InvalidIp;
         }
 
         showErrors = errorMessages.Any();
