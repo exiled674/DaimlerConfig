@@ -9,7 +9,9 @@
 <div class="container-lg px-3">
 
     <div class="class-header  justify-content-between align-items-center">
-        <h2>Tool</h2>
+        <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
+            Tool
+        </MudText>
 
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
@@ -22,13 +24,40 @@
                         </option>
                     }
                 </select>
+                <!----
+                <MudSelect T="int"
+           Label="Versionen"
+           @bind-Value="selectedVersionId"
+           Variant="Variant.Outlined"
+           Margin="Margin.Normal"
+           Style="background: white; border-radius: 12px;"
+           Class="flex-grow-1 search-field-enhanced"
+           OnBlur="CheckIfDirty">
+
+    <MudSelectItem Value="-1">Aktuelle Version</MudSelectItem>
+
+                    @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
+                    {
+            <MudSelectItem Value="@version.toolVersionID">
+                            @version.modifiedBy?.Split(';')[0] - @version.lastModified
+            </MudSelectItem>
+                    }
+           </MudSelect>
+           -->
 
                 <label for="ToolVersionSelect">Versionen</label>
             </div>
             @if (SelectedTool?.toolID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="CreateToolAsync">Create</button>
+
+                    <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Class="btn btn-primary btn-sm add-station-btn"
+                       @onclick="CreateToolAsync">
+                            Create
+                        </MudButton>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -39,7 +68,13 @@
             @if (SelectedTool?.toolID != 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateToolAsync" disabled="@ReadOnly">Update</button>
+                        <MudButton StartIcon="@Icons.Material.Filled.Save"
+                                           Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           Class="btn btn-primary btn-sm add-station-btn"
+                                               @onclick="UpdateToolAsync">
+                                    Save
+                                </MudButton>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
@@ -48,9 +83,7 @@
             }
             @if (SelectedTool?.toolID != 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteToolAsync" disabled="@ReadOnly">Delete</button>
-                </div>
+                
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
                     <div class="text-danger">@ValidationMessage</div>
