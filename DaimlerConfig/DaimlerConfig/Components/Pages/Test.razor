@@ -1,0 +1,892 @@
+﻿@page "/test"
+@using MudBlazor
+
+<MudThemeProvider Theme="@_customTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="0" Color="Color.Primary" Dense="true">
+        <MudIcon Icon="Icons.Material.Filled.TrendingUp" Size="Size.Medium" Class="mr-3" />
+        <MudText Typo="Typo.h5" Class="mr-2">LineMap</MudText>
+        <MudText Typo="Typo.body1" Style="color: rgba(255,255,255,0.8);">Production Line Management System</MudText>
+        <MudSpacer />
+        <MudAvatar Color="Color.Surface" Size="Size.Small" Class="mr-2">
+            <MudIcon Icon="Icons.Material.Filled.Person" />
+        </MudAvatar>
+        <MudText Typo="Typo.body1">Production Manager</MudText>
+    </MudAppBar>
+
+    <MudMainContent Class="pa-6" Style="background-color: #f8f9fa;">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+            <!-- Header Section -->
+            <MudStack Spacing="2" Class="mb-6">
+                <MudText Typo="Typo.h4" Style="color: #2c3e50; font-weight: 600;">Production Lines</MudText>
+                <MudText Typo="Typo.body1" Style="color: #6c757d;">Manage and monitor your manufacturing production lines</MudText>
+            </MudStack>
+
+            <!-- Search and Filter Section -->
+            <MudPaper Class="pa-4 mb-4" Elevation="1" Style="border-radius: 8px;">
+                <MudGrid AlignItems="Center" Spacing="3">
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="searchText" 
+                                     Placeholder="Search production lines..." 
+                                     Adornment="Adornment.Start" 
+                                     AdornmentIcon="Icons.Material.Filled.Search"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.None"
+                                     FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudSelect @bind-Value="sortFilter" 
+                                  Label="Sort By" 
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.None"
+                                  FullWidth="true">
+                            <MudSelectItem Value="@("recently_modified")">Recently Modified</MudSelectItem>
+                            <MudSelectItem Value="@("name")">Name</MudSelectItem>
+                            <MudSelectItem Value="@("status")">Status</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudSelect @bind-Value="statusFilter" 
+                                  Label="Status Filter" 
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.None"
+                                  FullWidth="true">
+                            <MudSelectItem Value="@("all")">All Status</MudSelectItem>
+                            <MudSelectItem Value="@("active")">Active</MudSelectItem>
+                            <MudSelectItem Value="@("draft")">Draft</MudSelectItem>
+                            <MudSelectItem Value="@("inactive")">Inactive</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+
+            <!-- Production Lines List -->
+            <MudPaper Class="pa-4" Elevation="1" Style="border-radius: 8px;">
+                <MudText Typo="Typo.h6" Class="mb-4" Style="color: #2c3e50;">
+                    Production Lines (@productionLines.Count items)
+                </MudText>
+
+                <MudStack Spacing="3">
+                    @foreach (var line in productionLines)
+                    {
+                        <MudPaper Class="pa-4" Elevation="0" Style="border: 1px solid #e9ecef; border-radius: 8px; transition: all 0.2s ease;">
+                            <MudGrid AlignItems="Center">
+                                <MudItem xs="12" md="1">
+                                    <MudAvatar Color="@GetAvatarColor(line.Type)" Size="Size.Large" Rounded="true">
+                                        <MudIcon Icon="@GetLineIcon(line.Type)" Size="Size.Medium" />
+                                    </MudAvatar>
+                                </MudItem>
+                                <MudItem xs="12" md="6">
+                                    <MudStack Spacing="1">
+                                        <MudText Typo="Typo.h6" Style="color: #2c3e50; font-weight: 600;">@line.Name</MudText>
+                                        <MudText Typo="Typo.body2" Style="color: #6c757d;">@line.Description</MudText>
+                                    </MudStack>
+                                </MudItem>
+                                <MudItem xs="12" md="2">
+                                    <MudChip T="string" Color="@GetStatusColor(line.Status)" 
+                                            Variant="Variant.Filled" 
+                                            Size="Size.Small"
+                                            Style="font-weight: 500;">
+                                        @line.Status.ToUpper()
+                                    </MudChip>
+                                </MudItem>
+                                <MudItem xs="12" md="3">
+                                    <MudText Typo="Typo.body2" Style="color: #6c757d;" Align="Align.End">
+                                        Modified: @line.LastModified.ToString("MMM dd, yyyy HH:mm")
+                                    </MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                    }
+                </MudStack>
+            </MudPaper>
+
+            <!-- Add New Line Button -->
+            <MudFab Color="Color.Primary" 
+                   Icon="Icons.Material.Filled.Add" 
+                   Style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;"
+                   OnClick="@(() => AddNewLine())" />
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private string searchText = "";
+    private string sortFilter = "recently_modified";
+    private string statusFilter = "all";
+
+    private List<ProductionLine> productionLines = new()
+    {
+        new ProductionLine 
+        { 
+            Name = "Hallo", 
+            Description = "Assembly Line Configuration", 
+            Status = "active", 
+            Type = "assembly",
+            LastModified = new DateTime(2025, 6, 11, 19, 9, 0) 
+        },
+        new ProductionLine 
+        { 
+            Name = "seli", 
+            Description = "Quality Control Line", 
+            Status = "active", 
+            Type = "quality",
+            LastModified = new DateTime(2025, 6, 11, 18, 47, 0) 
+        },
+        new ProductionLine 
+        { 
+            Name = "Kiwen", 
+            Description = "Engine Assembly Line", 
+            Status = "draft", 
+            Type = "engine",
+            LastModified = new DateTime(2025, 6, 11, 11, 29, 0) 
+        },
+        new ProductionLine 
+        { 
+            Name = "Moku", 
+            Description = "Final Testing & QA", 
+            Status = "active", 
+            Type = "testing",
+            LastModified = new DateTime(2025, 6, 11, 11, 28, 0) 
+        }
+    };
+
+    private MudTheme _customTheme = new()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#4a5568",        // Dark slate blue-gray
+            Secondary = "#2d3748",      // Darker gray
+            Success = "#48bb78",        // Green for active status
+            Warning = "#ed8936",        // Orange for draft status
+            Error = "#f56565",          // Red for errors
+            Info = "#4299e1",           // Blue for info
+            Surface = "#ffffff",        // White surface
+            Background = "#f7fafc",     // Light gray background
+            AppbarBackground = "#4a5568", // Same as primary
+            DrawerBackground = "#ffffff",
+            TextPrimary = "#2d3748",    // Dark text
+            TextSecondary = "#718096"   // Gray text
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#4a5568",
+            Secondary = "#2d3748",
+            Success = "#48bb78",
+            Warning = "#ed8936",
+            Error = "#f56565",
+            Info = "#4299e1",
+            Surface = "#2d3748",
+            Background = "#1a202c",
+            AppbarBackground = "#4a5568",
+            DrawerBackground = "#2d3748"
+        },
+        Typography = new Typography()
+        {
+            Default = new DefaultTypography()
+            {
+                FontFamily = new[] { "Inter", "Roboto", "Helvetica", "Arial", "sans-serif" }
+            }
+        },
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "8px"
+        }
+    };
+
+    private Color GetStatusColor(string status)
+    {
+        return status.ToLower() switch
+        {
+            "active" => Color.Success,
+            "draft" => Color.Warning,
+            "inactive" => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private Color GetAvatarColor(string type)
+    {
+        return type switch
+        {
+            "assembly" => Color.Primary,
+            "quality" => Color.Info,
+            "engine" => Color.Secondary,
+            "testing" => Color.Primary,
+            _ => Color.Default
+        };
+    }
+
+    private string GetLineIcon(string type)
+    {
+        return type switch
+        {
+            "assembly" => Icons.Material.Filled.Widgets,
+            "quality" => Icons.Material.Filled.VerifiedUser,
+            "engine" => Icons.Material.Filled.Settings,
+            "testing" => Icons.Material.Filled.Science,
+            _ => Icons.Material.Filled.Factory
+        };
+    }
+
+    private void AddNewLine()
+    {
+        // Handle adding new production line
+        Console.WriteLine("Add new production line clicked");
+    }
+
+    public class ProductionLine
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Status { get; set; } = "";
+        public string Type { get; set; } = "";
+        public DateTime LastModified { get; set; }
+    }
+}
+
+
+
+
+@* @page "/test"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LineMap - Production Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+            .header-title h1 {
+                font-size: 1.75rem;
+                font-weight: 600;
+                margin: 0;
+            }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Main Content */
+        .content-wrapper {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-description {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .toolbar-content {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            flex: 1;
+            min-width: 280px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+            .search-input:focus {
+                border-color: #3b82f6;
+                background: white;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+            font-size: 0.95rem;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            min-width: 180px;
+        }
+
+            .filter-select:hover {
+                border-color: #cbd5e1;
+                background: white;
+            }
+
+            .filter-select:focus {
+                border-color: #3b82f6;
+                background: white;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+
+        /* Data Grid */
+        .data-grid {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+
+        .grid-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .grid-row {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+            .grid-row:hover {
+                background: #f8fafc;
+            }
+
+            .grid-row:last-child {
+                border-bottom: none;
+            }
+
+            .grid-row.selected {
+                background: #eff6ff;
+                border-left: 4px solid #3b82f6;
+            }
+
+        .row-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .row-main {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .row-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .row-details h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .row-details p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .row-meta {
+            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .row-date {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .row-actions {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .grid-row:hover .row-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+            .action-btn:hover {
+                background: #f1f5f9;
+                color: #1e293b;
+            }
+
+        /* Action Buttons */
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+            }
+
+        .btn-secondary {
+            background: white;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+        }
+
+            .btn-secondary:hover {
+                border-color: #cbd5e1;
+                background: #f8fafc;
+            }
+
+        /* Status Indicators */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <div class="header-logo">
+                        <span class="material-icons">timeline</span>
+                    </div>
+                    <div>
+                        <h1>LineMap</h1>
+                        <p class="header-subtitle">Production Line Management System</p>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <span class="material-icons">account_circle</span>
+                    <span>Production Manager</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="content-wrapper">
+            <div class="page-header">
+                <h2 class="page-title">Production Lines</h2>
+                <p class="page-description">Manage and monitor your manufacturing production lines</p>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="toolbar-content">
+                    <div class="search-container">
+                        <span class="material-icons search-icon">search</span>
+                        <input type="text" class="search-input" placeholder="Search production lines..." id="searchInput">
+                    </div>
+                    <select class="filter-select" id="sortSelect">
+                        <option value="date-desc">Recently Modified</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="name-asc">Name A-Z</option>
+                        <option value="name-desc">Name Z-A</option>
+                    </select>
+                    <select class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="draft">Draft</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Data Grid -->
+            <div class="data-grid">
+                <div class="grid-header">
+                    Production Lines (4 items)
+                </div>
+
+                <div class="grid-row" data-name="Hallo" data-date="2025-06-11T19:09:54">
+                    <div class="row-content">
+                        <div class="row-main">
+                            <div class="row-icon">
+                                <span class="material-icons">manufacturing</span>
+                            </div>
+                            <div class="row-details">
+                                <h3>Hallo</h3>
+                                <p>Assembly Line Configuration</p>
+                            </div>
+                        </div>
+                        <div class="row-meta">
+                            <div class="status-badge status-active">Active</div>
+                            <div class="row-date">Modified: Jun 11, 2025 19:09</div>
+                            <div class="row-actions">
+                                <button class="action-btn" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="action-btn" title="More options">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-row" data-name="seli" data-date="2025-06-11T18:47:58">
+                    <div class="row-content">
+                        <div class="row-main">
+                            <div class="row-icon">
+                                <span class="material-icons">precision_manufacturing</span>
+                            </div>
+                            <div class="row-details">
+                                <h3>seli</h3>
+                                <p>Quality Control Line</p>
+                            </div>
+                        </div>
+                        <div class="row-meta">
+                            <div class="status-badge status-active">Active</div>
+                            <div class="row-date">Modified: Jun 11, 2025 18:47</div>
+                            <div class="row-actions">
+                                <button class="action-btn" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="action-btn" title="More options">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-row" data-name="Kiwen" data-date="2025-06-11T11:29:01">
+                    <div class="row-content">
+                        <div class="row-main">
+                            <div class="row-icon">
+                                <span class="material-icons">settings</span>
+                            </div>
+                            <div class="row-details">
+                                <h3>Kiwen</h3>
+                                <p>Engine Assembly Line</p>
+                            </div>
+                        </div>
+                        <div class="row-meta">
+                            <div class="status-badge status-draft">Draft</div>
+                            <div class="row-date">Modified: Jun 11, 2025 11:29</div>
+                            <div class="row-actions">
+                                <button class="action-btn" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="action-btn" title="More options">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-row" data-name="Moku" data-date="2025-06-11T11:28:44">
+                    <div class="row-content">
+                        <div class="row-main">
+                            <div class="row-icon">
+                                <span class="material-icons">build</span>
+                            </div>
+                            <div class="row-details">
+                                <h3>Moku</h3>
+                                <p>Final Testing & QA</p>
+                            </div>
+                        </div>
+                        <div class="row-meta">
+                            <div class="status-badge status-active">Active</div>
+                            <div class="row-date">Modified: Jun 11, 2025 11:28</div>
+                            <div class="row-actions">
+                                <button class="action-btn" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="action-btn" title="More options">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <button class="btn btn-primary">
+                    <span class="material-icons">add</span>
+                    Create New Line
+                </button>
+                <button class="btn btn-secondary">
+                    <span class="material-icons">upload</span>
+                    Import Configuration
+                </button>
+                <button class="btn btn-secondary">
+                    <span class="material-icons">analytics</span>
+                    Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const gridRows = document.querySelectorAll('.grid-row');
+
+        function filterLines() {
+            const searchTerm = searchInput.value.toLowerCase();
+
+            gridRows.forEach(row => {
+                const name = row.dataset.name.toLowerCase();
+                const description = row.querySelector('.row-details p').textContent.toLowerCase();
+
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    row.style.display = 'flex';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            updateItemCount();
+        }
+
+        function sortLines() {
+            const sortValue = sortSelect.value;
+            const container = document.querySelector('.data-grid');
+            const header = container.querySelector('.grid-header');
+            const rows = Array.from(gridRows);
+
+            rows.sort((a, b) => {
+                switch(sortValue) {
+                    case 'date-desc':
+                        return new Date(b.dataset.date) - new Date(a.dataset.date);
+                    case 'date-asc':
+                        return new Date(a.dataset.date) - new Date(b.dataset.date);
+                    case 'name-asc':
+                        return a.dataset.name.localeCompare(b.dataset.name);
+                    case 'name-desc':
+                        return b.dataset.name.localeCompare(a.dataset.name);
+                    default:
+                        return 0;
+                }
+            });
+
+            rows.forEach(row => container.appendChild(row));
+            container.insertBefore(header, container.firstChild);
+        }
+
+        function updateItemCount() {
+            const visibleRows = Array.from(gridRows).filter(row => row.style.display !== 'none');
+            const header = document.querySelector('.grid-header');
+            header.textContent = `Production Lines (${visibleRows.length} items)`;
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', filterLines);
+        sortSelect.addEventListener('change', sortLines);
+
+        // Row selection
+        gridRows.forEach(row => {
+            row.addEventListener('click', function(e) {
+                if (e.target.closest('.action-btn')) return;
+
+                // Remove selection from other rows
+                gridRows.forEach(r => r.classList.remove('selected'));
+
+                // Add selection to clicked row
+                this.classList.add('selected');
+
+                console.log('Selected line:', this.dataset.name);
+            });
+        });
+
+        // Action button handlers
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const row = this.closest('.grid-row');
+                const action = this.getAttribute('title');
+                console.log(`${action} for line:`, row.dataset.name);
+            });
+        });
+
+        // Initialize
+        updateItemCount();
+    </script>
+</body>
+</html> *@

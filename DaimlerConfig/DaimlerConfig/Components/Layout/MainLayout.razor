@@ -1,40 +1,89 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject DaimlerConfig.Services.SidebarState SidebarState
 
-<div class="page">
-    <main>
-        <Navbar />
-        <MudThemeProvider />
-        <MudPopoverProvider />
-        <MudDialogProvider />
-        <MudSnackbarProvider />
 
-        <MudLayout>
-            <MudThemeManagerButton OnClick="@((e) => OpenThemeManager(true))" />
-            <MudThemeManager Open="_themeManagerOpen" OpenChanged="OpenThemeManager" Theme="_themeManager" ThemeChanged="UpdateTheme" />
-            <MudMainContent>
-                @Body
-            </MudMainContent>
-        </MudLayout>
-    </main>
-</div>
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_customTheme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Primary" Dense="false">
+        @if (!IsOnMainPage)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" @onclick="SidebarState.RequestToggle" />
+            @*<MudSwitch @bind-Value="_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Toggle Light/Dark Mode" />
+
+            <MudText Class="ma-4">This is an example text!</MudText>*@
+        }
+        <MudText Typo="Typo.h6" Class="ml-3">LineMap</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Medium" >
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
 
 @code {
-    private ThemeManagerTheme _themeManager = new ThemeManagerTheme();
-public bool _themeManagerOpen = false;
+    bool _drawerOpen = true;
+    private MudTheme _theme = new();
+    private bool _isDarkMode;
 
-void OpenThemeManager(bool value)
-{
-    _themeManagerOpen = value;
+    private bool IsOnMainPage =>
+       Navigation.ToBaseRelativePath(Navigation.Uri).Equals("", StringComparison.OrdinalIgnoreCase)
+       || Navigation.ToBaseRelativePath(Navigation.Uri).Equals("main", StringComparison.OrdinalIgnoreCase);
+
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private MudTheme _customTheme = new()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#0A192F",        // Dark slate blue-gray
+            Secondary = "#112240",      // Darker gray
+            Success = "#48bb78",        // Green for active status
+            Warning = "#ed8936",        // Orange for draft status
+            Error = "#f56565",          // Red for errors
+            Info = "#4299e1",           // Blue for info
+            Surface = "#ffffff",        // White surface
+            Background = "#f7fafc",     // Light gray background
+            AppbarBackground = "#4a5568", // Same as primary
+            DrawerBackground = "#ffffff",
+            TextPrimary = "#2d3748",    // Dark text
+            TextSecondary = "#718096"   // Gray text
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#4a5568",
+            Secondary = "#2d3748",
+            Success = "#48bb78",
+            Warning = "#ed8936",
+            Error = "#f56565",
+            Info = "#4299e1",
+            Surface = "#2d3748",
+            Background = "#1a202c",
+            AppbarBackground = "#4a5568",
+            DrawerBackground = "#2d3748"
+        },
+        Typography = new Typography()
+        {
+            Default = new DefaultTypography()
+            {
+                FontFamily = new[] { "Inter", "Roboto", "Helvetica", "Arial", "sans-serif" }
+            }
+        },
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "8px"
+        }
+    };
 }
 
-void UpdateTheme(ThemeManagerTheme value)
-{
-    _themeManager = value;
-    StateHasChanged();
-}
-
-protected override void OnInitialized()
-{
-    StateHasChanged();
-}
-}

@@ -13,134 +13,77 @@
 <body>
   
 
-    <div class="d-flex sidebar bg-white">
+    @* <div class="d-flex sidebar bg-white"> *@
         <!-- Sidebar -->
-        <aside id="sidebar" class="@SidebarClass border-end ">
+        <MudDrawer @bind-Open="@IsSidebarOpen" ClipMode="DrawerClipMode.Always" Variant="@DrawerVariant.Responsive" Elevation="1">
+            <MudNavMenu Class="px-2 py-2">
 
-            <ul class="sidebar-nav p-0">
-                <li class="sidebar-item">
-                    <a href="/" class="sidebar-link" @onclick="() => UnlockTool()">
-                        <span>Home</span>
-                    </a>
-                </li>
-                <li class="sidebar-header">
-                    Stations
-                </li>
+                <!-- Home Link -->
+                <MudNavLink Href="/" OnClick="() => UnlockTool()" Icon="@Icons.Material.Filled.Home">
+                    Home
+                </MudNavLink>
 
+                <!-- Header -->
+                       <MudListSubheader Typo="Typo.subtitle2" Class="mt-3 mb-2 ps-4 text-uppercase text-muted">Stations</MudListSubheader>
+
+ <!-- Station List -->
                 @foreach (var station in stations)
                 {
-                    <li class="sidebar-item justify-content-between draggable">
-                        <a class="sidebar-link clickable d-flex align-items-center justify-content-between @(selectedStation?.stationID == station.stationID ? "active stationSelected" : "")"
-                           @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                    <MudNavLink  
+                        Match="NavLinkMatch.All"  
+                        OnClick="() => { SelectStation(station); ToggleStationFormular(false); }"  
+                        Class="@(selectedStation?.stationID == station.stationID ? "d-flex align-items-center justify-content-between mud-selected stationSelected" : "d-flex align-items-center justify-content-between")">
+                    
+                        <div class="d-flex align-items-center justify-space-between">
+                            <MudBadge Color="@BadgeColor" Dot="true" />
+                            <MudText Class="ms-2">@station.assemblystation</MudText>
+                            <MudIcon Icon="@Icons.Material.Filled.DragIndicator" Class="ms-2" />
+                        </div>
 
-                            <div class="d-flex align-items-center">
-                                <Badge colour="@BadgeColor" />
-                                <span class="ms-2">@station.assemblystation</span>
-                            </div>
-
-                            <div class=" ms-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                     class="bi bi-grip-vertical" viewBox="0 0 16 16">
-                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                                </svg>
-                            </div>
-                        </a>
-                    </li>
-
+                        <!-- Grip Icon -->  
+                    </MudNavLink>
                 }
 
-                <li class="sidebar-item">
-                    <a class="sidebar-link clickable" @onclick="() => ToggleStationFormular(true)">
-                        <i class="lni lni-plus"></i>
-                        <span>Add Station</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
+            @* <MudDropContainer T="Station" Items="stations" Class="d-flex flex-wrap flex-grow-1">
+               
+                <ChildContent>
+                    
+                    <MudDropZone T="Station" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1" AllowReorder="true">
+                        <MudText Typo="Typo.h6" Class="mb-4">Stations</MudText>
+                    </MudDropZone>
+
+                </ChildContent>
+                
+                <ItemRenderer>
+                    <MudPaper Elevation="25" Class="pa-4 my-4">@context.assemblystation</MudPaper>
+                </ItemRenderer>
+            
+            </MudDropContainer> *@
+
+                <!-- Add Station -->
+                <MudNavLink OnClick="() => ToggleStationFormular(true)" Icon="@Icons.Material.Filled.Add">
+                    Add Station
+                </MudNavLink>
+
+            </MudNavMenu>
+        </MudDrawer>
+
 
         <!-- Sidebar ends-->
         <!-- Main Content -->
-        <div class="main container">
-                <h5>Current Station: @(selectedStation != null ? selectedStation.assemblystation : "Please choose a station")</h5>
-            <main class=" pb-0 d-flex gap-3">
+        <MudGrid Height="100%">        
 
-                <!-- Linke Spalte: Tools und Operationen -->
-                @* <div class="tool-operation-panel" style="width: 500px;"> *@
-                @*     <div class="d-flex justify-content-between align-items-center mb-3"> *@
-                @*         <h6>Tools and Operations</h6> *@
-                @*         @if (selectedStation != null) *@
-                @*         { *@
-                @*             if (copiedTool != null) *@
-                @*             { *@
-                @*                 <button class="btn btn-primary btn-sm" @onclick="() => InsertTool()">Insert Tool</button> *@
-                @*             } *@
-                @*             <button class="btn btn-primary btn-sm" @onclick="() => ToggleToolFormular(true)">+ Tool</button> *@
-                @*         } *@
+            <MudItem xs="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-8" Color="Color.Primary">Current Station: @(selectedStation != null ? selectedStation.assemblystation : "Please choose a station")</MudPaper>
+            </MudItem>
+            <MudItem xs="5">
+                <MudPaper Class="pa-4 mb-4" Elevation="1" Style="border-radius: 8px; max-height: 45vh; display: flex; flex-direction: column;">
 
-                @*     </div> *@
 
-                @*     <div id="toolsList"> *@
-                @*         @if (selectedStation == null) *@
-                @*         { *@
-                @*             <p>Please choose a station.</p> *@
-                @*         } *@
-                @*         else if (!tools.Any()) *@
-                @*         { *@
-                @*             <p>No tools found.</p> *@
-                @*         } *@
-                @*         else *@
-                @*         { *@
-                @*             @foreach (var tool in tools) *@
-                @*             { *@
-                @*                 <div class="tool-section tool-draggable" data-tool-id="@tool.toolID"> *@
-                @*                     <div class="tool-header d-flex justify-content-between align-items-center" @onclick="() => { SelectTool(tool); ToggleToolFormular(false); }"> *@
-                @*                         <span class="clickable">@tool.toolShortname</span> *@
-                @*                         <div> *@
-                @*                             <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneTool(tool))" @onclick:stopPropagation>copy</button> *@
-                @*                             <button class="btn btn-secondary btn-sm mr-2" @onclick="() => { SelectTool(tool); ToggleOperationFormular(true);  }" @onclick:stopPropagation>+</button> *@
-                @*                             @if (selectedTool != null) *@
-                @*                             { *@
-                @*                                 if (copiedOperation != null) *@
-                @*                                 { *@
-                @*                                     <button class="btn btn-primary btn-sm" @onclick="() => {  SelectTool(tool); InsertOperation(); }" @onclick:stopPropagation>Insert Operation</button> *@
-                @*                                 } *@
-                @*                             } *@
+                    <h6>Tools and Operations</h6>
 
-                @*                             <!-- Drag handle for tools --> *@
-                @*                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" *@
-                @*                                  class="bi bi-grip-vertical drag-handle" viewBox="0 0 16 16"> *@
-                @*                                 <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" /> *@
-                @*                             </svg> *@
-
-                @*                         </div> *@
-                @*                     </div> *@
-                @*                     <div class="operation-list"> *@
-                @*                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID)) *@
-                @*                         { *@
-                @*                             <div class="operation-draggable operation-section d-flex justify-content-between align-items-center" @onclick="() => { SelectOperation(operation); ToggleOperationFormular(false);  }"> *@
-                @*                                 <span class="clickable" >@operation.operationShortname</span> *@
-                @*                                 <div> *@
-                @*                                     <button class="btn btn-secondary btn-sm mr-2" @onclick="@(() => CloneOperation(operation))" @onclick:stopPropagation>copy</button> *@
-
-                @*                                     <!-- Drag handle for operations --> *@
-                @*                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" *@
-                @*                                          class="bi bi-grip-vertical drag-handle-small" viewBox="0 0 16 16"> *@
-                @*                                         <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" /> *@
-                @*                                     </svg> *@
-
-                @*                                 </div> *@
-                @*                             </div> *@
-                @*                         } *@
-                @*                     </div> *@
-                @*                 </div> *@
-                @*             } *@
-                @*         } *@
-                @*     </div> *@
-                @* </div> *@
-
-                <div class="tool-operation-panel" style="width: 500px;">
+                <!--<div class="tool-operation-panel" style="width: 500px;">-->
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6>Tools and Operations</h6>
                         @if (selectedStation != null)
                         {
                             if (copiedTool != null)
@@ -211,11 +154,16 @@
                             </MudExpansionPanels>
                         }
                     </div>
-                </div>
+                </MudPaper>
+            </MudItem>
+
 
 
                 <!-- Rechte Spalte: Content -->
-                <div class="content-panel flex-fill">
+                <MudItem xs="7">
+                <MudPaper Class="d-flex align-stretch justify-center mud-width-full py-8 overflow-y-scroll ">
+
+
                     @if (showToolFormular && selectedTool != null)
                     {
                         <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@selectedTool"  CurrentUser=@currentUser/>
@@ -230,11 +178,12 @@
                     {
                         <StationFormular @ref="stationFormular" SelectedStation="@selectedStation"   />
                     }
-                </div>
-            </main>
-        </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    @* </div> *@
 
-    </div>
+
     @if (showPopup)
     {
         <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
@@ -308,8 +257,23 @@
     #endregion
 
     #region SideBar
-    private string BadgeColor = "#006700"; //needs to be implemented
+    private MudBlazor.Color BadgeColor = Color.Success; //needs to be implemented
     private string SidebarClass = "";
+    private bool _isSidebarOpen = true;
+    
+    public bool IsSidebarOpen
+    {
+        get => _isSidebarOpen;
+        set
+        {
+            if (_isSidebarOpen != value)
+            {
+                _isSidebarOpen = value;
+                SidebarClass = value ? "" : "collapsed";
+                StateHasChanged();
+            }
+        }
+    }
 
     protected override void OnInitialized()
     {
@@ -318,14 +282,15 @@
 
     private void HandleToggle()
     {
-        SidebarClass = SidebarClass.Contains("collapsed") ? "" : "collapsed";
-        StateHasChanged(); 
+        IsSidebarOpen = !IsSidebarOpen;
     }
 
     public void Dispose()
     {
         SidebarState.OnToggleRequested -= HandleToggle;
     }
+
+
     #endregion
 
     #region Line
