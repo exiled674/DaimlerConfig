@@ -19,7 +19,8 @@
                               Margin="Margin.Dense"
                               Class="search-field-enhanced"
                               Error="@lineExists"
-                              ErrorText="@errorText" />
+                              ErrorText="@errorText"
+                               @onkeypress="OnKeyDown"/>
             </MudPaper>
 
             <!-- Optionaler versteckter Submit-Button für Enter-Taste -->
@@ -168,5 +169,15 @@
     private void Cancel()
     {
         MudDialog.Cancel();
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            // Kurze Verzögerung um sicherzustellen, dass @bind-Value aktualisiert wurde
+            await Task.Delay(1);
+            await HandleValidSubmit();
+        }
     }
 }
