@@ -21,22 +21,26 @@
 			}
 			@if (SelectedStation?.stationID == 0)
 			{
-					<div class="d-flex justify-content-between align-items-center mb-3">
-						<button class="btn btn-primary btn-sm"   @onclick="CreateStationAsync">Create</button>
-					</div>
+						<MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+			   Variant="Variant.Filled"
+			   Color="Color.Primary"
+			   Class="btn btn-primary btn-sm add-station-btn"
+			   @onclick="CreateStationAsync">
+						Create
+					</MudButton>
 			}
 
 
 			@if (SelectedStation?.stationID != 0)
 			{
 					<div class="d-flex justify-content-between align-items-center mb-3">
-							<MudButton StartIcon="@Icons.Material.Filled.Add"
-								   Variant="Variant.Filled"
-								   Color="Color.Primary"
+								<MudButton StartIcon="@Icons.Material.Filled.Save"
+									   Variant="Variant.Filled"
+									   Color="Color.Primary"
 									   Class="btn btn-primary btn-sm add-station-btn"
-								   @onclick="UpdateStationAsync">
-							Save
-						</MudButton>
+									   @onclick="UpdateStationAsync">
+								Save
+							</MudButton>
 					</div>
 
 
@@ -55,9 +59,9 @@
 			  Label="Assemblystation"
 			  Variant="Variant.Outlined"
 			  MaxLength="10"
-			  Class="flex-grow-1 search-field-enhanced"
+			  Class="search-field-enhanced"
 			  Style="background: white; border-radius: 12px;" 
-			  Margin="Margin.Dense"
+			  Margin="Margin.Normal"
 			  Immediate="true"
 			  OnBlur="CheckIfDirty"
 			  Error="@errorMessages.ContainsKey("Assemblystation")"
@@ -75,7 +79,7 @@
 			  MaxLength="50"
 			  Class="flex-grow-1 search-field-enhanced"
 			Style="background: white; border-radius: 12px;"
-			  Margin="Margin.Dense"
+				Margin="Margin.Normal"
 			  Immediate="true"
 			  OnBlur="CheckIfDirty" />
 			<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
@@ -84,7 +88,7 @@
 
 			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID" Variant="Variant.Outlined"
 			Class="flex-grow-1 search-field-enhanced" Style="background: white; border-radius: 12px;"
-				 Margin="Margin.Dense" OnBlur="CheckIfDirty">
+							   Margin="Margin.Normal" OnBlur="CheckIfDirty">
 				@if (stationTypes != null)
 				{
 					@foreach (var stationType in stationTypes)
@@ -99,7 +103,7 @@
 			  Variant="Variant.Outlined"
 			  Class="flex-grow-1 search-field-enhanced"
 				Style="background: white; border-radius: 12px;"
-			  Margin="Margin.Dense"
+						   Margin="Margin.Normal"
 			  Immediate="true"
 			  OnBlur="CheckIfDirty"
 			  MaxLength="1000"
@@ -122,6 +126,7 @@
 .search-field-enhanced {
 	box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
 	transition: box-shadow 0.2s ease-in-out !important;
+	
 	}
 
 	.search-field-enhanced:hover {
@@ -132,7 +137,6 @@
 	background: white !important;
 	border-radius: 12px !important;
 	}
-
 
 </style>
 
