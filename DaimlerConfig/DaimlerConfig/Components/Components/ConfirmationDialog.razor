@@ -1,11 +1,12 @@
-﻿<MudDialog Style="border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+﻿@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+<MudDialog Style="border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
     <DialogContent>
         <div class="d-flex align-items-center mb-3">
             <MudIcon Icon="@Icons.Material.Filled.Warning"
                      Color="Color.Error"
                      Size="Size.Large"
                      Class="me-3" />
-            <MudText Typo="Typo.h6">Bestätigung</MudText>
+            <MudText Typo="Typo.h6">@Fassade.Language.Confirm</MudText>
         </div>
         <MudText Typo="Typo.body1">@ContentText</MudText>
     </DialogContent>
@@ -14,7 +15,7 @@
                    Variant="Variant.Text"
                    Color="Color.Default"
                    Class="rounded-button">
-            Abbrechen
+            @Fassade.Language.Cancel
         </MudButton>
         <MudButton Color="@Color"
                    Variant="Variant.Filled"

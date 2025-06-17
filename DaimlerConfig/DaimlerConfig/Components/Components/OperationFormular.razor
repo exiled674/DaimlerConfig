@@ -8,11 +8,11 @@
 
 <div class="container-lg px-3">
     <div class="class-header justify-content-between align-items-center">
-        <h2>Operation</h2>
+        <h2>@Fassade.Language.Operation</h2>
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
                 <select class="form-select" id="OperationVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
-                    <option value="-1">Aktuelle Version</option>
+                    <option value="-1">@Fassade.Language.CurrentVersion</option>
                     @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                     {
                         <option value="@version.operationVersionID">
@@ -21,21 +21,21 @@
                     }
                 </select>
 
-                <label for="ToolVersionSelect">Versionen</label>
+                <label for="ToolVersionSelect">@Fassade.Language.Versions</label>
             </div>
             @if (SelectedOperation.operationID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync" >Create</button>
+                    <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync" >@Fassade.Language.Create</button>
                 </div>
             }
             @if (SelectedOperation.operationID != 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync" disabled="@ReadOnly">Update</button>
+                    <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync" disabled="@ReadOnly">@Fassade.Language.Update</button>
                 </div>
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync" disabled="@ReadOnly">Delete</button>
+                    <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync" disabled="@ReadOnly">@Fassade.Language.Delete</button>
                 </div>
             }
         </div>
@@ -46,12 +46,12 @@
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control" placeholder=""  @bind="SelectedOperation.operationID" readonly>
-                <label>Operation ID</label>
+                <label>@Fassade.Language.OperationId</label>
             </div>
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control @(errorMessages.ContainsKey("OperationShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.operationShortname" readonly="@ReadOnly">
-                <label>Operation Shortname</label>
+                <label>@Fassade.Language.OperationShortname</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
                 </span>
@@ -63,7 +63,7 @@
 
             <div class="form-floating mb-3">
                 <textarea type="text" class="form-control form-control " maxlength="100" placeholder="" style="height: 150px" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.operationDescription" readonly="@ReadOnly"></textarea>
-                <label>Operation Description</label>
+                <label>@Fassade.Language.OperationDescription</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.operationDescription?.Length ?? 0}/100")</span>
             </div>
@@ -76,21 +76,21 @@
                     <option value="Serial">Serial</option>
                     <option value="Parallel">Parallel</option>
                 </select>
-                <label for="ProcessingMode">Processing Mode</label>
+                <label for="ProcessingMode">@Fassade.Language.ProcessingMode</label>
             </div>
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
-                <label>Operation Sequenz</label>
+                <label>@Fassade.Language.OperationSequence</label>
             </div>
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
-                <label>Operation Sequenz Group</label>
+                <label>@Fassade.Language.OperationSequenceGroup</label>
             </div>
             <div class="form-floating mb-3">
                 <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.Comment" maxlength="1000"></textarea>
-                <label>Comment</label>
+                <label>@Fassade.Language.Comment</label>
                 <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
                     @($"{SelectedOperation?.Comment.Length ?? 0}/1000")
                 </span>
@@ -100,7 +100,7 @@
 
     <hr />
 
-    <h2>Classes</h2>
+    <h2>@Fassade.Language.Classes</h2>
     <div class="layout position-relative">
         <div class="toolColoumnLeft">
             <div class="form-floating mb-3">
@@ -110,7 +110,7 @@
                         <option value="@decision.decisionClassID">@decision.decisionClassName</option>
                     }
                 </select>
-                <label for="DecisionClass">Decision Class</label>
+                <label for="DecisionClass">@Fassade.Language.DecisionClass</label>
             </div>
 
             <div class="form-floating mb-3">
@@ -120,7 +120,7 @@
                         <option value="@generation.generationClassID">@generation.generationClassName</option>
                     }
                 </select>
-                <label for="GenerationClass">Generation Class</label>
+                <label for="GenerationClass">@Fassade.Language.GenerationClass</label>
             </div>
             <div class="form-floating mb-3">
                 <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
@@ -129,7 +129,7 @@
                         <option value="@verification.verificationClassID">@verification.verificationClassName</option>
                     }
                 </select>
-                <label for="VerificationClass">Verification Class</label>
+                <label for="VerificationClass">@Fassade.Language.VerificationClass</label>
             </div>
 
             <div class="form-floating mb-3">
@@ -139,7 +139,7 @@
                         <option value="@saving.savingClassID">@saving.savingClassName</option>
                     }
                 </select>
-                <label for="SavingClass">Saving Class</label>
+                <label for="SavingClass">@Fassade.Language.SavingClass</label>
             </div>
         </div>
 
@@ -147,7 +147,7 @@
 
             <div class="form-floating">
                 <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly" @onclick="LockOperation"></textarea>
-                <label for="DecisionCriteria">Decision Criteria</label>
+                <label for="DecisionCriteria">@Fassade.Language.DecisionCriteria</label>
             </div>
             <div class="form-floating mb-3">
                 <div class="form-control" style="height: auto; min-height: 38px;">
@@ -302,7 +302,7 @@
         //OperationShortname
         if (string.IsNullOrWhiteSpace(SelectedOperation.operationShortname))
         {
-            errorMessages["OperationShortname"] = "OperationShortname is missing";
+            errorMessages["OperationShortname"] = Fassade.Language.OperationShortnameMissing;
         }
 
         if (!SelectedOperation.toolID.HasValue)
@@ -310,7 +310,7 @@
 
         if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.operationID.Value, SelectedOperation.toolID.Value))
         {
-            errorMessages["OperationShortname"] = "An operation with this shortname already exists in this station";
+            errorMessages["OperationShortname"] = Fassade.Language.OperationShortnameAlreadyExists;
 
         }
 
