@@ -55,7 +55,8 @@
 			  Label="Assemblystation"
 			  Variant="Variant.Filled"
 			  MaxLength="10"
-			  Class="search-field-enhanced"
+			  Class="flex-grow-1 search-field-enhanced"
+			  Style="background: white; border-radius: 12px;" 
 			  Margin="Margin.Dense"
 			  Immediate="true"
 			  OnBlur="CheckIfDirty"
@@ -66,11 +67,14 @@
 			</span>
 
 
+
+
 			<MudTextField @bind-Value="SelectedStation.stationName"
 			  Label="Assemblystation Description"
 			  Variant="Variant.Filled"
 			  MaxLength="50"
-			  Class="search-field-enhanced"
+			  Class="flex-grow-1 search-field-enhanced"
+			Style="background: white; border-radius: 12px;"
 			  Margin="Margin.Dense"
 			  Immediate="true"
 			  OnBlur="CheckIfDirty" />
@@ -78,8 +82,9 @@
 				@($"{SelectedStation?.stationName?.Length ?? 0}/50")
 			</span>
 
-			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID"
-		   Variant="Variant.Filled" Class="search-field-enhanced" Margin="Margin.Dense" OnBlur="CheckIfDirty">
+			<MudSelect T="int" Label="Station Type" @bind-Value="SelectedStation.stationTypeID" 
+		   Variant="Variant.Filled" Class="flex-grow-1 search-field-enhanced"
+				Style="background: white; border-radius: 12px;" Margin="Margin.Dense" OnBlur="CheckIfDirty">
 				@if (stationTypes != null)
 				{
 					@foreach (var stationType in stationTypes)
@@ -92,7 +97,8 @@
 			<MudTextField @bind-Value="SelectedStation.Comment"
 			  Label="Comment"
 			  Variant="Variant.Filled"
-			  Class="search-field-enhanced"
+			  Class="flex-grow-1 search-field-enhanced"
+				Style="background: white; border-radius: 12px;"
 			  Margin="Margin.Dense"
 			  Immediate="true"
 			  OnBlur="CheckIfDirty"
@@ -112,31 +118,18 @@
 
 
 <style>
-
-	.search-field-enhanced {
-	background-color: #f0f5fa !important; /* leicht kühles, helles Grau */
-	border-radius: 12px !important;
+	 .search-field-enhanced {
 	box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-	transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out !important;
-}
+	transition: box-shadow 0.2s ease-in-out !important;
+	}
 
-.search-field-enhanced:hover {
-	background-color: #e4ecf7 !important; /* etwas dunkleres Grau beim Hover */
+	.search-field-enhanced:hover {
 	box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
-}
+	}
 
-/* Falls du auch Outlined-Variante benutzt, setzen wir den Hintergrund hier auch */
-.search-field-enhanced .mud-input-outlined {
-	background: #f0f5fa !important;
+	.search-field-enhanced .mud-input-outlined {
+	background: white !important;
 	border-radius: 12px !important;
-}
-
-.add-station-btn {
-		border-radius: 8px !important;
-		box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
-		transition: all 0.2s ease-in-out;
-		background-color: var(--mud-palette-primary);
-		color: white !important;
 	}
 </style>
 
