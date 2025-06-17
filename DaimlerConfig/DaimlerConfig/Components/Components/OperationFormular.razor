@@ -8,35 +8,54 @@
 
 <div class="container-lg px-3">
     <div class="class-header justify-content-between align-items-center">
-        <h2>@Fassade.Language.Operation</h2>
+        <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
+            @Fassade.Language.Operation
+        </MudText>
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <select class="form-select" id="OperationVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
-                    <option value="-1">@Fassade.Language.CurrentVersion</option>
+                <MudSelect T="int"
+                           Label="@Fassade.Language.Versions"
+                           @bind-Value="selectedVersionId"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Normal"
+                           Style="background: white; border-radius: 12px;"
+                           OnBlur="CheckIfDirty"
+                           @onchange="OnVersionChanged">
+                    <MudSelectItem T="int" Value="-1">@Fassade.Language.CurrentVersion</MudSelectItem>
                     @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                     {
-                        <option value="@version.operationVersionID">
+                            <MudSelectItem T="int" Value="@version.operationVersionID.Value">
                             @version.modifiedBy?.Split(';')[0] - @version.lastModified
-                        </option>
+                            </MudSelectItem>
                     }
-                </select>
-
-                <label for="ToolVersionSelect">@Fassade.Language.Versions</label>
+                </MudSelect>
             </div>
             @if (SelectedOperation.operationID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="AddOperationAsync" >@Fassade.Language.Create</button>
+                        <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Class="btn btn-primary btn-sm"
+                               @onclick="AddOperationAsync">
+                        @Fassade.Language.Create
+                    </MudButton>
                 </div>
             }
             @if (SelectedOperation.operationID != 0)
             {
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="UpdateOperationAsync" disabled="@ReadOnly">@Fassade.Language.Update</button>
-                </div>
-                <div class="d-flex justify-content-end align-items-center mb-3">
-                    <button class="btn btn-primary btn-sm" @onclick="DeleteOperationAsync" disabled="@ReadOnly">@Fassade.Language.Delete</button>
-                </div>
+                     <!-- Update -->
+                @if (SelectedOperation.operationID != 0)
+                {
+                        <MudButton StartIcon="@Icons.Material.Filled.Save"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Class="btn btn-primary btn-sm"
+                                   @onclick="UpdateOperationAsync"
+                                   Disabled="@ReadOnly">
+                        Save
+                        </MudButton>
+                }
             }
         </div>
     </div>
