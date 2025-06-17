@@ -8,7 +8,7 @@ using MudBlazor;
 
 namespace DaimlerConfig.Components.Layout
 {
-    public  class CustomTheme
+    public class CustomTheme
     {
 
         /* 
@@ -20,7 +20,7 @@ MudBlazor Default Theme
             {
                 Black = "rgba(89,74,226,1)",
                 White = "rgba(255,255,255,1)",
-                Primary = "#0A192F",
+                Primary = "#2E4B6E",
                 PrimaryContrastText = "rgba(255,255,255,1)",
                 Secondary = "#A9B7C6",
                 SecondaryContrastText = "rgba(255,255,255,1)",
@@ -84,7 +84,7 @@ MudBlazor Default Theme
                 OverlayDark = "rgba(33,33,33,0.4980392156862745)",
                 OverlayLight = "rgba(255,255,255,0.4980392156862745)",
 
-                
+
             },
             PaletteDark = new PaletteDark()
             {
