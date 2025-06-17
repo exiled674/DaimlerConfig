@@ -101,12 +101,19 @@
                         <MudGrid AlignItems="Center" Spacing="0">
                             <MudItem xs="10">
                                 <div class="d-flex align-items-center">
-                                    <Badge colour="@GetBadgeColour(station.Status)" />
+
+
                                     <div class="ml-3">
                                         <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
-                                            @station.assemblystation
+                                          
+                                                     <MudIcon Icon="@GetStatusIcon(station.Status)"
+             Size="Size.Small"
+             Class="mr-1"
+             Color="@GetStatusColor(station.Status)" />
+                                            
 
-                                        </MudText>
+                                            @station.assemblystation
+                                           </MudText>
                                         <MudText Typo="Typo.caption" Class="text-muted">
                                             @Fassade.Language.Status @station.Status
                                         </MudText>
@@ -239,22 +246,18 @@
                                             @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }"
                                             Selected="@(selectedTool?.toolID == tool.toolID)">
                                                 <MudGrid AlignItems="Center" Spacing="0">
-                                                    <MudItem xs="10">
-                                                        <div class="d-flex align-items-center" style="gap: 8px;">
-                                                            <!-- Status Badge -->
-                                                            <div @onclick="() => CycleColour(tool)" @onclick:stopPropagation="true">
-                                                                <button class="btn btn-secondary btn-sm mr-2">
-                                                                    <Badge colour="@GetBadgeColour(tool.Status)" />
-                                                                </button>
-
-                                                            </div>
-
-                                                            <!-- Tool Name -->
-                                                            <span class="tool-name">
+                                                          <MudItem xs="10">
+            <div class="d-flex align-items-center" style="gap: 8px;">
+                <MudIcon Icon="@GetStatusIcon(tool.Status)"
+                         Size="Size.Small"
+                         Class="mr-1"
+                         Color="@GetStatusColor(tool.Status)" />
+                <span class="tool-name">
                                                                 @tool.toolShortname
-                                                            </span>
-                                                        </div>
-                                                    </MudItem>
+                </span>
+            </div>
+        </MudItem>
+
 
                                                     <MudItem xs="2" Class="d-flex justify-end">
                                                         <div @onclick:stopPropagation="true">
@@ -359,17 +362,16 @@
                                                             Selected="@(selectedOperation?.operationID == operation.operationID)">
 
                                                                 <MudGrid AlignItems="Center" Spacing="0">
-                                                                    <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
-                                                                        <div @onclick="() => CycleColour(operation)" @onclick:stopPropagation="true">
-                                                                            <button class="btn btn-secondary btn-sm mr-2">
-                                                                                <Badge colour="@GetBadgeColour(operation.Status)" />
-                                                                            </button>
-                                                                        </div>
-
-                                                                        <span class="operation-name">
+                                                                              <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
+                <MudIcon Icon="@GetStatusIcon(operation.Status)"
+                         Size="Size.Small"
+                         Class="mr-1"
+                         Color="@GetStatusColor(operation.Status)" />
+                <span class="operation-name">
                                                                             @operation.operationShortname
-                                                                        </span>
-                                                                    </MudItem>
+                </span>
+            </MudItem>
+
 
                                                                     <MudItem xs="2" Class="d-flex justify-end">
                                                                         <div @onclick:stopPropagation="true">
@@ -1776,6 +1778,30 @@
     #endregion
 
     #region Badge
+
+
+    private static string GetStatusIcon(Status status)
+    {
+        return status switch
+        {
+            Status.Green => Icons.Material.Filled.DoneAll,
+            Status.Yellow => Icons.Material.Filled.ReportProblem,
+            Status.Red => Icons.Material.Filled.Cancel,
+            _ => Icons.Material.Filled.Help
+        };
+    }
+
+    private static Color GetStatusColor(Status status)
+    {
+        return status switch
+        {
+            Status.Green => Color.Success,
+            Status.Yellow => Color.Warning,
+            Status.Red => Color.Error,
+            _ => Color.Default
+        };
+    }
+
 
     private static string GetBadgeColour(Status status)
     {
