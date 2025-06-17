@@ -180,6 +180,7 @@ namespace DaimlerConfig
                         builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
                         builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
                         builder.Services.AddScoped<ExcelExport, ExcelExport>();
+                        builder.Services.AddScoped<Language, Language>();
 
                         builder.Services.AddSingleton<Fassade>(sp =>
                         {
