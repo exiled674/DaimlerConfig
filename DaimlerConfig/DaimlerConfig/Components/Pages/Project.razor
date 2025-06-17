@@ -28,8 +28,6 @@
 <MudAppBar Elevation="4" Color="Color.Primary" Class="navbar-aligned" Style="height: 64px;">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
 
-
-
     <!-- Haus Icon links -->
     <MudIconButton href="/" Icon="@Icons.Material.Filled.Home" OnClick="@(() => { UnlockTool(); UnlockOperation(); })"
     Color="Color.Inherit"
@@ -47,7 +45,7 @@
     <div class="d-flex align-center">
         <!-- Benutzername -->
         <MudText Typo="Typo.subtitle1" Class="mr-8 font-weight-medium" Style="white-space: nowrap;">
-            @(UsernameService.Username?.Split(';')[0] ?? "Unknown User")
+            @(UsernameService.Username?.Split(';')[0] ?? @Fassade.Language.UnknownUser)
         </MudText>
 
         <!-- Einstellungen -->
@@ -73,7 +71,7 @@
     <MudDrawer @bind-Open="@_open" Elevation="4" Fixed="true" Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.12);">
         <MudDrawerHeader Class="d-flex align-items-center px-4 py-3" Style="border-bottom: 1px solid rgba(0,0,0,0.12);">
             <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-                Stations
+                @Fassade.Language.Stations
             </MudText>
         </MudDrawerHeader>
 
@@ -87,7 +85,7 @@
 
             Class="add-station-btn w-100 justify-start px-3 py-2"
             @onclick="() => ToggleStationFormular(true)">
-                Station
+                @Fassade.Language.Station
             </MudButton>
 
 
@@ -96,54 +94,60 @@
             <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
             @foreach (var station in stations)
             {
-                                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
-    Elevation="3"
-    @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
-        <MudCardContent Class="pa-3">
-            <MudGrid AlignItems="Center" Spacing="0">
-                <MudItem xs="10">
-                    <div class="d-flex align-items-center">
-                        <Badge colour="@GetBadgeColour(station.Status)" />
-                        <div class="ml-3">
-                            <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
+                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
+                Elevation="3"
+                @onclick="() => { SelectStation(station); ToggleStationFormular(false); }">
+                    <MudCardContent Class="pa-3">
+                        <MudGrid AlignItems="Center" Spacing="0">
+                            <MudItem xs="10">
+                                <div class="d-flex align-items-center">
+                                    <Badge colour="@GetBadgeColour(station.Status)" />
+                                    <div class="ml-3">
+                                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
                                             @station.assemblystation
-                            </MudText>
-                            <MudText Typo="Typo.caption" Class="text-muted">
-                                Status: @station.Status
-                            </MudText>
-                        </div>
-                    </div>
-                </MudItem>
-                <MudItem xs="2" Class="d-flex justify-end">
-                    <div @onclick:stopPropagation="true">
-                        <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                        Size="Size.Small"
-                        Dense="true"
-                        AnchorOrigin="Origin.BottomRight"
-                        TransformOrigin="Origin.TopRight">
-                            <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
-                            Icon="@Icons.Material.Filled.ContentPaste"
-                            Disabled="@(copiedTool == null || selectedStation == null)">
-                                Insert Tool
-                            </MudMenuItem>
-                            <MudMenuItem OnClick="@(() => DeleteStation(station))"
-                            Icon="@Icons.Material.Filled.Delete"
-                            IconColor="Color.Error">
-                                Delete
-                            </MudMenuItem>
-                            <MudMenuItem Icon="@Icons.Material.Filled.Circle"
-                            IconColor="Color.Default">
-                                      <MudMenu ActivationEvent="@MouseEvent.MouseOver"
-            AnchorOrigin="Origin.TopRight"
-            TransformOrigin="Origin.TopLeft">
-                                    <ActivatorContent>
-                                        <span>Status</span>
-                                    </ActivatorContent>
-                                    <ChildContent>
-                                        <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
-                                                Icon="@Icons.Material.Filled.DoneAll"
-                                        IconColor="Color.Success">
-                                            Grün
+                                        </MudText>
+                                        <MudText Typo="Typo.caption" Class="text-muted">
+                                            @Fassade.Language.Status @station.Status
+                                        </MudText>
+                                    </div>
+                                </div>
+                            </MudItem>
+
+                            <MudItem xs="2" Class="d-flex justify-end">
+                                <div @onclick:stopPropagation="true">
+                                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                    Size="Size.Small"
+                                    Dense="true"
+                                    AnchorOrigin="Origin.BottomRight"
+                                    TransformOrigin="Origin.TopRight">
+
+
+
+                                        <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
+                                        Icon="@Icons.Material.Filled.ContentPaste"
+                                        Disabled="@(copiedTool == null || selectedStation == null)">
+                                            @Fassade.Language.InsertTool
+                                        </MudMenuItem>
+
+
+                                        <MudMenuItem OnClick="@(() => DeleteStation(station))"
+                                        Icon="@Icons.Material.Filled.Delete"
+                                        IconColor="Color.Error">
+                                            @Fassade.Language.Delete
+                                        </MudMenuItem>
+                                        <MudMenuItem Icon="@Icons.Material.Filled.Circle"
+                                                     IconColor="Color.Default">
+                                            <MudMenu ActivationEvent="@MouseEvent.MouseOver"
+                                                     AnchorOrigin="Origin.TopRight"
+                                                     TransformOrigin="Origin.TopLeft">
+                                                <ActivatorContent>
+                                                    <span>Status</span>
+                                                </ActivatorContent>
+                                                <ChildContent>
+                                                    <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
+                                                                 Icon="@Icons.Material.Filled.DoneAll"
+                                                                 IconColor="Color.Success">
+                                                        Grün
                                         </MudMenuItem>
                                         <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
                                             Icon="@Icons.Material.Filled.ReportProblem"
@@ -185,7 +189,7 @@
                 <div class="tool-operation-panel p-5 py-2" style="width: 500px;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-                            Tools und Operationen
+                            @Fassade.Language.ToolsAndOperations
                         </MudText>
                         @if (selectedStation != null)
                         {
@@ -197,7 +201,7 @@
                             Class="add-station-btn justify-start px-3 py-2"
                             Style="width: 213px; height: 40.5px;"
                             @onclick="() => ToggleToolFormular(true)">
-                                Tool
+                                @Fassade.Language.Tool
                             </MudButton>
 
 
@@ -208,11 +212,11 @@
                     <div id="toolsList">
                         @if (selectedStation == null)
                         {
-                            <p>Please choose a station.</p>
+                            <p>@Fassade.Language.ChooseStation</p>
                         }
                         else if (!tools.Any())
                         {
-                            <p>No tools found.</p>
+                            <p>@Fassade.Language.NoToolsFound</p>
                         }
                         else
                         {
@@ -255,19 +259,19 @@
 
                                                                 <MudMenuItem OnClick="@(() => CloneTool(tool))"
                                                                 Icon="@Icons.Material.Filled.ContentCopy">
-                                                                    Copy
+                                                                    @Fassade.Language.Copy
                                                                 </MudMenuItem>
 
                                                                 <MudMenuItem OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
                                                                 Icon="@Icons.Material.Filled.ContentPaste"
                                                                 Disabled="@(copiedOperation == null || selectedTool == null)">
-                                                                    Insert Operation
+                                                                    @Fassade.Language.InsertOperation
                                                                 </MudMenuItem>
 
                                                                 <MudMenuItem OnClick="@(() => DeleteTool(tool))"
                                                                 Icon="@Icons.Material.Filled.Delete"
                                                                 IconColor="Color.Error">
-                                                                    Delete
+                                                                    @Fassade.Language.Delete
                                                                 </MudMenuItem>
                                                             </MudMenu>
                                                         </div>
@@ -286,7 +290,7 @@
                                                         Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
                                                         @onclick="() => ToggleExpand(tool.toolID.Value)" />
                                                         <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
-                                                            Operationen (@allOperations.Count(op => op.toolID == tool.toolID))
+                                                            @Fassade.Language.Operations (@allOperations.Count(op => op.toolID == tool.toolID))
                                                         </MudText>
                                                     </div>
 
@@ -329,13 +333,13 @@
                                                                             TransformOrigin="Origin.TopRight">
                                                                                 <MudMenuItem OnClick="@(() => CloneOperation(operation))"
                                                                                 Icon="@Icons.Material.Filled.ContentCopy">
-                                                                                    Copy
+                                                                                    @Fassade.Language.Copy
                                                                                 </MudMenuItem>
 
                                                                                 <MudMenuItem OnClick="@(() => DeleteOperation(operation))"
                                                                                 Icon="@Icons.Material.Filled.Delete"
                                                                                 IconColor="Color.Error">
-                                                                                    Delete
+                                                                                    @Fassade.Language.Delete
                                                                                 </MudMenuItem>
                                                                             </MudMenu>
                                                                         </div>
@@ -411,7 +415,6 @@
 
 
 <style>
-
 
     /* Auswahl-Hervorhebung für Operationen */
     .mud-list-item.mud-selected {

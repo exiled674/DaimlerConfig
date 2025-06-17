@@ -6,14 +6,14 @@
 
 <MudDialog Close="true" Style="width:500px; max-width:90vw; border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
     <TitleContent>
-        <MudText Typo="Typo.h6" Class="mt-2 ml-2">@(IsEditMode ? "Projekt bearbeiten" : "Neues Projekt")</MudText>
+        <MudText Typo="Typo.h6" Class="mt-2 ml-2">@(IsEditMode ? Fassade.Language.EditProject : Fassade.Language.NewProject)</MudText>
     </TitleContent>
 
     <DialogContent>
         <MudForm @ref="_form" OnValidSubmit="HandleValidSubmit">
             <MudPaper Class="p-4" Elevation="0" Style="border-radius:12px;">
                 <MudTextField @bind-Value="_inputValue"
-                              Label="Projektname"
+                              Label="@Fassade.Language.ProjectName"
                               Variant="Variant.Filled"
                               AutoFocus="true"
                               Margin="Margin.Dense"
@@ -28,13 +28,13 @@
     </DialogContent>
 
     <DialogActions>
-        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">Abbrechen</MudButton>
+        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">@Fassade.Language.Cancel</MudButton>
         <MudButton Type="ButtonType.Submit"
                    Variant="Variant.Filled"
                    Color="Color.Primary"
                    OnClick="HandleValidSubmit"
                    Class="rounded-button">
-            @(IsEditMode ? "Speichern" : "OK")
+            @(IsEditMode ? Fassade.Language.Save : Fassade.Language.Confirm)
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -99,7 +99,7 @@
         if (string.IsNullOrWhiteSpace(_inputValue))
         {
             lineExists = true;
-            errorText = "Project name cannot be empty. Please enter a valid name.";
+            errorText = Fassade.Language.ProjectNameCannotBeEmpty;
             return;
         }
 
@@ -108,7 +108,7 @@
         if (nameExists && (!IsEditMode || _inputValue != _originalValue))
         {
             lineExists = true;
-            errorText = "Project already exists. Please choose a different name.";
+            errorText = Fassade.Language.ProjectNameAlreadyExists;
             return;
         }
 
@@ -124,7 +124,7 @@
                 if (!(await Fassade.UpdateLine(ExistingLine)))
                 {
                     lineExists = true;
-                    errorText = "Error updating project in database";
+                    errorText = Fassade.Language.ProjectErrorInDb;
                     return;
                 }
 
@@ -144,7 +144,7 @@
                /**/ if (!(await Fassade.AddLine(line)))
                 {
                     lineExists = true;
-                    errorText = "Error with database";
+                    errorText = Fassade.Language.ProjectErrorInDb;
                     return;
                 }
 
@@ -161,7 +161,7 @@
         catch (Exception ex)
         {
             lineExists = true;
-            errorText = $"An error occurred: {ex.Message}";
+            errorText = Fassade.Language.ErrorOccured + ex.Message;
         }
     }
 

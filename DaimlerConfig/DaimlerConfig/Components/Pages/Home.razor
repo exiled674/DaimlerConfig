@@ -28,7 +28,7 @@
     <!-- Titel in der Mitte -->
     <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center pa-0" Style="flex-grow: 1;">
         <MudText Typo="Typo.h5" Class="text-center font-weight-medium">
-            Project Manager
+            @Fassade.Language.ProjectManager
         </MudText>
     </MudContainer>
 
@@ -36,7 +36,7 @@
     <div class="d-flex align-center">
         <!-- Benutzername -->
         <MudText Typo="Typo.subtitle1" Class="mr-8 font-weight-medium" Style="white-space: nowrap;">
-            @(usernameService.Username?.Split(';')[0] ?? "Unknown User")
+            @(usernameService.Username?.Split(';')[0] ?? Fassade.Language.UnknownUser)
         </MudText>
 
         <!-- Einstellungen -->
@@ -61,7 +61,7 @@
             <div class="flex-grow-1">
                 <MudTextField @bind-Value="searchText"
                 @bind-Value:after="UpdateFilteredLines"
-                Placeholder="Search projects..."
+                Placeholder="@Fassade.Language.SearchProjects"
                 Adornment="Adornment.Start"
                 AdornmentIcon="@Icons.Material.Filled.Search"
                 Immediate="true"
@@ -87,19 +87,19 @@
                     <MudSelectItem Value="@("date")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="me-2" />
-                            Sorted by date descending
+                            @Fassade.Language.SortedByDateDesc
                         </div>
                     </MudSelectItem>
                     <MudSelectItem Value="@("name")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.SortByAlpha" Size="Size.Small" Class="me-2" />
-                            Sorted by name ascending
+                            @Fassade.Language.SortedByNameAsc
                         </div>
                     </MudSelectItem>
                     <MudSelectItem Value="@("favorites")">
                         <div class="d-flex align-items-center">
                            <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" Class="me-2" />
-                            Sorted by Favorites
+                           @Fassade.Language.SortedByFavorites
                         </div>
                     </MudSelectItem>
                 </MudSelect>
@@ -128,9 +128,9 @@
                                     @line.lineName
                                 </MudText>
                                 <MudChip T="string"
-                                Class="mt-1 ma-0" Size="Size.Small"
-                                Color="Color.Secondary"
-                                Text=@($"Modified on {line.lastModified:dd.MM.yyyy} by {line.modifiedBy?.Split(';')[0] ?? "Unknown"}") />
+                                         Class="mt-1 ma-0" Size="Size.Small"
+                                         Color="Color.Secondary"
+                                         Text="@($"{Fassade.Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Fassade.Language.By} {line.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")"></MudChip>
                             </div>
                         </MudItem>
 
@@ -147,7 +147,7 @@
                                         <MudMenuItem OnClick="@(() => StarLine(line))"
                                         Icon="@Icons.Material.Filled.Star"
                                         IconColor="Color.Warning">
-                                            Add to favorites
+                                            @Fassade.Language.AddToFavorites
                                         </MudMenuItem>
                                     }
                                     else
@@ -155,30 +155,30 @@
                                         <MudMenuItem OnClick="@(() => DeleteStar(line))"
                                         Icon="@Icons.Material.Outlined.StarOutline"
                                         IconColor="Color.Warning">
-                                            Remove from Favorites
+                                            @Fassade.Language.RemoveFromFavorites
                                         </MudMenuItem>
                                     }
 
                                     <MudMenuItem OnClick="@(() => StartEditing(line))"
                                     Icon="@Icons.Material.Filled.Edit">
-                                        Edit
+                                        @Fassade.Language.Edit
                                     </MudMenuItem>
                                     <MudMenuItem OnClick="@(() => DeleteLine(line))"
                                     Icon="@Icons.Material.Filled.Delete"
                                     IconColor="Color.Error">
-                                        Delete
+                                        @Fassade.Language.Delete
                                     </MudMenuItem>
                                     <MudDivider />
 
                                                            <MudMenuItem OnClick="@(() => ExportToExcel(line))"
                          Icon="@MyIcons.Excel">
-                Export to Excel
+                                                               @Fassade.Language.ExportToExcel
             </MudMenuItem>
 
 
                                     <MudMenuItem OnClick="@(() => ExportToJson(line))"
                                                 Icon="@MyIcons.myJSON">
-                                        Export to Json
+                                        @Fassade.Language.ExportToJson
                                     </MudMenuItem>
                                 </MudMenu>
                             </div>
@@ -190,7 +190,7 @@
     }
     else
     {
-        <p class="text-muted">Keine Lines gefunden.</p>
+        <p class="text-muted">@Fassade.Language.NoLinesFound</p>
     }
 
 
@@ -200,7 +200,7 @@
         Size="Size.Large"
         Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:32px;"
         Onclick="OpenDialogAsync"
-        Label="Create new Project"
+        Label="@Fassade.Language.CreateNewProject"
         Class="fab-enhanced px-4 py-2" />
     </div>
 </div>
