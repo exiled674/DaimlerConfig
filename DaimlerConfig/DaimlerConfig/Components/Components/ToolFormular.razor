@@ -68,8 +68,9 @@
                                            Variant="Variant.Filled"
                                            Color="Color.Primary"
                                            Class="btn btn-primary btn-sm add-station-btn"
-                                               @onclick="UpdateToolAsync">
+                                                   @onclick="UpdateToolAsync" disabled="@ReadOnly">
                                     Save
+										
                                 </MudButton>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
