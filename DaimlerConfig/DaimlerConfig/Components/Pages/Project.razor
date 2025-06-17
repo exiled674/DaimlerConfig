@@ -150,22 +150,22 @@
                                                     <span>Status</span>
                                                 </ActivatorContent>
                                                 <ChildContent>
-                                                    <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
+                                                    <MudMenuItem OnClick="@(() => {SetStatus(station, Status.Green); })"
                                                     Icon="@Icons.Material.Filled.DoneAll"
                                                     IconColor="Color.Success">
                                                         Grün
                                                     </MudMenuItem>
-                                                    <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
+                                                    <MudMenuItem OnClick="@(() => { SetStatus(station, Status.Yellow); })"
                                                     Icon="@Icons.Material.Filled.ReportProblem"
                                                     IconColor="Color.Warning">
                                                         Gelb
                                                     </MudMenuItem>
-                                                    <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
+                                                    <MudMenuItem OnClick="@(() => { SetStatus(station, Status.Red); })"
                                                     Icon="@Icons.Material.Filled.Cancel"
                                                     IconColor="Color.Error">
                                                         Rot
                                                     </MudMenuItem>
-                                                    <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
+                                                        <MudMenuItem OnClick="@(() => { SetStatus(station, Status.Undefined); })"
                                                     Icon="@Icons.Material.Filled.Help"
                                                     IconColor="Color.Default">
                                                         Undefined
@@ -293,23 +293,23 @@
                                                                             <span>Status</span>
                                                                         </ActivatorContent>
                                                                         <ChildContent>
-                                                                            <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
+                                                                                    <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Green); })"
                                                                             Icon="@Icons.Material.Filled.DoneAll"
                                                                             IconColor="Color.Success">
                                                                                 Grün
                                                                             </MudMenuItem>
-                                                                            <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
+                                                                                    <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Yellow); })"
                                                                             Icon="@Icons.Material.Filled.ReportProblem"
                                                                             IconColor="Color.Warning">
                                                                                 Gelb
                                                                             </MudMenuItem>
-                                                                            <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
+                                                                                    <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Red); })"
                                                                             Icon="@Icons.Material.Filled.Cancel"
                                                                             IconColor="Color.Error">
                                                                                 Rot
                                                                             </MudMenuItem>
 
-                                                                            <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
+                                                                                    <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Undefined); })"
                                                                             Icon="@Icons.Material.Filled.Help"
                                                                             IconColor="Color.Default">
                                                                                 Undefined
@@ -400,23 +400,23 @@
                                                                                             <span>Status</span>
                                                                                         </ActivatorContent>
                                                                                         <ChildContent>
-                                                                                            <MudMenuItem OnClick="@(() => { /* Grün Status Logic hier */ })"
+                                                                                                        <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Green); })"
                                                                                             Icon="@Icons.Material.Filled.DoneAll"
                                                                                             IconColor="Color.Success">
                                                                                                 Grün
                                                                                             </MudMenuItem>
-                                                                                            <MudMenuItem OnClick="@(() => { /* Gelb Status Logic hier */ })"
+                                                                                                        <MudMenuItem OnClick="@(() => {SetStatus(operation, Status.Yellow); })"
                                                                                             Icon="@Icons.Material.Filled.ReportProblem"
                                                                                             IconColor="Color.Warning">
                                                                                                 Gelb
                                                                                             </MudMenuItem>
-                                                                                            <MudMenuItem OnClick="@(() => { /* Rot Status Logic hier */ })"
+                                                                                                        <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Red);})"
                                                                                             Icon="@Icons.Material.Filled.Cancel"
                                                                                             IconColor="Color.Error">
                                                                                                 Rot
                                                                                             </MudMenuItem>
 
-                                                                                            <MudMenuItem OnClick="@(() => { /* Undefined Status Logic hier */ })"
+                                                                                                        <MudMenuItem OnClick="@(() => { SetStatus(operation, Status.Undefined); })"
                                                                                             Icon="@Icons.Material.Filled.Help"
                                                                                             IconColor="Color.Default">
                                                                                                 Undefined
@@ -1589,10 +1589,7 @@
             if (stations != null)
             {
                 allOperations = await Fassade.GetAllOperations();
-                foreach (var station in stations)
-                {
-                    station.Status = await GetStationBadgeColourAsync(station);
-                }
+               
             }
             await RestoreSavedSelection();
         }
@@ -1801,72 +1798,42 @@
     }
 
 
-    private static string GetBadgeColour(Status status)
+    private async Task SetStatus(object? o, Status neuerStatus)
     {
-        return status switch
-        {
-            Status.Green => "green",
-            Status.Red => "red",
-            Status.Yellow => "yellow",
-            _ => "gray"
-        };
-    }
-    private async Task<Status> GetStationBadgeColourAsync(Station station)
-    {
-        var worstStatus = Status.Undefined;
-        var toolsList = (await Fassade.GetToolsFromStation(station.stationID)).ToList();
-        var map = toolsList
-                .GroupBy(op => op.Status)
-                .ToDictionary(g => g.Key, g => g.Count());
 
-        if (map.TryGetValue(Status.Red, out var redCount) && redCount >= 1)
-            worstStatus = Status.Red;
-        else if (map.TryGetValue(Status.Yellow, out var yellowCount) && yellowCount >= 1)
-            worstStatus = Status.Yellow;
-        else if (map.TryGetValue(Status.Green, out var greenCount) && greenCount == toolsList.Count)
-            worstStatus = Status.Green;
-        else
-            worstStatus = Status.Undefined;
-        return worstStatus;
-    }
+        if(o is Operation operation)
+        {
+            operation.Status = neuerStatus;
+            if(!await Fassade.UpdateOperation(operation)) return;
+            await SignalRService.SendMessageToServer($"OperationUpdated;{operation.operationID}");
+            StateHasChanged();
 
-
-    private async Task CycleColour(Operation o)
-    {
-        o.Status = o.Status switch
-        {
-            Status.Green   => Status.Undefined,
-            Status.Yellow  => Status.Green,
-            Status.Red     => Status.Yellow,
-            _              => Status.Red
-        };
-        if (!await Fassade.UpdateOperation(o))
-            return;
-        StateHasChanged();
-    }
-    private async Task CycleColour(Tool t)
-    {
-        t.Status = t.Status switch
-        {
-            Status.Green   => Status.Undefined,
-            Status.Yellow  => Status.Green,
-            Status.Red     => Status.Yellow,
-            _              => Status.Red
-        };
-        if (!await Fassade.UpdateTool(t))
-            return;
-        if (selectedStation != null)
-        {
-            selectedStation.Status = await GetStationBadgeColourAsync(selectedStation);
-            var stationToUpdate = stations.FirstOrDefault(s => s.stationID == t.stationID);
-            if (stationToUpdate != null)
-            {
-                stationToUpdate.Status = await GetStationBadgeColourAsync(stationToUpdate);
             }
-        }
+            else if (o is Tool tool)
+        {
+            tool.Status = neuerStatus;
+            if (!await Fassade.UpdateTool(tool)) return;
+            await SignalRService.SendMessageToServer($"ToolUpdated;{tool.toolID}");
+            StateHasChanged();
+            }
+        else if (o is Station station)
+        {
+            station.Status = neuerStatus;
+            if (!await Fassade.UpdateStation(station)) return;
+            await SignalRService.SendMessageToServer($"StationUpdated;{station.stationID}");
+             StateHasChanged();
+           
+            }
 
-        StateHasChanged();
+
     }
+
+
+   
+
+
+    
+   
 
     #endregion
 
@@ -2003,18 +1970,6 @@
         _open = !_open;
     }
 
-    private Color GetMudColor(string status)
-    {
-        // Diese Methode sollte entsprechend der ursprünglichen GetBadgeColour Logik implementiert werden
-        return status switch
-        {
-            "Active" => Color.Success,
-            "Error" => Color.Error,
-            "Warning" => Color.Warning,
-            "Pending" => Color.Info,
-            _ => Color.Default
-        };
-    }
 
 
 
