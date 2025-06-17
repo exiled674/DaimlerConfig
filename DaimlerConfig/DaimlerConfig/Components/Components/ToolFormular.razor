@@ -38,7 +38,7 @@
                     </MudSelectItem>
                         }
                     }
-</MudSelect>
+        </MudSelect>
            
 
               
@@ -99,23 +99,44 @@
             </div>
 
             <div class="form-floating mb-3">
-                <input type="text" class="form-control @(errorMessages.ContainsKey("ToolShortname") ? "is-invalid" : "")" maxlength="16" placeholder="" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolShortname">
-                <label>Tool Shortname</label>
-                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-                    @($"{SelectedTool?.toolShortname?.Length ?? 0}/16")
-                </span>
-                @if (errorMessages.ContainsKey("ToolShortname"))
-                {
-                    <div class="invalid-feedback">@errorMessages["ToolShortname"]</div>
+                <MudTextField T="string"
+              Label="Tool Shortname"
+              @bind-Value="SelectedTool.toolShortname"
+              MaxLength="16"
+              ReadOnly="@ReadOnly"
+              Variant="Variant.Outlined"
+              Margin="Margin.Normal"
+              OnClick="LockTool"
+              OnBlur="CheckIfDirty"
+              Error="@errorMessages.ContainsKey("ToolShortname")"
+              ErrorText="@((errorMessages.ContainsKey("ToolShortname")) ? errorMessages["ToolShortname"] : null)"
+              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)"/>
 
-                }
+                <span class="text-muted small d-block text-end mt-1">
+                                    @($"{SelectedTool?.toolShortname?.Length ?? 0}/16")
+                </span>
             </div>
 
-            <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockTool" @onblur="CheckIfDirty" @bind="SelectedTool.toolDescription" maxlength="1000"></textarea>
-                <label>Tool Description</label>
-                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-                    @($"{SelectedTool?.toolDescription?.Length ?? 0}/1000")
+            
+                        <div class="mb-3">
+                <MudTextField T="string"
+                              Label="Tool Description"
+                              @bind-Value="SelectedTool.toolDescription"
+                              ReadOnly="@ReadOnly"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              Lines="4"
+                              MaxLength="1000"
+                              Style="background: white; border-radius: 12px;"
+                              OnClick="LockTool"
+                              OnBlur="CheckIfDirty"
+                              Class="w-100"
+                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+
+                <span class="text-muted small d-block text-end mt-1">
+                                @($"{SelectedTool?.toolDescription?.Length ?? 0}/1000")
                 </span>
             </div>
         </div>
