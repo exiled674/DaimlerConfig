@@ -10,7 +10,13 @@
     <div class="class-header justify-content-between align-items-center">
         <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
             @Fassade.Language.Operation
+            @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
+            {
+                <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-left: 8px;" />
+                <span style="margin-left: 4px;">@SelectedOperation.lockedBy.Split(';')[0]</span>
+            }
         </MudText>
+
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
                 <select class="form-select" id="OperationVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
@@ -435,7 +441,7 @@
             try
             {
                 // Warte 10 Minuten (600000 ms)
-                await Task.Delay(TimeSpan.FromMinutes(3), lockCancellationTokenSource.Token);
+                await Task.Delay(TimeSpan.FromSeconds(6), lockCancellationTokenSource.Token);
 
                 // Nach 10 Minuten entsperren
                 await UnlockOperationAsync();
