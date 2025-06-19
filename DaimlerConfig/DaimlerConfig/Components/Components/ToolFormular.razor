@@ -5,6 +5,7 @@
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
 @implements IDisposable
+@inject UsernameService UsernameService
 
 <div class="container-lg px-3">
 
@@ -321,9 +322,15 @@
     private IEnumerable<ToolType> toolTypes = Enumerable.Empty<ToolType>();
     private IEnumerable<ToolClass> toolClasses = Enumerable.Empty<ToolClass>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+
+    }
 
     protected override async Task OnParametersSetAsync()
     {
+       
         if (SelectedTool != null)
         {
             ResetValidationState();
@@ -363,7 +370,7 @@
         if (await ValidateData() == false)
             return;
 
-        SelectedTool.modifiedBy = CurrentUser;       
+        SelectedTool.modifiedBy = UsernameService.Username;       
         if (!await Fassade.UpdateToolWithVersion(SelectedTool, OriginalTool))
             return;
 
@@ -374,6 +381,10 @@
     }
 
 
+
+
+
+
     public async Task CreateToolAsync()
     {
         ResetValidationState();
@@ -381,7 +392,7 @@
         if (await ValidateData() == false)
             return;
 
-        SelectedTool.modifiedBy = CurrentUser;
+        SelectedTool.modifiedBy = UsernameService.Username;
 
         if (!await Fassade.AddTool(SelectedTool))
             return;
@@ -491,7 +502,7 @@
     public async Task LockTool()
     {
         if (SelectedTool.toolID == 0) return;
-        if (SelectedTool.isLocked == true && SelectedTool.lockedBy == CurrentUser)
+        if (SelectedTool.isLocked == true && SelectedTool.lockedBy == UsernameService.Username)
         {
             lockCancellationTokenSource?.Cancel();
             StartUnlockTimer();

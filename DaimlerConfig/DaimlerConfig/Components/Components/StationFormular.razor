@@ -151,6 +151,13 @@
 
 	private bool showErrors = false;
 
+	protected override async Task OnInitializedAsync()
+	{
+		UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+
+	}
+
+
 
 	protected override async Task OnParametersSetAsync()
 	{

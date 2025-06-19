@@ -5,6 +5,7 @@
 @using Microsoft.IdentityModel.Tokens
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
+@inject UsernameService UsernameService
 
 <div class="container-lg px-3">
     <div class="class-header justify-content-between align-items-center">
@@ -261,6 +262,13 @@
 
     private IEnumerable<ToolTypeHasTemplate> toolTypeHasTemplates = Enumerable.Empty<ToolTypeHasTemplate>();
 
+
+    protected override async Task OnInitializedAsync()
+    {
+        UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         ResetValidationState();
@@ -312,7 +320,7 @@
         if (await ValidateData() == false)
             return;
 
-		    SelectedOperation.modifiedBy = CurrentUser;
+		    SelectedOperation.modifiedBy = UsernameService.Username;
 
         if (!await Fassade.UpdateOperationWithVersion(SelectedOperation, OriginalOperation))
             return;
@@ -326,7 +334,7 @@
         if (await ValidateData() == false)
             return;
 
-		SelectedOperation.modifiedBy = CurrentUser;
+		SelectedOperation.modifiedBy = UsernameService.Username;
 
         if (!await Fassade.AddOperation(SelectedOperation))
             return;
@@ -337,7 +345,7 @@
 
     private async Task DeleteOperationAsync()
     {
-        if (SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == CurrentUser))
+        if (SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == UsernameService.Username))
         {
             if (!await Fassade.DeleteOperation(SelectedOperation))
                 return;
@@ -407,7 +415,7 @@
     {
 
         if (SelectedOperation.operationID == 0) return;
-        if(SelectedOperation.isLocked == true && SelectedOperation.lockedBy == CurrentUser)
+        if(SelectedOperation.isLocked == true && SelectedOperation.lockedBy == UsernameService.Username)
         {
             lockCancellationTokenSource?.Cancel();
 			StartUnlockTimer();
@@ -415,7 +423,7 @@
         if (SelectedOperation.isLocked == false)
         {
             SelectedOperation.isLocked = true;
-            SelectedOperation.lockedBy = CurrentUser;
+            SelectedOperation.lockedBy = UsernameService.Username;
 			SelectedOperation.lockTimestamp = DateTime.Now;
             await Fassade.UpdateOperation(SelectedOperation);
             
