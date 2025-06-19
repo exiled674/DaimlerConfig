@@ -2,11 +2,20 @@
 using DaimlerConfig.Components.Models;
 using System.IO;
 using ClosedXML.Excel;
+using DaimlerConfig.Components.Fassade;
 
 namespace DaimlerConfig.Components.Export;
 
+
 public class ExcelExport
 {
+    private readonly Fassade.Fassade _fassade;
+    
+    public ExcelExport(Fassade.Fassade fassade)
+    {
+        _fassade = fassade;
+    }
+
     public void Export(Stream stream, Line line,
                       Station[] stations,
                       Tool[] tools,
@@ -19,10 +28,10 @@ public class ExcelExport
         var currentRow = 3;//Starts after head
         
         #region Head
-        sheet.Cells("A1").Value = "Line Name: " + line.lineName;
+        sheet.Cells("A1").Value = _fassade.Language.LineName + ": " + line.lineName;
         #endregion
         
-        #region Columns
+        #region Columns Head
         sheet.Cells("A2").Value = "Station Name";
         sheet.Cells("B2").Value = "Station Description";
         sheet.Cells("C2").Value = "Station Type";
