@@ -6,3 +6,11 @@
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
 </Router>
+@inject Settings SettingsPage 
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SettingsPage.LoadSelectedLanguage();
+    }
+}

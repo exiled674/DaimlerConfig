@@ -23,7 +23,7 @@
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
                 <select class="form-select" id="ToolVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
-                    <option value="-1">Aktuelle Version</option>
+                    <option value="-1">@Fassade.Language.CurrentVersion</option>
                     @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
                         <option value="@version.toolVersionID">

@@ -139,4 +139,6 @@ public class Language
     public string NoLinesFound { get; set; } = "No lines found.";
     public string InsertTool { get; set; } = "Insert Tool";
     public string LineName { get; set; } = "Line name";
+    public string Parallel { get; set; } = "Parallel";
+    public string Serial { get; set; } = "Serial";
 }
