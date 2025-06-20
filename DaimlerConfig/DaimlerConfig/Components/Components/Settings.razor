@@ -323,10 +323,11 @@
                                     </MudItem>
 
                                     <MudItem xs="12" sm="6" md="3">
+                                        
                                         <MudCheckBox T="bool"
-                                                     Checked="@Fassade.Language.PersistSecurityInfo"
-                                                     CheckedChanged="@((bool value) => { persistSecurityInfo = value; OnFieldChanged(); })"
-                                                     Label="Persist Security Info"
+                                                     @bind-Value="persistSecurityInfo"
+                                                     @bind-Value:after="OnFieldChanged"
+                                                     Label="@Fassade.Language.PersistSecurityInfo"
                                                      ReadOnly="@(!isEditMode)"
                                                      Color="Color.Primary"
                                                      Class="@(!isEditMode ? "readonly-checkbox" : "")" />
@@ -334,8 +335,8 @@
 
                                     <MudItem xs="12" sm="6" md="3">
                                         <MudCheckBox T="bool"
-                                                     Checked="multipleActiveResultSets"
-                                                     CheckedChanged="@((bool value) => { multipleActiveResultSets = value; OnFieldChanged(); })"
+                                                     @bind-Value="multipleActiveResultSets"
+                                                     @bind-Value:after="OnFieldChanged"
                                                      Label="@Fassade.Language.Mars"
                                                      ReadOnly="@(!isEditMode)"
                                                      Color="Color.Primary"
@@ -344,8 +345,8 @@
 
                                     <MudItem xs="12" sm="6" md="3">
                                         <MudCheckBox T="bool"
-                                                     Checked="encrypt"
-                                                     CheckedChanged="@((bool value) => { encrypt = value; OnFieldChanged(); })"
+                                                     @bind-Value="encrypt"
+                                                     @bind-Value:after="OnFieldChanged"
                                                      Label="@Fassade.Language.Encrypt"
                                                      ReadOnly="@(!isEditMode)"
                                                      Color="Color.Primary"
@@ -354,8 +355,8 @@
 
                                     <MudItem xs="12" sm="6" md="3">
                                         <MudCheckBox T="bool"
-                                                     Checked="trustServerCertificate"
-                                                     CheckedChanged="@((bool value) => { trustServerCertificate = value; OnFieldChanged(); })"
+                                                     @bind-Value="trustServerCertificate"
+                                                     @bind-Value:after="OnFieldChanged"
                                                      Label="@Fassade.Language.TrustCert"
                                                      ReadOnly="@(!isEditMode)"
                                                      Color="Color.Primary"
