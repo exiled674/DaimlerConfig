@@ -93,14 +93,25 @@
 
 
 
+           <MudGrid Class="mt-2" GutterSize="0" AlignItems="Center">
+        <MudItem xs="6">
             <MudButton StartIcon="@Icons.Material.Filled.Add"
-            Variant="Variant.Filled"
-            Color="Color.Primary"
-
-            Class="add-station-btn w-100 justify-start px-3 py-2"
-            @onclick="() => ToggleStationFormular(true)">
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Class="add-station-btn w-100 justify-start px-3 py-2"
+                       Style="height: 40.5px;"
+                       @onclick="() => ToggleStationFormular(true)">
                 @Fassade.Language.Station
             </MudButton>
+        </MudItem>
+
+        <MudItem xs="6" Class="d-flex justify-end">
+            <MudCheckBox T="bool"
+                         Label="Show only favorites"
+                         Class="mr-1"
+                         Style="margin-top: 6px;" />
+        </MudItem>
+    </MudGrid>
 
 
 
@@ -114,22 +125,22 @@
                     <MudCardContent Class="pa-3">
                         <MudGrid AlignItems="Center" Spacing="0">
                             <MudItem xs="10">
-                                <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-start">
 
 
-                                    <div class="ml-3">
-                                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
 
-                                            <MudIcon Icon="@GetStatusIcon(station.Status)"
-                                            Size="Size.Small"
-                                            Class="mr-1"
-                                            Color="@GetStatusColor(station.Status)" />
+                                    <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
+
+                                        <MudIcon Icon="@GetStatusIcon(station.Status)"
+                                        Size="Size.Small"
+                                        Class="mr-1"
+                                        Color="@GetStatusColor(station.Status)" />
 
 
-                                            @station.assemblystation
-                                        </MudText>
+                                        @station.assemblystation
+                                    </MudText>
 
-                                    </div>
+
                                 </div>
                             </MudItem>
 
@@ -834,6 +845,8 @@
     private Station? selectedStation;
     private bool showStationFormular = false;
     private Station? pendingStation;
+    private IEnumerable<Station> starStations = Enumerable.Empty<Station>();
+
 
 
 
@@ -1636,6 +1649,24 @@
         {
             stations = await Fassade.GetStationsFromLine(line.lineID);
             filteredStations = stations;
+
+
+
+            var favoriteStationNames = UsernameService.LoadStationList();
+            var myline = await Fassade.GetLineByName(lineName);
+            foreach (var name in favoriteStationNames)
+            {
+                var station = await Fassade.GetStationByName(myline.lineID, name);
+                if (station != null)
+                {
+                    var starStationsList = starStations.ToList();
+
+                    starStationsList.Add(station);
+                    starStations = starStationsList;
+                }
+            }
+
+
             if (stations != null)
             {
                 allOperations = await Fassade.GetAllOperations();

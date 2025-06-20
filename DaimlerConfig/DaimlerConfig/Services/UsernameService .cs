@@ -74,5 +74,18 @@ public class UsernameService : INotifyPropertyChanged
         return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
     }
 
+    public void SaveStationList(List<string> stations)
+    {
+        var json = JsonSerializer.Serialize(stations);
+        Preferences.Default.Set("starStations", json);
+
+    }
+
+    public List<string> LoadStationList()
+    {
+        var json = Preferences.Default.Get("starStations", "[]");
+        return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+    }
+
 
 }
