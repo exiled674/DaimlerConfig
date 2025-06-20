@@ -96,10 +96,12 @@
                             @Fassade.Language.SortedByNameAsc
                         </div>
                     </MudSelectItem>
+                  
+
                     <MudSelectItem Value="@("favorites")">
                         <div class="d-flex align-items-center">
                            <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" Class="me-2" />
-                           @Fassade.Language.SortedByFavorites
+                           @Fassade.Language.SortedByFavorites 
                         </div>
                     </MudSelectItem>
                 </MudSelect>
@@ -526,9 +528,10 @@
             "name" => distinctFiltered.OrderBy(l => l.lineName).ToList(),
             "date" => distinctFiltered.OrderByDescending(l => l.lastModified).ToList(),
             "favorites" => distinctFiltered
-                .OrderByDescending(l => Star.Any(s => s.lineName == l.lineName)) // Favoriten zuerst
-                .ThenBy(l => l.lineName) // Innerhalb beider Gruppen alphabetisch
-                .ToList(),
+     .Where(l => Star.Any(s => s.lineName == l.lineName)) // Nur Favoriten anzeigen
+     .OrderBy(l => l.lineName) // Optional alphabetisch sortieren
+     .ToList(),
+
             _ => distinctFiltered.OrderByDescending(l => l.lastModified).ToList()
         };
 
