@@ -183,7 +183,44 @@
                                      Dense="true"
                                      AnchorOrigin="Origin.BottomRight"
                                      TransformOrigin="Origin.TopRight">
-                                <!-- Menü Items hier -->
+                                @if (!Star.Any(l => l.lineName == line.lineName))
+                                {
+                                    <MudMenuItem OnClick="@(() => StarLine(line))"
+                                                 Icon="@Icons.Material.Filled.Star"
+                                                 IconColor="Color.Warning">
+                                        @Fassade.Language.AddToFavorites
+                                    </MudMenuItem>
+                                }
+                                else
+                                {
+                                    <MudMenuItem OnClick="@(() => DeleteStar(line))"
+                                                 Icon="@Icons.Material.Outlined.StarOutline"
+                                                 IconColor="Color.Warning">
+                                        @Fassade.Language.RemoveFromFavorites
+                                    </MudMenuItem>
+                                }
+
+                                <MudMenuItem OnClick="@(() => StartEditing(line))"
+                                             Icon="@Icons.Material.Filled.Edit">
+                                    @Fassade.Language.Edit
+                                </MudMenuItem>
+                                <MudMenuItem OnClick="@(() => DeleteLine(line))"
+                                             Icon="@Icons.Material.Filled.Delete"
+                                             IconColor="Color.Error">
+                                    @Fassade.Language.Delete
+                                </MudMenuItem>
+                                <MudDivider />
+
+                                <MudMenuItem OnClick="@(() => ExportToExcel(line))"
+                                             Icon="@MyIcons.Excel">
+                                    @Fassade.Language.ExportToExcel
+                                </MudMenuItem>
+
+
+                                <MudMenuItem OnClick="@(() => ExportToJson(line))"
+                                             Icon="@MyIcons.myJSON">
+                                    @Fassade.Language.ExportToJson
+                                </MudMenuItem>
                             </MudMenu>
                         </div>
                     </MudItem>
