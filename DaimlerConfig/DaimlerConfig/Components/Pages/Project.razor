@@ -78,6 +78,21 @@
 
 
         <div class="pa-2">
+
+
+            <MudTextField @bind-Value="searchText"
+            @bind-Value:after="UpdateFilteredStations"
+            Placeholder="@Fassade.Language.SearchProjects"
+            Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search"
+            Immediate="true"
+            Variant="Variant.Outlined"
+            Margin="Margin.Normal"
+            Class="flex-grow-1 search-field-enhanced"
+            Style="background: white; border-radius: 8px; height: 40.5px;" />
+
+
+
             <MudButton StartIcon="@Icons.Material.Filled.Add"
             Variant="Variant.Filled"
             Color="Color.Primary"
@@ -91,7 +106,7 @@
 
 
             <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
-            @foreach (var station in stations)
+            @foreach (var station in filteredStations)
             {
                 <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
                 Elevation="3"
@@ -820,6 +835,26 @@
     private bool showStationFormular = false;
     private Station? pendingStation;
 
+
+
+
+    private string searchText;
+    private IEnumerable<Station> filteredStations = Enumerable.Empty<Station>();
+
+    private void UpdateFilteredStations()
+    {
+        filteredStations = string.IsNullOrWhiteSpace(searchText)
+            ? stations
+            : stations.Where(s =>
+                s.assemblystation != null &&
+                s.assemblystation.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
+
+        StateHasChanged();
+    }
+
+
+
+
     private async Task SelectStation(Station station)
     {
         if (DirtyManagerService.IsDirty().Result == true)
@@ -1349,12 +1384,12 @@
                                     selectedStation = null;
                                     showStationFormular = false;
                                 }
-								if (selectedTool?.stationID == stationID && showToolFormular == true)
-								{
-									showToolFormular = false;
-									
-								}
-                                
+                                if (selectedTool?.stationID == stationID && showToolFormular == true)
+                                {
+                                    showToolFormular = false;
+
+                                }
+
                                 var tools1 = await Fassade.GetToolsFromStation(stationID);
                                 if (!tools1.Any(t => t.toolID == selectedOperation?.toolID) && showOperationFormular)
                                 {
@@ -1600,6 +1635,7 @@
         if (stations != null)
         {
             stations = await Fassade.GetStationsFromLine(line.lineID);
+            filteredStations = stations;
             if (stations != null)
             {
                 allOperations = await Fassade.GetAllOperations();
@@ -2015,7 +2051,7 @@
 
                 await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
                 await DirtyManagerService.setClean();
-              //  if (showOperationFormular == true) showOperationFormular = false;
+                //  if (showOperationFormular == true) showOperationFormular = false;
 
 
             }
@@ -2223,6 +2259,13 @@
             objRef.Dispose();
         }
     }
+
+    
+    
+
+  
+
+
 
 
 }
