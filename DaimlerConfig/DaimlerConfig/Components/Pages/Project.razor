@@ -129,16 +129,21 @@
 
 
 
-                                    <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
+                                  <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0 d-flex align-items-center">
+    <MudIcon Icon="@GetStatusIcon(station.Status)"
+             Size="Size.Small"
+             Class="mr-1"
+             Color="@GetStatusColor(station.Status)" />
 
-                                        <MudIcon Icon="@GetStatusIcon(station.Status)"
-                                        Size="Size.Small"
-                                        Class="mr-1"
-                                        Color="@GetStatusColor(station.Status)" />
+    @if (starStations.Any(s => s.assemblystation == station.assemblystation))
+    {
+        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
+    }
+
+    @station.assemblystation
+</MudText>
 
 
-                                        @station.assemblystation
-                                    </MudText>
 
 
                                 </div>
@@ -151,7 +156,22 @@
                                     Dense="true"
                                     AnchorOrigin="Origin.BottomRight"
                                     TransformOrigin="Origin.TopRight">
-
+                                        @if (!starStations.Any(l => l.assemblystation == station.assemblystation))
+                                        {
+                                            <MudMenuItem OnClick="@(() => StarStation(station))"
+                                                         Icon="@Icons.Material.Filled.Star"
+                                                         IconColor="Color.Warning">
+                                                @Fassade.Language.AddToFavorites
+                                            </MudMenuItem>
+                                        }
+                                        else
+                                        {
+                                            <MudMenuItem OnClick="@(() => DeleteStarStation(station))"
+                                                         Icon="@Icons.Material.Outlined.StarOutline"
+                                                         IconColor="Color.Warning">
+                                                @Fassade.Language.RemoveFromFavorites
+                                            </MudMenuItem>
+                                        }
 
 
                                         <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
@@ -849,11 +869,39 @@
 	private bool stationFavorites = false;
 
 
-    private void OnStationFavoritesChanged(bool value)
-{
-    stationFavorites = value;
-    UpdateFilteredStations(); // deine Methode, um etwas zu tun
-}
+        private void OnStationFavoritesChanged(bool value)
+    {
+        stationFavorites = value;
+        UpdateFilteredStations(); // deine Methode, um etwas zu tun
+    }
+
+    // Angenommen starStations ist IEnumerable<Station>, nicht direkt veränderbar
+
+    public void StarStation(Station station)
+    {
+        if (!starStations.Any(s => s.assemblystation == station.assemblystation))
+        {
+            starStations = starStations.Concat(new[] { station });
+
+            var names = starStations.Select(s => s.assemblystation).ToList();
+            UsernameService.SaveStationList(names);
+
+            UpdateFilteredStations();
+            StateHasChanged();
+        }
+    }
+
+    public void DeleteStarStation(Station station)
+    {
+        starStations = starStations.Where(s => s.assemblystation != station.assemblystation);
+
+        var names = starStations.Select(s => s.assemblystation).ToList();
+        UsernameService.SaveStationList(names);
+
+        UpdateFilteredStations();
+        StateHasChanged();
+    }
+
 
 
     private string searchText;
