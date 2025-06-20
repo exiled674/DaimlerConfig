@@ -12,7 +12,7 @@
 @inject NavigationStateService NavState
 @inject SelectionStateService SelectionState
 @inject UsernameService UsernameService
-
+@using System.Linq
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
 @inject ISnackbar Snackbar
@@ -67,7 +67,7 @@
 <MudLayout>
 
 
-    <MudDrawer @bind-Open="@_open" Elevation="4" Fixed="true" Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.12); margin-top: 15px;">
+    <MudDrawer @bind-Open="@_open" Elevation="4" Fixed="true" Width="280px" Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.12); margin-top: 15px; ">
         <MudDrawerHeader Class="d-flex align-items-center px-4 py-3" Style="border-bottom: 1px solid rgba(0,0,0,0.12);">
             <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
                 @Fassade.Language.Stations
@@ -78,6 +78,16 @@
 
 
         <div class="pa-2">
+
+              <MudButton StartIcon="@Icons.Material.Filled.Add"
+            Variant="Variant.Filled"
+            Color="Color.Primary"
+
+            Class="add-station-btn w-100 justify-start px-3 py-2"
+            @onclick="() => ToggleStationFormular(true)">
+                @Fassade.Language.Station
+            </MudButton>
+
 
 
             <MudTextField @bind-Value="searchText"
@@ -92,27 +102,17 @@
             Style="background: white; border-radius: 8px; height: 40.5px;" />
 
 
-
-           <MudGrid Class="mt-2" GutterSize="0" AlignItems="Center">
-        <MudItem xs="6">
-            <MudButton StartIcon="@Icons.Material.Filled.Add"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Class="add-station-btn w-100 justify-start px-3 py-2"
-                       Style="height: 40.5px;"
-                       @onclick="() => ToggleStationFormular(true)">
-                @Fassade.Language.Station
-            </MudButton>
-        </MudItem>
-
-        <MudItem xs="6" Class="d-flex justify-end">
             <MudCheckBox T="bool"
+                         Value="stationFavorites"
+                         ValueChanged="@(e => OnStationFavoritesChanged(e))"
                          Label="Show only favorites"
-                         Class="mr-1"
-                         Style="margin-top: 6px;" />
-        </MudItem>
-    </MudGrid>
+                         Style="margin-left: 0; padding-left: 0;" />
 
+
+
+
+          
+           
 
 
 
@@ -846,9 +846,14 @@
     private bool showStationFormular = false;
     private Station? pendingStation;
     private IEnumerable<Station> starStations = Enumerable.Empty<Station>();
+	private bool stationFavorites = false;
 
 
-
+    private void OnStationFavoritesChanged(bool value)
+{
+    stationFavorites = value;
+    UpdateFilteredStations(); // deine Methode, um etwas zu tun
+}
 
 
     private string searchText;
@@ -861,6 +866,14 @@
             : stations.Where(s =>
                 s.assemblystation != null &&
                 s.assemblystation.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
+
+
+        if (stationFavorites)
+        {
+            filteredStations = filteredStations.Where(s =>
+                starStations.Any(fav => fav.assemblystation == s.assemblystation));
+        }
+
 
         StateHasChanged();
     }
