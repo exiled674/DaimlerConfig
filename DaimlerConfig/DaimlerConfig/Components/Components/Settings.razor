@@ -35,6 +35,9 @@
                            aria-label="Close" />
         </div>
 
+        <div class="popup-content">
+
+        
         @if (ValidationService.HasErrors)
         {
             <MudAlert Severity="Severity.Error" Class="mb-4">
@@ -43,8 +46,8 @@
         }
 
         <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
-            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-                
+                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                 
                 <MudTabPanel Text="@Fassade.Language.Profile">
                     <MudPaper Class="pa-6" Elevation="2">
                         <!-- Profile Header with Avatar -->
@@ -394,10 +397,108 @@
                 </MudTabPanel>
             </MudTabs>
         </MudContainer>
-
+        </div>
     </div>
 </div>
 
+
+<style>
+    /* Popup Dialog mit flexbox Layout */
+    .popup-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 1200px;
+        height: 90vh;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+    }
+
+    /* Fixer Header */
+    .popup-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        border-bottom: 1px solid #ddd;
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1001;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Container für scrollbaren Inhalt */
+    .popup-content {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Tabs Container - auch sticky */
+    .sticky-tabs-container {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1000;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    /* Tab Panel Content Container */
+    .tab-panel-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+    }
+
+    /* Backdrop Styling */
+    .popup-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* MudTabs Styling für sticky behavior */
+    .mud-tabs.sticky-tabs .mud-tabs-toolbar {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 999;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Scrollable Tab Content */
+    .mud-tabs-panels {
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .mud-tabpanel {
+        height: 100%;
+        overflow-y: auto;
+    }
+
+
+    .mud-tabs-toolbar {
+        position: sticky !important;
+        top: 0;
+        z-index: 1;
+    }
+</style>
 
 @code {
 
