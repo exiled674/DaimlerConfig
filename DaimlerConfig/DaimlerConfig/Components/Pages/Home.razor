@@ -54,7 +54,7 @@
 }
 
 <!-- Main Content -->
-<div class="ProjectManager container-fluid px-4">
+<div class="ProjectManager container-fluid px-10" style="padding-top: 80px; ">
     <!-- div with search and sort-->
     <div class="projects">
         <div class="d-flex align-items-end gap-3 mb-4 pt-3">
@@ -133,6 +133,37 @@
                                          Text="@($"{Fassade.Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Fassade.Language.By} {line.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")"></MudChip>
                             </div>
                         </MudItem>
+
+                           <!-- Status-Counts (volle Breite unter Titel) -->
+                    <!-- Status-Counts (volle Breite unter Titel) -->
+                    <MudItem xs="12">
+                        <MudStack Direction="Row" Spacing="2" Class="mt-2">
+                            <MudChip T="int"
+                                     Size="Size.Small"
+                                     StartIcon="@Icons.Material.Filled.Help"
+                                     Color="Color.Default">
+                         
+                            </MudChip>
+                            <MudChip T="int"
+                                     Size="Size.Small"
+                                     StartIcon="@Icons.Material.Filled.Cancel"
+                                     Color="Color.Error">
+                               
+                            </MudChip>
+                            <MudChip T="int"
+                                     Size="Size.Small"
+                                     StartIcon="@Icons.Material.Filled.ReportProblem"
+                                     Color="Color.Warning">
+                               
+                            </MudChip>
+                            <MudChip T="int"
+                                     Size="Size.Small"
+                                     StartIcon="@Icons.Material.Filled.DoneAll"
+                                     Color="Color.Success">
+                               
+                            </MudChip>
+                        </MudStack>
+                    </MudItem>
 
                         <MudItem xs="2" Class="d-flex justify-end">
                             <div @onclick:stopPropagation>
