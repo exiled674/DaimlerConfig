@@ -19,15 +19,24 @@
         </MudText>
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <select class="form-select" id="OperationVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
-                    <option value="-1">Aktuelle Version</option>
+                <MudSelect T="int?" Label="Version"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Normal"
+                           Disabled="@ReadOnly"
+                           Class="flex-grow-1 search-field-enhanced"
+                           Style="background: white; border-radius: 12px;"
+                           Value="selectedVersionId"
+                           ValueChanged="OnVersionChanged"
+                           OnBlur="LockOperation">
+                    <MudSelectItem T="int?" Value="-1">Aktuelle Version</MudSelectItem>
                     @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                     {
-                        <option value="@version.operationVersionID">
+                        <MudSelectItem T="int?" Value="@version.operationVersionID">
                             @version.modifiedBy?.Split(';')[0] - @version.lastModified
-                        </option>
+                        </MudSelectItem>
                     }
-                </select>
+                </MudSelect>
+
             </div>
             @if (SelectedOperation.operationID == 0)
             {
@@ -170,50 +179,70 @@
     <div class="row mb-4">
         <!-- First Row: Decision Class and Generation Class -->
         <div class="col-md-6 mb-3">
-            <div class="form-floating">
-                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
-                    {
-                        <option value="@decision.decisionClassID">@decision.decisionClassName</option>
-                    }
-                </select>
-                <label for="DecisionClass">@Fassade.Language.DecisionClass</label>
-            </div>
+            <MudSelect T="int?" Label="@Fassade.Language.DecisionClass"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Disabled="@ReadOnly"
+                       Class="flex-grow-1"
+                       Style="background: white; border-radius: 12px;"
+                       Value="SelectedOperation.decisionClassID"
+                       OnBlur="LockOperation">
+                @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
+                {
+                    <MudSelectItem T="int?" Value="@decision.decisionClassID">@decision.decisionClassName</MudSelectItem>
+                }
+            </MudSelect>
         </div>
+
         <div class="col-md-6 mb-3">
-            <div class="form-floating">
-                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
-                    {
-                        <option value="@generation.generationClassID">@generation.generationClassName</option>
-                    }
-                </select>
-                <label for="GenerationClass">@Fassade.Language.GenerationClass</label>
-            </div>
+            <MudSelect T="int?" Label="@Fassade.Language.GenerationClass"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Disabled="@ReadOnly"
+                       Class="flex-grow-1"
+                       Style="background: white; border-radius: 12px;"
+                       Value="SelectedOperation.generationClassID"
+                       OnBlur="LockOperation">
+                @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
+                {
+                    <MudSelectItem T="int?" Value="@generation.generationClassID">@generation.generationClassName</MudSelectItem>
+                }
+            </MudSelect>
         </div>
+
         <!-- Second Row: Verification Class and Saving Class -->
         <div class="col-md-6 mb-3">
-            <div class="form-floating">
-                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
-                    {
-                        <option value="@verification.verificationClassID">@verification.verificationClassName</option>
-                    }
-                </select>
-                <label for="VerificationClass">@Fassade.Language.VerificationClass</label>
-            </div>
+            <MudSelect T="int?" Label="@Fassade.Language.VerificationClass"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Disabled="@ReadOnly"
+                       Class="flex-grow-1"
+                       Style="background: white; border-radius: 12px;"
+                       Value="SelectedOperation.verificationClassID"
+                       OnBlur="LockOperation">
+                @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
+                {
+                    <MudSelectItem T="int?" Value="@verification.verificationClassID">@verification.verificationClassName</MudSelectItem>
+                }
+            </MudSelect>
         </div>
+
         <div class="col-md-6 mb-3">
-            <div class="form-floating">
-                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
-                    {
-                        <option value="@saving.savingClassID">@saving.savingClassName</option>
-                    }
-                </select>
-                <label for="SavingClass">@Fassade.Language.SavingClass</label>
-            </div>
+            <MudSelect T="int?" Label="@Fassade.Language.SavingClass"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Disabled="@ReadOnly"
+                       Class="flex-grow-1"
+                       Style="background: white; border-radius: 12px;"
+                       Value="SelectedOperation.savingClassID"
+                       OnBlur="LockOperation">
+                @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
+                {
+                    <MudSelectItem T="int?" Value="@saving.savingClassID">@saving.savingClassName</MudSelectItem>
+                }
+            </MudSelect>
         </div>
+
         <!-- Third Row: Decision Criteria -->
         <div class="col-md-12 mb-3">
             <div class="form-floating">
@@ -517,14 +546,14 @@
     #endregion
 
     #region 
-    private async Task OnVersionChanged(ChangeEventArgs e)
+    private async Task OnVersionChanged(int? versionId)
     {
-        if (int.TryParse(e.Value?.ToString(), out int versionId))
+        if (versionId.HasValue)
         {
-            selectedVersionId = versionId;
+            selectedVersionId = versionId.Value;
+
             if (versionId == -1)
             {
-               
                 if (SelectedOperation?.operationID != null)
                 {
                     var currentOperation = await Fassade.GetOperation(SelectedOperation.operationID);
@@ -560,6 +589,7 @@
             StateHasChanged();
         }
     }
+
 
 
 
