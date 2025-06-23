@@ -54,23 +54,23 @@
 }
 
 <!-- Main Content -->
-<div class="ProjectManager container-fluid px-10" style="padding-top: 80px; ">
-    <!-- div with search and sort-->
+<div class="ProjectManager container-fluid px-10" style="padding-top: 80px;">
     <div class="projects">
-        <div class="d-flex align-items-end gap-3 mb-4 pt-3">
-            <div class="flex-grow-1">
+        <div class="d-flex align-items-end justify-content-between mb-4 pt-3">
+            <!-- Suchleiste - breiter, aligned mit Karten -->
+            <div style="flex: 0 0 calc(33.333% - 10px); max-width: calc(33.333% - 10px);">
                 <MudTextField @bind-Value="searchText"
-                @bind-Value:after="UpdateFilteredLines"
-                Placeholder="@Fassade.Language.SearchProjects"
-                Adornment="Adornment.Start"
-                AdornmentIcon="@Icons.Material.Filled.Search"
-                Immediate="true"
-                Variant="Variant.Outlined"
-                Margin="Margin.Normal"
-                Class="flex-grow-1 search-field-enhanced"
-                Style="background: white; border-radius: 12px;" />
+                    @bind-Value:after="UpdateFilteredLines"
+                    Placeholder="@Fassade.Language.SearchProjects"
+                    Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search"
+                    Immediate="true"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Normal"
+                    Class="search-field-enhanced"
+                    Style="background: white; border-radius: 12px;" />
             </div>
-
+            
             <!-- Sort Dropdown -->
             <div style="width: auto">
                 <MudSelect T="string"
@@ -238,7 +238,7 @@
     }
 
         .line-card:hover {
-            border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 30%, white) !important;
+            border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 70%, white) !important;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
             transform: translateY(-2px);
         }
@@ -258,25 +258,39 @@
 
    
 
-  
-    
+ .search-field-enhanced {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06) !important;
+    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
+    border-radius: 12px !important;
+}
 
+.search-field-enhanced:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08) !important;
+}
 
-
-    .search-field-enhanced {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-    transition: box-shadow 0.2s ease-in-out !important;
-    }
-
-    .search-field-enhanced:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
-    }
-
-    .search-field-enhanced .mud-input-outlined {
+.search-field-enhanced .mud-input-outlined {
     background: white !important;
     border-radius: 12px !important;
-    }
+    border: 1px solid rgba(0,0,0,0.08) !important;
+}
 
+.search-field-enhanced .mud-input-outlined:hover {
+    border-color: rgba(33, 150, 243, 0.3) !important;
+}
+
+/* Focus soll GENAU wie Hover aussehen */
+.search-field-enhanced .mud-input-outlined.mud-input-outlined-focused,
+.search-field-enhanced .mud-input-outlined:focus,
+.search-field-enhanced .mud-input-outlined:focus-within {
+    border: 1px solid rgba(33, 150, 243, 0.3) !important;
+    border-color: rgba(33, 150, 243, 0.3) !important;
+    border-width: 1px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08) !important;
+    outline: none !important;
+}
+
+
+  
 
     .sort-dropdown-enhanced {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
