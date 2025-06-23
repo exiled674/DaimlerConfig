@@ -95,15 +95,16 @@
             {
                 <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
                 Elevation="3"
+                Style="@($"cursor: grab !important;")"
                 @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
-                    <MudCardContent Class="pa-3">
+                    <MudCardContent Class="pa-3 cursor-grab ">
                         <MudGrid AlignItems="Center" Spacing="0">
                             <MudItem xs="10">
                                 <div class="d-flex align-items-center">
 
 
                                     <div class="ml-3">
-                                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0">
+                                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0 cursor-grab">
 
                                             <MudIcon Icon="@GetStatusIcon(station.Status)"
                                             Size="Size.Small"
@@ -235,11 +236,11 @@
                             <MudList T="string" Clickable="false">
                                 @foreach (var tool in tools)
                                 {
-                                    <MudCard Class="@($"station-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")"
+                                    <MudCard Class="@($"station-card draggable cursor-grab mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")"
                                     Elevation="3">
                                         <MudCardContent Class="pa-0">
                                             <!-- Tool Header als klickbarer Bereich -->
-                                            <MudListItem Class="pa-3"
+                                            <MudListItem Class="pa-3 cursor-grab"
                                             @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }"
                                             Selected="@(selectedTool?.toolID == tool.toolID)">
                                                 <MudGrid AlignItems="Center" Spacing="0">
@@ -332,10 +333,12 @@
 
                                                 <div style="display: flex; align-items: center; justify-content: space-between;">
                                                     <div style="display: flex; align-items: center; gap: 4px;">
+
                                                         <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
                                                         Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
                                                         Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
                                                         @onclick="() => ToggleExpand(tool.toolID.Value)" />
+
                                                         <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
                                                             @Fassade.Language.Operations (@allOperations.Count(op => op.toolID == tool.toolID))
                                                         </MudText>
@@ -354,12 +357,12 @@
                                                     <MudList T="Operation" Dense="true">
                                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                                         {
-                                                            <MudListItem Class="@($"px-2 py-1 {(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
+                                                            <MudListItem Class="@($"px-2 py-1 cursor-grab {(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
                                                             @onclick="() => { OnOperationClicked(operation, false); SelectItem(operation); }"
                                                             Selected="@(selectedOperation?.operationID == operation.operationID)">
 
                                                                 <MudGrid AlignItems="Center" Spacing="0">
-                                                                    <MudItem xs="10" class="d-flex align-items-center" style="gap: 8px;">
+                                                                    <MudItem xs="10" class="d-flex align-items-center cursor-grab " style="gap: 8px;">
                                                                         <MudIcon Icon="@GetStatusIcon(operation.Status)"
                                                                         Size="Size.Small"
                                                                         Class="mr-1"
@@ -533,9 +536,18 @@
     border: 2px solid rgba(0,0,0,0.08);
     border-radius: 8px !important;
     transition: all 0.2s ease-in-out;
-    cursor: pointer;
+    cursor: grab !important;
     background:  white;
     }
+
+    .station-card.draggable:hover {
+    cursor: grab !important;
+}
+
+.station-card.draggable.dragging,
+.station-card.is-dragging {
+    cursor: grabbing !important;
+}
 
     .station-card:hover {
     border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 50%, white) !important;
@@ -593,7 +605,7 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     position: relative;
     z-index: 1;
-    cursor: grab;
+    cursor: grab !important;
     }
 
     .draggable.dragging,
@@ -604,7 +616,7 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     transform: scale(1.03) rotate(1deg);
     z-index: 999;
-    cursor: grabbing;
+    cursor: grabbing !important;
     }
 
 

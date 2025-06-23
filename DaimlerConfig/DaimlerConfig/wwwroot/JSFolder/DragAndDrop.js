@@ -3,11 +3,15 @@ window.initializeDragAndDropSafe = function (className, containerSelector) {
     // Clear any existing interactions first
     interact(className).unset();
 
+    // Set grab cursor on all target elements initially
+    document.querySelectorAll(className).forEach(el => {
+        el.style.cursor = 'grab';
+    });
+
     interact(className)
         .draggable({
             inertia: false,
             modifiers: [
-                // Restrict movement to the specified container
                 interact.modifiers.restrictRect({
                     restriction: containerSelector || 'parent',
                     elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
@@ -18,19 +22,19 @@ window.initializeDragAndDropSafe = function (className, containerSelector) {
                 start(event) {
                     console.log('Drag started:', event.target);
 
-                    // Add visual feedback
+                    // Visual + cursor feedback
                     event.target.classList.add('is-dragging');
+                    event.target.style.cursor = 'grabbing';
 
                     // Store the original position
                     event.target.setAttribute('data-original-transform',
                         event.target.style.transform || 'translate(0px, 0px)');
 
-                    // Get the container and draggable siblings
+                    // Get siblings
                     const container = event.target.closest(containerSelector) || event.target.parentNode;
                     const siblings = Array.from(container.querySelectorAll(className))
                         .filter(el => el !== event.target);
 
-                    // Store original positions of all siblings
                     siblings.forEach(sibling => {
                         const rect = sibling.getBoundingClientRect();
                         sibling.setAttribute('data-original-y', rect.top);
@@ -42,14 +46,13 @@ window.initializeDragAndDropSafe = function (className, containerSelector) {
                     const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                     const y = (parseFloat(target.getAttribute('data-y')) || 0);
 
-                    // Apply transform (restrict to vertical movement only)
+                    // Vertical-only movement
                     target.style.transform = `translate(0px, ${y}px)`;
 
-                    // Store position in data attributes
+                    // Store values
                     target.setAttribute('data-x', 0);
                     target.setAttribute('data-y', y);
 
-                    // Handle reordering of siblings
                     handleReordering(target, event.clientY, className, containerSelector);
                 },
 
@@ -58,16 +61,17 @@ window.initializeDragAndDropSafe = function (className, containerSelector) {
 
                     const target = event.target;
 
-                    // Remove visual feedback
+                    // Visual + cursor reset
                     target.classList.remove('is-dragging');
+                    target.style.cursor = 'grab';
 
-                    // Reset position
+                    // Reset transform
                     target.style.transform = '';
                     target.removeAttribute('data-x');
                     target.removeAttribute('data-y');
                     target.removeAttribute('data-original-transform');
 
-                    // Clean up all siblings
+                    // Clean up
                     const container = target.closest(containerSelector) || target.parentNode;
                     const siblings = Array.from(container.querySelectorAll(className));
 
@@ -76,7 +80,7 @@ window.initializeDragAndDropSafe = function (className, containerSelector) {
                         sibling.style.transform = '';
                     });
 
-                    // Call appropriate callback based on the dragged element type
+                    // Trigger Blazor callback
                     const elementType = getElementType(target, className);
                     const newOrder = getElementOrder(container, className, elementType);
 
@@ -87,6 +91,7 @@ window.initializeDragAndDropSafe = function (className, containerSelector) {
             }
         });
 };
+
 
 // Enhanced reordering function that works with any container
 function handleReordering(draggedElement, mouseY, className, containerSelector) {
