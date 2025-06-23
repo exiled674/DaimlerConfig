@@ -130,32 +130,29 @@
                                 </MudText>
                             </div>
 
-                            <!-- Status Chips zentriert -->
+                            <!-- Status Indicators linksbündig -->
                             @{
                                 StatusCounts.TryGetValue(line.lineID, out var statusCounts);
                             }
 
-                            <div class="d-flex justify-center mb-3">
-                                <MudChip T="string"
-                                         Size="Size.Small"
-                                         Color="Color.Success"
-                                         Text="@(statusCounts.Green.ToString())"
-                                         Class="mx-1"
-                                         Style="opacity: 0.9; border-radius: 20px; padding: 0 12px;" />
+                            <div class="d-flex align-center mb-3" style="gap: 12px;">
+                                <!-- Grüner Status -->
+                                <div class="d-flex align-center" style="gap: 4px;">
+                                    <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #4caf50;"></div>
+                                    <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Green)</span>
+                                </div>
 
-                                <MudChip T="string"
-                                         Size="Size.Small"
-                                         Color="Color.Warning"
-                                         Text="@(statusCounts.Yellow.ToString())"
-                                         Class="mx-1"
-                                         Style="opacity: 0.9; border-radius: 20px; padding: 0 12px;" />
+                                <!-- Gelber Status -->
+                                <div class="d-flex align-center" style="gap: 4px;">
+                                    <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ff9800;"></div>
+                                    <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Yellow)</span>
+                                </div>
 
-                                <MudChip T="string"
-                                         Size="Size.Small"
-                                         Color="Color.Error"
-                                         Text="@(statusCounts.Red.ToString())"
-                                         Class="mx-1"
-                                         Style="opacity: 0.9; border-radius: 20px; padding: 0 12px;" />
+                                <!-- Roter Status -->
+                                <div class="d-flex align-center" style="gap: 4px;">
+                                    <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f44336;"></div>
+                                    <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Red)</span>
+                                </div>
                             </div>
 
                             <!-- Spacer um den Modified Text nach unten zu drücken -->
