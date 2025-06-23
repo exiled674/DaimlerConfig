@@ -15,5 +15,7 @@ namespace DaimlerConfig.Components.Models
        public DateTime? lastModified { get; set; }
 
         public string? modifiedBy { get; set; }
+
+        public string? lineDescription { get; set; }
     }
 }
