@@ -110,107 +110,110 @@
     </div>
 
     <!-- Lines List -->
-@if (FilteredLines?.Any() == true)
-{
-    <MudGrid Spacing="3" Class="pb-2">
-        @foreach (var line in FilteredLines)
-        {
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Class="line-card h-100" Elevation="3">
-                    <MudCardContent Class="pa-4 position-relative" Style="display: flex; flex-direction: column; height: 100%;">
+    @if (FilteredLines?.Any() == true)
+    {
+        <MudGrid Spacing="3" Class="pb-2">
+            @foreach (var line in FilteredLines)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Class="line-card h-100" Elevation="0" Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);">
+                        <MudCardContent Class="pa-4 position-relative" Style="display: flex; flex-direction: column; height: 100%;">
 
-                        <!-- Oberer Bereich: Name + Stern -->
-                        <div class="d-flex flex-row align-items-center mb-2" @onclick="@(() => NavigateToLine(line.lineName))" style="cursor: pointer;">
-                            @if (Star.Any(l => l.lineName == line.lineName))
-                            {
-                                <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
+                            <!-- Oberer Bereich: Name + Stern -->
+                            <div class="d-flex flex-row align-items-center mb-2" @onclick="@(() => NavigateToLine(line.lineName))" style="cursor: pointer;">
+                                @if (Star.Any(l => l.lineName == line.lineName))
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
+                                }
+                                <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.1rem;">
+                                    @line.lineName
+                                </MudText>
+                            </div>
+
+                            <!-- Status Indicators linksbündig -->
+                            @{
+                                StatusCounts.TryGetValue(line.lineID, out var statusCounts);
                             }
-                            <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.1rem;">
-                                @line.lineName
+
+                            <div class="d-flex align-center mb-3" style="gap: 12px;">
+                                <!-- Grüner Status -->
+                                <div class="d-flex align-center" style="gap: 4px;">
+                                    <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #4caf50;"></div>
+                                    <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Green)</span>
+                                </div>
+
+                                <!-- Gelber Status -->
+                                <div class="d-flex align-center" style="gap: 4px;">
+                                    <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ff9800;"></div>
+                                    <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Yellow)</span>
+                                </div>
+
+                                <!-- Roter Status -->
+                                <div class="d-flex align-center" style="gap: 4px;">
+                                    <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f44336;"></div>
+                                    <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Red)</span>
+                                </div>
+                            </div>
+
+                            <!-- Spacer um den Modified Text nach unten zu drücken -->
+                            <div style="flex-grow: 1;"></div>
+
+                            <!-- Modified Text unten links -->
+                            <MudText Typo="Typo.caption"
+                                     Class="text-left"
+                                     Style="color: #6c757d; font-size: 0.75rem;">
+                                @($"{Fassade.Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Fassade.Language.By} {line.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
                             </MudText>
-                        </div>
 
-                        <!-- Status Indicators linksbündig -->
-                        @{
-                            StatusCounts.TryGetValue(line.lineID, out var statusCounts);
-                        }
-
-                        <div class="d-flex align-center mb-3" style="gap: 12px;">
-                            <!-- Grüner Status -->
-                            <div class="d-flex align-center" style="gap: 4px;">
-                                <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #4caf50;"></div>
-                                <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Green)</span>
-                            </div>
-
-                            <!-- Gelber Status -->
-                            <div class="d-flex align-center" style="gap: 4px;">
-                                <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ff9800;"></div>
-                                <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Yellow)</span>
-                            </div>
-
-                            <!-- Roter Status -->
-                            <div class="d-flex align-center" style="gap: 4px;">
-                                <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f44336;"></div>
-                                <span style="font-size: 0.875rem; font-weight: 500;">@(statusCounts.Red)</span>
-                            </div>
-                        </div>
-
-                        <!-- Spacer um den Modified Text nach unten zu drücken -->
-                        <div style="flex-grow: 1;"></div>
-
-                        <!-- Modified Text unten links -->
-                        <MudText Typo="Typo.caption"
-                                 Class="text-left"
-                                 Style="color: #6c757d; font-size: 0.75rem;">
-                            @($"{Fassade.Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Fassade.Language.By} {line.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
-                        </MudText>
-
-                        <!-- Option 1: Hover-Aktionsleiste -->
-                            <div class="hover-actions" style="position: absolute; top: 12px; right: 12px; opacity: 0; transition: opacity 0.2s ease;" @onclick:stopPropagation>
-                                <div class="d-flex" style="gap: 4px; background: rgba(255,255,255,0.95); border-radius: 8px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                            <!-- Optimierte Hover-Aktionsleiste -->
+                            <div class="hover-actions"
+                                 style="position: absolute; top: 12px; right: 12px; opacity: 0; transition: all 0.3s ease-in-out;"
+                                 @onclick:stopPropagation="true">
+                                <div class="d-flex"
+                                     style="gap: 6px; background: rgba(255,255,255,0.98); border-radius: 10px; padding: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
                                     @if (!Star.Any(l => l.lineName == line.lineName))
                                     {
                                         <MudIconButton Icon="@Icons.Material.Outlined.StarOutline"
                                                        Size="Size.Small"
                                                        OnClick="@(() => StarLine(line))"
-                                                       Style="color: #ff9800;" />
+                                                       Style="color: #ff9800; transition: all 0.2s ease;" />
                                     }
                                     else
                                     {
                                         <MudIconButton Icon="@Icons.Material.Filled.Star"
                                                        Size="Size.Small"
                                                        OnClick="@(() => DeleteStar(line))"
-                                                       Style="color: #ff9800;" />
+                                                       Style="color: #ff9800; transition: all 0.2s ease;" />
                                     }
                                     <MudIconButton Icon="@Icons.Material.Outlined.Edit"
                                                    Size="Size.Small"
-                                                   OnClick="@(() => StartEditing(line))" />
+                                                   OnClick="@(() => StartEditing(line))"
+                                                   Style="color: #6c757d; transition: all 0.2s ease;" />
                                     <MudIconButton Icon="@Icons.Material.Outlined.Delete"
                                                    Size="Size.Small"
                                                    OnClick="@(() => DeleteLine(line))"
-                                                   Style="color: #f44336;" />
+                                                   Style="color: #f44336; transition: all 0.2s ease;" />
                                     <MudIconButton Icon="@MyIcons.Excel"
                                                    Size="Size.Small"
                                                    OnClick="@(() => ExportToExcel(line))"
-                                                   Style="color: #28a745;" />
+                                                   Style="color: #28a745; transition: all 0.2s ease;" />
                                     <MudIconButton Icon="@MyIcons.myJSON"
                                                    Size="Size.Small"
                                                    OnClick="@(() => ExportToJson(line))"
-                                                   Style="color: #007bff;" />
+                                                   Style="color: #007bff; transition: all 0.2s ease;" />
                                 </div>
                             </div>
 
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-        }
-    </MudGrid>
-}
-else
-{
-    <p class="text-muted">@Fassade.Language.NoLinesFound</p>
-}
-
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+    else
+    {
+        <p class="text-muted">@Fassade.Language.NoLinesFound</p>
+    }
 
     <div>
         <MudFab Icon="@Icons.Material.Filled.Add"
@@ -229,21 +232,25 @@ else
     .line-card {
         border: 2px solid rgba(0,0,0,0.08);
         border-radius: 8px !important;
-        transition: all 0.2s ease-in-out;
+        transition: all 0.3s ease-in-out;
         cursor: pointer;
         background: white;
     }
 
         .line-card:hover {
-            border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 50%, white) !important;
-            box-shadow: 0px 27px 20px rgba(0, 0, 0, 0.12);
-            transform: translateY(-1px);
+            border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 30%, white) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
         }
 
             .line-card:hover .hover-actions {
                 opacity: 1 !important;
+                transform: translateY(-1px);
             }
-   
+
+    .hover-actions {
+        transition: all 0.3s ease-in-out;
+    }
 
     .mud-fab-extended {
     border-radius: 28px !important;
