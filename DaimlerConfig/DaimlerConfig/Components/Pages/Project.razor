@@ -20,10 +20,12 @@
 @using MudBlazor
 @inject IDialogService DialogService
 
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
 
 
 
-<!-- Navbar -->
+
 <!-- Navbar -->
 <MudAppBar Elevation="4" Color="Color.Primary" Class="navbar-aligned" Style="height: 64px;">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
@@ -41,8 +43,28 @@
         </MudText>
     </MudContainer>
 
+
     <!-- Rechte Seite: Username und Einstellungen -->
     <div class="d-flex align-center">
+
+        <MudText Typo="Typo.subtitle2">URL:</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                       Size="Size.Medium"
+                       Color="Color.Secondary"
+                       OnClick="CopyUriToClipboard"
+                       AriaLabel="Copy URL" />
+
+
+        <MudText Typo="Typo.subtitle2">Navigate:</MudText>
+        <MudTextField @bind-Value="uriInput" Style="color: white"
+        OnKeyDown="@(e =>
+                  {
+                      if (e.Key == "Enter")
+                          RouteN();
+                  })"/>
+
+
+
         <!-- Benutzername -->
         <MudText Typo="Typo.subtitle1" Class="mr-8 font-weight-medium" Style="white-space: nowrap;">
             @(UsernameService.Username?.Split(';')[0] ?? @Fassade.Language.UnknownUser)
@@ -1235,8 +1257,11 @@
     }
     #endregion
 
+    String uri;
+
     protected override async Task OnInitializedAsync()
     {
+        uri = Navigation.Uri;
 
         UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
 
@@ -2362,7 +2387,30 @@
 
     
     
+    #region navCop
 
+    String uriInput;
+
+    public void RouteN(){
+        if(uriInput == null) return;
+        Navigation.NavigateTo(uriInput, replace: true);
+        NavState.SetCurrentRoute(uriInput);
+        
+
+    }
+
+
+    private async Task CopyUriToClipboard()
+    {
+        // nutzt das Clipboard-API des Browsers
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", uri);
+        // Optional: kurzes Feedback
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        Snackbar.Add("URL kopiert!", Severity.Success);
+    }
+
+
+    #endregion
   
 
 
