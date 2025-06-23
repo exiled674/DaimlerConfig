@@ -266,7 +266,8 @@
 
                     </div>
 
-                    <div id="toolsList">
+                    <div id="toolsList" style="max-height: 80vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+
                         @if (selectedStation == null)
                         {
                             <p>@Fassade.Language.ChooseStation</p>
@@ -630,7 +631,9 @@
     }
 
 
-
+    #toolsList::-webkit-scrollbar {
+  display: none;
+}
 
     /* Drag and drop zeug */
 
@@ -1398,6 +1401,7 @@
                                 {
                                     stationList[idx] = updatedStation;
                                     stations = stationList.AsEnumerable();
+                                     UpdateFilteredStations();
                                     if (showStationFormular && selectedStation?.stationID == stationID)
                                     {
                                         selectedStation = updatedStation;
@@ -1426,6 +1430,7 @@
 
                                 stationList.Add(newStation);
                                 stations = stationList.AsEnumerable();
+                                 UpdateFilteredStations();
 
 
                                 if (newStation.modifiedBy.Trim() == UsernameService.Username)
@@ -1452,6 +1457,7 @@
                             {
                                 stationList.RemoveAt(idx);
                                 stations = stationList.AsEnumerable();
+                                UpdateFilteredStations();
 
                                 if (selectedStation?.stationID == stationID)
                                 {
@@ -1706,9 +1712,11 @@
         }
 
         stations = await Fassade.GetStationsFromLine(line.lineID);
+        UpdateFilteredStations();
         if (stations != null)
         {
             stations = await Fassade.GetStationsFromLine(line.lineID);
+            UpdateFilteredStations();
             filteredStations = stations;
 
 
