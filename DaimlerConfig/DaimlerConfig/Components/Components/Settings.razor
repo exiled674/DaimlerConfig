@@ -12,13 +12,14 @@
 @using DaimlerConfig.Components.Models
 
 @inject IConfiguration Configuration
-@inject ISnackbar Snackbar
 @using DaimlerConfig.Services
 @using Microsoft.Extensions.FileProviders
 @inject AppStartupValidationService ValidationService
 @inject SettingsValidationService SettingsValidation
 @inject UsernameService UsernameS
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
+@inject LanguageLoad LangLoader
+
 
 
 <div class="popup-backdrop">
@@ -121,9 +122,9 @@
                         <MudText Typo="Typo.subtitle1" GutterBottom="true">@Fassade.Language.LanguageText</MudText>
                         <MudSelect T="string" 
                                    Label="@Fassade.Language.LanguageSelect" 
-                                   Value="_selectedLanguage"
-                                   ValueChanged="OnLanguageChanged">
-                            @foreach (var lang in _availableLanguages)
+                                   Value="LangLoader.SelectedLanguage"
+                                   ValueChanged="LangLoader.OnLanguageChanged">
+                            @foreach (var lang in LangLoader.AvailableLanguages)
                             {
                                 <MudSelectItem Value="@lang">@lang.ToUpper()</MudSelectItem>
                             }
@@ -399,11 +400,6 @@
 
 
 @code {
-    
-    // Konstanten für Preferences Keys
-    private const string SELECTED_LANGUAGE_KEY = "SelectedLanguage";
-    private const string DEFAULT_LANGUAGE = "eng";
-
     [Parameter]
     public EventCallback OnClosing { get; set; }
     
@@ -578,59 +574,7 @@
 
     private async Task SaveGeneralSettings()
     {
-        try
-        {
-            Preferences.Default.Set(SELECTED_LANGUAGE_KEY, _selectedLanguage);
-            
-            await LoadSelectedLanguage();
-
-            var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{_selectedLanguage}.json");
-            
-            await Fassade.LoadLanguageFromFileAsync(languageFilePath);
-            
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ordner konnte nicht geöffnet werden: {ex.Message}");
-        }
-    }
-    public async Task LoadSelectedLanguage()
-    {
-        try
-        {
-            var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{_selectedLanguage}LANG.json");
-            
-            if (File.Exists(languageFilePath))
-            {
-                await Fassade.LoadLanguageFromFileAsync(languageFilePath);
-            }
-            else
-            {
-                // Fallback auf Standard-Sprache
-                var defaultLanguageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{DEFAULT_LANGUAGE}LANG.json");
-                if (File.Exists(defaultLanguageFilePath))
-                {
-                    await Fassade.LoadLanguageFromFileAsync(defaultLanguageFilePath);
-                    _selectedLanguage = DEFAULT_LANGUAGE;
-                    Preferences.Default.Set(SELECTED_LANGUAGE_KEY, DEFAULT_LANGUAGE);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Laden der Sprache: {ex.Message}");
-        }
-    }
-    private async Task OnLanguageChanged(string newLanguage)
-    {
-            _selectedLanguage = newLanguage;
-    }
-    private string GetLanguagesFolderPath()
-    {
-        // Pfad zum Languages-Ordner bestimmen
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        return Path.Combine(appDataPath);
+        await LangLoader.SaveLanguageSettings();
     }
 
     private async Task SaveSettings()
@@ -661,7 +605,7 @@
 
         try
         {
-            // Build new connection string (declare once and reuse)
+            // Build the new connection string (declare once and reuse)
             var newConnectionString = BuildConnectionString();
 
             // Validate settings using the new service
@@ -753,7 +697,7 @@
     
     private void OpenLanguageFolder()
     {
-        var folderPath = Path.Combine(GetLanguagesFolderPath());
+        var folderPath = LangLoader.GetLanguagesFolderPath();
 
         if (Directory.Exists(folderPath))
         {
@@ -785,22 +729,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //Language picker
-        var fileProvider = new PhysicalFileProvider(Path.Combine(GetLanguagesFolderPath()));
-        _availableLanguages = fileProvider.GetDirectoryContents("")
-            .Where(f => f.Name.EndsWith("LANG.json"))
-            .Select(f => Path.GetFileNameWithoutExtension(f.Name))
-            .ToList();
-        
-        _selectedLanguage = Preferences.Default.Get(SELECTED_LANGUAGE_KEY, DEFAULT_LANGUAGE);
-        
-        if (!_availableLanguages.Contains(_selectedLanguage))
-        {
-            _selectedLanguage = _availableLanguages.FirstOrDefault() ?? DEFAULT_LANGUAGE;
-        }
-
-        await LoadSelectedLanguage();
-        
         // Extrahiere nur den Username-Teil (vor dem Semikolon)
         _newUsername = GetDisplayUsername(UsernameS.Username);
 
@@ -819,7 +747,7 @@
         catch (Exception ex)
         {
             hasError = true;
-            errorMessage = @Fassade.Language.LoadingError + ex.Message;
+            errorMessage = Fassade.Language.LoadingError + ex.Message;
             isLoading = false;
         }
 
