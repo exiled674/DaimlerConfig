@@ -53,33 +53,33 @@
                 <Settings OnClosing="CloseSetting" />
 }
 
-<!-- Main Content -->
 <div class="ProjectManager container-fluid px-10" style="padding-top: 80px;">
     <div class="projects">
-        <div class="d-flex align-items-end justify-content-between mb-4 pt-3">
-            <!-- Suchleiste - breiter, aligned mit Karten -->
+        <!-- NUR DIESE ZEILE ÄNDERN -->
+        <div class="d-flex align-items-end gap-3 mb-4 pt-3">
+            <!-- Suchleiste - UNVERÄNDERT -->
             <div style="flex: 0 0 calc(33.333% - 10px); max-width: calc(33.333% - 10px);">
                 <MudTextField @bind-Value="searchText"
-                    @bind-Value:after="UpdateFilteredLines"
-                    Placeholder="@Fassade.Language.SearchProjects"
-                    Adornment="Adornment.Start"
-                    AdornmentIcon="@Icons.Material.Filled.Search"
-                    Immediate="true"
-                    Variant="Variant.Outlined"
-                    Margin="Margin.Normal"
-                    Class="search-field-enhanced"
-                    Style="background: white; border-radius: 12px;" />
+                              @bind-Value:after="UpdateFilteredLines"
+                              Placeholder="@Fassade.Language.SearchProjects"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              Immediate="true"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              Class="search-field-enhanced"
+                              Style="background: white; border-radius: 12px;" />
             </div>
-            
-            <!-- Sort Dropdown -->
+
+            <!-- Sort Dropdown - UNVERÄNDERT -->
             <div style="width: auto">
                 <MudSelect T="string"
-                Value="selectedSort"
-                ValueChanged="OnSortChanged"
-                Variant="Variant.Outlined"
-                Dense="true"
-                Margin="Margin.Normal"
-                FullWidth="true"
+                           Value="selectedSort"
+                           ValueChanged="OnSortChanged"
+                           Variant="Variant.Outlined"
+                           Dense="true"
+                           Margin="Margin.Normal"
+                           FullWidth="true"
                            AnchorOrigin="Origin.BottomLeft"
                            TransformOrigin="Origin.TopLeft"
                            Class="sort-dropdown-enhanced"
@@ -96,18 +96,17 @@
                             @Fassade.Language.SortedByNameAsc
                         </div>
                     </MudSelectItem>
-                  
-
                     <MudSelectItem Value="@("favorites")">
                         <div class="d-flex align-items-center">
-                           <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" Class="me-2" />
-                           @Fassade.Language.SortedByFavorites 
+                            <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" Class="me-2" />
+                            @Fassade.Language.SortedByFavorites
                         </div>
                     </MudSelectItem>
                 </MudSelect>
             </div>
         </div>
     </div>
+
 
     <!-- Lines List -->
     @if (FilteredLines?.Any() == true)
@@ -274,9 +273,7 @@
     border: 1px solid rgba(0,0,0,0.08) !important;
 }
 
-.search-field-enhanced .mud-input-outlined:hover {
-    border-color: rgba(33, 150, 243, 0.3) !important;
-}
+
 
 /* Focus soll GENAU wie Hover aussehen */
 .search-field-enhanced .mud-input-outlined.mud-input-outlined-focused,
