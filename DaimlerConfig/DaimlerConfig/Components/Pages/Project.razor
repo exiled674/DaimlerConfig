@@ -13,17 +13,11 @@
 @inject SelectionStateService SelectionState
 @inject UsernameService UsernameService
 @using System.Linq
-@using Microsoft.JSInterop
 @inject IJSRuntime JS;
 @inject ISnackbar Snackbar
 @implements IAsyncDisposable
 @using MudBlazor
 @inject IDialogService DialogService
-
-@using Microsoft.JSInterop
-@inject IJSRuntime JS
-
-
 
 
 <!-- Optimierte Navbar mit ECHTER Zentrierung -->
@@ -90,13 +84,13 @@
             Color="Color.Inherit"
             Class="share-button"
             Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
-                Share Link
+                @Fassade.Language.ShareLink
             </MudButton>
 
             <!-- Navigate Input (breiter mit besserem Hover) -->
             <MudTextField @bind-Value="uriInput"
             Variant="Variant.Outlined"
-            Placeholder="Navigate to..."
+            Placeholder="@Fassade.Language.NavigateTo"
             Class="navigate-input"
             Style="width: 140px;"
             OnKeyDown="@(e => { if (e.Key == "Enter") RouteN(); })" />
@@ -108,7 +102,7 @@
             <MudText Typo="Typo.subtitle1"
             Class="font-weight-medium"
             Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
-                @(UsernameService.Username?.Split(';')[0] ?? @Fassade.Language.UnknownUser)
+                @(UsernameService.Username?.Split(';')[0] ?? Fassade.Language.UnknownUser)
             </MudText>
 
             <!-- Settings -->
