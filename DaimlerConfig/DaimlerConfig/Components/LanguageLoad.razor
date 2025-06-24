@@ -5,37 +5,39 @@
     private const string SELECTED_LANGUAGE_KEY = "SelectedLanguage";
     public string SelectedLanguage = "";
     public List<string> AvailableLanguages = new();
-
-    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    
     [Inject] private DaimlerConfig.Components.Fassade.Fassade Fassade { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            SelectedLanguage = Preferences.Default.Get(SELECTED_LANGUAGE_KEY, SelectedLanguage);
-            await SaveLanguageSettings();
-
-            var fileProvider = new PhysicalFileProvider(Path.Combine(GetLanguagesFolderPath()));
-            AvailableLanguages = fileProvider.GetDirectoryContents("")
-                .Where(f => f.Name.EndsWith("LANG.json"))
-                .Select(f => Path.GetFileNameWithoutExtension(f.Name))
-                .ToList();
-
-            Snackbar.Add("Sprache erfolgreich geladen!", Severity.Success);
+            SetSelectedLang();
+            await SaveLanguageSettings(SelectedLanguage, Fassade);
+            SetAvailableLanguages();
         }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Fehler beim Laden der Sprache: {ex.Message}", Severity.Error);
-        }
+        catch (Exception ex){}
     }
 
-    public async Task SaveLanguageSettings()
+    public void SetAvailableLanguages()
+    {
+        var fileProvider = new PhysicalFileProvider(Path.Combine(GetLanguagesFolderPath()));
+        AvailableLanguages = fileProvider.GetDirectoryContents("")
+            .Where(f => f.Name.EndsWith("LANG.json"))
+            .Select(f => Path.GetFileNameWithoutExtension(f.Name))
+            .ToList();
+    }
+    public void SetSelectedLang()
+    {
+        SelectedLanguage = Preferences.Default.Get(SELECTED_LANGUAGE_KEY, SelectedLanguage);
+    }
+
+    public async Task SaveLanguageSettings(string selectedLang, Fassade.Fassade fassade)
     {
         try
         {
-            Preferences.Default.Set(SELECTED_LANGUAGE_KEY, SelectedLanguage);
-            await LoadSelectedLanguage();
+            Preferences.Default.Set(SELECTED_LANGUAGE_KEY, selectedLang);
+            await LoadSelectedLanguage(fassade);
         }
         catch (Exception ex)
         {
@@ -43,12 +45,12 @@
         }
     }
 
-    public async Task LoadSelectedLanguage()
+    public async Task LoadSelectedLanguage(Fassade.Fassade fassade)
     {
         try
         {
             var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{SelectedLanguage}.json");
-            await LoadLanguageFromFileAsync(languageFilePath);
+            await LoadLanguageFromFileAsync(languageFilePath, fassade);
         }
         catch (Exception ex)
         {
@@ -64,8 +66,9 @@
     public async Task OnLanguageChanged(string newLanguage)
     {
         SelectedLanguage = newLanguage;
+        
     }
-    private async Task LoadLanguageFromFileAsync(string filePath)
+    private async Task LoadLanguageFromFileAsync(string filePath, Fassade.Fassade fassade)
     {
         try
         {
@@ -73,7 +76,7 @@
                 throw new FileNotFoundException($"Sprachdatei nicht gefunden: {filePath}");
 
             var jsonContent = await File.ReadAllTextAsync(filePath);
-            Fassade.Language = LoadLanguageFromJson(jsonContent);
+            fassade.Language = LoadLanguageFromJson(jsonContent);
         }
         catch (Exception ex)
         {

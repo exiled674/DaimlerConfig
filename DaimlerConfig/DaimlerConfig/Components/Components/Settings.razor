@@ -7,20 +7,14 @@
 @using System.Text.Json
 @using System.Text.Json.Nodes
 @using DaimlerConfig.Security
-@using MudBlazor
-@using System.Text.RegularExpressions
-@using DaimlerConfig.Components.Models
+@using DaimlerConfig.Services
 
 @inject IConfiguration Configuration
-@using DaimlerConfig.Services
-@using Microsoft.Extensions.FileProviders
 @inject AppStartupValidationService ValidationService
 @inject SettingsValidationService SettingsValidation
 @inject UsernameService UsernameS
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
 @inject LanguageLoad LangLoader
-
-
 
 <div class="popup-backdrop">
     <div class="popup-dialog">
@@ -122,8 +116,8 @@
                         <MudText Typo="Typo.subtitle1" GutterBottom="true">@Fassade.Language.LanguageText</MudText>
                         <MudSelect T="string" 
                                    Label="@Fassade.Language.LanguageSelect" 
-                                   Value="LangLoader.SelectedLanguage"
-                                   ValueChanged="LangLoader.OnLanguageChanged">
+                                   Value="@LangLoader.SelectedLanguage"
+                                   ValueChanged="OnLanguageChanged">
                             @foreach (var lang in LangLoader.AvailableLanguages)
                             {
                                 <MudSelectItem Value="@lang">@lang.ToUpper()</MudSelectItem>
@@ -445,9 +439,6 @@
 
     private bool isValidating = false;
     private List<string> validationErrors = new List<string>();
-
-    private List<string> _availableLanguages = new();
-    private string _selectedLanguage = "";
     
     private void ParseConnectionString(string connStr)
     {
@@ -574,7 +565,8 @@
 
     private async Task SaveGeneralSettings()
     {
-        await LangLoader.SaveLanguageSettings();
+        await LangLoader.SaveLanguageSettings(LangLoader.SelectedLanguage, Fassade);
+        StateHasChanged();
     }
 
     private async Task SaveSettings()
@@ -662,7 +654,7 @@
                 ConfigurationEncryptor.EncryptConnectionString(newConnectionString, appSettingsPath);
             }
 
-            statusMessage = @Fassade.Language.SavedAppWillRestart;
+            statusMessage = Fassade.Language.SavedAppWillRestart;
             isStatusError = false;
             hasUnsavedChanges = false;
             isEditMode = false;
@@ -694,7 +686,12 @@
             StateHasChanged();
         }
     }
-    
+
+    private async Task OnLanguageChanged(string newLang)
+    {
+        await LangLoader.OnLanguageChanged(newLang);
+        }
+
     private void OpenLanguageFolder()
     {
         var folderPath = LangLoader.GetLanguagesFolderPath();
@@ -715,8 +712,7 @@
             }
         }
     }
-
-
+    
     private async Task CloseSomething()
     {
         if (isEditMode) return;
@@ -729,6 +725,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        LangLoader.SetAvailableLanguages();
+        LangLoader.SetSelectedLang();
         // Extrahiere nur den Username-Teil (vor dem Semikolon)
         _newUsername = GetDisplayUsername(UsernameS.Username);
 
