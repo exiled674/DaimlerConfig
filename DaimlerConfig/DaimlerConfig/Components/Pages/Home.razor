@@ -25,26 +25,26 @@
 <!-- Navbar -->
 <MudAppBar Elevation="2"
            Color="Color.Primary"
-           Style="height: 72px; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);">
+           Style="height: 64px;">
 
     <div class="d-flex align-center justify-space-between w-100 px-4">
 
         <!-- Links: Icon + Titel -->
-        <div class="d-flex align-center" style="gap: 12px;">
+        <div class="d-flex align-center" style="gap: 10px;">
             <MudIcon Icon="@Icons.Material.Filled.Dashboard"
                      Size="Size.Medium"
-                     Style="color: rgba(255,255,255,0.9);" />
+                     Style="color: rgba(255,255,255,0.9); font-size: 20px;" />
             <MudText Typo="Typo.h5"
                      Class="font-weight-bold"
-                     Style="letter-spacing: 0.5px;">
+                     Style="letter-spacing: 0.4px; font-size: 1.3rem;">
                 @Fassade.Language.ProjectManager
             </MudText>
         </div>
 
-        <div class="d-flex align-center" style="gap: 16px;">
+        <div class="d-flex align-center" style="gap: 14px;">
             <MudText Typo="Typo.subtitle1"
                      Class="font-weight-medium"
-                     Style="white-space: nowrap; opacity: 0.95;">
+                     Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
                 @(usernameService.Username?.Split(';')[0] ?? Fassade.Language.UnknownUser)
             </MudText>
 
@@ -61,6 +61,9 @@
     .settings-hover-effect {
         transition: all 0.2s ease;
         opacity: 0.9;
+        border-radius: 6px;
+        width: 36px;
+        height: 36px;
     }
 
         .settings-hover-effect:hover {
@@ -72,40 +75,40 @@
 
 @if (ShowSettings)
 {
-                <Settings OnClosing="CloseSetting" />
+    <Settings OnClosing="CloseSetting" />
 }
 
 <div class="ProjectManager container-fluid px-10" style="padding-top: 80px;">
     <div class="projects">
-      
+
         <div class="d-flex align-items-end gap-3 mb-4 pt-3">
-           
+
             <div style="flex: 0 0 calc(33.333% - 10px); max-width: calc(33.333% - 10px);">
                 <MudTextField @bind-Value="searchText"
-                              @bind-Value:after="UpdateFilteredLines"
-                              Placeholder="@Fassade.Language.SearchProjects"
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search"
-                              Immediate="true"
-                              Variant="Variant.Outlined"
-                              Margin="Margin.Normal"
-                              Class="search-field-enhanced"
-                              Style="background: white; border-radius: 12px;" />
+                @bind-Value:after="UpdateFilteredLines"
+                Placeholder="@Fassade.Language.SearchProjects"
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Filled.Search"
+                Immediate="true"
+                Variant="Variant.Outlined"
+                Margin="Margin.Normal"
+                Class="search-field-enhanced"
+                Style="background: white; border-radius: 12px;" />
             </div>
 
             <!-- Sort Dropdown  -->
             <div style="width: auto">
                 <MudSelect T="string"
-                           Value="selectedSort"
-                           ValueChanged="OnSortChanged"
-                           Variant="Variant.Outlined"
-                           Dense="true"
-                           Margin="Margin.Normal"
-                           FullWidth="true"
-                           AnchorOrigin="Origin.BottomLeft"
-                           TransformOrigin="Origin.TopLeft"
-                           Class="sort-dropdown-enhanced"
-                           Style="background: white; border-radius: 12px; min-width: 300px;">
+                Value="selectedSort"
+                ValueChanged="OnSortChanged"
+                Variant="Variant.Outlined"
+                Dense="true"
+                Margin="Margin.Normal"
+                FullWidth="true"
+                AnchorOrigin="Origin.BottomLeft"
+                TransformOrigin="Origin.TopLeft"
+                Class="sort-dropdown-enhanced"
+                Style="background: white; border-radius: 12px; min-width: 300px;">
                     <MudSelectItem Value="@("date")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="me-2" />
@@ -138,8 +141,8 @@
             {
                 <MudItem xs="12" sm="6" md="4">
                     <MudCard Class="line-card h-100" Elevation="0"
-                             Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;"
-                             @onclick="@(() => NavigateToLine(line.lineName))">
+                    Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;"
+                    @onclick="@(() => NavigateToLine(line.lineName))">
                         <MudCardContent Class="pa-4 position-relative" Style="display: flex; flex-direction: column; height: 100%;">
 
                             <!-- Oberer Bereich: Name + Stern -->
@@ -156,8 +159,8 @@
                             <!-- Beschreibung -->
                             <div class="mb-3">
                                 <MudText Typo="Typo.body2"
-                                         Class="ma-0 pa-0"
-                                         Style="color: #6c757d; font-size: 0.875rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                Class="ma-0 pa-0"
+                                Style="color: #6c757d; font-size: 0.875rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                     @(string.IsNullOrWhiteSpace(line.lineDescription) ? "No description" : line.lineDescription)
                                 </MudText>
                             </div>
@@ -194,7 +197,7 @@
                                     var stationText = totalStations == 1 ? "Station" : "Stations";
                                 }
                                 <MudChip Size="Size.Small"
-                                         T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.75rem;">
+                                T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.75rem;">
                                     @($"{totalStations} {stationText}")
                                 </MudChip>
                             </div>
@@ -204,47 +207,47 @@
 
                             <!-- Modified Text unten links -->
                             <MudText Typo="Typo.caption"
-                                     Class="text-left"
-                                     Style="color: #6c757d; font-size: 0.75rem;">
+                            Class="text-left"
+                            Style="color: #6c757d; font-size: 0.75rem;">
                                 @($"{Fassade.Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Fassade.Language.By} {line.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
                             </MudText>
 
                             <!-- Hover-Aktionsleiste -->
                             <div class="hover-actions"
-                                 style="position: absolute; top: 12px; right: 12px; opacity: 0; transition: all 0.3s ease-in-out;"
-                                 @onclick:stopPropagation="true">
+                            style="position: absolute; top: 12px; right: 12px; opacity: 0; transition: all 0.3s ease-in-out;"
+                            @onclick:stopPropagation="true">
                                 <div class="d-flex"
-                                     style="gap: 6px; background: rgba(255,255,255,0.98); border-radius: 10px; padding: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+                                style="gap: 6px; background: rgba(255,255,255,0.98); border-radius: 10px; padding: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
                                     @if (!Star.Any(l => l.lineName == line.lineName))
                                     {
                                         <MudIconButton Icon="@Icons.Material.Outlined.StarOutline"
-                                                       Size="Size.Small"
-                                                       OnClick="@(() => StarLine(line))"
-                                                       Style="color: #ff9800; transition: all 0.2s ease;" />
+                                        Size="Size.Small"
+                                        OnClick="@(() => StarLine(line))"
+                                        Style="color: #ff9800; transition: all 0.2s ease;" />
                                     }
                                     else
                                     {
                                         <MudIconButton Icon="@Icons.Material.Filled.Star"
-                                                       Size="Size.Small"
-                                                       OnClick="@(() => DeleteStar(line))"
-                                                       Style="color: #ff9800; transition: all 0.2s ease;" />
+                                        Size="Size.Small"
+                                        OnClick="@(() => DeleteStar(line))"
+                                        Style="color: #ff9800; transition: all 0.2s ease;" />
                                     }
                                     <MudIconButton Icon="@Icons.Material.Outlined.Edit"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => StartEditing(line))"
-                                                   Style="color: #6c757d; transition: all 0.2s ease;" />
+                                    Size="Size.Small"
+                                    OnClick="@(() => StartEditing(line))"
+                                    Style="color: #6c757d; transition: all 0.2s ease;" />
                                     <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => DeleteLine(line))"
-                                                   Style="color: #f44336; transition: all 0.2s ease;" />
+                                    Size="Size.Small"
+                                    OnClick="@(() => DeleteLine(line))"
+                                    Style="color: #f44336; transition: all 0.2s ease;" />
                                     <MudIconButton Icon="@MyIcons.Excel"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => ExportToExcel(line))"
-                                                   Style="color: #28a745; transition: all 0.2s ease;" />
+                                    Size="Size.Small"
+                                    OnClick="@(() => ExportToExcel(line))"
+                                    Style="color: #28a745; transition: all 0.2s ease;" />
                                     <MudIconButton Icon="@MyIcons.myJSON"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => ExportToJson(line))"
-                                                   Style="color: #007bff; transition: all 0.2s ease;" />
+                                    Size="Size.Small"
+                                    OnClick="@(() => ExportToJson(line))"
+                                    Style="color: #007bff; transition: all 0.2s ease;" />
                                 </div>
                             </div>
 
@@ -261,12 +264,12 @@
 
     <div>
         <MudFab Icon="@Icons.Material.Filled.Add"
-                Color="Color.Primary"
-                Size="Size.Large"
-                Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:8px;"
-                Onclick="OpenDialogAsync"
-                Label="@Fassade.Language.CreateNewProject"
-                Class="fab-optimized px-4 py-2" />
+        Color="Color.Primary"
+        Size="Size.Large"
+        Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:8px;"
+        Onclick="OpenDialogAsync"
+        Label="@Fassade.Language.CreateNewProject"
+        Class="fab-optimized px-4 py-2" />
     </div>
 </div>
 
@@ -275,26 +278,26 @@
 
 
     .line-card {
-        border: 2px solid rgba(0,0,0,0.08);
-        border-radius: 8px !important;
-        transition: all 0.3s ease-in-out;
-        cursor: pointer;
-        background: white;
+    border: 2px solid rgba(0,0,0,0.08);
+    border-radius: 8px !important;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    background: white;
     }
 
-        .line-card:hover {
-            border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 70%, white) !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
-            transform: translateY(-2px);
-        }
+    .line-card:hover {
+    border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 70%, white) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+    }
 
-            .line-card:hover .hover-actions {
-                opacity: 1 !important;
-                transform: translateY(-1px);
-            }
+    .line-card:hover .hover-actions {
+    opacity: 1 !important;
+    transform: translateY(-1px);
+    }
 
     .hover-actions {
-        transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
     }
 
     .mud-fab-extended {
@@ -303,51 +306,51 @@
 
 
     .fab-optimized {
-        /* Subtile Schatten - konsistent mit Cards */
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06) !important;
-        transition: all 0.2s ease-in-out !important;
-        transform: translateY(0px);
-        border-radius: 8px !important; /* Konsistent mit Cards */
+    /* Subtile Schatten - konsistent mit Cards */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06) !important;
+    transition: all 0.2s ease-in-out !important;
+    transform: translateY(0px);
+    border-radius: 8px !important; /* Konsistent mit Cards */
     }
 
-        .fab-optimized:hover {
-            /* Dezente Hover-Effekte - wie bei Cards */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08) !important;
-            transform: translateY(-1px) !important; /* Viel subtiler */
-        }
-   
+    .fab-optimized:hover {
+    /* Dezente Hover-Effekte - wie bei Cards */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08) !important;
+    transform: translateY(-1px) !important; /* Viel subtiler */
+    }
 
- .search-field-enhanced {
+
+    .search-field-enhanced {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06) !important;
     transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out !important;
     border-radius: 12px !important;
-}
+    }
 
-.search-field-enhanced:hover {
+    .search-field-enhanced:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08) !important;
-}
+    }
 
-.search-field-enhanced .mud-input-outlined {
+    .search-field-enhanced .mud-input-outlined {
     background: white !important;
     border-radius: 12px !important;
     border: 1px solid rgba(0,0,0,0.08) !important;
-}
+    }
 
 
 
-/* Focus soll GENAU wie Hover aussehen */
-.search-field-enhanced .mud-input-outlined.mud-input-outlined-focused,
-.search-field-enhanced .mud-input-outlined:focus,
-.search-field-enhanced .mud-input-outlined:focus-within {
+    /* Focus soll GENAU wie Hover aussehen */
+    .search-field-enhanced .mud-input-outlined.mud-input-outlined-focused,
+    .search-field-enhanced .mud-input-outlined:focus,
+    .search-field-enhanced .mud-input-outlined:focus-within {
     border: 1px solid rgba(33, 150, 243, 0.3) !important;
     border-color: rgba(33, 150, 243, 0.3) !important;
     border-width: 1px !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08) !important;
     outline: none !important;
-}
+    }
 
 
-  
+
 
     .sort-dropdown-enhanced {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
@@ -409,7 +412,7 @@
         await LoadAllLines();
 
         await LoadStatusCountsForAllLines();
-       
+
 
         var lineNames = usernameService.LoadList();
 
@@ -485,6 +488,7 @@
                 if (index >= 0 && index < AllLines.Count)
                 {
                     AllLines[index] = updatedLine;
+                    StarLine(updatedLine);
 
                     // Auch aus EditingLines entfernen falls vorhanden
                     if (EditingLines.Contains(existingLine))

@@ -26,58 +26,173 @@
 
 
 
-<!-- Navbar -->
-<MudAppBar Elevation="4" Color="Color.Primary" Class="navbar-aligned" Style="height: 64px;">
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+<!-- Optimierte Navbar mit ECHTER Zentrierung -->
+<MudAppBar Elevation="2" Color="Color.Primary" Style="height: 64px;">
+    <div class="d-flex align-center w-100 px-4 position-relative">
 
-    <!-- Haus Icon links -->
-    <MudIconButton href="/" Icon="@Icons.Material.Filled.Home" OnClick="@(() => { UnlockTool(); UnlockOperation(); })"
-    Color="Color.Inherit"
-    Size="Size.Large"
-    Class="mr-3" />
+        <!-- Links: Navigation (absolute positioning) -->
+        <div class="d-flex align-center position-absolute" style="gap: 10px; left: 16px;">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                           Color="Color.Inherit"
+                           Size="Size.Medium"
+                           OnClick="@ToggleDrawer"
+                           Class="nav-button" />
+            <MudIconButton href="/"
+                           Icon="@Icons.Material.Filled.Home"
+                           Size="Size.Medium"
+                           OnClick="@(() => { UnlockTool(); UnlockOperation(); })"
+                           Color="Color.Inherit"
+                           Class="nav-button" />
+        </div>
 
-    <!-- Titel in der Mitte -->
-    <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center pa-0" Style="flex-grow: 1;">
-        <MudText Typo="Typo.h5" Class="text-center font-weight-medium">
-            @lineName
-        </MudText>
-    </MudContainer>
+        <!-- Mitte: ABSOLUT zentrierte Breadcrumbs -->
+        <div class="d-flex justify-center w-100">
+            <div class="d-flex align-center project-context">
+                <MudText Typo="Typo.h6" Class="font-weight-bold ma-0" Style="font-size: 1.1rem;">
+                    @lineName
+                </MudText>
+                <MudIcon Icon="@Icons.Material.Filled.ChevronRight"
+                         Style="opacity: 0.7; margin: 0 8px; font-size: 14px;" />
+                <MudText Typo="Typo.body2" Class="ma-0" Style="opacity: 0.8; font-size: 0.85rem;">
+                    Station 41 → Tool ppppjj
+                </MudText>
+            </div>
+        </div>
 
+        <!-- Rechts: Aktionen & User (absolute positioning) -->
+        <div class="d-flex align-center position-absolute" style="gap: 12px; right: 16px;">
 
-    <!-- Rechte Seite: Username und Einstellungen -->
-    <div class="d-flex align-center">
-
-        <MudText Typo="Typo.subtitle2">URL:</MudText>
-        <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
-                       Size="Size.Medium"
-                       Color="Color.Secondary"
+            <!-- Share Link Button -->
+            <MudButton Variant="Variant.Text"
+                       StartIcon="@Icons.Material.Filled.ContentCopy"
                        OnClick="CopyUriToClipboard"
-                       AriaLabel="Copy URL" />
+                       Color="Color.Inherit"
+                       Class="share-button"
+                       Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
+                Share Link
+            </MudButton>
 
+            <!-- Navigate Input (breiter mit besserem Hover) -->
+            <MudTextField @bind-Value="uriInput"
+                          Variant="Variant.Outlined"
+                          Placeholder="Navigate to..."
+                          Class="navigate-input"
+                          Style="width: 140px;"
+                          OnKeyDown="@(e => { if (e.Key == "Enter") RouteN(); })" />
 
-        <MudText Typo="Typo.subtitle2">Navigate:</MudText>
-        <MudTextField @bind-Value="uriInput" Style="color: white"
-        OnKeyDown="@(e =>
-                  {
-                      if (e.Key == "Enter")
-                          RouteN();
-                  })"/>
+            <!-- Divider -->
+            <div style="width: 1px; height: 24px; background-color: rgba(255,255,255,0.3);"></div>
 
+            <!-- Username -->
+            <MudText Typo="Typo.subtitle1"
+                     Class="font-weight-medium"
+                     Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
+                @(UsernameService.Username?.Split(';')[0] ?? @Fassade.Language.UnknownUser)
+            </MudText>
 
-
-        <!-- Benutzername -->
-        <MudText Typo="Typo.subtitle1" Class="mr-8 font-weight-medium" Style="white-space: nowrap;">
-            @(UsernameService.Username?.Split(';')[0] ?? @Fassade.Language.UnknownUser)
-        </MudText>
-
-        <!-- Einstellungen -->
-        <MudIconButton Icon="@Icons.Material.Filled.Settings"
-        Color="Color.Inherit"
-        Size="Size.Large"
-        OnClick="OpenSettings"
-        Class="settings-aligned" />
+            <!-- Settings -->
+            <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                           Color="Color.Inherit"
+                           Size="Size.Medium"
+                           OnClick="OpenSettings"
+                           Class="settings-hover-effect" />
+        </div>
     </div>
 </MudAppBar>
+
+<style>
+    /* Navigation Buttons */
+    .nav-button {
+        transition: all 0.2s ease;
+        border-radius: 6px;
+        width: 36px;
+        height: 36px;
+    }
+
+        .nav-button:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            transform: scale(1.05);
+        }
+
+    /* Settings Button */
+    .settings-hover-effect {
+        transition: all 0.2s ease;
+        opacity: 0.9;
+        border-radius: 6px;
+        width: 36px;
+        height: 36px;
+    }
+
+        .settings-hover-effect:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+    /* Project Context */
+    .project-context {
+        background-color: rgba(255,255,255,0.1);
+        padding: 6px 12px;
+        border-radius: 6px;
+        backdrop-filter: blur(10px);
+    }
+
+    .share-button {
+        border-radius: 6px;
+        padding: 4px 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+    }
+
+        .share-button:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            transform: scale(1.05);
+            box-shadow: none;
+        }
+
+    /* Navigate Input - Weiß bleiben beim Hover */
+    .navigate-input {
+        height: 32px;
+    }
+
+        .navigate-input .mud-input-outlined {
+            background-color: rgba(255,255,255,0.1) !important;
+            border-radius: 4px;
+            height: 32px;
+            transition: all 0.2s ease;
+        }
+
+            .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
+                border-color: rgba(255,255,255,0.4) !important;
+                transition: all 0.2s ease;
+            }
+
+            /* Hover: Heller aber WEISS bleiben */
+            .navigate-input .mud-input-outlined:hover {
+                background-color: rgba(255,255,255,0.15) !important;
+            }
+
+                .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
+                    border-color: rgba(255,255,255,0.7) !important;
+                    box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
+                }
+
+            /* Focus: Auch weiß bleiben */
+            .navigate-input .mud-input-outlined.mud-input-outlined-focused {
+                background-color: rgba(255,255,255,0.2) !important;
+            }
+
+                .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
+                    border-color: rgba(255,255,255,0.9) !important;
+                    box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
+                }
+
+        .navigate-input .mud-input {
+            color: inherit !important;
+            font-size: 0.8rem;
+            height: 32px;
+            paddin
+</style>
 
 @if (ShowSettings)
 {
