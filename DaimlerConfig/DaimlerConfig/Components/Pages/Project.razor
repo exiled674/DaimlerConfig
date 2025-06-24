@@ -45,40 +45,40 @@
             Class="nav-button" />
         </div>
 
-       <!-- Mitte: ABSOLUT zentrierte Breadcrumbs -->
-<div class="d-flex justify-center w-100">
-    <div class="d-flex align-center project-context">
-        <MudText Typo="Typo.h6" Class="font-weight-bold ma-0" Style="font-size: 1.1rem;">
-            Project @lineName
-        </MudText>
-        @if (!string.IsNullOrEmpty(CurrentContext))
-        {
-            <!-- Trennstrich -->
-            <div style="width: 1px; height: 16px; background-color: rgba(255,255,255,0.5); margin: 0 12px;"></div>
-            <!-- Breadcrumb mit größerem Pfeil -->
-            <div class="d-flex align-center" style="gap: 6px;">
-                @{
-                    var parts = CurrentContext.Split(';');
-                    for (int i = 0; i < parts.Length; i++)
-                    {
-                        var part = parts[i];
-                        var prefix = i == 0 ? "Station" : i == 1 ? "Tool" : "Operation";
-                        
-                        <MudText Typo="Typo.body2" Class="ma-0" Style="opacity: 0.8; font-size: 0.85rem;">
-                            @($"{prefix} {part}")
-                        </MudText>
-                        
-                        if (i < parts.Length - 1)
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.ArrowForward" 
-                                     Style="opacity: 0.8; font-size: 16px; font-weight: bold;" />
+        <!-- Mitte: ABSOLUT zentrierte Breadcrumbs -->
+        <div class="d-flex justify-center w-100">
+            <div class="d-flex align-center project-context">
+                <MudText Typo="Typo.h6" Class="font-weight-bold ma-0" Style="font-size: 1.1rem;">
+                    Project @lineName
+                </MudText>
+                @if (!string.IsNullOrEmpty(CurrentContext))
+                {
+                    <!-- Trennstrich -->
+                    <div style="width: 1px; height: 16px; background-color: rgba(255,255,255,0.5); margin: 0 12px;"></div>
+                    <!-- Breadcrumb mit größerem Pfeil -->
+                    <div class="d-flex align-center" style="gap: 6px;">
+                        @{
+                            var parts = CurrentContext.Split(';');
+                            for (int i = 0; i < parts.Length; i++)
+                            {
+                                var part = parts[i];
+                                var prefix = i == 0 ? "Station" : i == 1 ? "Tool" : "Operation";
+
+                                <MudText Typo="Typo.body2" Class="ma-0" Style="opacity: 0.8; font-size: 0.85rem;">
+                                    @($"{prefix} {part}")
+                                </MudText>
+
+                                if (i < parts.Length - 1)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.ArrowForward"
+                                             Style="opacity: 0.8; font-size: 16px; font-weight: bold;" />
+                                }
+                            }
                         }
-                    }
+                    </div>
                 }
             </div>
-        }
-    </div>
-</div>
+        </div>
 
         <!-- Rechts: Aktionen & User (absolute positioning) -->
         <div class="d-flex align-center position-absolute" style="gap: 12px; right: 16px;">

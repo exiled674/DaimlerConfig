@@ -193,7 +193,7 @@
 
                                 <!-- Stationen Anzahl -->
                                 @{
-                                    var totalStations = statusCounts.Green + statusCounts.Yellow + statusCounts.Red;
+                                    var totalStations = statusCounts.Green + statusCounts.Yellow + statusCounts.Red + statusCounts.Undefined;
                                     var stationText = totalStations == 1 ? "Station" : "Stations";
                                 }
                                 <MudChip Size="Size.Small"
@@ -398,7 +398,7 @@
     private bool isDuplicateName = false;
     private bool ShowSettings = false;
     private Dictionary<Line, bool> pendingConfirmation = new();
-    private Dictionary<int, (int Red, int Yellow, int Green)> StatusCounts = new();
+    private Dictionary<int, (int Red, int Yellow, int Green, int Undefined)> StatusCounts = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -427,12 +427,13 @@
         UpdateFilteredLines();
 
     }
+    // UI - LoadStatusCountsForAllLines
     private async Task LoadStatusCountsForAllLines()
     {
         var tasks = AllLines.Select(async line =>
         {
-            var (_, red, yellow, green) = await Fassade.GetStatusCountsForLineAsync(line.lineID);
-            StatusCounts[line.lineID] = (red, yellow, green);
+            var (undefined, red, yellow, green) = await Fassade.GetStatusCountsForLineAsync(line.lineID);
+            StatusCounts[line.lineID] = (Red: red, Yellow: yellow, Green: green, Undefined: undefined);
         });
 
         await Task.WhenAll(tasks);
