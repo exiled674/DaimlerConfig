@@ -30,6 +30,9 @@
                            aria-label="Close" />
         </div>
 
+        <div class="popup-content">
+
+        
         @if (ValidationService.HasErrors)
         {
             <MudAlert Severity="Severity.Error" Class="mb-4">
@@ -38,98 +41,94 @@
         }
 
         <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
-            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                 
+                <MudTabPanel Text="General">
+    <MudPaper Class="pa-4" Elevation="1">
+        <!-- Save Button rechts oben -->
+        <MudGrid Class="mb-4" Justify="Justify.FlexEnd">
+            <MudItem>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="Icons.Material.Filled.Save"
+                           Size="Size.Medium"
+                           OnClick="async () => {
+                                        await SaveGeneralSettings();
+                                        await ChangeUsername();
+                                    }">
+                    @Fassade.Language.SaveSettings
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+
+        <!-- Username Sektion -->
+        <MudCard Class="mb-6" Elevation="0" Outlined="true">
+            <MudCardContent Class="pa-6">
+                <MudText Typo="Typo.h6" Class="mb-4 d-flex align-center">
+                    <MudIcon Icon="Icons.Material.Filled.Person" Class="mr-2" Color="Color.Primary" />
+                    @Fassade.Language.Username
+                </MudText>
                 
-                <MudTabPanel Text="@Fassade.Language.Profile">
-                    <MudPaper Class="pa-6" Elevation="2">
-                        <!-- Profile Header with Avatar -->
-                        <MudStack Spacing="4" Class="mb-6 d-flex align-center justify-center">
-                            <MudAvatar Size="Size.Large"
-                                       Class="profile-avatar"
-                                       Style="@GetAvatarStyle()">
-                                @GetUserInitial()
-                            </MudAvatar>
-                            <MudText Typo="Typo.h5" Class="font-weight-bold text-center">
-                                @GetDisplayUsernameForUI()
-                            </MudText>
-                        </MudStack>
+                <MudGrid AlignItems="End" Spacing="3">
+                    <MudItem xs="12" sm="7" md="8">
+                        <MudTextField @bind-Value="_newUsername"
+                                      Label="@Fassade.Language.Username"
+                                      Placeholder="@Fassade.Language.EnterUsername"
+                                      Variant="Variant.Outlined"
+                                      @oninput="OnUsernameInput"
+                                      HelperText="@Fassade.Language.UsernameHelperText"
+                                      Class="flex-grow-1" />
+                    </MudItem>
+                    <MudItem xs="12" sm="7" md="8">
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Secondary"
+                                   StartIcon="Icons.Material.Filled.Refresh"
+                                   FullWidth="true"
+                                   Size="Size.Medium"
+                                   OnClick="ResetToWindowsName">
+                            @Fassade.Language.Reset
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
 
-                        <MudDivider Class="mb-6" />
-
-                        <!-- Username Section -->
-                        <MudCard Elevation="0" Class="pa-4 mb-4" Style="background-color: var(--mud-palette-background-grey);">
-                            <MudCardContent>
-                                <MudText Typo="Typo.h6" Class="mb-3 d-flex align-center">
-                                    <MudIcon Icon="Icons.Material.Filled.Person" Class="mr-2" />
-                                    @Fassade.Language.Username
-                                </MudText>
-
-                                <MudStack Direction="Row" Spacing="2" AlignItems="AlignItems.Center" Class="flex-wrap mb-3">
-                                    <MudTextField @bind-Value="_newUsername"
-                                                  Label="@Fassade.Language.Username"
-                                                  Placeholder="@Fassade.Language.EnterUsername"
-                                                  Variant="Variant.Outlined"
-                                                  Style="min-width: 250px; max-width: 400px;"
-                                                  @oninput="OnUsernameInput"
-                                                  HelperText="@Fassade.Language.UsernameHelperText" />
-
-                                    <MudButton Variant="Variant.Filled"
-                                               Color="Color.Primary"
-                                               StartIcon="Icons.Material.Filled.Save"
-                                               OnClick="ChangeUsername"
-                                               Disabled="@(_newUsername == GetDisplayUsername(UsernameS.Username) || string.IsNullOrWhiteSpace(_newUsername))">
-                                        @Fassade.Language.Save
-                                    </MudButton>
-
-                                    <MudButton Variant="Variant.Outlined"
-                                               Color="Color.Secondary"
-                                               StartIcon="Icons.Material.Filled.Refresh"
-                                               OnClick="ResetToWindowsName">
-                                        @Fassade.Language.Reset
-                                    </MudButton>
-                                </MudStack>
-                            </MudCardContent>
-                        </MudCard>
-                    </MudPaper>
-                </MudTabPanel>
-
-                <MudTabPanel Text="@Fassade.Language.General">
-                    <MudPaper Class="pa-4" Elevation="1">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <div class="d-flex align-center">
-                                    <MudText Typo="Typo.h6">@Fassade.Language.GeneralSettings</MudText>
-                                </div>
-                            </CardHeaderContent>
-                            <CardHeaderActions>
-                                <MudButton Variant="Variant.Filled"
-                                           Color="Color.Primary"
-                                           StartIcon="Icons.Material.Filled.Edit"
-                                           OnClick="SaveGeneralSettings">
-                                    @Fassade.Language.SaveSettings
-                                </MudButton>
-                            </CardHeaderActions>
-                        </MudCardHeader>
-
-                        <MudDivider Class="my-4" />
-
-                        <MudText Typo="Typo.subtitle1" GutterBottom="true">@Fassade.Language.LanguageText</MudText>
+        <!-- Language Sektion -->
+        <MudCard Elevation="0" Outlined="true">
+            <MudCardContent Class="pa-6">
+                <MudText Typo="Typo.h6" Class="mb-4 d-flex align-center">
+                    <MudIcon Icon="Icons.Material.Filled.Language" Class="mr-2" Color="Color.Primary" />
+                    @Fassade.Language.LanguageText
+                </MudText>
+                
+                <MudGrid AlignItems="End" Spacing="3">
+                    <MudItem xs="12" sm="7" md="8">
                         <MudSelect T="string" 
                                    Label="@Fassade.Language.LanguageSelect" 
                                    Value="@LangLoader.SelectedLanguage"
-                                   ValueChanged="OnLanguageChanged">
+                                   ValueChanged="OnLanguageChanged"
+                                   Variant="Variant.Outlined">
                             @foreach (var lang in LangLoader.AvailableLanguages)
                             {
                                 <MudSelectItem Value="@lang">@lang.ToUpper()</MudSelectItem>
                             }
                         </MudSelect>
-                        <MudButton Color="Color.Primary"
+                    </MudItem>
+                    <MudItem xs="12" sm="7" md="8">
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Secondary"
                                    StartIcon="Icons.Material.Filled.FolderOpen"
+                                   FullWidth="true"
+                                   Size="Size.Medium"
                                    OnClick="OpenLanguageFolder">
                             @Fassade.Language.OpenLangFolder
                         </MudButton>
-                    </MudPaper>
-                </MudTabPanel>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudPaper>
+</MudTabPanel>
 
 
                 <MudTabPanel Text="@Fassade.Language.ConnectionSettings">
@@ -319,9 +318,9 @@
 
                                     <MudItem xs="12" sm="6" md="3">
                                         <MudCheckBox T="bool"
-                                                     Checked="@Fassade.Language.PersistSecurityInfo"
-                                                     CheckedChanged="@((bool value) => { persistSecurityInfo = value; OnFieldChanged(); })"
-                                                     Label="Persist Security Info"
+                                                     @bind-Value="persistSecurityInfo"
+                                                     @bind-Value:after="OnFieldChanged"
+                                                     Label="@Fassade.Language.PersistSecurityInfo"
                                                      ReadOnly="@(!isEditMode)"
                                                      Color="Color.Primary"
                                                      Class="@(!isEditMode ? "readonly-checkbox" : "")" />
@@ -329,8 +328,8 @@
 
                                     <MudItem xs="12" sm="6" md="3">
                                         <MudCheckBox T="bool"
-                                                     Checked="multipleActiveResultSets"
-                                                     CheckedChanged="@((bool value) => { multipleActiveResultSets = value; OnFieldChanged(); })"
+                                                     @bind-Value="multipleActiveResultSets"
+                                                     @bind-Value:after="OnFieldChanged"
                                                      Label="@Fassade.Language.Mars"
                                                      ReadOnly="@(!isEditMode)"
                                                      Color="Color.Primary"
@@ -339,8 +338,8 @@
 
                                     <MudItem xs="12" sm="6" md="3">
                                         <MudCheckBox T="bool"
-                                                     Checked="encrypt"
-                                                     CheckedChanged="@((bool value) => { encrypt = value; OnFieldChanged(); })"
+                                                     @bind-Value="encrypt"
+                                                     @bind-Value:after="OnFieldChanged"
                                                      Label="@Fassade.Language.Encrypt"
                                                      ReadOnly="@(!isEditMode)"
                                                      Color="Color.Primary"
@@ -349,8 +348,8 @@
 
                                     <MudItem xs="12" sm="6" md="3">
                                         <MudCheckBox T="bool"
-                                                     Checked="trustServerCertificate"
-                                                     CheckedChanged="@((bool value) => { trustServerCertificate = value; OnFieldChanged(); })"
+                                                     @bind-Value="trustServerCertificate"
+                                                     @bind-Value:after="OnFieldChanged"
                                                      Label="@Fassade.Language.TrustCert"
                                                      ReadOnly="@(!isEditMode)"
                                                      Color="Color.Primary"
@@ -388,10 +387,108 @@
                 </MudTabPanel>
             </MudTabs>
         </MudContainer>
-
+        </div>
     </div>
 </div>
 
+
+<style>
+    /* Popup Dialog mit flexbox Layout */
+    .popup-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 1200px;
+        height: 90vh;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+    }
+
+    /* Fixer Header */
+    .popup-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        border-bottom: 1px solid #ddd;
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1001;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Container für scrollbaren Inhalt */
+    .popup-content {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Tabs Container - auch sticky */
+    .sticky-tabs-container {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1000;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    /* Tab Panel Content Container */
+    .tab-panel-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+    }
+
+    /* Backdrop Styling */
+    .popup-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* MudTabs Styling für sticky behavior */
+    .mud-tabs.sticky-tabs .mud-tabs-toolbar {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 999;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Scrollable Tab Content */
+    .mud-tabs-panels {
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .mud-tabpanel {
+        height: 100%;
+        overflow-y: auto;
+    }
+
+
+    .mud-tabs-toolbar {
+        position: sticky !important;
+        top: 0;
+        z-index: 1;
+    }
+</style>
 
 @code {
     [Parameter]
@@ -782,7 +879,7 @@
         return "";
     }
 
-    private void ChangeUsername()
+    private async Task ChangeUsername()
     {
         if (!string.IsNullOrWhiteSpace(_newUsername))
         {

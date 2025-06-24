@@ -119,6 +119,19 @@ namespace DaimlerConfig.Components.Fassade
             return await StationRepository.GetStationsFromLine(lineID);
         }
 
+        public async Task<(int Undefined, int Red, int Yellow, int Green)> GetStatusCountsForLineAsync(int lineID)
+        {
+            var stations = await GetStationsFromLine(lineID);
+
+            return (
+                Undefined: stations.Count(s => s.Status == Status.Undefined),
+                Red: stations.Count(s => s.Status == Status.Red),
+                Yellow: stations.Count(s => s.Status == Status.Yellow),
+                Green: stations.Count(s => s.Status == Status.Green)
+            );
+        }
+
+
         public async Task<Station> GetStation(int stationID)
         {
             return await StationRepository.Get(stationID);

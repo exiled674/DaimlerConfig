@@ -17,23 +17,31 @@
                 <span style="margin-left: 4px;">@SelectedOperation.lockedBy.Split(';')[0]</span>
             }
         </MudText>
-
         <div class="d-flex justify-content-end align-items-center gap-2">
             <div class="form-floating" style="min-width:200px;">
-                <select class="form-select" id="OperationVersionSelect" value="@selectedVersionId" @onchange="OnVersionChanged">
-                    <option value="-1">@Fassade.Language.CurrentVersion</option>
+                <MudSelect T="int?" Label="Version"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Normal"
+                           Disabled="@ReadOnly"
+                           Class="flex-grow-1 search-field-enhanced"
+                           Style="background: white; border-radius: 12px;"
+                           Value="selectedVersionId"
+                           ValueChanged="OnVersionChanged"
+                           OnBlur="LockOperation">
+                    <MudSelectItem T="int?" Value="-1">@Fassade.Language.CurrentVersion</MudSelectItem>
                     @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                     {
-                        <option value="@version.operationVersionID">
+                        <MudSelectItem T="int?" Value="@version.operationVersionID">
                             @version.modifiedBy?.Split(';')[0] - @version.lastModified
-                        </option>
+                        </MudSelectItem>
                     }
-                </select>
+                </MudSelect>
+
             </div>
             @if (SelectedOperation.operationID == 0)
             {
                 <div class="d-flex justify-content-end align-items-center mb-3">
-                        <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                    <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
                                Variant="Variant.Filled"
                                Color="Color.Primary"
                                Class="btn btn-primary btn-sm"
@@ -44,187 +52,207 @@
             }
             @if (SelectedOperation.operationID != 0)
             {
-                     <!-- Update -->
-                @if (SelectedOperation.operationID != 0)
-                {
-                        <MudButton StartIcon="@Icons.Material.Filled.Save"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   Class="btn btn-primary btn-sm"
-                                   @onclick="UpdateOperationAsync"
-                                   Disabled="@ReadOnly">
-                        @Fassade.Language.Save
-                        </MudButton>
-                }
+                <MudButton StartIcon="@Icons.Material.Filled.Save"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Class="btn btn-primary btn-sm"
+                           @onclick="UpdateOperationAsync"
+                           Disabled="@ReadOnly">
+                    @Fassade.Language.Save
+                </MudButton>
             }
         </div>
     </div>
-
-    <div class="layout position-relative">
-        <div class="toolColoumnLeft">
-
-            <div class="form-floating mb-3">
-                <MudTextField T="int?"
-                      Label="@Fassade.Language.OperationId"
-                      Value="SelectedOperation.operationID"
-                      ReadOnly="true"
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Normal"
-                      Class="w-100"
-                      Style="background: white; border-radius: 12px;"
-                      Adornment="Adornment.End"
-                      AdornmentIcon="@Icons.Material.Filled.Lock" />
-            </div>
-
-            <div class="form-floating mb-3">
-                <MudTextField T="string"
-                      Label="@Fassade.Language.OperationShortname"
-                      @bind-Value="SelectedOperation.operationShortname"
-                      MaxLength="16"
-                      ReadOnly="@ReadOnly"
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Normal"
-                      @onclick="LockOperation"
-                      OnBlur="CheckIfDirty"
-                      Error="@errorMessages.ContainsKey("OperationShortname")"
-                      ErrorText="@((errorMessages.ContainsKey("OperationShortname")) ? errorMessages["OperationShortname"] : null)"
-                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                      AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
-
-                        <span class="text-muted small d-block text-end mt-1">
-                                    @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
-                        </span>
-            </div>
-
-            <div class="form-floating mb-3">
-                <MudTextField T="string"
-                      Label="@Fassade.Language.OperationDescription"
-                      @bind-Value="SelectedOperation.operationDescription"
-                      ReadOnly="@ReadOnly"
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Normal"
-                      Lines="4"
-                      MaxLength="100"
-                      Style="background: white; border-radius: 12px;"
-                      @onclick="LockOperation"
-                      OnBlur="CheckIfDirty"
-                      Class="w-100"
-                      Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                      AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
-
-                    <span class="text-muted small d-block text-end mt-1">
-                                @($"{SelectedOperation?.operationDescription?.Length ?? 0}/100")
-                    </span>
-            </div>
+    <div class="row mb-4">
+        <!-- First Row: Operation ID and Operation Shortname -->
+        <div class="col-md-6 mb-3">
+            <MudTextField T="int?"
+                          Label="@Fassade.Language.OperationId"
+                          Value="SelectedOperation.operationID"
+                          ReadOnly="true"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Normal"
+                          Class="w-100"
+                          Style="background: white; border-radius: 12px;"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@Icons.Material.Filled.Lock" />
         </div>
-        <div class="toolColoumnRight ">
-
-            <div class="form-floating mb-3">
-                <MudSelect T="int"
-                   Label="@Fassade.Language.ProcessingMode"
-                   @bind-Value="SelectedOperation.parallel"
-                   ReadOnly="@ReadOnly"
-                   Variant="Variant.Outlined"
-                   Margin="Margin.Normal"
-                   Style="background: white; border-radius: 12px;"
-                   OnOpen="LockOperation"
-                   OnBlur="CheckIfDirty"
-                   Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                   AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)">
-            <MudSelectItem Value="0">@Fassade.Language.Parallel</MudSelectItem>
-            <MudSelectItem Value="1">@Fassade.Language.Serial</MudSelectItem>
-        </MudSelect>
-
-        </div>
-
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
-                <label>@Fassade.Language.OperationSequence</label>
-
-            </div>
-
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control form-control" placeholder="" readonly="@ReadOnly" @onclick="LockOperation">
-                <label>@Fassade.Language.OperationSequenceGroup</label>
-            </div>
-            <div class="form-floating mb-3">
-                <textarea type="text" class="form-control form-control" placeholder="" style="height: 100px" readonly="@ReadOnly" @onclick="LockOperation" @onblur="CheckIfDirty" @bind="SelectedOperation.Comment" maxlength="1000"></textarea>
-                <label>@Fassade.Language.Comment</label>
-                <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-                    @($"{SelectedOperation?.Comment.Length ?? 0}/1000")
+        <div class="col-md-6 mb-3">
+            <div style="position: relative;">
+                <MudTextField T="string"
+                              Label="@Fassade.Language.OperationShortname"
+                              @bind-Value="SelectedOperation.operationShortname"
+                              MaxLength="16"
+                              ReadOnly="@ReadOnly"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              @onclick="LockOperation"
+                              OnBlur="CheckIfDirty"
+                              Error="@errorMessages.ContainsKey("OperationShortname")"
+                              ErrorText="@((errorMessages.ContainsKey("OperationShortname")) ? errorMessages["OperationShortname"] : null)"
+                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                    @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
                 </span>
             </div>
         </div>
-    </div>
+        <!-- Second Row: Processing Mode and Operation Sequence -->
+        <div class="col-md-6 mb-3">
+            <MudSelect T="int"
+                       Label="@Fassade.Language.ProcessingMode"
+                       @bind-Value="SelectedOperation.parallel"
+                       ReadOnly="@ReadOnly"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Style="background: white; border-radius: 12px;"
+                       OnOpen="LockOperation"
+                       OnBlur="CheckIfDirty"
+                       Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                       AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)">
+                <MudSelectItem Value="0">@Fassade.Language.Parallel</MudSelectItem>
+                <MudSelectItem Value="1">@Fassade.Language.Serial</MudSelectItem>
+            </MudSelect>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="form-floating">
+                <MudTextField T="string"
+                              Label="@Fassade.Language.OperationSequence"
+                              @bind-Value="SelectedOperation.operationSequence"
+                              ReadOnly="@ReadOnly"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              @onclick="LockOperation"
+                              OnBlur="CheckIfDirty"
+                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
 
-    <hr />
 
-    <h2>@Fassade.Language.Classes</h2>
-    <div class="layout position-relative">
-        <div class="toolColoumnLeft">
-            <div class="form-floating mb-3">
-                <select class="form-select form-select" id="DecisionClass" @bind="SelectedOperation.decisionClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
-                    {
-                        <option value="@decision.decisionClassID">@decision.decisionClassName</option>
-                    }
-                </select>
-                <label for="DecisionClass">@Fassade.Language.DecisionClass</label>
-            </div>
-
-            <div class="form-floating mb-3">
-                <select class="form-select form-select" id="GenerationClass" @bind="SelectedOperation.generationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
-                    {
-                        <option value="@generation.generationClassID">@generation.generationClassName</option>
-                    }
-                </select>
-                <label for="GenerationClass">@Fassade.Language.GenerationClass</label>
-            </div>
-            <div class="form-floating mb-3">
-                <select class="form-select form-select" id="VerificationClass" @bind="SelectedOperation.verificationClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
-                    {
-                        <option value="@verification.verificationClassID">@verification.verificationClassName</option>
-                    }
-                </select>
-                <label for="VerificationClass">@Fassade.Language.VerificationClass</label>
-            </div>
-
-            <div class="form-floating mb-3">
-                <select class="form-select form-select" id="SavingClass" @bind="SelectedOperation.savingClassID" disabled="@ReadOnly" @onfocus="LockOperation">
-                    @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
-                    {
-                        <option value="@saving.savingClassID">@saving.savingClassName</option>
-                    }
-                </select>
-                <label for="SavingClass">@Fassade.Language.SavingClass</label>
             </div>
         </div>
+        <!-- Third Row: Operation Sequence Group and Comment -->
+        <div class="col-md-6 mb-3">
+            <div class="form-floating">
+                <MudTextField T="string"
+                              Label="@Fassade.Language.OperationSequenceGroup"
+                              @bind-Value="SelectedOperation.operationSequenceGroup"
+                              ReadOnly="@ReadOnly"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              @onclick="LockOperation"
+                              OnBlur="CheckIfDirty"
+                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="form-floating">
+                
 
-        <div class="toolColoumnRight">
+                <div style="position: relative;">
+                    <MudTextField T="string"
+                                  Label="@Fassade.Language.Comment"
+                                  @bind-Value="SelectedOperation.Comment"
+                                  ReadOnly="@ReadOnly"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Normal"
+                                  Lines="4"
+                                  MaxLength="1000"
+                                  Style="background: white; border-radius: 12px;"
+                                  @onclick="LockOperation"
+                                  OnBlur="CheckIfDirty"
+                                  Class="w-100"
+                                  Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
+                                  AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                        @($"{SelectedOperation?.Comment.Length ?? 0}/1000")
+                    </span>
+                </div>
 
+
+                
+            </div>
+        </div>
+    </div>
+    <hr />
+    <h2>@Fassade.Language.Classes</h2>
+    <div class="row mb-4">
+        <!-- First Row: Decision Class and Generation Class -->
+        <div class="col-md-6 mb-3">
+            <MudSelect T="int?" Label="@Fassade.Language.DecisionClass"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Disabled="@ReadOnly"
+                       Class="flex-grow-1"
+                       Style="background: white; border-radius: 12px;"
+                       Value="SelectedOperation.decisionClassID"
+                       OnBlur="LockOperation">
+                @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
+                {
+                    <MudSelectItem T="int?" Value="@decision.decisionClassID">@decision.decisionClassName</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <MudSelect T="int?" Label="@Fassade.Language.GenerationClass"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Disabled="@ReadOnly"
+                       Class="flex-grow-1"
+                       Style="background: white; border-radius: 12px;"
+                       Value="SelectedOperation.generationClassID"
+                       OnBlur="LockOperation">
+                @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
+                {
+                    <MudSelectItem T="int?" Value="@generation.generationClassID">@generation.generationClassName</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+
+        <!-- Second Row: Verification Class and Saving Class -->
+        <div class="col-md-6 mb-3">
+            <MudSelect T="int?" Label="@Fassade.Language.VerificationClass"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Disabled="@ReadOnly"
+                       Class="flex-grow-1"
+                       Style="background: white; border-radius: 12px;"
+                       Value="SelectedOperation.verificationClassID"
+                       OnBlur="LockOperation">
+                @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
+                {
+                    <MudSelectItem T="int?" Value="@verification.verificationClassID">@verification.verificationClassName</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <MudSelect T="int?" Label="@Fassade.Language.SavingClass"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Normal"
+                       Disabled="@ReadOnly"
+                       Class="flex-grow-1"
+                       Style="background: white; border-radius: 12px;"
+                       Value="SelectedOperation.savingClassID"
+                       OnBlur="LockOperation">
+                @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
+                {
+                    <MudSelectItem T="int?" Value="@saving.savingClassID">@saving.savingClassName</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+
+        <!-- Third Row: Decision Criteria -->
+        <div class="col-md-12 mb-3">
             <div class="form-floating">
                 <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly" @onclick="LockOperation"></textarea>
                 <label for="DecisionCriteria">@Fassade.Language.DecisionCriteria</label>
             </div>
-            <div class="form-floating mb-3">
-                <div class="form-control" style="height: auto; min-height: 38px;">
-                    @if (currentTemplates.Any())
-                    {
-                        @string.Join(", ", currentTemplates)
-                    }
-                    else
-                    {
-                        <span class="text-muted">No templates</span>
-                    }
-                </div>
-                <label>Current Templates</label>
-            </div>
-        </div>     
+        </div>
     </div>
-
 </div>
+
 
 
 
@@ -449,7 +477,7 @@
             try
             {
                 // Warte 10 Minuten (600000 ms)
-                await Task.Delay(TimeSpan.FromSeconds(6), lockCancellationTokenSource.Token);
+                await Task.Delay(TimeSpan.FromSeconds(600000), lockCancellationTokenSource.Token);
 
                 // Nach 10 Minuten entsperren
                 await UnlockOperationAsync();
@@ -518,14 +546,14 @@
     #endregion
 
     #region 
-    private async Task OnVersionChanged(ChangeEventArgs e)
+    private async Task OnVersionChanged(int? versionId)
     {
-        if (int.TryParse(e.Value?.ToString(), out int versionId))
+        if (versionId.HasValue)
         {
-            selectedVersionId = versionId;
+            selectedVersionId = versionId.Value;
+
             if (versionId == -1)
             {
-               
                 if (SelectedOperation?.operationID != null)
                 {
                     var currentOperation = await Fassade.GetOperation(SelectedOperation.operationID);
