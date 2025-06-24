@@ -33,69 +33,90 @@
         <!-- Links: Navigation (absolute positioning) -->
         <div class="d-flex align-center position-absolute" style="gap: 10px; left: 16px;">
             <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                           Color="Color.Inherit"
-                           Size="Size.Medium"
-                           OnClick="@ToggleDrawer"
-                           Class="nav-button" />
+            Color="Color.Inherit"
+            Size="Size.Medium"
+            OnClick="@ToggleDrawer"
+            Class="nav-button" />
             <MudIconButton href="/"
-                           Icon="@Icons.Material.Filled.Home"
-                           Size="Size.Medium"
-                           OnClick="@(() => { UnlockTool(); UnlockOperation(); })"
-                           Color="Color.Inherit"
-                           Class="nav-button" />
+            Icon="@Icons.Material.Filled.Home"
+            Size="Size.Medium"
+            OnClick="@(() => { UnlockTool(); UnlockOperation(); })"
+            Color="Color.Inherit"
+            Class="nav-button" />
         </div>
 
-        <!-- Mitte: ABSOLUT zentrierte Breadcrumbs -->
-        <div class="d-flex justify-center w-100">
-            <div class="d-flex align-center project-context">
-                <MudText Typo="Typo.h6" Class="font-weight-bold ma-0" Style="font-size: 1.1rem;">
-                    @lineName
-                </MudText>
-                <MudIcon Icon="@Icons.Material.Filled.ChevronRight"
-                         Style="opacity: 0.7; margin: 0 8px; font-size: 14px;" />
-                <MudText Typo="Typo.body2" Class="ma-0" Style="opacity: 0.8; font-size: 0.85rem;">
-                    Station 41 → Tool ppppjj
-                </MudText>
+       <!-- Mitte: ABSOLUT zentrierte Breadcrumbs -->
+<div class="d-flex justify-center w-100">
+    <div class="d-flex align-center project-context">
+        <MudText Typo="Typo.h6" Class="font-weight-bold ma-0" Style="font-size: 1.1rem;">
+            Project @lineName
+        </MudText>
+        @if (!string.IsNullOrEmpty(CurrentContext))
+        {
+            <!-- Trennstrich -->
+            <div style="width: 1px; height: 16px; background-color: rgba(255,255,255,0.5); margin: 0 12px;"></div>
+            <!-- Breadcrumb mit größerem Pfeil -->
+            <div class="d-flex align-center" style="gap: 6px;">
+                @{
+                    var parts = CurrentContext.Split(';');
+                    for (int i = 0; i < parts.Length; i++)
+                    {
+                        var part = parts[i];
+                        var prefix = i == 0 ? "Station" : i == 1 ? "Tool" : "Operation";
+                        
+                        <MudText Typo="Typo.body2" Class="ma-0" Style="opacity: 0.8; font-size: 0.85rem;">
+                            @($"{prefix} {part}")
+                        </MudText>
+                        
+                        if (i < parts.Length - 1)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.ArrowForward" 
+                                     Style="opacity: 0.8; font-size: 16px; font-weight: bold;" />
+                        }
+                    }
+                }
             </div>
-        </div>
+        }
+    </div>
+</div>
 
         <!-- Rechts: Aktionen & User (absolute positioning) -->
         <div class="d-flex align-center position-absolute" style="gap: 12px; right: 16px;">
 
             <!-- Share Link Button -->
             <MudButton Variant="Variant.Text"
-                       StartIcon="@Icons.Material.Filled.ContentCopy"
-                       OnClick="CopyUriToClipboard"
-                       Color="Color.Inherit"
-                       Class="share-button"
-                       Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
+            StartIcon="@Icons.Material.Filled.ContentCopy"
+            OnClick="CopyUriToClipboard"
+            Color="Color.Inherit"
+            Class="share-button"
+            Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
                 Share Link
             </MudButton>
 
             <!-- Navigate Input (breiter mit besserem Hover) -->
             <MudTextField @bind-Value="uriInput"
-                          Variant="Variant.Outlined"
-                          Placeholder="Navigate to..."
-                          Class="navigate-input"
-                          Style="width: 140px;"
-                          OnKeyDown="@(e => { if (e.Key == "Enter") RouteN(); })" />
+            Variant="Variant.Outlined"
+            Placeholder="Navigate to..."
+            Class="navigate-input"
+            Style="width: 140px;"
+            OnKeyDown="@(e => { if (e.Key == "Enter") RouteN(); })" />
 
             <!-- Divider -->
             <div style="width: 1px; height: 24px; background-color: rgba(255,255,255,0.3);"></div>
 
             <!-- Username -->
             <MudText Typo="Typo.subtitle1"
-                     Class="font-weight-medium"
-                     Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
+            Class="font-weight-medium"
+            Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
                 @(UsernameService.Username?.Split(';')[0] ?? @Fassade.Language.UnknownUser)
             </MudText>
 
             <!-- Settings -->
             <MudIconButton Icon="@Icons.Material.Filled.Settings"
-                           Color="Color.Inherit"
-                           Size="Size.Medium"
-                           OnClick="OpenSettings"
-                           Class="settings-hover-effect" />
+            Color="Color.Inherit"
+            Size="Size.Medium"
+            OnClick="OpenSettings"
+            Class="settings-hover-effect" />
         </div>
     </div>
 </MudAppBar>
@@ -103,95 +124,95 @@
 <style>
     /* Navigation Buttons */
     .nav-button {
-        transition: all 0.2s ease;
-        border-radius: 6px;
-        width: 36px;
-        height: 36px;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
     }
 
-        .nav-button:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            transform: scale(1.05);
-        }
+    .nav-button:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    transform: scale(1.05);
+    }
 
     /* Settings Button */
     .settings-hover-effect {
-        transition: all 0.2s ease;
-        opacity: 0.9;
-        border-radius: 6px;
-        width: 36px;
-        height: 36px;
+    transition: all 0.2s ease;
+    opacity: 0.9;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
     }
 
-        .settings-hover-effect:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            transform: scale(1.05);
-            opacity: 1;
-        }
+    .settings-hover-effect:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    transform: scale(1.05);
+    opacity: 1;
+    }
 
     /* Project Context */
     .project-context {
-        background-color: rgba(255,255,255,0.1);
-        padding: 6px 12px;
-        border-radius: 6px;
-        backdrop-filter: blur(10px);
+    background-color: rgba(255,255,255,0.1);
+    padding: 6px 12px;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
     }
 
     .share-button {
-        border-radius: 6px;
-        padding: 4px 8px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        transform-origin: center;
+    border-radius: 6px;
+    padding: 4px 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
     }
 
-        .share-button:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            transform: scale(1.05);
-            box-shadow: none;
-        }
+    .share-button:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    transform: scale(1.05);
+    box-shadow: none;
+    }
 
     /* Navigate Input - Weiß bleiben beim Hover */
     .navigate-input {
-        height: 32px;
+    height: 32px;
     }
 
-        .navigate-input .mud-input-outlined {
-            background-color: rgba(255,255,255,0.1) !important;
-            border-radius: 4px;
-            height: 32px;
-            transition: all 0.2s ease;
-        }
+    .navigate-input .mud-input-outlined {
+    background-color: rgba(255,255,255,0.1) !important;
+    border-radius: 4px;
+    height: 32px;
+    transition: all 0.2s ease;
+    }
 
-            .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
-                border-color: rgba(255,255,255,0.4) !important;
-                transition: all 0.2s ease;
-            }
+    .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.4) !important;
+    transition: all 0.2s ease;
+    }
 
-            /* Hover: Heller aber WEISS bleiben */
-            .navigate-input .mud-input-outlined:hover {
-                background-color: rgba(255,255,255,0.15) !important;
-            }
+    /* Hover: Heller aber WEISS bleiben */
+    .navigate-input .mud-input-outlined:hover {
+    background-color: rgba(255,255,255,0.15) !important;
+    }
 
-                .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
-                    border-color: rgba(255,255,255,0.7) !important;
-                    box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
-                }
+    .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.7) !important;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
+    }
 
-            /* Focus: Auch weiß bleiben */
-            .navigate-input .mud-input-outlined.mud-input-outlined-focused {
-                background-color: rgba(255,255,255,0.2) !important;
-            }
+    /* Focus: Auch weiß bleiben */
+    .navigate-input .mud-input-outlined.mud-input-outlined-focused {
+    background-color: rgba(255,255,255,0.2) !important;
+    }
 
-                .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
-                    border-color: rgba(255,255,255,0.9) !important;
-                    box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
-                }
+    .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.9) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
+    }
 
-        .navigate-input .mud-input {
-            color: inherit !important;
-            font-size: 0.8rem;
-            height: 32px;
-            paddin
+    .navigate-input .mud-input {
+    color: inherit !important;
+    font-size: 0.8rem;
+    height: 32px;
+    paddin
 </style>
 
 @if (ShowSettings)
@@ -216,7 +237,7 @@
 
         <div class="pa-2">
 
-              <MudButton StartIcon="@Icons.Material.Filled.Add"
+            <MudButton StartIcon="@Icons.Material.Filled.Add"
             Variant="Variant.Filled"
             Color="Color.Primary"
 
@@ -240,16 +261,16 @@
 
 
             <MudCheckBox T="bool"
-                         Value="stationFavorites"
-                         ValueChanged="@(e => OnStationFavoritesChanged(e))"
-                         Label="Show only favorites"
-                         Style="margin-left: 0; padding-left: 0;" />
+            Value="stationFavorites"
+            ValueChanged="@(e => OnStationFavoritesChanged(e))"
+            Label="Show only favorites"
+            Style="margin-left: 0; padding-left: 0;" />
 
 
 
 
-          
-           
+
+
 
 
 
@@ -266,19 +287,19 @@
 
 
 
-                                  <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0 d-flex align-items-center">
-    <MudIcon Icon="@GetStatusIcon(station.Status)"
-             Size="Size.Small"
-             Class="mr-1"
-             Color="@GetStatusColor(station.Status)" />
+                                    <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0 d-flex align-items-center">
+                                        <MudIcon Icon="@GetStatusIcon(station.Status)"
+                                        Size="Size.Small"
+                                        Class="mr-1"
+                                        Color="@GetStatusColor(station.Status)" />
 
-    @if (starStations.Any(s => s.assemblystation == station.assemblystation))
-    {
-        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
-    }
+                                        @if (starStations.Any(s => s.assemblystation == station.assemblystation))
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
+                                        }
 
-    @station.assemblystation
-</MudText>
+                                        @station.assemblystation
+                                    </MudText>
 
 
 
@@ -296,16 +317,16 @@
                                         @if (!starStations.Any(l => l.assemblystation == station.assemblystation))
                                         {
                                             <MudMenuItem OnClick="@(() => StarStation(station))"
-                                                         Icon="@Icons.Material.Filled.Star"
-                                                         IconColor="Color.Warning">
+                                            Icon="@Icons.Material.Filled.Star"
+                                            IconColor="Color.Warning">
                                                 @Fassade.Language.AddToFavorites
                                             </MudMenuItem>
                                         }
                                         else
                                         {
                                             <MudMenuItem OnClick="@(() => DeleteStarStation(station))"
-                                                         Icon="@Icons.Material.Outlined.StarOutline"
-                                                         IconColor="Color.Warning">
+                                            Icon="@Icons.Material.Outlined.StarOutline"
+                                            IconColor="Color.Warning">
                                                 @Fassade.Language.RemoveFromFavorites
                                             </MudMenuItem>
                                         }
@@ -769,8 +790,8 @@
 
 
     #toolsList::-webkit-scrollbar {
-  display: none;
-}
+    display: none;
+    }
 
     /* Drag and drop zeug */
 
@@ -1006,10 +1027,10 @@
     private bool showStationFormular = false;
     private Station? pendingStation;
     private IEnumerable<Station> starStations = Enumerable.Empty<Station>();
-	private bool stationFavorites = false;
+    private bool stationFavorites = false;
 
 
-        private void OnStationFavoritesChanged(bool value)
+    private void OnStationFavoritesChanged(bool value)
     {
         stationFavorites = value;
         UpdateFilteredStations(); // deine Methode, um etwas zu tun
@@ -1098,7 +1119,7 @@
             allOperations = await Fassade.GetAllOperations();
             tools = xy;
             SelectionState.SaveSelection(stationID: station.stationID);
-
+            CurrentContext = $"{selectedStation.assemblystation}";
             StateHasChanged();
         }
 
@@ -1178,6 +1199,7 @@
             }
 
             toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
+            CurrentContext = $"{selectedStation.assemblystation};{selectedTool.toolShortname}";
             StateHasChanged();
         }
     }
@@ -1299,6 +1321,7 @@
             showOperationFormular = true;
             showToolFormular = false;
             showStationFormular = false;
+            CurrentContext = $"{selectedStation.assemblystation};{selectedTool.toolShortname};{selectedOperation.operationShortname}";
             StateHasChanged();  
 
         }
@@ -1541,7 +1564,7 @@
                                 {
                                     stationList[idx] = updatedStation;
                                     stations = stationList.AsEnumerable();
-                                     UpdateFilteredStations();
+                                    UpdateFilteredStations();
                                     if (showStationFormular && selectedStation?.stationID == stationID)
                                     {
                                         selectedStation = updatedStation;
@@ -1570,7 +1593,7 @@
 
                                 stationList.Add(newStation);
                                 stations = stationList.AsEnumerable();
-                                 UpdateFilteredStations();
+                                UpdateFilteredStations();
 
 
                                 if (newStation.modifiedBy.Trim() == UsernameService.Username)
@@ -2500,8 +2523,8 @@
         }
     }
 
-    
-    
+
+
     #region navCop
 
     String uriInput;
@@ -2510,7 +2533,7 @@
         if(uriInput == null) return;
         Navigation.NavigateTo(uriInput, replace: true);
         NavState.SetCurrentRoute(uriInput);
-        
+
 
     }
 
@@ -2526,10 +2549,10 @@
 
 
     #endregion
-  
 
 
 
 
+    private string CurrentContext { get; set; } = "";
 }
 
