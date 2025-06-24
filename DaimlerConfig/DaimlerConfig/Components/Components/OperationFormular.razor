@@ -477,7 +477,7 @@
             try
             {
                 // Warte 10 Minuten (600000 ms)
-                await Task.Delay(TimeSpan.FromSeconds(6), lockCancellationTokenSource.Token);
+                await Task.Delay(TimeSpan.FromSeconds(600000), lockCancellationTokenSource.Token);
 
                 // Nach 10 Minuten entsperren
                 await UnlockOperationAsync();
