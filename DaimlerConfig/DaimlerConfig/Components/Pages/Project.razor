@@ -225,44 +225,45 @@
     Width="320px"
     Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.08);">
 
-        <!-- Header mit angepasstem Padding -->
-        <div class="pa-3" style="border-bottom: 1px solid rgba(0,0,0,0.08);">
-            <div class="d-flex align-center justify-space-between mb-3">
-                <MudText Typo="Typo.h6" Style="color: var(--mud-palette-text-primary); font-weight: 600; font-size: 1.05rem;">
-                    @Fassade.Language.Stations
-                </MudText>
-                <MudButton StartIcon="@Icons.Material.Filled.Add"
-                Variant="Variant.Filled"
-                Color="Color.Primary"
-                Size="Size.Small"
-                Class="add-station-btn-consistent"
-                Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
-                @onclick="() => ToggleStationFormular(true)">
-                    @Fassade.Language.Station
-                </MudButton>
-            </div>
+ <!-- Header mit !important Styles -->
+<div class="pa-3" style="border-bottom: 1px solid rgba(0,0,0,0.08);">
+    <div class="d-flex align-center justify-space-between" style="margin-bottom: 24px !important; padding-bottom: 8px !important;">
+        <MudText Typo="Typo.h5" 
+                 Class="mud-typography-h5" 
+                 Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
+            @Fassade.Language.Stations
+        </MudText>
+        <MudButton StartIcon="@Icons.Material.Filled.Add"
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        Size="Size.Small"
+        Class="add-station-btn-consistent"
+        Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
+        @onclick="() => ToggleStationFormular(true)">
+            @Fassade.Language.Station
+        </MudButton>
+    </div>
 
-            <!-- Search Field -->
-            <MudTextField @bind-Value="searchText"
-            @bind-Value:after="UpdateFilteredStations"
-            Placeholder="@Fassade.Language.SearchProjects"
-            Adornment="Adornment.Start"
-            AdornmentIcon="@Icons.Material.Filled.Search"
-            Immediate="true"
-            Variant="Variant.Outlined"
-            Margin="Margin.Normal"
-            Class="search-field-enhanced"
-            Style="background: white; border-radius: 6px; height: 38px;" />
+    <!-- Rest bleibt gleich -->
+    <MudTextField @bind-Value="searchText"
+    @bind-Value:after="UpdateFilteredStations"
+    Placeholder="@Fassade.Language.SearchProjects"
+    Adornment="Adornment.Start"
+    AdornmentIcon="@Icons.Material.Filled.Search"
+    Immediate="true"
+    Variant="Variant.Outlined"
+    Margin="Margin.Normal"
+    Class="search-field-enhanced"
+    Style="background: white; border-radius: 6px; height: 38px;" />
 
-            <!-- Checkbox - mit Custom Container für sauberen Hover -->
-            <div class="checkbox-container" style="margin: 8px 0 0 12px;">
-                <MudCheckBox T="bool"
-                Value="stationFavorites"
-                ValueChanged="@(e => OnStationFavoritesChanged(e))"
-                Label="Show only favorites"
-                Class="custom-checkbox" />
-            </div>
-        </div>
+    <div class="checkbox-container" style="margin: 8px 0 0 12px;">
+        <MudCheckBox T="bool"
+        Value="stationFavorites"
+        ValueChanged="@(e => OnStationFavoritesChanged(e))"
+        Label="Show only favorites"
+        Class="custom-checkbox" />
+    </div>
+</div>
 
 
         <!-- Station Cards mit Hover-Menü wie Line Cards -->
@@ -275,16 +276,15 @@
                 @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
                     <MudCardContent Class="pa-3 position-relative" Style="display: flex; flex-direction: column; min-height: 120px;">
 
-                        <!-- Oberer Bereich: Name + Stern -->
-                        <div class="d-flex flex-row align-items-center mb-2">
+                        <!-- Oberer Bereich: Status + Name + Stern -->
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; margin-left: -2px;">
                             <MudIcon Icon="@GetStatusIcon(station.Status)"
-                            Size="Size.Small"
-                            Class="mr-1"
-                            Color="@GetStatusColor(station.Status)" />
+                                     Size="Size.Small"
+                                     Color="@GetStatusColor(station.Status)" />
 
                             @if (starStations.Any(s => s.assemblystation == station.assemblystation))
                             {
-                                <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
+                                <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" />
                             }
 
                             <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
@@ -344,7 +344,7 @@
                         <MudText Typo="Typo.caption"
                         Class="text-left"
                         Style="color: #6c757d; font-size: 0.7rem;">
-                            @($"Modified on {station.lastModified:dd.MM.yyyy}")
+                            @($"{Fassade.Language.ModifiedOn} {station.lastModified:dd.MM.yyyy} {Fassade.Language.By} {station.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
                         </MudText>
 
                         <!-- Hover-Aktionsleiste -->
@@ -2149,16 +2149,27 @@
     #region Badge
 
 
-    private static string GetStatusIcon(Status status)
+    private static string GetStatusIcon1(Status status)
     {
         return status switch
         {
-            Status.Green => Icons.Material.Filled.DoneAll,
-            Status.Yellow => Icons.Material.Filled.ReportProblem,
-            Status.Red => Icons.Material.Filled.Cancel,
-            _ => Icons.Material.Filled.Help
+            Status.Green => Icons.Material.Filled.FiberManualRecord,
+            Status.Yellow => Icons.Material.Filled.FiberManualRecord,
+            Status.Red => Icons.Material.Filled.FiberManualRecord,
+            _ => Icons.Material.Filled.FiberManualRecord
         };
     }
+
+    private static string GetStatusIcon(Status status)
+{
+    return status switch
+    {
+        Status.Green => Icons.Material.Filled.DoneAll,
+        Status.Yellow => Icons.Material.Filled.ReportProblem,
+        Status.Red => Icons.Material.Filled.Cancel,
+        _ => Icons.Material.Filled.Help
+    };
+}
 
     private static Color GetStatusColor(Status status)
     {
