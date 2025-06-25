@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using DaimlerConfig.Components;
+using DaimlerConfig.Components.Components;
 using DaimlerConfig.Components.Export;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -98,6 +100,8 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<SelectionStateService>();
             builder.Services.AddScoped<SettingsValidationService>();
             builder.Services.AddSingleton<UsernameService>();
+            builder.Services.AddSingleton<Settings>();
+            builder.Services.AddSingleton<LanguageLoad>();
 
             
 

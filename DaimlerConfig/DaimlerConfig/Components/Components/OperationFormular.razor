@@ -28,7 +28,7 @@
                            Value="selectedVersionId"
                            ValueChanged="OnVersionChanged"
                            OnBlur="LockOperation">
-                    <MudSelectItem T="int?" Value="-1">Aktuelle Version</MudSelectItem>
+                    <MudSelectItem T="int?" Value="-1">@Fassade.Language.CurrentVersion</MudSelectItem>
                     @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                     {
                         <MudSelectItem T="int?" Value="@version.operationVersionID">
@@ -58,7 +58,7 @@
                            Class="btn btn-primary btn-sm"
                            @onclick="UpdateOperationAsync"
                            Disabled="@ReadOnly">
-                    Save
+                    @Fassade.Language.Save
                 </MudButton>
             }
         </div>
@@ -110,8 +110,8 @@
                        OnBlur="CheckIfDirty"
                        Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
                        AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)">
-                <MudSelectItem Value="0">parallel</MudSelectItem>
-                <MudSelectItem Value="1">serial</MudSelectItem>
+                <MudSelectItem Value="0">@Fassade.Language.Parallel</MudSelectItem>
+                <MudSelectItem Value="1">@Fassade.Language.Serial</MudSelectItem>
             </MudSelect>
         </div>
         <div class="col-md-6 mb-3">
@@ -589,7 +589,6 @@
             StateHasChanged();
         }
     }
-
 
 
 

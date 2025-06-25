@@ -138,4 +138,10 @@ public class Language
     public string RemoveFromFavorites { get; set; } = "Remove from favorites";
     public string NoLinesFound { get; set; } = "No lines found.";
     public string InsertTool { get; set; } = "Insert Tool";
+    public string LineName { get; set; } = "Line name";
+    public string Parallel { get; set; } = "Parallel";
+    public string Serial { get; set; } = "Serial";
+    public string NoDescription { get; set; } = "No description";
+    public string ShareLink { get; set; } = "Share link";
+    public string NavigateTo { get; set; } = "Navigate to...";
 }

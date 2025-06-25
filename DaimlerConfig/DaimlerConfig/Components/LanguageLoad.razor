@@ -1,0 +1,105 @@
+﻿@using System.Text.Json
+@using DaimlerConfig.Components.Models
+@using Microsoft.Extensions.FileProviders
+@code {
+    private const string SELECTED_LANGUAGE_KEY = "SelectedLanguage";
+    public string SelectedLanguage = "";
+    public List<string> AvailableLanguages = new();
+    
+    [Inject] private DaimlerConfig.Components.Fassade.Fassade Fassade { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            SetSelectedLang();
+            await SaveLanguageSettings(SelectedLanguage, Fassade);
+            SetAvailableLanguages();
+        }
+        catch (Exception ex){}
+    }
+
+    public void SetAvailableLanguages()
+    {
+        var fileProvider = new PhysicalFileProvider(Path.Combine(GetLanguagesFolderPath()));
+        AvailableLanguages = fileProvider.GetDirectoryContents("")
+            .Where(f => f.Name.EndsWith("LANG.json"))
+            .Select(f => Path.GetFileNameWithoutExtension(f.Name))
+            .ToList();
+    }
+    public void SetSelectedLang()
+    {
+        SelectedLanguage = Preferences.Default.Get(SELECTED_LANGUAGE_KEY, SelectedLanguage);
+    }
+
+    public async Task SaveLanguageSettings(string selectedLang, Fassade.Fassade fassade)
+    {
+        try
+        {
+            Preferences.Default.Set(SELECTED_LANGUAGE_KEY, selectedLang);
+            await LoadSelectedLanguage(fassade);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fehler beim Speichern der Sprache: {ex.Message}");
+        }
+    }
+
+    public async Task LoadSelectedLanguage(Fassade.Fassade fassade)
+    {
+        try
+        {
+            var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{SelectedLanguage}.json");
+            await LoadLanguageFromFileAsync(languageFilePath, fassade);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fehler beim Laden der Sprache: {ex.Message}");
+        }
+    }
+
+    public string GetLanguagesFolderPath()
+    {
+        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        return Path.Combine(appDataPath);
+    }
+    public async Task OnLanguageChanged(string newLanguage)
+    {
+        SelectedLanguage = newLanguage;
+        
+    }
+    private async Task LoadLanguageFromFileAsync(string filePath, Fassade.Fassade fassade)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"Sprachdatei nicht gefunden: {filePath}");
+
+            var jsonContent = await File.ReadAllTextAsync(filePath);
+            fassade.Language = LoadLanguageFromJson(jsonContent);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fehler beim Laden der Sprachdatei: {ex.Message}");
+        }
+    }
+
+    private Language LoadLanguageFromJson(string jsonContent)
+    {
+        try
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            return JsonSerializer.Deserialize<Language>(jsonContent, options) ?? new Language();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fehler beim Deserialisieren der Sprache: {ex.Message}");
+            return new Language();
+        }
+    }
+}

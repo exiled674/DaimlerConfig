@@ -7,19 +7,14 @@
 @using System.Text.Json
 @using System.Text.Json.Nodes
 @using DaimlerConfig.Security
-@using MudBlazor
-@using System.Text.RegularExpressions
-@using DaimlerConfig.Components.Models
+@using DaimlerConfig.Services
 
 @inject IConfiguration Configuration
-@inject ISnackbar Snackbar
-@using DaimlerConfig.Services
-@using Microsoft.Extensions.FileProviders
 @inject AppStartupValidationService ValidationService
 @inject SettingsValidationService SettingsValidation
 @inject UsernameService UsernameS
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
-
+@inject LanguageLoad LangLoader
 
 <div class="popup-backdrop">
     <div class="popup-dialog">
@@ -110,14 +105,12 @@
                     <MudItem xs="12" sm="7" md="8">
                         <MudSelect T="string" 
                                    Label="@Fassade.Language.LanguageSelect" 
-                                   @bind-Value="_selectedLanguage"
+                                   Value="@LangLoader.SelectedLanguage"
+                                   ValueChanged="OnLanguageChanged"
                                    Variant="Variant.Outlined">
-                            @if (_availableLanguages != null)
+                            @foreach (var lang in LangLoader.AvailableLanguages)
                             {
-                                @foreach (var lang in _availableLanguages)
-                                {
-                                    <MudSelectItem Value="@lang">@lang.ToUpper()</MudSelectItem>
-                                }
+                                <MudSelectItem Value="@lang">@lang.ToUpper()</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
@@ -324,7 +317,6 @@
                                     </MudItem>
 
                                     <MudItem xs="12" sm="6" md="3">
-                                        
                                         <MudCheckBox T="bool"
                                                      @bind-Value="persistSecurityInfo"
                                                      @bind-Value:after="OnFieldChanged"
@@ -499,11 +491,9 @@
 </style>
 
 @code {
-
     [Parameter]
     public EventCallback OnClosing { get; set; }
-
-
+    
     // Original fields
     private string connectionString = "";
     private string signalRHubUrl = "";
@@ -546,9 +536,6 @@
 
     private bool isValidating = false;
     private List<string> validationErrors = new List<string>();
-
-    private List<string> _availableLanguages = new();
-    private string _selectedLanguage;
     
     private void ParseConnectionString(string connStr)
     {
@@ -675,24 +662,8 @@
 
     private async Task SaveGeneralSettings()
     {
-        try
-        {
-            var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{_selectedLanguage}.json");
-            
-            await Fassade.LoadLanguageFromFileAsync(languageFilePath);
-            
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ordner konnte nicht geöffnet werden: {ex.Message}");
-        }
-    }
-    private string GetLanguagesFolderPath()
-    {
-        // Pfad zum Languages-Ordner bestimmen
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        return Path.Combine(appDataPath);
+        await LangLoader.SaveLanguageSettings(LangLoader.SelectedLanguage, Fassade);
+        StateHasChanged();
     }
 
     private async Task SaveSettings()
@@ -723,7 +694,7 @@
 
         try
         {
-            // Build new connection string (declare once and reuse)
+            // Build the new connection string (declare once and reuse)
             var newConnectionString = BuildConnectionString();
 
             // Validate settings using the new service
@@ -770,7 +741,7 @@
 
             jsonNode["SignalR"]["HubUrl"] = signalRHubUrl;
 
-            // Write JSON back to file
+            // Write JSON back to the file
             var updatedJson = jsonNode.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(appSettingsPath, updatedJson);
 
@@ -780,7 +751,7 @@
                 ConfigurationEncryptor.EncryptConnectionString(newConnectionString, appSettingsPath);
             }
 
-            statusMessage = @Fassade.Language.SavedAppWillRestart;
+            statusMessage = Fassade.Language.SavedAppWillRestart;
             isStatusError = false;
             hasUnsavedChanges = false;
             isEditMode = false;
@@ -812,10 +783,15 @@
             StateHasChanged();
         }
     }
-    
+
+    private async Task OnLanguageChanged(string newLang)
+    {
+        await LangLoader.OnLanguageChanged(newLang);
+        }
+
     private void OpenLanguageFolder()
     {
-        var folderPath = Path.Combine(GetLanguagesFolderPath());
+        var folderPath = LangLoader.GetLanguagesFolderPath();
 
         if (Directory.Exists(folderPath))
         {
@@ -833,8 +809,7 @@
             }
         }
     }
-
-
+    
     private async Task CloseSomething()
     {
         if (isEditMode) return;
@@ -847,12 +822,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //Language picker
-        var fileProvider = new PhysicalFileProvider(Path.Combine(GetLanguagesFolderPath()));
-        _availableLanguages = fileProvider.GetDirectoryContents("")
-            .Where(f => f.Name.EndsWith("LANG.json"))
-            .Select(f => Path.GetFileNameWithoutExtension(f.Name))
-            .ToList();
+        LangLoader.SetAvailableLanguages();
+        LangLoader.SetSelectedLang();
         // Extrahiere nur den Username-Teil (vor dem Semikolon)
         _newUsername = GetDisplayUsername(UsernameS.Username);
 
@@ -871,7 +842,7 @@
         catch (Exception ex)
         {
             hasError = true;
-            errorMessage = @Fassade.Language.LoadingError + ex.Message;
+            errorMessage = Fassade.Language.LoadingError + ex.Message;
             isLoading = false;
         }
 

@@ -3,10 +3,13 @@ using DaimlerConfig.Components.Models;
 using System.IO;
 using ClosedXML.Excel;
 
+
 namespace DaimlerConfig.Components.Export;
+
 
 public class ExcelExport
 {
+
     public void Export(Stream stream, Line line,
                       Station[] stations,
                       Tool[] tools,
@@ -19,10 +22,15 @@ public class ExcelExport
         var currentRow = 3;//Starts after head
         
         #region Head
-        sheet.Cells("A1").Value = "Line Name: " + line.lineName;
+        sheet.Cells("A1").Value = "Line name: " + line.lineName;
+        sheet.Row(1).Style.Fill.BackgroundColor = XLColor.FromHtml("#A6A6A6");
+        sheet.Row(1).Style.Font.Bold = true;
         #endregion
         
-        #region Columns
+        #region Columns Head
+        sheet.Row(2).Style.Fill.BackgroundColor = XLColor.FromHtml("#00566A");
+        sheet.Row(2).Style.Font.Bold = true;
+        sheet.Row(2).Style.Font.FontColor = XLColor.White;
         sheet.Cells("A2").Value = "Station Name";
         sheet.Cells("B2").Value = "Station Description";
         sheet.Cells("C2").Value = "Station Type";
@@ -46,11 +54,13 @@ public class ExcelExport
             sheet.Cells("A"+currentRow).Value = station.assemblystation;
             sheet.Cells("B"+currentRow).Value = station.stationName;
             sheet.Cells("C"+currentRow).Value = stationTypes.FirstOrDefault(st => st.stationTypeID == station.stationTypeID)?.stationTypeName ?? "";
+            sheet.Row(currentRow).Style.Fill.BackgroundColor = XLColor.FromHtml("#99CCFF");
             
             foreach (var tool in tools)
             {
                 if (tool.stationID != station.stationID) continue;
                 currentRow++;
+                sheet.Row(currentRow).Style.Fill.BackgroundColor = XLColor.FromHtml("#D9D9D9");
                 sheet.Cells("D"+currentRow).Value = tool.toolID?.ToString() ?? "";
                 sheet.Cells("E"+currentRow).Value = tool?.toolShortname ?? "";
                 sheet.Cells("F"+currentRow).Value = tool?.toolDescription ?? "";
@@ -72,8 +82,23 @@ public class ExcelExport
                 sheet.Cells("N"+currentRow).Value = tool?.addressSendDB ?? "";
                 sheet.Cells("O"+currentRow).Value = tool?.addressReceiveDB ?? "";
             }
+            currentRow++;
         }
         #endregion
+        
+        sheet.Columns().AdjustToContents();
+        var usedRange = sheet.RangeUsed();
+        int lastColumn = usedRange.LastColumnUsed().ColumnNumber();
+        int lastRow = usedRange.LastRowUsed().RowNumber();
+
+        for (int row = 1; row <= lastRow; row++)
+        {
+            for (int column = 2; column <= lastColumn; column++)
+            {
+                sheet.Cell(row, column).Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+            }
+        }
+        
         workbook.SaveAs(stream);
         stream.Position = 0;
     }
