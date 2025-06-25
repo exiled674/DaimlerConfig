@@ -264,118 +264,131 @@
             </div>
         </div>
 
-     
+
         <!-- Station Cards mit Hover-Menü wie Line Cards -->
-       <!-- Station Cards mit Line Card Struktur -->
-<div class="pa-2 pt-2">
-    @foreach (var station in filteredStations)
-    {
-        <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")" Elevation="0"
-                 Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;"
-        @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
-            <MudCardContent Class="pa-3 position-relative" Style="display: flex; flex-direction: column; min-height: 120px;">
+        <!-- Station Cards mit Line Card Struktur -->
+        <div class="pa-2 pt-2">
+            @foreach (var station in filteredStations)
+            {
+                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")" Elevation="0"
+                Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;"
+                @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
+                    <MudCardContent Class="pa-3 position-relative" Style="display: flex; flex-direction: column; min-height: 120px;">
 
-                <!-- Oberer Bereich: Name + Stern -->
-                <div class="d-flex flex-row align-items-center mb-2">
-                    <MudIcon Icon="@GetStatusIcon(station.Status)"
-                    Size="Size.Small"
-                    Class="mr-1"
-                    Color="@GetStatusColor(station.Status)" />
-
-                    @if (starStations.Any(s => s.assemblystation == station.assemblystation))
-                    {
-                        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
-                    }
-                    
-                    <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
-                        @station.assemblystation
-                    </MudText>
-                </div>
-
-                <!-- Beschreibung -->
-                <div class="mb-2">
-                    <MudText Typo="Typo.body2"
-                    Class="ma-0 pa-0"
-                    Style="color: #6c757d; font-size: 0.8rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                        @(string.IsNullOrWhiteSpace(station.stationName) ? "No description" : station.stationName)
-                    </MudText>
-                </div>
-
-                <!-- Status Indicators -->
-                <div class="d-flex align-center justify-space-between mb-2">
-                    <div class="d-flex align-center" style="gap: 8px;">
-                        <!-- Grüner Status -->
-                        <div class="d-flex align-center" style="gap: 3px;">
-                            <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4caf50;"></div>
-                            <span style="font-size: 0.75rem; font-weight: 500;">0</span>
-                        </div>
-
-                        <!-- Gelber Status -->
-                        <div class="d-flex align-center" style="gap: 3px;">
-                            <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #ff9800;"></div>
-                            <span style="font-size: 0.75rem; font-weight: 500;">0</span>
-                        </div>
-
-                        <!-- Roter Status -->
-                        <div class="d-flex align-center" style="gap: 3px;">
-                            <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #f44336;"></div>
-                            <span style="font-size: 0.75rem; font-weight: 500;">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Spacer um den Modified Text nach unten zu drücken -->
-                <div style="flex-grow: 1;"></div>
-
-                <!-- Modified Text unten links -->
-                <MudText Typo="Typo.caption"
-                Class="text-left"
-                Style="color: #6c757d; font-size: 0.7rem;">
-                    @($"Modified on {station.lastModified:dd.MM.yyyy}")
-                </MudText>
-
-                <!-- Hover-Aktionsleiste -->
-                <div class="hover-actions"
-                style="position: absolute; top: 8px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
-                @onclick:stopPropagation="true">
-                    <div class="d-flex"
-                    style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
-                        
-                        <!-- Star/Unstar Button -->
-                        @if (!starStations.Any(s => s.assemblystation == station.assemblystation))
-                        {
-                            <MudIconButton Icon="@Icons.Material.Outlined.StarOutline"
+                        <!-- Oberer Bereich: Name + Stern -->
+                        <div class="d-flex flex-row align-items-center mb-2">
+                            <MudIcon Icon="@GetStatusIcon(station.Status)"
                             Size="Size.Small"
-                            OnClick="@(() => StarStation(station))"
-                            Style="color: #ff9800; transition: all 0.2s ease;" />
-                        }
-                        else
-                        {
-                            <MudIconButton Icon="@Icons.Material.Filled.Star"
-                            Size="Size.Small"
-                            OnClick="@(() => DeleteStarStation(station))"
-                            Style="color: #ff9800; transition: all 0.2s ease;" />
-                        }
+                            Class="mr-1"
+                            Color="@GetStatusColor(station.Status)" />
 
-                        <!-- Insert Tool Button -->
-                        <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
-                        Size="Size.Small"
-                        OnClick="@(() => { SelectStation(station); InsertTool(); })"
-                        Disabled="@(copiedTool == null || selectedStation == null)"
-                        Style="color: #6c757d; transition: all 0.2s ease;" />
+                            @if (starStations.Any(s => s.assemblystation == station.assemblystation))
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
+                            }
 
-                        <!-- Delete Button -->
-                        <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                        Size="Size.Small"
-                        OnClick="@(() => DeleteStation(station))"
-                        Style="color: #f44336; transition: all 0.2s ease;" />
-                    </div>
-                </div>
+                            <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
+                                @station.assemblystation
+                            </MudText>
+                        </div>
 
-            </MudCardContent>
-        </MudCard>
-    }
-</div>
+                        <!-- Beschreibung -->
+                        <div class="mb-2">
+                            <MudText Typo="Typo.body2"
+                            Class="ma-0 pa-0"
+                            Style="color: #6c757d; font-size: 0.8rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @(string.IsNullOrWhiteSpace(station.stationName) ? "No description" : station.stationName)
+                            </MudText>
+                        </div>
+
+                        <div class="d-flex align-center justify-space-between mb-2">
+                            <div class="d-flex align-center" style="gap: 8px;">
+                                @{
+                                    StationStatusCounts.TryGetValue(station.stationID.Value, out var stationStatusCounts);
+                                }
+
+                                <!-- Grüner Status -->
+                                <div class="d-flex align-center" style="gap: 3px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4caf50;"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Green)</span>
+                                </div>
+
+                                <!-- Gelber Status -->
+                                <div class="d-flex align-center" style="gap: 3px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #ff9800;"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Yellow)</span>
+                                </div>
+
+                                <!-- Roter Status -->
+                                <div class="d-flex align-center" style="gap: 3px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #f44336;"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Red)</span>
+                                </div>
+                            </div>
+
+                            <!-- Optional: Tools Anzahl Chip (wie bei Line Cards) -->
+                            @{
+                                var totalTools = stationStatusCounts.Green + stationStatusCounts.Yellow + stationStatusCounts.Red + stationStatusCounts.Undefined;
+                                var toolText = totalTools == 1 ? "Tool" : "Tools";
+                            }
+                            <MudChip Size="Size.Small"
+                            T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.65rem;">
+                                @($"{totalTools} {toolText}")
+                            </MudChip>
+                        </div>
+
+                        <!-- Spacer um den Modified Text nach unten zu drücken -->
+                        <div style="flex-grow: 1;"></div>
+
+                        <!-- Modified Text unten links -->
+                        <MudText Typo="Typo.caption"
+                        Class="text-left"
+                        Style="color: #6c757d; font-size: 0.7rem;">
+                            @($"Modified on {station.lastModified:dd.MM.yyyy}")
+                        </MudText>
+
+                        <!-- Hover-Aktionsleiste -->
+                        <div class="hover-actions"
+                        style="position: absolute; top: 8px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                        @onclick:stopPropagation="true">
+                            <div class="d-flex"
+                            style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+
+                                <!-- Star/Unstar Button -->
+                                @if (!starStations.Any(s => s.assemblystation == station.assemblystation))
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Outlined.StarOutline"
+                                    Size="Size.Small"
+                                    OnClick="@(() => StarStation(station))"
+                                    Style="color: #ff9800; transition: all 0.2s ease;" />
+                                }
+                                else
+                                {
+                                    <MudIconButton Icon="@Icons.Material.Filled.Star"
+                                    Size="Size.Small"
+                                    OnClick="@(() => DeleteStarStation(station))"
+                                    Style="color: #ff9800; transition: all 0.2s ease;" />
+                                }
+
+                                <!-- Insert Tool Button -->
+                                <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
+                                Size="Size.Small"
+                                OnClick="@(() => { SelectStation(station); InsertTool(); })"
+                                Disabled="@(copiedTool == null || selectedStation == null)"
+                                Style="color: #6c757d; transition: all 0.2s ease;" />
+
+                                <!-- Delete Button -->
+                                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                Size="Size.Small"
+                                OnClick="@(() => DeleteStation(station))"
+                                Style="color: #f44336; transition: all 0.2s ease;" />
+                            </div>
+                        </div>
+
+                    </MudCardContent>
+                </MudCard>
+            }
+        </div>
     </MudDrawer>
 
 
@@ -721,206 +734,206 @@
     transition: all 0.3s ease-in-out;
     }
     .station-selected {
-        border-color: var(--mud-palette-primary) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
-        transform: translateY(-2px);
+    border-color: var(--mud-palette-primary) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
     }
 
-        .station-selected:hover {
-            border-color: var(--mud-palette-primary) !important;
-        }
+    .station-selected:hover {
+    border-color: var(--mud-palette-primary) !important;
+    }
 
     /* Add Station Button - Kompakt */
     .add-station-btn-compact {
-        border-radius: 6px !important;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
-        transition: all 0.2s ease-in-out;
-        background-color: var(--mud-palette-primary);
-        color: white !important;
+    border-radius: 6px !important;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease-in-out;
+    background-color: var(--mud-palette-primary);
+    color: white !important;
     }
 
-        .add-station-btn-compact:hover {
-            background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
-            transform: scale(1.02);
-        }
+    .add-station-btn-compact:hover {
+    background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+    }
 
     /* Search Field */
     .search-field-enhanced .mud-input-outlined {
-        border: 1px solid rgba(0,0,0,0.12) !important;
+    border: 1px solid rgba(0,0,0,0.12) !important;
     }
 
-        .search-field-enhanced .mud-input-outlined:hover {
-            border-color: rgba(25, 118, 210, 0.3) !important;
-        }
+    .search-field-enhanced .mud-input-outlined:hover {
+    border-color: rgba(25, 118, 210, 0.3) !important;
+    }
 
     /* Checkbox Alignment - Aggressiver Ansatz */
     .pa-3 .mud-checkbox {
-        margin-left: -12px !important;
-        padding-left: 0 !important;
+    margin-left: -12px !important;
+    padding-left: 0 !important;
     }
 
-        .pa-3 .mud-checkbox .mud-checkbox-content {
-            margin-left: 0 !important;
-            padding-left: 0 !important;
-        }
+    .pa-3 .mud-checkbox .mud-checkbox-content {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    }
 
-        .pa-3 .mud-checkbox .mud-button-root {
-            margin-left: 0 !important;
-            padding-left: 0 !important;
-        }
+    .pa-3 .mud-checkbox .mud-button-root {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    }
 
-            /* ALLE Schatten-Effekte aggressiv entfernen */
-            .pa-3 .mud-checkbox .mud-button-root,
-            .pa-3 .mud-checkbox .mud-button-root:hover,
-            .pa-3 .mud-checkbox .mud-button-root:active,
-            .pa-3 .mud-checkbox .mud-button-root:focus,
-            .pa-3 .mud-checkbox .mud-button-root:focus-visible,
-            .pa-3 .mud-checkbox .mud-button-root.mud-ripple-active {
-                background-color: transparent !important;
-                box-shadow: none !important;
-                background: none !important;
-            }
+    /* ALLE Schatten-Effekte aggressiv entfernen */
+    .pa-3 .mud-checkbox .mud-button-root,
+    .pa-3 .mud-checkbox .mud-button-root:hover,
+    .pa-3 .mud-checkbox .mud-button-root:active,
+    .pa-3 .mud-checkbox .mud-button-root:focus,
+    .pa-3 .mud-checkbox .mud-button-root:focus-visible,
+    .pa-3 .mud-checkbox .mud-button-root.mud-ripple-active {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    background: none !important;
+    }
 
-                /* Ripple komplett killen */
-                .pa-3 .mud-checkbox .mud-button-root .mud-ripple,
-                .pa-3 .mud-checkbox .mud-button-root .mud-ripple-active {
-                    display: none !important;
-                    opacity: 0 !important;
-                    visibility: hidden !important;
-                }
+    /* Ripple komplett killen */
+    .pa-3 .mud-checkbox .mud-button-root .mud-ripple,
+    .pa-3 .mud-checkbox .mud-button-root .mud-ripple-active {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    }
 
-                /* Alle Pseudo-Elemente entfernen */
-                .pa-3 .mud-checkbox .mud-button-root::before,
-                .pa-3 .mud-checkbox .mud-button-root::after,
-                .pa-3 .mud-checkbox .mud-button-root:hover::before,
-                .pa-3 .mud-checkbox .mud-button-root:active::before,
-                .pa-3 .mud-checkbox .mud-button-root:focus::before {
-                    display: none !important;
-                    content: none !important;
-                }
+    /* Alle Pseudo-Elemente entfernen */
+    .pa-3 .mud-checkbox .mud-button-root::before,
+    .pa-3 .mud-checkbox .mud-button-root::after,
+    .pa-3 .mud-checkbox .mud-button-root:hover::before,
+    .pa-3 .mud-checkbox .mud-button-root:active::before,
+    .pa-3 .mud-checkbox .mud-button-root:focus::before {
+    display: none !important;
+    content: none !important;
+    }
 
     /* Falls das immer noch nicht funktioniert, diese Regel: */
     .pa-3 > .mud-checkbox {
-        transform: translateX(-12px) !important;
+    transform: translateX(-12px) !important;
     }
 
     /* === ANDERE STYLES (unverändert) === */
 
     /* Auswahl-Hervorhebung für Operationen */
     .mud-list-item.mud-selected {
-        background-color: rgba(0, 123, 255, 0.1) !important;
+    background-color: rgba(0, 123, 255, 0.1) !important;
     }
 
     .mud-list-item:hover:not(.mud-selected) {
-        background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(0, 0, 0, 0.04);
     }
 
     .operation-name {
-        pointer-events: none;
+    pointer-events: none;
     }
 
     .thick-divider {
-        border-top: #333333;
+    border-top: #333333;
     }
 
     .chevron-icon {
-        transition: transform 0.3s ease;
+    transition: transform 0.3s ease;
     }
 
-        .chevron-icon.rotated {
-            transform: rotate(90deg);
-        }
+    .chevron-icon.rotated {
+    transform: rotate(90deg);
+    }
 
     .text-muted {
-        color: var(--mud-palette-text-secondary) !important;
+    color: var(--mud-palette-text-secondary) !important;
     }
 
     #toolsList::-webkit-scrollbar {
-        display: none;
+    display: none;
     }
 
     /* Drag and drop - KORRIGIERT für Line Card Timing */
     .draggable {
-        user-select: none;
-        transition: all 0.3s ease-in-out; /* Geändert von 0.2s auf 0.3s */
-        position: relative;
-        z-index: 1;
-        cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease-in-out; /* Geändert von 0.2s auf 0.3s */
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
     }
 
-        .draggable.dragging,
-        .is-dragging {
-            opacity: 0.8;
-            background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
-            border: 2px solid var(--mud-palette-primary);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            transform: scale(1.03) rotate(1deg);
-            z-index: 999;
-            cursor: pointer;
-        }
+    .draggable.dragging,
+    .is-dragging {
+    opacity: 0.8;
+    background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
+    border: 2px solid var(--mud-palette-primary);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(1.03) rotate(1deg);
+    z-index: 999;
+    cursor: pointer;
+    }
 
     #toolsList.drag-active,
     .operation-list.drag-active,
     .drop-zone.drag-active {
-        background-color: rgba(33, 150, 243, 0.03);
-        border: 2px dashed #2196f3;
-        border-radius: 12px;
-        padding: 8px;
-        margin: 4px 0;
-        min-height: 60px;
-        transition: all 0.3s ease;
-        cursor: pointer;
+    background-color: rgba(33, 150, 243, 0.03);
+    border: 2px dashed #2196f3;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 4px 0;
+    min-height: 60px;
+    transition: all 0.3s ease;
+    cursor: pointer;
     }
 
-        #toolsList.drag-active:hover,
-        .operation-list.drag-active:hover,
-        .drop-zone.drag-active:hover {
-            background-color: rgba(33, 150, 243, 0.06);
-            border-color: #1976d2;
-            cursor: pointer;
-        }
+    #toolsList.drag-active:hover,
+    .operation-list.drag-active:hover,
+    .drop-zone.drag-active:hover {
+    background-color: rgba(33, 150, 243, 0.06);
+    border-color: #1976d2;
+    cursor: pointer;
+    }
 
     .drop-zone-placeholder {
-        background-color: rgba(33, 150, 243, 0.02);
-        border: 2px dashed rgba(33, 150, 243, 0.3);
-        border-radius: 12px;
-        padding: 16px;
-        text-align: center;
-        color: rgba(33, 150, 243, 0.6);
-        font-style: italic;
-        min-height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        cursor: pointer;
+    background-color: rgba(33, 150, 243, 0.02);
+    border: 2px dashed rgba(33, 150, 243, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    color: rgba(33, 150, 243, 0.6);
+    font-style: italic;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
     }
 
-        .drop-zone-placeholder:hover {
-            border-color: rgba(33, 150, 243, 0.5);
-            background-color: rgba(33, 150, 243, 0.04);
-            cursor: pointer;
-        }
+    .drop-zone-placeholder:hover {
+    border-color: rgba(33, 150, 243, 0.5);
+    background-color: rgba(33, 150, 243, 0.04);
+    cursor: pointer;
+    }
 
     .operation-item-wrapper {
-        position: relative;
+    position: relative;
     }
 
     .operation-clickable-area {
-        cursor: pointer;
-        border-radius: 4px;
-        padding: 4px 8px;
-        transition: background-color 0.2s ease;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px 8px;
+    transition: background-color 0.2s ease;
     }
 
-        .operation-clickable-area:hover {
-            background-color: rgba(0, 0, 0, 0.04);
-        }
+    .operation-clickable-area:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    }
 
-        .operation-clickable-area .clickable {
-            cursor: inherit;
-        }
+    .operation-clickable-area .clickable {
+    cursor: inherit;
+    }
 </style>
 
 
@@ -1706,10 +1719,13 @@
                                         toolFormularModel.stationID = selectedTool.stationID;
 
                                     }
-                                    StateHasChanged();
+                                   
+                                  
                                 }
 
                             }
+                             await LoadStatusCountsForAllStations();
+                               StateHasChanged();
                             break;
                         }
 
@@ -1731,8 +1747,11 @@
                                     toolFormularModel = selectedTool.Clone();
                                     toolFormularModel.stationID = selectedStation.stationID;
                                 }
-                                StateHasChanged();
+                               
+                               
                             }
+                             await LoadStatusCountsForAllStations();
+                              StateHasChanged();
                             break;
                         }
 
@@ -1755,8 +1774,11 @@
                                 {
                                     showOperationFormular = false;
                                 }
-                                StateHasChanged();
+                             
                             }
+                               await LoadStatusCountsForAllStations();
+
+                            StateHasChanged();
                             break;
                         }
 
@@ -1943,6 +1965,7 @@
 
             }
             await RestoreSavedSelection();
+            await LoadStatusCountsForAllStations();
         }
 
         NavState.SetCurrentRoute($"/line/{lineName}");
@@ -2165,6 +2188,7 @@
             tool.Status = neuerStatus;
             if (!await Fassade.UpdateTool(tool)) return;
             await SignalRService.SendMessageToServer($"ToolUpdated;{tool.toolID}");
+            
             StateHasChanged();
         }
         else if (o is Station station)
