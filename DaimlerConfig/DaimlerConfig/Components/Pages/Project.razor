@@ -225,172 +225,156 @@
 <MudLayout>
 
 
-    <MudDrawer @bind-Open="@_open" Elevation="4" Fixed="true" Width="280px" Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.12); margin-top: 15px; ">
-        <MudDrawerHeader Class="d-flex align-items-center px-4 py-3" Style="border-bottom: 1px solid rgba(0,0,0,0.12);">
-            <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
+ <MudDrawer @bind-Open="@_open" 
+           Elevation="2" 
+           Fixed="true" 
+           Width="340px" 
+           Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.08);">
+    
+    <!-- Header mit mehr Padding -->
+    <div class="pa-4" style="border-bottom: 1px solid rgba(0,0,0,0.08);">
+        <div class="d-flex align-center justify-space-between mb-4">
+            <MudText Typo="Typo.h6" Style="color: var(--mud-palette-text-primary); font-weight: 600; font-size: 1.1rem;">
                 @Fassade.Language.Stations
             </MudText>
-        </MudDrawerHeader>
-
-
-
-
-        <div class="pa-2">
-
             <MudButton StartIcon="@Icons.Material.Filled.Add"
-            Variant="Variant.Filled"
-            Color="Color.Primary"
-
-            Class="add-station-btn w-100 justify-start px-3 py-2"
-            @onclick="() => ToggleStationFormular(true)">
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       Class="add-station-btn-compact"
+                       Style="min-width: 100px; height: 32px; font-size: 0.8rem;"
+                       @onclick="() => ToggleStationFormular(true)">
                 @Fassade.Language.Station
             </MudButton>
-
-
-
-            <MudTextField @bind-Value="searchText"
-            @bind-Value:after="UpdateFilteredStations"
-            Placeholder="@Fassade.Language.SearchProjects"
-            Adornment="Adornment.Start"
-            AdornmentIcon="@Icons.Material.Filled.Search"
-            Immediate="true"
-            Variant="Variant.Outlined"
-            Margin="Margin.Normal"
-            Class="flex-grow-1 search-field-enhanced"
-            Style="background: white; border-radius: 8px; height: 40.5px;" />
-
-
-            <MudCheckBox T="bool"
-            Value="stationFavorites"
-            ValueChanged="@(e => OnStationFavoritesChanged(e))"
-            Label="Show only favorites"
-            Style="margin-left: 0; padding-left: 0;" />
-
-
-
-
-
-
-
-
-
-            <MudDivider Class="my-3" Style="border-color: rgba(0,0,0,0.12); border-width: 1px;" />
-            @foreach (var station in filteredStations)
-            {
-                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
-                Elevation="3"
-                @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
-                    <MudCardContent Class="pa-3">
-                        <MudGrid AlignItems="Center" Spacing="0">
-                            <MudItem xs="10">
-                                <div class="d-flex align-items-start">
-
-
-
-                                    <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0 d-flex align-items-center">
-                                        <MudIcon Icon="@GetStatusIcon(station.Status)"
-                                        Size="Size.Small"
-                                        Class="mr-1"
-                                        Color="@GetStatusColor(station.Status)" />
-
-                                        @if (starStations.Any(s => s.assemblystation == station.assemblystation))
-                                        {
-                                            <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
-                                        }
-
-                                        @station.assemblystation
-                                    </MudText>
-
-
-
-
-                                </div>
-                            </MudItem>
-
-                            <MudItem xs="2" Class="d-flex justify-end">
-                                <div @onclick:stopPropagation="true">
-                                    <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                    Size="Size.Small"
-                                    Dense="true"
-                                    AnchorOrigin="Origin.BottomRight"
-                                    TransformOrigin="Origin.TopRight">
-                                        @if (!starStations.Any(l => l.assemblystation == station.assemblystation))
-                                        {
-                                            <MudMenuItem OnClick="@(() => StarStation(station))"
-                                            Icon="@Icons.Material.Filled.Star"
-                                            IconColor="Color.Warning">
-                                                @Fassade.Language.AddToFavorites
-                                            </MudMenuItem>
-                                        }
-                                        else
-                                        {
-                                            <MudMenuItem OnClick="@(() => DeleteStarStation(station))"
-                                            Icon="@Icons.Material.Outlined.StarOutline"
-                                            IconColor="Color.Warning">
-                                                @Fassade.Language.RemoveFromFavorites
-                                            </MudMenuItem>
-                                        }
-
-
-                                        <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
-                                        Icon="@Icons.Material.Filled.ContentPaste"
-                                        Disabled="@(copiedTool == null || selectedStation == null)">
-                                            @Fassade.Language.InsertTool
-                                        </MudMenuItem>
-
-
-                                        <MudMenuItem OnClick="@(() => DeleteStation(station))"
-                                        Icon="@Icons.Material.Filled.Delete"
-                                        IconColor="Color.Error">
-                                            @Fassade.Language.Delete
-                                        </MudMenuItem>
-                                        <MudMenuItem Icon="@Icons.Material.Filled.Tune"
-                                        IconColor="Color.Default">
-                                            <MudMenu ActivationEvent="@MouseEvent.MouseOver"
-                                            AnchorOrigin="Origin.TopRight"
-                                            TransformOrigin="Origin.TopLeft">
-                                                <ActivatorContent>
-                                                    <span>Status</span>
-                                                </ActivatorContent>
-                                                <ChildContent>
-                                                    <MudMenuItem OnClick="@(() => {SetStatus(station, Status.Green); })"
-                                                    Icon="@Icons.Material.Filled.DoneAll"
-                                                    IconColor="Color.Success">
-                                                        Configured
-                                                    </MudMenuItem>
-                                                    <MudMenuItem OnClick="@(() => { SetStatus(station, Status.Yellow); })"
-                                                    Icon="@Icons.Material.Filled.ReportProblem"
-                                                    IconColor="Color.Warning">
-                                                        Must be configured
-                                                    </MudMenuItem>
-                                                    <MudMenuItem OnClick="@(() => { SetStatus(station, Status.Red); })"
-                                                    Icon="@Icons.Material.Filled.Cancel"
-                                                    IconColor="Color.Error">
-                                                        Missing information
-                                                    </MudMenuItem>
-                                                    <MudMenuItem OnClick="@(() => { SetStatus(station, Status.Undefined); })"
-                                                    Icon="@Icons.Material.Filled.Help"
-                                                    IconColor="Color.Default">
-                                                        Open
-                                                    </MudMenuItem>
-                                                </ChildContent>
-                                            </MudMenu>
-                                        </MudMenuItem>
-
-                                    </MudMenu>
-                                </div>
-                            </MudItem>
-                        </MudGrid>
-                    </MudCardContent>
-                </MudCard>
-            }
-
-
-
-
-
         </div>
-    </MudDrawer>
+
+        <!-- Search Field - ORIGINAL Placeholder beibehalten -->
+        <MudTextField @bind-Value="searchText"
+                      @bind-Value:after="UpdateFilteredStations"
+                      Placeholder="@Fassade.Language.SearchProjects"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate="true"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Normal"
+                      Class="search-field-enhanced"
+                      Style="background: white; border-radius: 8px; height: 40.5px;" />
+
+        <!-- Checkbox - PERFEKT aligned mit Search Field -->
+        <MudCheckBox T="bool"
+                     Value="stationFavorites"
+                     ValueChanged="@(e => OnStationFavoritesChanged(e))"
+                     Label="Show only favorites"
+                     Style="margin-left: 0; padding-left: 0; margin-top: 8px;" />
+    </div>
+
+    <!-- Station Cards -->
+    <div class="pa-2 pt-3">
+        @foreach (var station in filteredStations)
+        {
+            <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")"
+                     Elevation="3"
+                     @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
+                <MudCardContent Class="pa-3">
+                    <MudGrid AlignItems="Center" Spacing="0">
+                        <MudItem xs="10">
+                            <div class="d-flex align-items-start">
+                                <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-0 d-flex align-items-center">
+                                    <MudIcon Icon="@GetStatusIcon(station.Status)"
+                                             Size="Size.Small"
+                                             Class="mr-1"
+                                             Color="@GetStatusColor(station.Status)" />
+
+                                    @if (starStations.Any(s => s.assemblystation == station.assemblystation))
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Class="mr-1" />
+                                    }
+
+                                    @station.assemblystation
+                                </MudText>
+                            </div>
+                        </MudItem>
+
+                        <MudItem xs="2" Class="d-flex justify-end">
+                            <div @onclick:stopPropagation="true">
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+                                         Size="Size.Small"
+                                         Dense="true"
+                                         AnchorOrigin="Origin.BottomRight"
+                                         TransformOrigin="Origin.TopRight">
+                                    <!-- ALLE Menu Items unverändert beibehalten -->
+                                    @if (!starStations.Any(l => l.assemblystation == station.assemblystation))
+                                    {
+                                        <MudMenuItem OnClick="@(() => StarStation(station))"
+                                                     Icon="@Icons.Material.Filled.Star"
+                                                     IconColor="Color.Warning">
+                                            @Fassade.Language.AddToFavorites
+                                        </MudMenuItem>
+                                    }
+                                    else
+                                    {
+                                        <MudMenuItem OnClick="@(() => DeleteStarStation(station))"
+                                                     Icon="@Icons.Material.Outlined.StarOutline"
+                                                     IconColor="Color.Warning">
+                                            @Fassade.Language.RemoveFromFavorites
+                                        </MudMenuItem>
+                                    }
+
+                                    <MudMenuItem OnClick="@(() => { SelectStation(station); InsertTool(); })"
+                                                 Icon="@Icons.Material.Filled.ContentPaste"
+                                                 Disabled="@(copiedTool == null || selectedStation == null)">
+                                        @Fassade.Language.InsertTool
+                                    </MudMenuItem>
+
+                                    <MudMenuItem OnClick="@(() => DeleteStation(station))"
+                                                 Icon="@Icons.Material.Filled.Delete"
+                                                 IconColor="Color.Error">
+                                        @Fassade.Language.Delete
+                                    </MudMenuItem>
+                                    
+                                    <MudMenuItem Icon="@Icons.Material.Filled.Tune"
+                                                 IconColor="Color.Default">
+                                        <MudMenu ActivationEvent="@MouseEvent.MouseOver"
+                                                 AnchorOrigin="Origin.TopRight"
+                                                 TransformOrigin="Origin.TopLeft">
+                                            <ActivatorContent>
+                                                <span>Status</span>
+                                            </ActivatorContent>
+                                            <ChildContent>
+                                                <MudMenuItem OnClick="@(() => SetStatus(station, Status.Green))"
+                                                             Icon="@Icons.Material.Filled.DoneAll"
+                                                             IconColor="Color.Success">
+                                                    Configured
+                                                </MudMenuItem>
+                                                <MudMenuItem OnClick="@(() => SetStatus(station, Status.Yellow))"
+                                                             Icon="@Icons.Material.Filled.ReportProblem"
+                                                             IconColor="Color.Warning">
+                                                    Must be configured
+                                                </MudMenuItem>
+                                                <MudMenuItem OnClick="@(() => SetStatus(station, Status.Red))"
+                                                             Icon="@Icons.Material.Filled.Cancel"
+                                                             IconColor="Color.Error">
+                                                    Missing information
+                                                </MudMenuItem>
+                                                <MudMenuItem OnClick="@(() => SetStatus(station, Status.Undefined))"
+                                                             Icon="@Icons.Material.Filled.Help"
+                                                             IconColor="Color.Default">
+                                                    Open
+                                                </MudMenuItem>
+                                            </ChildContent>
+                                        </MudMenu>
+                                    </MudMenuItem>
+                                </MudMenu>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        }
+    </div>
+</MudDrawer>
+
+
 
     <MudMainContent Class="pt-0 pe-16 ps-0" style=" min-height: 100vh;">
 
@@ -707,186 +691,177 @@
 
 
 <style>
-
-    /* Auswahl-Hervorhebung für Operationen */
-    .mud-list-item.mud-selected {
-    background-color: rgba(0, 123, 255, 0.1) !important; /* sanftes Blau bei Auswahl */
-    }
-
-    /* Hover-Effekt für bessere UX */
-    .mud-list-item:hover:not(.mud-selected) {
-    background-color: rgba(0, 0, 0, 0.04);
-    }
-
-    .operation-name {
-    pointer-events: none; /* Verhindert doppelte Klick-Events */
-    }
-
-    .thick-divider {
-    border-top: #333333;
-    }
-
-
-    .chevron-icon {
-    transition: transform 0.3s ease;
-    }
-
-    .chevron-icon.rotated {
-    transform: rotate(90deg);
-    }
+    /* === DRAWER RELEVANTE STYLES === */
+    
+    /* Station Cards */
     .station-card {
-    border: 2px solid rgba(0,0,0,0.08);
-    border-radius: 8px !important;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    background:  white;
+        border: 2px solid rgba(0,0,0,0.08);
+        border-radius: 8px !important;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        background: white;
     }
 
     .station-card:hover {
-    border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 50%, white) !important;
-    box-shadow: 0px 27px 20px rgba(0, 0, 0, 0.12);
-    transform: translateY(-1px);
+        border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 50%, white) !important;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
     }
 
     .station-selected {
-    border-color: var(--mud-palette-primary) !important;
-
-    box-shadow: 0px 27px 20px rgba(0, 0, 0, 0.12);
-    transform: translateY(-1px);
+        border-color: var(--mud-palette-primary) !important;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
     }
 
     .station-selected:hover {
-    border-color: var(--mud-palette-primary) !important;
+        border-color: var(--mud-palette-primary) !important;
     }
 
-
-
-    .drag-handle {
-    opacity: 0.6;
-    transition: opacity 0.2s ease;
+    /* Add Station Button - Kompakt */
+    .add-station-btn-compact {
+        border-radius: 6px !important;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease-in-out;
+        background-color: var(--mud-palette-primary);
+        color: white !important;
     }
 
-    .station-card:hover .drag-handle {
-    opacity: 1;
+    .add-station-btn-compact:hover {
+        background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+        transform: scale(1.02);
     }
 
-    .add-station-btn {
-    border-radius: 8px !important;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
-    transition: all 0.2s ease-in-out;
-    background-color: var(--mud-palette-primary);
-    color: white !important;
+    /* Search Field */
+    .search-field-enhanced .mud-input-outlined {
+        border: 1px solid rgba(0,0,0,0.12) !important;
     }
 
-    .add-station-btn:hover {
-    background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    .search-field-enhanced .mud-input-outlined:hover {
+        border-color: rgba(25, 118, 210, 0.3) !important;
     }
 
+    /* === ANDERE STYLES (unverändert) === */
+    
+    /* Auswahl-Hervorhebung für Operationen */
+    .mud-list-item.mud-selected {
+        background-color: rgba(0, 123, 255, 0.1) !important;
+    }
+
+    .mud-list-item:hover:not(.mud-selected) {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .operation-name {
+        pointer-events: none;
+    }
+
+    .thick-divider {
+        border-top: #333333;
+    }
+
+    .chevron-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .chevron-icon.rotated {
+        transform: rotate(90deg);
+    }
 
     .text-muted {
-    color: var(--mud-palette-text-secondary) !important;
+        color: var(--mud-palette-text-secondary) !important;
     }
-
 
     #toolsList::-webkit-scrollbar {
-    display: none;
+        display: none;
     }
 
-    /* Drag and drop zeug */
-
+    /* Drag and drop */
     .draggable {
-    user-select: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-    position: relative;
-    z-index: 1;
-    cursor: pointer;
+        user-select: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
     }
 
     .draggable.dragging,
     .is-dragging {
-    opacity: 0.8;
-    background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
-    border: 2px solid var(--mud-palette-primary);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    transform: scale(1.03) rotate(1deg);
-    z-index: 999;
-    cursor: pointer;
+        opacity: 0.8;
+        background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
+        border: 2px solid var(--mud-palette-primary);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        transform: scale(1.03) rotate(1deg);
+        z-index: 999;
+        cursor: pointer;
     }
-
 
     #toolsList.drag-active,
     .operation-list.drag-active,
     .drop-zone.drag-active {
-    background-color: rgba(33, 150, 243, 0.03);
-    border: 2px dashed #2196f3;
-    border-radius: 12px;
-    padding: 8px;
-    margin: 4px 0;
-    min-height: 60px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+        background-color: rgba(33, 150, 243, 0.03);
+        border: 2px dashed #2196f3;
+        border-radius: 12px;
+        padding: 8px;
+        margin: 4px 0;
+        min-height: 60px;
+        transition: all 0.3s ease;
+        cursor: pointer;
     }
-
 
     #toolsList.drag-active:hover,
     .operation-list.drag-active:hover,
     .drop-zone.drag-active:hover {
-    background-color: rgba(33, 150, 243, 0.06);
-    border-color: #1976d2;
-    cursor: pointer;
+        background-color: rgba(33, 150, 243, 0.06);
+        border-color: #1976d2;
+        cursor: pointer;
     }
 
-
     .drop-zone-placeholder {
-    background-color: rgba(33, 150, 243, 0.02);
-    border: 2px dashed rgba(33, 150, 243, 0.3);
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-    color: rgba(33, 150, 243, 0.6);
-    font-style: italic;
-    min-height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    cursor: pointer;
+        background-color: rgba(33, 150, 243, 0.02);
+        border: 2px dashed rgba(33, 150, 243, 0.3);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        color: rgba(33, 150, 243, 0.6);
+        font-style: italic;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
     }
 
     .drop-zone-placeholder:hover {
-    border-color: rgba(33, 150, 243, 0.5);
-    background-color: rgba(33, 150, 243, 0.04);
-    cursor: pointer;
+        border-color: rgba(33, 150, 243, 0.5);
+        background-color: rgba(33, 150, 243, 0.04);
+        cursor: pointer;
     }
 
-
-
     .operation-item-wrapper {
-    position: relative;
+        position: relative;
     }
 
     .operation-clickable-area {
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 4px 8px;
-    transition: background-color 0.2s ease;
+        cursor: pointer;
+        border-radius: 4px;
+        padding: 4px 8px;
+        transition: background-color 0.2s ease;
     }
 
     .operation-clickable-area:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+        background-color: rgba(0, 0, 0, 0.04);
     }
 
-    .operation-name {
-    pointer-events: none; /* Verhindert doppelte Klick-Events */
-    }
-
-    /* Entfernt den clickable Cursor von ursprünglichen Elementen, da jetzt der Container klickbar ist */
     .operation-clickable-area .clickable {
-    cursor: inherit;
+        cursor: inherit;
     }
-
 </style>
+
+
+
 
 @code {
     private bool ShowSettings = false;
