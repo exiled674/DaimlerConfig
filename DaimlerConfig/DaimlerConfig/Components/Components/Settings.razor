@@ -661,6 +661,7 @@
 
     private async Task SaveGeneralSettings()
     {
+        if (Fassade != null && LangLoader != null)
         await LangLoader.SaveLanguageSettings(LangLoader.SelectedLanguage, Fassade);
         StateHasChanged();
     }
@@ -785,12 +786,15 @@
 
     private async Task OnLanguageChanged(string newLang)
     {
+        if (LangLoader != null)
         await LangLoader.OnLanguageChanged(newLang);
-        }
+    }
 
     private void OpenLanguageFolder()
     {
-        var folderPath = LangLoader.GetLanguagesFolderPath();
+        var folderPath = "";
+        if (LangLoader != null)
+        folderPath = LangLoader.GetLanguagesFolderPath();
 
         if (Directory.Exists(folderPath))
         {
@@ -821,7 +825,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (LangLoader != null)
         LangLoader.SetAvailableLanguages();
+        if (LangLoader != null)
         LangLoader.SetSelectedLang();
         // Extrahiere nur den Username-Teil (vor dem Semikolon)
         _newUsername = GetDisplayUsername(UsernameS.Username);

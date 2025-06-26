@@ -6,17 +6,18 @@
     public string SelectedLanguage = "";
     public List<string> AvailableLanguages = new();
     
-    [Inject] private DaimlerConfig.Components.Fassade.Fassade Fassade { get; set; } = default!;
+    [Inject] private DaimlerConfig.Components.Fassade.Fassade? Fassade { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             SetSelectedLang();
-            await SaveLanguageSettings(SelectedLanguage, Fassade);
+            if (Fassade != null)
+                await SaveLanguageSettings(SelectedLanguage, Fassade);
             SetAvailableLanguages();
         }
-        catch (Exception ex){}
+        catch (Exception) { }
     }
 
     public void SetAvailableLanguages()
@@ -27,6 +28,7 @@
             .Select(f => Path.GetFileNameWithoutExtension(f.Name))
             .ToList();
     }
+
     public void SetSelectedLang()
     {
         SelectedLanguage = Preferences.Default.Get(SELECTED_LANGUAGE_KEY, SelectedLanguage);
@@ -63,11 +65,12 @@
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         return Path.Combine(appDataPath);
     }
+
     public async Task OnLanguageChanged(string newLanguage)
     {
         SelectedLanguage = newLanguage;
-        
     }
+
     private async Task LoadLanguageFromFileAsync(string filePath, Fassade.Fassade fassade)
     {
         try
