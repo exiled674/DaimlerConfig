@@ -1087,6 +1087,16 @@
   z-index: 1;
 }
 
+/* Alle Scrollbars in Operations verstecken */
+.operations-section * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.operations-section *::-webkit-scrollbar {
+  display: none !important;
+}
+
 /* Verhindert ungewollte Hover-Effekte bei Status-Dropdown */
 .status-options-vertical {
   z-index: 1001 !important;
