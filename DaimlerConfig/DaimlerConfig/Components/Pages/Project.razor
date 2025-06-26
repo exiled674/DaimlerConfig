@@ -615,7 +615,7 @@
 
                                                          <!-- Operationen -->
         <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)" Class="operations-section">
-            <div class="pl-3 pr-3 pb-3">
+            <div class=" pb-3">
                 <MudList T="Operation" Dense="true">
                                                         @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
                                                         {
