@@ -456,15 +456,15 @@
         
         @if (selectedStation != null)
         {
-            <MudButton StartIcon="@Icons.Material.Filled.Add"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Size="Size.Small"
-                       Class="add-station-btn-consistent"
-                       Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
-                       @onclick="() => ToggleToolFormular(true)">
-                @Fassade.Language.Tool
-            </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Add"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               Size="Size.Small"
+               Class="add-station-btn-consistent"
+               Style="min-width: 70px; height: 32px; font-size: 0.75rem;"
+               @onclick="() => ToggleToolFormular(true)">
+                                @Fassade.Language.Tool
+    </MudButton>
         }
     </div>
 
@@ -484,8 +484,8 @@
                             <MudList T="string" Clickable="false">
                                 @foreach (var tool in tools)
                                 {
-                                    <MudCard Class="@($"station-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")"
-                                    Elevation="3">
+                                          <MudCard Class="@($"station-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
+        Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;">
                                         <MudCardContent Class="pa-0">
                                             <!-- Tool Header als klickbarer Bereich -->
                                             <MudListItem Class="pa-3"
