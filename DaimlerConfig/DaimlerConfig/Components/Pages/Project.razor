@@ -484,98 +484,110 @@
                             <MudList T="string" Clickable="false">
                                 @foreach (var tool in tools)
                                 {
-                                          <MudCard Class="@($"station-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
-        Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;">
-                                        <MudCardContent Class="pa-0">
-                                            <!-- Tool Header als klickbarer Bereich -->
-                                            <MudListItem Class="pa-3"
-                                            @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }"
-                                            Selected="@(selectedTool?.toolID == tool.toolID)">
-                                                <MudGrid AlignItems="Center" Spacing="0">
-                                                    <MudItem xs="10">
-                                                        <div class="d-flex align-items-center" style="gap: 8px;">
-                                                            <MudIcon Icon="@GetStatusIcon(tool.Status)"
-                                                            Size="Size.Small"
-                                                            Class="mr-1"
-                                                            Color="@GetStatusColor(tool.Status)" />
-                                                            <span class="tool-name">
+            <MudCard Class="@($"station-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
+                     Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;">
+                <MudCardContent Class="pa-0">
+                    <!-- Tool Header als klickbarer Bereich -->
+                    <div class="tool-header-section pa-3 position-relative"
+                         @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }">
+                        <MudGrid AlignItems="Center" Spacing="0">
+                            <MudItem xs="10">
+                                <div class="d-flex align-items-center" style="gap: 8px;">
+                                    <MudIcon Icon="@GetStatusIcon(tool.Status)"
+                                            Size="Size.Small"
+                                            Class="mr-1"
+                                            Color="@GetStatusColor(tool.Status)" />
+                                    <span class="tool-name">
                                                                 @tool.toolShortname
-                                                            </span>
-                                                        </div>
-                                                    </MudItem>
+                                    </span>
+                                </div>
+                            </MudItem>
+                            <MudItem xs="2" Class="d-flex justify-end">
+                                <!-- Platz für Hover-Aktionen reserviert -->
+                            </MudItem>
+                        </MudGrid>
 
+                        <!-- Hover-Aktionsleiste für Tools -->
+                        <div class="hover-actions tool-hover-actions"
+                             style="position: absolute; top: 8px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                             @onclick:stopPropagation="true">
+                            <div class="d-flex"
+                                 style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
 
-                                                    <MudItem xs="2" Class="d-flex justify-end">
-                                                        <div @onclick:stopPropagation="true">
-                                                            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
-                                                            Size="Size.Small"
-                                                            Dense="true"
-                                                            AnchorOrigin="Origin.BottomRight"
-                                                            TransformOrigin="Origin.TopRight">
+                                <!-- 1. Copy Tool Button -->
+                                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                              Size="Size.Small"
+                                              OnClick="@(() => CloneTool(tool))"
+                                              Style="color: #6c757d; transition: all 0.2s ease;"
+                                              title="@Fassade.Language.Copy" />
 
-                                                                <MudMenuItem OnClick="@(() => CloneTool(tool))"
-                                                                Icon="@Icons.Material.Filled.ContentCopy">
-                                                                    @Fassade.Language.Copy
-                                                                </MudMenuItem>
+                                <!-- 2. Insert Operation Button -->
+                                <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
+                                              Size="Size.Small"
+                                              OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
+                                              Disabled="@(copiedOperation == null || selectedTool == null)"
+                                              Style="color: #6c757d; transition: all 0.2s ease;"
+                                              title="@Fassade.Language.InsertOperation" />
 
-                                                                <MudMenuItem OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
-                                                                Icon="@Icons.Material.Filled.ContentPaste"
-                                                                Disabled="@(copiedOperation == null || selectedTool == null)">
-                                                                    @Fassade.Language.InsertOperation
-                                                                </MudMenuItem>
+                                <!-- 3. Delete Button -->
+                                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                              Size="Size.Small"
+                                              OnClick="@(() => DeleteTool(tool))"
+                                              Style="color: #f44336; transition: all 0.2s ease;"
+                                              title="@Fassade.Language.Delete" />
 
-                                                                <MudMenuItem OnClick="@(() => DeleteTool(tool))"
-                                                                Icon="@Icons.Material.Filled.Delete"
-                                                                IconColor="Color.Error">
-                                                                    @Fassade.Language.Delete
-                                                                </MudMenuItem>
+                                <!-- 4. Status Button mit vertikalen Status-Icons -->
+                                <div class="status-selector-container" style="position: relative;">
+                                    <!-- Aktuelles Status Icon -->
+                                    <MudIconButton Icon="@GetStatusIcon(tool.Status)"
+                                                  Size="Size.Small"
+                                                  Color="@GetStatusColor(tool.Status)"
+                                                  Style="transition: all 0.2s ease;"
+                                                  title="Status" />
 
+                                    <!-- Status Options - direkt unter dem Status-Icon -->
+                                    <div class="status-options-vertical" 
+                                         style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1000;">
 
+                                        <!-- Green Status -->
+                                        <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                                      Size="Size.Small"
+                                                      Color="Color.Success"
+                                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                      OnClick="@(() => SetStatus(tool, Status.Green))"
+                                                      title="Configured" />
 
-                                                                <MudMenuItem Icon="@Icons.Material.Filled.Tune"
-                                                                IconColor="Color.Default">
-                                                                    <MudMenu ActivationEvent="@MouseEvent.MouseOver"
-                                                                    AnchorOrigin="Origin.TopRight"
-                                                                    TransformOrigin="Origin.TopLeft">
-                                                                        <ActivatorContent>
-                                                                            <span>Status</span>
-                                                                        </ActivatorContent>
-                                                                        <ChildContent>
-                                                                            <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Green); })"
-                                                                            Icon="@Icons.Material.Filled.DoneAll"
-                                                                            IconColor="Color.Success">
-                                                                                Configured
-                                                                            </MudMenuItem>
-                                                                            <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Yellow); })"
-                                                                            Icon="@Icons.Material.Filled.ReportProblem"
-                                                                            IconColor="Color.Warning">
-                                                                                Must be configured
-                                                                            </MudMenuItem>
-                                                                            <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Red); })"
-                                                                            Icon="@Icons.Material.Filled.Cancel"
-                                                                            IconColor="Color.Error">
-                                                                                Missing information
-                                                                            </MudMenuItem>
+                                        <!-- Yellow Status -->
+                                        <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
+                                                      Size="Size.Small"
+                                                      Color="Color.Warning"
+                                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                      OnClick="@(() => SetStatus(tool, Status.Yellow))"
+                                                      title="Must be configured" />
 
-                                                                            <MudMenuItem OnClick="@(() => { SetStatus(tool, Status.Undefined); })"
-                                                                            Icon="@Icons.Material.Filled.Help"
-                                                                            IconColor="Color.Default">
-                                                                                Open 
-                                                                            </MudMenuItem>
+                                        <!-- Red Status -->
+                                        <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                                      Size="Size.Small"
+                                                      Color="Color.Error"
+                                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                      OnClick="@(() => SetStatus(tool, Status.Red))"
+                                                      title="Missing information" />
 
-                                                                        </ChildContent>
-                                                                    </MudMenu>
-                                                                </MudMenuItem>
+                                        <!-- Undefined Status -->
+                                        <MudIconButton Icon="@Icons.Material.Filled.Help"
+                                                      Size="Size.Small"
+                                                      Color="Color.Default"
+                                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                      OnClick="@(() => SetStatus(tool, Status.Undefined))"
+                                                      title="Open" />
+                                    </div>
+                                </div>
 
+                            </div>
+                        </div>
+                    </div>
 
-
-                                                            </MudMenu>
-                                                        </div>
-                                                    </MudItem>
-                                                </MudGrid>
-                                            </MudListItem>
-
-                                            <!-- Operations Section -->
+                    <!-- Operations Section -->
                                             <MudStack Spacing="1" Class="mt-0 mb-2 px-3">
                                                 <MudDivider Class="thick-divider" />
 
@@ -756,242 +768,313 @@
 
 /* Status Selector - Vertikale Options */
 .status-selector-container:hover .status-options-vertical {
-    opacity: 1 !important;
-    pointer-events: all !important;
+  opacity: 1 !important;
+  pointer-events: all !important;
 }
 
 .status-option:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* === DRAWER RELEVANTE STYLES === */
+
+/* Station Cards - angepasst an Line Card Styling */
+.station-card {
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px !important;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  background: white;
+}
+
+.station-card:hover {
+  border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 70%, white) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.station-card:hover .hover-actions {
+  opacity: 1 !important;
+  transform: translateY(-1px);
+}
+
+.hover-actions {
+  transition: all 0.3s ease-in-out;
+}
+.station-selected {
+  border-color: var(--mud-palette-primary) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.station-selected:hover {
+  border-color: var(--mud-palette-primary) !important;
+}
+
+/* Add Station Button - Kompakt */
+.add-station-btn-compact {
+  border-radius: 6px !important;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+  background-color: var(--mud-palette-primary);
+  color: white !important;
+}
+
+.add-station-btn-compact:hover {
+  background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* Search Field */
+.search-field-enhanced .mud-input-outlined {
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+.search-field-enhanced .mud-input-outlined:hover {
+  border-color: rgba(25, 118, 210, 0.3) !important;
+}
+
+/* Checkbox Alignment - Aggressiver Ansatz */
+.pa-3 .mud-checkbox {
+  margin-left: -12px !important;
+  padding-left: 0 !important;
+}
+
+.pa-3 .mud-checkbox .mud-checkbox-content {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.pa-3 .mud-checkbox .mud-button-root {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* ALLE Schatten-Effekte aggressiv entfernen */
+.pa-3 .mud-checkbox .mud-button-root,
+.pa-3 .mud-checkbox .mud-button-root:hover,
+.pa-3 .mud-checkbox .mud-button-root:active,
+.pa-3 .mud-checkbox .mud-button-root:focus,
+.pa-3 .mud-checkbox .mud-button-root:focus-visible,
+.pa-3 .mud-checkbox .mud-button-root.mud-ripple-active {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  background: none !important;
+}
+
+/* Ripple komplett killen */
+.pa-3 .mud-checkbox .mud-button-root .mud-ripple,
+.pa-3 .mud-checkbox .mud-button-root .mud-ripple-active {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Alle Pseudo-Elemente entfernen */
+.pa-3 .mud-checkbox .mud-button-root::before,
+.pa-3 .mud-checkbox .mud-button-root::after,
+.pa-3 .mud-checkbox .mud-button-root:hover::before,
+.pa-3 .mud-checkbox .mud-button-root:active::before,
+.pa-3 .mud-checkbox .mud-button-root:focus::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Falls das immer noch nicht funktioniert, diese Regel: */
+.pa-3 > .mud-checkbox {
+  transform: translateX(-12px) !important;
+}
+
+/* === ANDERE STYLES (unverändert) === */
+
+/* Auswahl-Hervorhebung für Operationen */
+.mud-list-item.mud-selected {
+  background-color: rgba(0, 123, 255, 0.1) !important;
+}
+
+.mud-list-item:hover:not(.mud-selected) {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.operation-name {
+  pointer-events: none;
+}
+
+.thick-divider {
+  border-top: #333333;
+}
+
+.chevron-icon {
+  transition: transform 0.3s ease;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(90deg);
+}
+
+.text-muted {
+  color: var(--mud-palette-text-secondary) !important;
+}
+
+#toolsList::-webkit-scrollbar {
+  display: none;
+}
+
+/* Drag and drop - KORRIGIERT für Line Card Timing */
+.draggable {
+  user-select: none;
+  transition: all 0.3s ease-in-out; /* Geändert von 0.2s auf 0.3s */
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.draggable.dragging,
+.is-dragging {
+  opacity: 0.8;
+  background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
+  border: 2px solid var(--mud-palette-primary);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transform: scale(1.03) rotate(1deg);
+  z-index: 999;
+  cursor: pointer;
+}
+
+#toolsList.drag-active,
+.operation-list.drag-active,
+.drop-zone.drag-active {
+  background-color: rgba(33, 150, 243, 0.03);
+  border: 2px dashed #2196f3;
+  border-radius: 12px;
+  padding: 8px;
+  margin: 4px 0;
+  min-height: 60px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+#toolsList.drag-active:hover,
+.operation-list.drag-active:hover,
+.drop-zone.drag-active:hover {
+  background-color: rgba(33, 150, 243, 0.06);
+  border-color: #1976d2;
+  cursor: pointer;
+}
+
+.drop-zone-placeholder {
+  background-color: rgba(33, 150, 243, 0.02);
+  border: 2px dashed rgba(33, 150, 243, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  color: rgba(33, 150, 243, 0.6);
+  font-style: italic;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.drop-zone-placeholder:hover {
+  border-color: rgba(33, 150, 243, 0.5);
+  background-color: rgba(33, 150, 243, 0.04);
+  cursor: pointer;
+}
+
+.operation-item-wrapper {
+  position: relative;
+}
+
+.operation-clickable-area {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: background-color 0.2s ease;
+}
+
+.operation-clickable-area:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.operation-clickable-area .clickable {
+  cursor: inherit;
+}
+
+/* ========================================= */
+/* === NEUE TOOL HOVER ACTIONS STYLES === */
+/* ========================================= */
+
+/* Tool-spezifische Hover-Styles */
+.tool-header-section {
+  transition: all 0.3s ease-in-out;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  z-index: 2;
+}
+
+.tool-header-section:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.tool-header-section:hover .tool-hover-actions {
+  opacity: 1 !important;
+  transform: translateY(-1px);
+}
+
+/* Tool Hover Actions */
+.tool-hover-actions {
+  transition: all 0.3s ease-in-out;
+}
+
+.tool-hover-actions .mud-icon-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Status Selector für Tools - gleiche Logik wie bei Stations */
+.tool-header-section .status-selector-container:hover .status-options-vertical {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+/* Verhindert, dass Operation-Hover das Tool-Hover überschreibt */
+.tool-header-section .hover-actions {
+  pointer-events: auto;
+}
+
+.operations-section:hover ~ .tool-header-section .hover-actions {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Bessere Trennung zwischen Tool-Header und Operations */
+.tool-header-section {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 0;
+}
+
+/* Operations Section */
+.operations-section {
+  position: relative;
+  z-index: 1;
+}
+
+/* Verhindert ungewollte Hover-Effekte bei Status-Dropdown */
+.status-options-vertical {
+  z-index: 1001 !important;
+}
+
+.status-options-vertical .mud-icon-button:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
 }
 
 
-    /* === DRAWER RELEVANTE STYLES === */
 
-    /* Station Cards - angepasst an Line Card Styling */
-    .station-card {
-    border: 2px solid rgba(0,0,0,0.08);
-    border-radius: 8px !important;
-    transition: all 0.3s ease-in-out;
-    cursor: pointer;
-    background: white;
-    }
-
-    .station-card:hover {
-    border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 70%, white) !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
-    transform: translateY(-2px);
-    }
-
-    .station-card:hover .hover-actions {
-    opacity: 1 !important;
-    transform: translateY(-1px);
-    }
-
-    .hover-actions {
-    transition: all 0.3s ease-in-out;
-    }
-    .station-selected {
-    border-color: var(--mud-palette-primary) !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
-    transform: translateY(-2px);
-    }
-
-    .station-selected:hover {
-    border-color: var(--mud-palette-primary) !important;
-    }
-
-    /* Add Station Button - Kompakt */
-    .add-station-btn-compact {
-    border-radius: 6px !important;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
-    transition: all 0.2s ease-in-out;
-    background-color: var(--mud-palette-primary);
-    color: white !important;
-    }
-
-    .add-station-btn-compact:hover {
-    background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
-    transform: scale(1.02);
-    }
-
-    /* Search Field */
-    .search-field-enhanced .mud-input-outlined {
-    border: 1px solid rgba(0,0,0,0.12) !important;
-    }
-
-    .search-field-enhanced .mud-input-outlined:hover {
-    border-color: rgba(25, 118, 210, 0.3) !important;
-    }
-
-    /* Checkbox Alignment - Aggressiver Ansatz */
-    .pa-3 .mud-checkbox {
-    margin-left: -12px !important;
-    padding-left: 0 !important;
-    }
-
-    .pa-3 .mud-checkbox .mud-checkbox-content {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-    }
-
-    .pa-3 .mud-checkbox .mud-button-root {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-    }
-
-    /* ALLE Schatten-Effekte aggressiv entfernen */
-    .pa-3 .mud-checkbox .mud-button-root,
-    .pa-3 .mud-checkbox .mud-button-root:hover,
-    .pa-3 .mud-checkbox .mud-button-root:active,
-    .pa-3 .mud-checkbox .mud-button-root:focus,
-    .pa-3 .mud-checkbox .mud-button-root:focus-visible,
-    .pa-3 .mud-checkbox .mud-button-root.mud-ripple-active {
-    background-color: transparent !important;
-    box-shadow: none !important;
-    background: none !important;
-    }
-
-    /* Ripple komplett killen */
-    .pa-3 .mud-checkbox .mud-button-root .mud-ripple,
-    .pa-3 .mud-checkbox .mud-button-root .mud-ripple-active {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    }
-
-    /* Alle Pseudo-Elemente entfernen */
-    .pa-3 .mud-checkbox .mud-button-root::before,
-    .pa-3 .mud-checkbox .mud-button-root::after,
-    .pa-3 .mud-checkbox .mud-button-root:hover::before,
-    .pa-3 .mud-checkbox .mud-button-root:active::before,
-    .pa-3 .mud-checkbox .mud-button-root:focus::before {
-    display: none !important;
-    content: none !important;
-    }
-
-    /* Falls das immer noch nicht funktioniert, diese Regel: */
-    .pa-3 > .mud-checkbox {
-    transform: translateX(-12px) !important;
-    }
-
-    /* === ANDERE STYLES (unverändert) === */
-
-    /* Auswahl-Hervorhebung für Operationen */
-    .mud-list-item.mud-selected {
-    background-color: rgba(0, 123, 255, 0.1) !important;
-    }
-
-    .mud-list-item:hover:not(.mud-selected) {
-    background-color: rgba(0, 0, 0, 0.04);
-    }
-
-    .operation-name {
-    pointer-events: none;
-    }
-
-    .thick-divider {
-    border-top: #333333;
-    }
-
-    .chevron-icon {
-    transition: transform 0.3s ease;
-    }
-
-    .chevron-icon.rotated {
-    transform: rotate(90deg);
-    }
-
-    .text-muted {
-    color: var(--mud-palette-text-secondary) !important;
-    }
-
-    #toolsList::-webkit-scrollbar {
-    display: none;
-    }
-
-    /* Drag and drop - KORRIGIERT für Line Card Timing */
-    .draggable {
-    user-select: none;
-    transition: all 0.3s ease-in-out; /* Geändert von 0.2s auf 0.3s */
-    position: relative;
-    z-index: 1;
-    cursor: pointer;
-    }
-
-    .draggable.dragging,
-    .is-dragging {
-    opacity: 0.8;
-    background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
-    border: 2px solid var(--mud-palette-primary);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    transform: scale(1.03) rotate(1deg);
-    z-index: 999;
-    cursor: pointer;
-    }
-
-    #toolsList.drag-active,
-    .operation-list.drag-active,
-    .drop-zone.drag-active {
-    background-color: rgba(33, 150, 243, 0.03);
-    border: 2px dashed #2196f3;
-    border-radius: 12px;
-    padding: 8px;
-    margin: 4px 0;
-    min-height: 60px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    }
-
-    #toolsList.drag-active:hover,
-    .operation-list.drag-active:hover,
-    .drop-zone.drag-active:hover {
-    background-color: rgba(33, 150, 243, 0.06);
-    border-color: #1976d2;
-    cursor: pointer;
-    }
-
-    .drop-zone-placeholder {
-    background-color: rgba(33, 150, 243, 0.02);
-    border: 2px dashed rgba(33, 150, 243, 0.3);
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-    color: rgba(33, 150, 243, 0.6);
-    font-style: italic;
-    min-height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    }
-
-    .drop-zone-placeholder:hover {
-    border-color: rgba(33, 150, 243, 0.5);
-    background-color: rgba(33, 150, 243, 0.04);
-    cursor: pointer;
-    }
-
-    .operation-item-wrapper {
-    position: relative;
-    }
-
-    .operation-clickable-area {
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 4px 8px;
-    transition: background-color 0.2s ease;
-    }
-
-    .operation-clickable-area:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-    }
-
-    .operation-clickable-area .clickable {
-    cursor: inherit;
-    }
 </style>
 
 
