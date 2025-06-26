@@ -227,23 +227,23 @@
     Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.08);">
 
     <!-- Header mit !important Styles -->
-    <div class="pa-3" style="border-bottom: 1px solid rgba(0,0,0,0.08);">
-        <div class="d-flex align-center justify-space-between" style="margin-bottom: 24px !important; padding-bottom: 8px !important;">
-            <MudText Typo="Typo.h5" 
-                     Class="mud-typography-h5" 
-                     Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
+    <div class="pa-3" style="border-bottom: 1px solid rgba(0,0,0,0.08); padding-top: 32px !important;">
+    <div class="d-flex align-center justify-space-between" style="margin-bottom: 24px !important; padding-bottom: 8px !important;">
+        <MudText Typo="Typo.h5" 
+                 Class="mud-typography-h5" 
+                 Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
                     @Fassade.Language.Stations
-            </MudText>
-            <MudButton StartIcon="@Icons.Material.Filled.Add"
-            Variant="Variant.Filled"
-            Color="Color.Primary"
-            Size="Size.Small"
-            Class="add-station-btn-consistent"
-            Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
-            @onclick="() => ToggleStationFormular(true)">
+        </MudText>
+        <MudButton StartIcon="@Icons.Material.Filled.Add"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   Class="add-station-btn-consistent"
+                   Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
+                   @onclick="() => ToggleStationFormular(true)">
                     @Fassade.Language.Station
-            </MudButton>
-        </div>
+        </MudButton>
+    </div>
 
         <!-- Rest bleibt gleich -->
         <MudTextField @bind-Value="searchText"
@@ -445,28 +445,28 @@
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
-                <div class="tool-operation-panel p-5 py-2" style="width: 500px;">
-                    <div class="d-flex justify-content-between align-items-center mb-3" style="margin-top: 15px;">
-                        <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-                            @Fassade.Language.ToolsAndOperations
-                        </MudText>
-                        @if (selectedStation != null)
-                        {
-
-
-                            <MudButton StartIcon="@Icons.Material.Filled.Add"
-                            Variant="Variant.Filled"
-                            Color="Color.Primary"
-                            Class="add-station-btn justify-start px-3 py-2"
-                            Style="width: 213px; height: 40.5px;"
-                            @onclick="() => ToggleToolFormular(true)">
-                                @Fassade.Language.Tool
-                            </MudButton>
-
-
-                        }
-
-                    </div>
+      <div class="tool-operation-panel p-5 py-2" style="width: 500px;">
+    <!-- ENTFERNE das margin-top: 15px und verwende stattdessen padding-top: 17px -->
+    <div class="d-flex align-center justify-space-between" style="margin-bottom: 24px !important; padding-bottom: 8px !important; padding-top: 17px !important;">
+        <MudText Typo="Typo.h5" 
+                 Class="mud-typography-h5" 
+                 Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
+            @Fassade.Language.ToolsAndOperations
+        </MudText>
+        
+        @if (selectedStation != null)
+        {
+            <MudButton StartIcon="@Icons.Material.Filled.Add"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       Class="add-station-btn-consistent"
+                       Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
+                       @onclick="() => ToggleToolFormular(true)">
+                @Fassade.Language.Tool
+            </MudButton>
+        }
+    </div>
 
                     <div id="toolsList" style="max-height: 80vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
 
