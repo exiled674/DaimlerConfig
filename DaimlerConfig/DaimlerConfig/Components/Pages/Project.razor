@@ -220,225 +220,220 @@
 <MudLayout>
 
 
-    <MudDrawer @bind-Open="@_open"
+<MudDrawer @bind-Open="@_open"
     Elevation="2"
     Fixed="true"
     Width="320px"
     Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.08);">
 
- <!-- Header mit !important Styles -->
-<div class="pa-3" style="border-bottom: 1px solid rgba(0,0,0,0.08);">
-    <div class="d-flex align-center justify-space-between" style="margin-bottom: 24px !important; padding-bottom: 8px !important;">
-        <MudText Typo="Typo.h5" 
-                 Class="mud-typography-h5" 
-                 Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
-            @Fassade.Language.Stations
-        </MudText>
-        <MudButton StartIcon="@Icons.Material.Filled.Add"
-        Variant="Variant.Filled"
-        Color="Color.Primary"
-        Size="Size.Small"
-        Class="add-station-btn-consistent"
-        Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
-        @onclick="() => ToggleStationFormular(true)">
-            @Fassade.Language.Station
-        </MudButton>
-    </div>
-
-    <!-- Rest bleibt gleich -->
-    <MudTextField @bind-Value="searchText"
-    @bind-Value:after="UpdateFilteredStations"
-    Placeholder="@Fassade.Language.SearchProjects"
-    Adornment="Adornment.Start"
-    AdornmentIcon="@Icons.Material.Filled.Search"
-    Immediate="true"
-    Variant="Variant.Outlined"
-    Margin="Margin.Normal"
-    Class="search-field-enhanced"
-    Style="background: white; border-radius: 6px; height: 38px;" />
-
-    <div class="checkbox-container" style="margin: 8px 0 0 12px;">
-        <MudCheckBox T="bool"
-        Value="stationFavorites"
-        ValueChanged="@(e => OnStationFavoritesChanged(e))"
-        Label="Show only favorites"
-        Class="custom-checkbox" />
-    </div>
-</div>
-
-
-        <!-- Station Cards mit Hover-Menü wie Line Cards -->
-        <!-- Station Cards mit Line Card Struktur -->
-        <div class="pa-2 pt-2">
-          
-
-@foreach (var station in filteredStations)
-{
-    <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")" Elevation="0"
-    Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;"
-    @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
-        <MudCardContent Class="pa-3 position-relative" Style="display: flex; flex-direction: column; min-height: 120px;">
-
-            <!-- Oberer Bereich: Name + Stern (Status-Icon entfernt) -->
-            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                @if (starStations.Any(s => s.assemblystation == station.assemblystation))
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" />
-                }
-
-                <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
-                    @station.assemblystation
-                </MudText>
-            </div>
-
-            <!-- Beschreibung -->
-            <div class="mb-2">
-                <MudText Typo="Typo.body2"
-                Class="ma-0 pa-0"
-                Style="color: #6c757d; font-size: 0.8rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                    @(string.IsNullOrWhiteSpace(station.stationName) ? "No description" : station.stationName)
-                </MudText>
-            </div>
-
-            <div class="d-flex align-center justify-space-between mb-2">
-                <div class="d-flex align-center" style="gap: 8px;">
-                    @{
-                        StationStatusCounts.TryGetValue(station.stationID.Value, out var stationStatusCounts);
-                    }
-
-                    <!-- Grüner Status -->
-                    <div class="d-flex align-center" style="gap: 3px;">
-                        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4caf50;"></div>
-                        <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Green)</span>
-                    </div>
-
-                    <!-- Gelber Status -->
-                    <div class="d-flex align-center" style="gap: 3px;">
-                        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #ff9800;"></div>
-                        <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Yellow)</span>
-                    </div>
-
-                    <!-- Roter Status -->
-                    <div class="d-flex align-center" style="gap: 3px;">
-                        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #f44336;"></div>
-                        <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Red)</span>
-                    </div>
-                </div>
-
-                <!-- Tools Anzahl Chip -->
-                @{
-                    var totalTools = stationStatusCounts.Green + stationStatusCounts.Yellow + stationStatusCounts.Red + stationStatusCounts.Undefined;
-                    var toolText = totalTools == 1 ? "Tool" : "Tools";
-                }
-                <MudChip Size="Size.Small"
-                T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.65rem;">
-                    @($"{totalTools} {toolText}")
-                </MudChip>
-            </div>
-
-            <!-- Spacer um den Modified Text nach unten zu drücken -->
-            <div style="flex-grow: 1;"></div>
-
-            <!-- Modified Text unten links -->
-            <MudText Typo="Typo.caption"
-            Class="text-left"
-            Style="color: #6c757d; font-size: 0.7rem;">
-                @($"{Fassade.Language.ModifiedOn} {station.lastModified:dd.MM.yyyy} {Fassade.Language.By} {station.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
+    <!-- Header mit !important Styles -->
+    <div class="pa-3" style="border-bottom: 1px solid rgba(0,0,0,0.08);">
+        <div class="d-flex align-center justify-space-between" style="margin-bottom: 24px !important; padding-bottom: 8px !important;">
+            <MudText Typo="Typo.h5" 
+                     Class="mud-typography-h5" 
+                     Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
+                    @Fassade.Language.Stations
             </MudText>
-
-            <!-- Hover-Aktionsleiste -->
-            <div class="hover-actions"
-                 style="position: absolute; top: 8px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
-                 @onclick:stopPropagation="true">
-                <div class="d-flex"
-                     style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
-
-                    <!-- 1. Star/Unstar Button -->
-                    @if (!starStations.Any(s => s.assemblystation == station.assemblystation))
-                    {
-                        <MudIconButton Icon="@Icons.Material.Outlined.StarOutline"
-                                      Size="Size.Small"
-                                      OnClick="@(() => StarStation(station))"
-                                      Style="color: #ff9800; transition: all 0.2s ease;" />
-                    }
-                    else
-                    {
-                        <MudIconButton Icon="@Icons.Material.Filled.Star"
-                                      Size="Size.Small"
-                                      OnClick="@(() => DeleteStarStation(station))"
-                                      Style="color: #ff9800; transition: all 0.2s ease;" />
-                    }
-
-                    <!-- 2. Insert Tool Button -->
-                    <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
-                                  Size="Size.Small"
-                                  OnClick="@(() => { SelectStation(station); InsertTool(); })"
-                                  Disabled="@(copiedTool == null || selectedStation == null)"
-                                  Style="color: #6c757d; transition: all 0.2s ease;" />
-
-                    <!-- 3. Delete Button -->
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                                  Size="Size.Small"
-                                  OnClick="@(() => DeleteStation(station))"
-                                  Style="color: #f44336; transition: all 0.2s ease;" />
-
-                    <!-- 4. Status Button mit vertikalen Status-Icons -->
-                    <div class="status-selector-container" style="position: relative;">
-                        <!-- Aktuelles Status Icon -->
-                        <MudIconButton Icon="@GetStatusIcon(station.Status)"
-                                      Size="Size.Small"
-                                      Color="@GetStatusColor(station.Status)"
-                                      Style="transition: all 0.2s ease;" />
-
-                        <!-- Status Options - direkt unter dem Status-Icon -->
-                        <div class="status-options-vertical" 
-                             style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1000;">
-
-                            <!-- Green Status -->
-                            <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
-                                          Size="Size.Small"
-                                          Color="Color.Success"
-                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                          OnClick="@(() => SetStatus(station, Status.Green))"
-                                          title="Configured" />
-
-                            <!-- Yellow Status -->
-                            <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
-                                          Size="Size.Small"
-                                          Color="Color.Warning"
-                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                          OnClick="@(() => SetStatus(station, Status.Yellow))"
-                                          title="Must be configured" />
-
-                            <!-- Red Status -->
-                            <MudIconButton Icon="@Icons.Material.Filled.Cancel"
-                                          Size="Size.Small"
-                                          Color="Color.Error"
-                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                          OnClick="@(() => SetStatus(station, Status.Red))"
-                                          title="Missing information" />
-
-                            <!-- Undefined Status -->
-                            <MudIconButton Icon="@Icons.Material.Filled.Help"
-                                          Size="Size.Small"
-                                          Color="Color.Default"
-                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                          OnClick="@(() => SetStatus(station, Status.Undefined))"
-                                          title="Open" />
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </MudCardContent>
-    </MudCard>
-}
-
-
+            <MudButton StartIcon="@Icons.Material.Filled.Add"
+            Variant="Variant.Filled"
+            Color="Color.Primary"
+            Size="Size.Small"
+            Class="add-station-btn-consistent"
+            Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
+            @onclick="() => ToggleStationFormular(true)">
+                    @Fassade.Language.Station
+            </MudButton>
         </div>
-    </MudDrawer>
 
+        <!-- Rest bleibt gleich -->
+        <MudTextField @bind-Value="searchText"
+        @bind-Value:after="UpdateFilteredStations"
+        Placeholder="@Fassade.Language.SearchProjects"
+        Adornment="Adornment.Start"
+        AdornmentIcon="@Icons.Material.Filled.Search"
+        Immediate="true"
+        Variant="Variant.Outlined"
+        Margin="Margin.Normal"
+        Class="search-field-enhanced"
+        Style="background: white; border-radius: 6px; height: 38px;" />
+
+        <div class="checkbox-container" style="margin: 8px 0 0 12px;">
+            <MudCheckBox T="bool"
+            Value="stationFavorites"
+            ValueChanged="@(e => OnStationFavoritesChanged(e))"
+            Label="Show only favorites"
+            Class="custom-checkbox" />
+        </div>
+    </div>
+
+    <!-- Station Cards Container mit optimiertem Bottom-Padding -->
+    <div class="pa-2 pt-2" style="padding-bottom: 65px !important; overflow-y: auto;">
+
+            @foreach (var station in filteredStations)
+            {
+                <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")" Elevation="0"
+                Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;"
+                @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
+                    <MudCardContent Class="pa-3 position-relative" Style="display: flex; flex-direction: column; min-height: 120px;">
+
+                        <!-- Oberer Bereich: Name + Stern (Status-Icon entfernt) -->
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                            @if (starStations.Any(s => s.assemblystation == station.assemblystation))
+                            {
+                                    <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" />
+                            }
+
+                            <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
+                                @station.assemblystation
+                            </MudText>
+                        </div>
+
+                        <!-- Beschreibung -->
+                        <div class="mb-2">
+                            <MudText Typo="Typo.body2"
+                            Class="ma-0 pa-0"
+                            Style="color: #6c757d; font-size: 0.8rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @(string.IsNullOrWhiteSpace(station.stationName) ? "No description" : station.stationName)
+                            </MudText>
+                        </div>
+
+                        <div class="d-flex align-center justify-space-between mb-2">
+                            <div class="d-flex align-center" style="gap: 8px;">
+                                @{
+                                    StationStatusCounts.TryGetValue(station.stationID.Value, out var stationStatusCounts);
+                                }
+
+                                <!-- Grüner Status -->
+                                <div class="d-flex align-center" style="gap: 3px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4caf50;"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Green)</span>
+                                </div>
+
+                                <!-- Gelber Status -->
+                                <div class="d-flex align-center" style="gap: 3px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #ff9800;"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Yellow)</span>
+                                </div>
+
+                                <!-- Roter Status -->
+                                <div class="d-flex align-center" style="gap: 3px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #f44336;"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Red)</span>
+                                </div>
+                            </div>
+
+                            <!-- Tools Anzahl Chip -->
+                            @{
+                                var totalTools = stationStatusCounts.Green + stationStatusCounts.Yellow + stationStatusCounts.Red + stationStatusCounts.Undefined;
+                                var toolText = totalTools == 1 ? "Tool" : "Tools";
+                            }
+                            <MudChip Size="Size.Small"
+                            T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.65rem;">
+                                @($"{totalTools} {toolText}")
+                            </MudChip>
+                        </div>
+
+                        <!-- Spacer um den Modified Text nach unten zu drücken -->
+                        <div style="flex-grow: 1;"></div>
+
+                        <!-- Modified Text unten links -->
+                        <MudText Typo="Typo.caption"
+                        Class="text-left"
+                        Style="color: #6c757d; font-size: 0.7rem;">
+                            @($"{Fassade.Language.ModifiedOn} {station.lastModified:dd.MM.yyyy} {Fassade.Language.By} {station.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
+                        </MudText>
+
+                        <!-- Hover-Aktionsleiste -->
+                        <div class="hover-actions"
+                             style="position: absolute; top: 8px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                             @onclick:stopPropagation="true">
+                            <div class="d-flex"
+                                 style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+
+                                <!-- 1. Star/Unstar Button -->
+                                @if (!starStations.Any(s => s.assemblystation == station.assemblystation))
+                                {
+                                        <MudIconButton Icon="@Icons.Material.Outlined.StarOutline"
+                                                      Size="Size.Small"
+                                                      OnClick="@(() => StarStation(station))"
+                                                      Style="color: #ff9800; transition: all 0.2s ease;" />
+                                }
+                                else
+                                {
+                                        <MudIconButton Icon="@Icons.Material.Filled.Star"
+                                                      Size="Size.Small"
+                                                      OnClick="@(() => DeleteStarStation(station))"
+                                                      Style="color: #ff9800; transition: all 0.2s ease;" />
+                                }
+
+                                <!-- 2. Insert Tool Button -->
+                                <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
+                                              Size="Size.Small"
+                                              OnClick="@(() => { SelectStation(station); InsertTool(); })"
+                                              Disabled="@(copiedTool == null || selectedStation == null)"
+                                              Style="color: #6c757d; transition: all 0.2s ease;" />
+
+                                <!-- 3. Delete Button -->
+                                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                              Size="Size.Small"
+                                              OnClick="@(() => DeleteStation(station))"
+                                              Style="color: #f44336; transition: all 0.2s ease;" />
+
+                                <!-- 4. Status Button mit vertikalen Status-Icons -->
+                                <div class="status-selector-container" style="position: relative;">
+                                    <!-- Aktuelles Status Icon -->
+                                    <MudIconButton Icon="@GetStatusIcon(station.Status)"
+                                                  Size="Size.Small"
+                                                  Color="@GetStatusColor(station.Status)"
+                                                  Style="transition: all 0.2s ease;" />
+
+                                    <!-- Status Options - direkt unter dem Status-Icon -->
+                                    <div class="status-options-vertical" 
+                                         style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1000;">
+
+                                        <!-- Green Status -->
+                                        <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                                      Size="Size.Small"
+                                                      Color="Color.Success"
+                                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                      OnClick="@(() => SetStatus(station, Status.Green))"
+                                                      title="Configured" />
+
+                                        <!-- Yellow Status -->
+                                        <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
+                                                      Size="Size.Small"
+                                                      Color="Color.Warning"
+                                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                      OnClick="@(() => SetStatus(station, Status.Yellow))"
+                                                      title="Must be configured" />
+
+                                        <!-- Red Status -->
+                                        <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                                      Size="Size.Small"
+                                                      Color="Color.Error"
+                                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                      OnClick="@(() => SetStatus(station, Status.Red))"
+                                                      title="Missing information" />
+
+                                        <!-- Undefined Status -->
+                                        <MudIconButton Icon="@Icons.Material.Filled.Help"
+                                                      Size="Size.Small"
+                                                      Color="Color.Default"
+                                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                      OnClick="@(() => SetStatus(station, Status.Undefined))"
+                                                      title="Open" />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </MudCardContent>
+                </MudCard>
+            }
+
+    </div>
+</MudDrawer>
 
 
     <MudMainContent Class="pt-0 pe-16 ps-0" style=" min-height: 100vh;">
