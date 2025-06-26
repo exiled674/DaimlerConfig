@@ -17,6 +17,7 @@
 @inject ISnackbar Snackbar
 @implements IAsyncDisposable
 @using MudBlazor
+@using System.Text.Json;
 @inject IDialogService DialogService
 
 
@@ -1452,6 +1453,7 @@
     {
         uri = Navigation.Uri;
 
+
         UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
 
 
@@ -1719,13 +1721,13 @@
                                         toolFormularModel.stationID = selectedTool.stationID;
 
                                     }
-                                   
-                                  
+
+
                                 }
 
                             }
-                             await LoadStatusCountsForAllStations();
-                               StateHasChanged();
+                            await LoadStatusCountsForAllStations();
+                            StateHasChanged();
                             break;
                         }
 
@@ -1747,11 +1749,11 @@
                                     toolFormularModel = selectedTool.Clone();
                                     toolFormularModel.stationID = selectedStation.stationID;
                                 }
-                               
-                               
+
+
                             }
-                             await LoadStatusCountsForAllStations();
-                              StateHasChanged();
+                            await LoadStatusCountsForAllStations();
+                            StateHasChanged();
                             break;
                         }
 
@@ -1774,9 +1776,9 @@
                                 {
                                     showOperationFormular = false;
                                 }
-                             
+
                             }
-                               await LoadStatusCountsForAllStations();
+                            await LoadStatusCountsForAllStations();
 
                             StateHasChanged();
                             break;
@@ -2162,15 +2164,15 @@
     }
 
     private static string GetStatusIcon(Status status)
-{
-    return status switch
     {
-        Status.Green => Icons.Material.Filled.DoneAll,
-        Status.Yellow => Icons.Material.Filled.ReportProblem,
-        Status.Red => Icons.Material.Filled.Cancel,
-        _ => Icons.Material.Filled.Help
-    };
-}
+        return status switch
+        {
+            Status.Green => Icons.Material.Filled.DoneAll,
+            Status.Yellow => Icons.Material.Filled.ReportProblem,
+            Status.Red => Icons.Material.Filled.Cancel,
+            _ => Icons.Material.Filled.Help
+        };
+    }
 
     private static Color GetStatusColor(Status status)
     {
@@ -2200,7 +2202,7 @@
             tool.Status = neuerStatus;
             if (!await Fassade.UpdateTool(tool)) return;
             await SignalRService.SendMessageToServer($"ToolUpdated;{tool.toolID}");
-            
+
             StateHasChanged();
         }
         else if (o is Station station)
@@ -2238,7 +2240,7 @@
 
     private async Task RestoreSavedSelection(SelectionState savedSelection)
     {
-        
+
 
         if (savedSelection.StationID.HasValue)
         {
@@ -2613,18 +2615,56 @@
 
     String uriInput;
 
-    public void RouteN(){
+    public async Task RouteN(){
         if(uriInput == null) return;
-        Navigation.NavigateTo(uriInput, replace: true);
-        NavState.SetCurrentRoute(uriInput);
+
+        var uriS = uriInput.Split(";");
 
 
+        Navigation.NavigateTo(uriS[0], replace: true);
+        NavState.SetCurrentRoute(uriS[0]);
+
+        if(uriS[1]== null) return;
+
+        SelectionState? restoredState = JsonSerializer.Deserialize<SelectionState>(uriS[1]);
+
+        if(restoredState== null) return;
+
+        await RestoreSavedSelection(restoredState);
+        StateHasChanged();
+
+    }
+
+
+    public static string ResetSelection(string input, string newJson)
+    {
+
+        int separatorIndex = input.IndexOf(';');
+
+        if (separatorIndex >= 0)
+        {
+
+            string uri = input.Substring(0, separatorIndex);
+            return $"{uri};{newJson}";
+        }
+        else
+        {
+
+            return $"{input};{newJson}";
+        }
     }
 
 
     private async Task CopyUriToClipboard()
     {
         // nutzt das Clipboard-API des Browsers
+        SelectionState savedSelection = SelectionState.GetSavedSelection();
+
+        SelectionState.SaveSelection(savedSelection.StationID, savedSelection.ToolID, savedSelection.OperationID);
+
+        String savedSelectionJson = JsonSerializer.Serialize(savedSelection);
+        uri = ResetSelection(uri, savedSelectionJson);
+
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", uri);
         // Optional: kurzes Feedback
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
