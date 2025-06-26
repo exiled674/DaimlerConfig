@@ -1964,7 +1964,8 @@
                 allOperations = await Fassade.GetAllOperations();
 
             }
-            await RestoreSavedSelection();
+            SelectionState savedSelection = SelectionState.GetSavedSelection();
+            await RestoreSavedSelection(savedSelection);
             await LoadStatusCountsForAllStations();
         }
 
@@ -2235,9 +2236,9 @@
 
     #region Restore Selection
 
-    private async Task RestoreSavedSelection()
+    private async Task RestoreSavedSelection(SelectionState savedSelection)
     {
-        var savedSelection = SelectionState.GetSavedSelection();
+        
 
         if (savedSelection.StationID.HasValue)
         {

@@ -9,13 +9,7 @@ namespace DaimlerConfig.Services
         private const string SELECTED_OPERATION_KEY = "SelectedOperation";
         private const string SELECTION_TIMESTAMP_KEY = "SelectionTimestamp";
 
-        public class SelectionState
-        {
-            public int? StationID { get; set; }
-            public int? ToolID { get; set; }
-            public int? OperationID { get; set; }
-            public DateTime Timestamp { get; set; }
-        }
+        
 
         public void SaveSelection(int? stationID = null, int? toolID = null, int? operationID = null)
         {
