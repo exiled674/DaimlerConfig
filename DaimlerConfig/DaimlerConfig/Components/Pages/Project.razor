@@ -451,7 +451,7 @@
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
-     <div class="tool-operation-panel" style="width: 500px; display: flex; flex-direction: column; height: calc(100vh - 100px);">
+     <div class="tool-operation-panel" style="width: 500px; display: flex; flex-direction: column; height: 100vh;">
     <!-- ENTFERNE das margin-top: 15px und verwende stattdessen padding-top: 17px -->
    <div class="tools-header-fixed" style="padding: 25px 20px 32px 20px; border-bottom: 1px solid rgba(0,0,0,0.08); background: white; flex-shrink: 0;">
    <div class="d-flex align-center justify-space-between" style="margin-bottom: 0 !important; padding-bottom: 0 !important; padding-top: 0 !important;">
@@ -476,7 +476,7 @@
         </div>
     </div>
 
-                <div id="toolsList" style="flex: 1; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 20px 20px 60px 20px;">
+                <div id="toolsList" style="flex: 1; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 20px 20px 0px 20px;">
 
                         @if (selectedStation == null)
                         {
@@ -1342,7 +1342,7 @@
 .tool-operation-panel {
   display: flex !important;
   flex-direction: column !important;
-  height: calc(100vh - 100px) !important;
+  height: calc(100vh - 65px) !important;
   padding: 0 !important;
 }
 </style>
