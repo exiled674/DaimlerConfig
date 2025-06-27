@@ -1247,21 +1247,165 @@
   z-index: 1002 !important;
 }
 
-/* Überschreibt station-card Hover für tool-cards */
-.station-card.tool-card:hover .hover-actions {
+    /* Überschreibt station-card Hover für tool-cards */
+    .station-card.tool-card:hover .hover-actions {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* Aktiviert nur spezifische Hover-Bereiche in Tool Cards */
+    .tool-card .tool-header-section:hover .tool-hover-actions {
+        opacity: 1 !important;
+        pointer-events: all !important;
+    }
+
+    .tool-card .operation-item-section:hover .operation-hover-actions {
+        opacity: 1 !important;
+        pointer-events: all !important;
+    }
+
+/* ========================================= */
+/* === HORIZONTAL STATUS MENU FIX === */
+/* ========================================= */
+
+/* Reset any existing status positioning */
+.tool-card .status-options-vertical {
+  position: absolute !important;
+  top: 50% !important;
+  left: 100% !important; /* Position to the right of the status button */
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: row !important; /* Horizontal layout */
+  gap: 4px !important;
+  margin-left: 4px !important; /* Small gap between status button and options */
+  margin-top: 0 !important;
+  padding: 4px !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+  z-index: 1003 !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  transition: all 0.2s ease-in-out !important;
 }
 
-/* Aktiviert nur spezifische Hover-Bereiche in Tool Cards */
+/* Show status options on hover */
+.tool-card .status-selector-container:hover .status-options-vertical {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+/* Ensure the status selector container has relative positioning */
+.tool-card .status-selector-container {
+  position: relative !important;
+}
+
+/* Style the status option buttons */
+.tool-card .status-options-vertical .mud-icon-button {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  font-size: 14px !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+/* Hover effects for status buttons */
+.tool-card .status-options-vertical .mud-icon-button:hover {
+  transform: scale(1.1) !important;
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Ensure the hover actions container doesn't interfere */
+.tool-card .tool-hover-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* Make sure the main hover actions bar stays visible */
 .tool-card .tool-header-section:hover .tool-hover-actions {
   opacity: 1 !important;
   pointer-events: all !important;
 }
 
+/* Prevent the status options from being cut off */
+.tool-card .tool-header-section,
+.tool-card .operation-item-section {
+  overflow: visible !important;
+}
+
+.tool-card {
+  overflow: visible !important;
+}
+
+.tool-card .mud-card-content {
+  overflow: visible !important;
+}
+
+/* Ensure proper z-index stacking */
+.tool-card .tool-hover-actions {
+  z-index: 1002 !important;
+}
+
+.tool-card .status-options-vertical {
+  z-index: 1003 !important;
+}
+
+/* Optional: Add a subtle animation when status options appear */
+.tool-card .status-options-vertical {
+  transform: translateY(-50%) translateX(-10px) !important;
+}
+
+.tool-card .status-selector-container:hover .status-options-vertical {
+  transform: translateY(-50%) translateX(0) !important;
+}
+
+/* For operations section - same horizontal treatment */
+.tool-card .operation-item-section .status-options-vertical {
+  position: absolute !important;
+  top: 50% !important;
+  left: 100% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 4px !important;
+  margin-left: 4px !important;
+  padding: 3px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+  z-index: 1003 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* Show operation status options on hover */
+.tool-card .operation-item-section .status-selector-container:hover .status-options-vertical {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+/* Ensure operation hover actions work properly */
 .tool-card .operation-item-section:hover .operation-hover-actions {
   opacity: 1 !important;
   pointer-events: all !important;
+}
+
+/* Shift the entire hover menu to the left when status is hovered */
+.tool-card .tool-hover-actions:has(.status-selector-container:hover) {
+  transform: translateX(-130px) translateY(-50%) !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+/* Also for operation hover actions */
+.tool-card .operation-hover-actions:has(.status-selector-container:hover) {
+  transform: translateX(-130px) translateY(-50%) !important;
+  transition: transform 0.2s ease-in-out !important;
 }
 
 
