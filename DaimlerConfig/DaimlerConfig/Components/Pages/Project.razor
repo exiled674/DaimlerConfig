@@ -2942,10 +2942,12 @@
         if(uriS[1]== null) return;
 
         SelectionState? restoredState = JsonSerializer.Deserialize<SelectionState>(uriS[1]);
+        StateHasChanged();
 
         if(restoredState== null) return;
 
-        await RestoreSavedSelection(restoredState);
+        OnInitializedAsync(); 
+        //await RestoreSavedSelection(restoredState);
         StateHasChanged();
 
     }
