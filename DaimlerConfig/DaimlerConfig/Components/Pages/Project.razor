@@ -351,7 +351,7 @@
 
                         <!-- Hover-Aktionsleiste -->
                         <div class="hover-actions"
-                             style="position: absolute; top: 8px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                             style="position: absolute; top: 12px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
                              @onclick:stopPropagation="true">
                             <div class="d-flex"
                                  style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
@@ -487,250 +487,244 @@
                         else
                         {
 
-                            <MudList T="string" Clickable="false">
-                                @foreach (var tool in tools)
-                                {
-            <MudCard Class="@($"station-card tool-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
-                     Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;">
-                <MudCardContent Class="pa-0">
-                  <!-- Tool Header als klickbarer Bereich -->
-        <div class="tool-header-section position-relative d-flex align-items-center"
-             style="padding: 16px 12px; min-height: 60px;"
-             @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }">
-            <MudGrid AlignItems="Center" Spacing="0" Style="height: 100%; width: 100%;">
-                <MudItem xs="10" Style="display: flex; align-items: center; height: 100%;">
-                    <div class="d-flex align-items-center" style="gap: 8px;">
-                       
+                                   <MudList T="string" Clickable="false">
+                                    @foreach (var tool in tools)
+                                    {
+                <MudCard Class="@($"station-card tool-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
+                         Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;">
+                    <MudCardContent Class="pa-0">
+                        <!-- Tool Header als klickbarer Bereich -->
+                        <div class="tool-header-section position-relative"
+                             style="padding: 12px; min-height: 70px; display: flex; flex-direction: column;"
+                             @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }">
+
+                            <!-- Oberer Bereich: Tool Name -->
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
                                 <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
-                                                                    @tool.toolShortname
-                                    </MudText>
-                    </div>
-                </MudItem>
-                <MudItem xs="2" Class="d-flex justify-end align-items-center" Style="height: 100%;">
-                    <!-- Platz für Hover-Aktionen reserviert -->
-                </MudItem>
-            </MudGrid>
+                                                            @tool.toolShortname
+                                </MudText>
+                            </div>
 
+                            <!-- Status und Modified Info nebeneinander -->
+                            <div class="d-flex align-center justify-space-between">
+                                <!-- Status-Zahlen für Operationen links -->
+                                <div class="d-flex align-center" style="gap: 12px;">
+                                    <!-- Grüner Status -->
+                                    <div class="d-flex align-center" style="gap: 4px;">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #4caf50;"></div>
+                                        <span style="font-size: 0.85rem; font-weight: 500;">2</span>
+                                    </div>
+                                    <!-- Gelber Status -->
+                                    <div class="d-flex align-center" style="gap: 4px;">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ff9800;"></div>
+                                        <span style="font-size: 0.85rem; font-weight: 500;">1</span>
+                                    </div>
+                                    <!-- Roter Status -->
+                                    <div class="d-flex align-center" style="gap: 4px;">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f44336;"></div>
+                                        <span style="font-size: 0.85rem; font-weight: 500;">0</span>
+                                    </div>
+                                </div>
 
+                                <!-- Modified Text rechts (eine Zeile) -->
+                                <MudText Typo="Typo.caption"
+                                        Class="text-right"
+                                        Style="color: #6c757d; font-size: 0.7rem; white-space: nowrap;">
+                                                            @($"{Fassade.Language.ModifiedOn} {tool.lastModified:dd.MM.yyyy} {Fassade.Language.By} {tool.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
+                                </MudText>
+                            </div>
 
-                              <!-- Hover-Aktionsleiste für Tools -->
-        <div class="hover-actions tool-hover-actions"
-             style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); opacity: 0; transition: all 0.3s ease-in-out;"
-             @onclick:stopPropagation="true">
-            <div class="d-flex"
-                 style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+                            <!-- Hover-Aktionsleiste für Tools -->
+                            <div class="hover-actions tool-hover-actions"
+                                 style="position: absolute; top: 12px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                                 @onclick:stopPropagation="true">
+                                <div class="d-flex"
+                                     style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+                                    <!-- Copy Tool Button -->
+                                    <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                                  Size="Size.Small"
+                                                  OnClick="@(() => CloneTool(tool))"
+                                                  Style="color: #6c757d; transition: all 0.2s ease;"
+                                                  title="@Fassade.Language.Copy" />
+                                    <!-- Insert Operation Button -->
+                                    <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
+                                                  Size="Size.Small"
+                                                  OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
+                                                  Disabled="@(copiedOperation == null || selectedTool == null)"
+                                                  Style="color: #6c757d; transition: all 0.2s ease;"
+                                                  title="@Fassade.Language.InsertOperation" />
+                                    <!-- Delete Button -->
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                  Size="Size.Small"
+                                                  OnClick="@(() => DeleteTool(tool))"
+                                                  Style="color: #f44336; transition: all 0.2s ease;"
+                                                  title="@Fassade.Language.Delete" />
+                                    <!-- Status Button -->
+                                    <div class="status-selector-container" style="position: relative;">
+                                        <MudIconButton Icon="@GetStatusIcon(tool.Status)"
+                                                      Size="Size.Small"
+                                                      Color="@GetStatusColor(tool.Status)"
+                                                      Style="transition: all 0.2s ease;"
+                                                      title="Status" />
+                                        <!-- Status Options -->
+                                        <div class="status-options-vertical" 
+                                             style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1000;">
+                                            <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                                          Size="Size.Small"
+                                                          Color="Color.Success"
+                                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                          OnClick="@(() => SetStatus(tool, Status.Green))"
+                                                          title="Configured" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
+                                                          Size="Size.Small"
+                                                          Color="Color.Warning"
+                                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                          OnClick="@(() => SetStatus(tool, Status.Yellow))"
+                                                          title="Must be configured" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                                          Size="Size.Small"
+                                                          Color="Color.Error"
+                                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                          OnClick="@(() => SetStatus(tool, Status.Red))"
+                                                          title="Missing information" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.Help"
+                                                          Size="Size.Small"
+                                                          Color="Color.Default"
+                                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                          OnClick="@(() => SetStatus(tool, Status.Undefined))"
+                                                          title="Open" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- 1. Copy Tool Button -->
-                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
-                              Size="Size.Small"
-                              OnClick="@(() => CloneTool(tool))"
-                              Style="color: #6c757d; transition: all 0.2s ease;"
-                              title="@Fassade.Language.Copy" />
-
-                <!-- 2. Insert Operation Button -->
-                <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
-                              Size="Size.Small"
-                              OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
-                              Disabled="@(copiedOperation == null || selectedTool == null)"
-                              Style="color: #6c757d; transition: all 0.2s ease;"
-                              title="@Fassade.Language.InsertOperation" />
-
-                <!-- 3. Delete Button -->
-                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                              Size="Size.Small"
-                              OnClick="@(() => DeleteTool(tool))"
-                              Style="color: #f44336; transition: all 0.2s ease;"
-                              title="@Fassade.Language.Delete" />
-
-                <!-- 4. Status Button mit vertikalen Status-Icons -->
-                <div class="status-selector-container" style="position: relative;">
-                    <!-- Aktuelles Status Icon -->
-                    <MudIconButton Icon="@GetStatusIcon(tool.Status)"
-                                  Size="Size.Small"
-                                  Color="@GetStatusColor(tool.Status)"
-                                  Style="transition: all 0.2s ease;"
-                                  title="Status" />
-
-                    <!-- Status Options - direkt unter dem Status-Icon -->
-                    <div class="status-options-vertical" 
-                         style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1000;">
-
-                        <!-- Green Status -->
-                        <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
-                                      Size="Size.Small"
-                                      Color="Color.Success"
-                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                      OnClick="@(() => SetStatus(tool, Status.Green))"
-                                      title="Configured" />
-
-                        <!-- Yellow Status -->
-                        <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
-                                      Size="Size.Small"
-                                      Color="Color.Warning"
-                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                      OnClick="@(() => SetStatus(tool, Status.Yellow))"
-                                      title="Must be configured" />
-
-                        <!-- Red Status -->
-                        <MudIconButton Icon="@Icons.Material.Filled.Cancel"
-                                      Size="Size.Small"
-                                      Color="Color.Error"
-                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                      OnClick="@(() => SetStatus(tool, Status.Red))"
-                                      title="Missing information" />
-
-                        <!-- Undefined Status -->
-                        <MudIconButton Icon="@Icons.Material.Filled.Help"
-                                      Size="Size.Small"
-                                      Color="Color.Default"
-                                      Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                      OnClick="@(() => SetStatus(tool, Status.Undefined))"
-                                      title="Open" />
-                    </div>
-                </div>
-
-            </div>
+                    <!-- Operations Section - Kompakter und weniger prominent -->
+<MudStack Spacing="0" Class="mt-0 mb-1 px-3">
+    <MudDivider Class="thick-divider" />
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0;">
+        <div style="display: flex; align-items: center; gap: 4px;">
+            <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                          Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
+                          Style="font-size: 16px; color: rgba(51, 51, 51, 0.4); min-width: 20px; height: 20px; padding: 0; margin: 0;"
+                          @onclick="() => ToggleExpand(tool.toolID.Value)" />
+            <MudText Typo="Typo.body2" Class="text-uppercase" Style="letter-spacing: 0.08em; color: rgba(51, 51, 51, 0.5); font-size: 0.75rem; font-weight: 500;">
+                @Fassade.Language.Operations (@allOperations.Count(op => op.toolID == tool.toolID))
+            </MudText>
         </div>
-                 </div>
+        <MudIconButton Icon="@Icons.Material.Filled.Add"
+                      Style="font-size: 16px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0;"
+                      @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }"
+                      AriaLabel="Add Operation" />
+    </div>
+</MudStack>
 
-                    <!-- Operations Section -->
-                                            <MudStack Spacing="1" Class="mt-0 mb-2 px-3">
-                                                <MudDivider Class="thick-divider" />
 
-                                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                                    <div style="display: flex; align-items: center; gap: 4px;">
-                                                        <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
-                                                        Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
-                                                        Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0; margin: 0; position: relative; top: -2px;"
-                                                        @onclick="() => ToggleExpand(tool.toolID.Value)" />
-                                                        <MudText Typo="Typo.subtitle2" Class="text-uppercase" Style="letter-spacing: 0.1em; color: rgba(51, 51, 51, 0.4);">
-                                                            @Fassade.Language.Operations (@allOperations.Count(op => op.toolID == tool.toolID))
+                        <!-- Operationen -->
+                        <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)" Class="operations-section">
+                            <div class="pb-0">
+                                <MudList T="Operation" Dense="true">
+                                                            @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
+                                                            {
+                                            <div class="operation-item-section position-relative">
+                                                <MudListItem Class="@($"{(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
+                                                             Style="min-height: 70px; padding: 10px 12px; display: flex; flex-direction: column; align-items: flex-start;"
+                                                             @onclick="() => { OnOperationClicked(operation, false); SelectItem(operation); }"
+                                                             Selected="@(selectedOperation?.operationID == operation.operationID)">
+
+                                                    <!-- Operation Name -->
+                                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; width: 100%;">
+                                                        <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
+                                                                                @operation.operationShortname
                                                         </MudText>
                                                     </div>
 
-                                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                                    Style="font-size: 18px; color: rgba(51, 51, 51, 0.4); min-width: 28px; height: 28px; padding: 0;"
-                                                    @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }"
-                                                    AriaLabel="Add Operation" />
-                                                </div>
-                                            </MudStack>
+                                                  
 
-                                                         <!-- Operationen -->
-        <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)" Class="operations-section">
-            <div class=" pb-3">
-                <MudList T="Operation" Dense="true">
-                                                        @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
-                                                        {
-                                       <div class="operation-item-section position-relative">
-                <MudListItem Class="@($"{(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
-                             Style="min-height: 48px; padding: 12px 12px; display: flex; align-items: center;"
-                             @onclick="() => { OnOperationClicked(operation, false); SelectItem(operation); }"
-                             Selected="@(selectedOperation?.operationID == operation.operationID)">
+                                                    <!-- Spacer -->
+                                                    <div style="flex-grow: 1; width: 100%;"></div>
 
-                    <MudGrid AlignItems="Center" Spacing="0" Style="height: 100%; width: 100%;">
-                        <MudItem xs="10" Style="display: flex; align-items: center; height: 100%;">
-                            <div class="d-flex align-items-center" style="gap: 8px;">
-                               
-                               <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
-                                @operation.operationShortname
-                            </MudText>
-                            </div>
-                        </MudItem>
+                                                    <!-- Modified Text (eine Zeile) -->
+                                                    <MudText Typo="Typo.caption"
+                                                            Class="text-left"
+                                                            Style="color: #6c757d; font-size: 0.7rem; width: 100%;">
+                                                                            @($"{Fassade.Language.ModifiedOn} {operation.lastModified:dd.MM.yyyy} {Fassade.Language.By} {operation.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
+                                                    </MudText>
 
-                        <MudItem xs="2" Class="d-flex justify-end align-items-center" Style="height: 100%;">
-                            <!-- Platz für Hover-Aktionen reserviert -->
-                        </MudItem>
-                    </MudGrid>
+                                                    <!-- Hover-Aktionsleiste für Operations -->
+                                                    <div class="hover-actions operation-hover-actions"
+                                                         style="position: absolute; top: 12px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                                                         @onclick:stopPropagation="true">
+                                                        <div class="d-flex"
+                                                             style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+                                                            <!-- Copy Operation Button -->
+                                                            <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                                                          Size="Size.Small"
+                                                                          OnClick="@(() => CloneOperation(operation))"
+                                                                          Style="color: #6c757d; transition: all 0.2s ease;"
+                                                                          title="@Fassade.Language.Copy" />
+                                                            <!-- Delete Button -->
+                                                            <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                                          Size="Size.Small"
+                                                                          OnClick="@(() => DeleteOperation(operation))"
+                                                                          Style="color: #f44336; transition: all 0.2s ease;"
+                                                                          title="@Fassade.Language.Delete" />
+                                                            <!-- Status Button -->
+                                                            <div class="status-selector-container" style="position: relative;">
+                                                                <MudIconButton Icon="@GetStatusIcon(operation.Status)"
+                                                                              Size="Size.Small"
+                                                                              Color="@GetStatusColor(operation.Status)"
+                                                                              Style="transition: all 0.2s ease;"
+                                                                              title="Status" />
+                                                                <!-- Status Options -->
+                                                                <div class="status-options-vertical" 
+                                                                     style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1002;">
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                                                                  Size="Size.Small"
+                                                                                  Color="Color.Success"
+                                                                                  Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                                  OnClick="@(() => SetStatus(operation, Status.Green))"
+                                                                                  title="Configured" />
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
+                                                                                  Size="Size.Small"
+                                                                                  Color="Color.Warning"
+                                                                                  Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                                  OnClick="@(() => SetStatus(operation, Status.Yellow))"
+                                                                                  title="Must be configured" />
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                                                                  Size="Size.Small"
+                                                                                  Color="Color.Error"
+                                                                                  Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                                  OnClick="@(() => SetStatus(operation, Status.Red))"
+                                                                                  title="Missing information" />
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.Help"
+                                                                                  Size="Size.Small"
+                                                                                  Color="Color.Default"
+                                                                                  Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                                  OnClick="@(() => SetStatus(operation, Status.Undefined))"
+                                                                                  title="Open" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </MudListItem>
+                                            </div>
 
-                                              <!-- Hover-Aktionsleiste für Operations -->
-            <div class="hover-actions operation-hover-actions"
-                 style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); opacity: 0; transition: all 0.3s ease-in-out;"
-                 @onclick:stopPropagation="true">
-                <div class="d-flex"
-                     style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
-
-                    <!-- 1. Copy Operation Button -->
-                    <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
-                                  Size="Size.Small"
-                                  OnClick="@(() => CloneOperation(operation))"
-                                  Style="color: #6c757d; transition: all 0.2s ease;"
-                                  title="@Fassade.Language.Copy" />
-
-                    <!-- 2. Delete Button -->
-                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
-                                  Size="Size.Small"
-                                  OnClick="@(() => DeleteOperation(operation))"
-                                  Style="color: #f44336; transition: all 0.2s ease;"
-                                  title="@Fassade.Language.Delete" />
-
-                    <!-- 3. Status Button mit vertikalen Status-Icons -->
-                    <div class="status-selector-container" style="position: relative;">
-                        <!-- Aktuelles Status Icon -->
-                        <MudIconButton Icon="@GetStatusIcon(operation.Status)"
-                                      Size="Size.Small"
-                                      Color="@GetStatusColor(operation.Status)"
-                                      Style="transition: all 0.2s ease;"
-                                      title="Status" />
-
-                        <!-- Status Options -->
-                        <div class="status-options-vertical" 
-                             style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1002;">
-
-                            <!-- Green Status -->
-                            <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
-                                          Size="Size.Small"
-                                          Color="Color.Success"
-                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                          OnClick="@(() => SetStatus(operation, Status.Green))"
-                                          title="Configured" />
-
-                            <!-- Yellow Status -->
-                            <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
-                                          Size="Size.Small"
-                                          Color="Color.Warning"
-                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                          OnClick="@(() => SetStatus(operation, Status.Yellow))"
-                                          title="Must be configured" />
-
-                            <!-- Red Status -->
-                            <MudIconButton Icon="@Icons.Material.Filled.Cancel"
-                                          Size="Size.Small"
-                                          Color="Color.Error"
-                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                          OnClick="@(() => SetStatus(operation, Status.Red))"
-                                          title="Missing information" />
-
-                            <!-- Undefined Status -->
-                            <MudIconButton Icon="@Icons.Material.Filled.Help"
-                                          Size="Size.Small"
-                                          Color="Color.Default"
-                                          Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
-                                          OnClick="@(() => SetStatus(operation, Status.Undefined))"
-                                          title="Open" />
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-                                </MudListItem>
-                            </div>
-
-                            <!-- Divider zwischen Operationen (außer bei der letzten) -->
-                                                            @if (operation != allOperations.Where(op => op.toolID == tool.toolID).Last())
-                                                            {
-                                    <MudDivider />
+                                            <!-- Divider zwischen Operationen -->
+                                                                @if (operation != allOperations.Where(op => op.toolID == tool.toolID).Last())
+                                                                {
+                                                    <MudDivider />
+                                                                }
                                                             }
-                                                        }
-                </MudList>
-            </div>
-        </MudCollapse>
+                                </MudList>
+                            </div>
+                        </MudCollapse>
+                    </MudCardContent>
+                </MudCard>
+                                    }
+    </MudList>
 
 
-                                        </MudCardContent>
-                                    </MudCard>
-                                }
-                            </MudList>
 
 
                         }
@@ -1256,21 +1250,43 @@
         opacity: 1 !important;
         pointer-events: all !important;
     }
-
 /* ========================================= */
-/* === HORIZONTAL STATUS MENU FIX === */
+/* === FIX: NUR X-ACHSE VERSCHIEBUNG === */
 /* ========================================= */
 
-/* Reset any existing status positioning */
+/* Shift the entire hover menu to the left when status is hovered - OHNE Y-Verschiebung */
+.tool-card .tool-hover-actions:has(.status-selector-container:hover) {
+  transform: translateX(-135px) !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+/* Also for operation hover actions - OHNE Y-Verschiebung */
+.tool-card .operation-hover-actions:has(.status-selector-container:hover) {
+  transform: translateX(-135px) !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+/* Sicherstellen dass die ursprüngliche Position keine Y-Transformation hat */
+.tool-card .tool-hover-actions {
+  transform: none !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+.tool-card .operation-hover-actions {
+  transform: none !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+/* Status-Optionen bleiben horizontal und zentriert */
 .tool-card .status-options-vertical {
   position: absolute !important;
   top: 50% !important;
-  left: 100% !important; /* Position to the right of the status button */
+  left: 100% !important;
   transform: translateY(-50%) !important;
   display: flex !important;
-  flex-direction: row !important; /* Horizontal layout */
+  flex-direction: row !important;
   gap: 4px !important;
-  margin-left: 4px !important; /* Small gap between status button and options */
+  margin-left: 8px !important;
   margin-top: 0 !important;
   padding: 4px !important;
   border-radius: 8px !important;
@@ -1289,74 +1305,7 @@
   pointer-events: all !important;
 }
 
-/* Ensure the status selector container has relative positioning */
-.tool-card .status-selector-container {
-  position: relative !important;
-}
-
-/* Style the status option buttons */
-.tool-card .status-options-vertical .mud-icon-button {
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  font-size: 14px !important;
-  border-radius: 6px !important;
-  transition: all 0.2s ease !important;
-  flex-shrink: 0 !important;
-}
-
-/* Hover effects for status buttons */
-.tool-card .status-options-vertical .mud-icon-button:hover {
-  transform: scale(1.1) !important;
-  background-color: rgba(0, 0, 0, 0.08) !important;
-}
-
-/* Ensure the hover actions container doesn't interfere */
-.tool-card .tool-hover-actions {
-  display: flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-}
-
-/* Make sure the main hover actions bar stays visible */
-.tool-card .tool-header-section:hover .tool-hover-actions {
-  opacity: 1 !important;
-  pointer-events: all !important;
-}
-
-/* Prevent the status options from being cut off */
-.tool-card .tool-header-section,
-.tool-card .operation-item-section {
-  overflow: visible !important;
-}
-
-.tool-card {
-  overflow: visible !important;
-}
-
-.tool-card .mud-card-content {
-  overflow: visible !important;
-}
-
-/* Ensure proper z-index stacking */
-.tool-card .tool-hover-actions {
-  z-index: 1002 !important;
-}
-
-.tool-card .status-options-vertical {
-  z-index: 1003 !important;
-}
-
-/* Optional: Add a subtle animation when status options appear */
-.tool-card .status-options-vertical {
-  transform: translateY(-50%) translateX(-10px) !important;
-}
-
-.tool-card .status-selector-container:hover .status-options-vertical {
-  transform: translateY(-50%) translateX(0) !important;
-}
-
-/* For operations section - same horizontal treatment */
+/* Gleiches für Operations */
 .tool-card .operation-item-section .status-options-vertical {
   position: absolute !important;
   top: 50% !important;
@@ -1365,7 +1314,8 @@
   display: flex !important;
   flex-direction: row !important;
   gap: 4px !important;
-  margin-left: 4px !important;
+  margin-left: 8px !important;
+  margin-top: 0 !important;
   padding: 3px !important;
   border-radius: 6px !important;
   background: rgba(255, 255, 255, 0.98) !important;
@@ -1377,30 +1327,10 @@
   transition: all 0.2s ease-in-out !important;
 }
 
-/* Show operation status options on hover */
 .tool-card .operation-item-section .status-selector-container:hover .status-options-vertical {
   opacity: 1 !important;
   pointer-events: all !important;
 }
-
-/* Ensure operation hover actions work properly */
-.tool-card .operation-item-section:hover .operation-hover-actions {
-  opacity: 1 !important;
-  pointer-events: all !important;
-}
-
-/* Shift the entire hover menu to the left when status is hovered */
-.tool-card .tool-hover-actions:has(.status-selector-container:hover) {
-  transform: translateX(-130px) translateY(-50%) !important;
-  transition: transform 0.2s ease-in-out !important;
-}
-
-/* Also for operation hover actions */
-.tool-card .operation-hover-actions:has(.status-selector-container:hover) {
-  transform: translateX(-130px) translateY(-50%) !important;
-  transition: transform 0.2s ease-in-out !important;
-}
-
 
 
 
