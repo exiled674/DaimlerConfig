@@ -1,13 +1,14 @@
-﻿@using DaimlerConfig.Services
+﻿@using DaimlerConfig.Components.Models
+@using DaimlerConfig.Services
 @inject DirtyManagerService DirtyManagerService
-@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
 @if (isVisible)
 {
     <div class="popup-backdrop">
         <div class="popup-dialog">
-            <p>@Fassade.Language.UnchangedChanges </p>
-            <button class="btn btn-primary" @onclick="SaveChanges">@Fassade.Language.Save</button>
-            <button class="btn btn-secondary" @onclick="DismissChanges">@Fassade.Language.Cancel</button>
+            <p>@Language.UnchangedChanges </p>
+            <button class="btn btn-primary" @onclick="SaveChanges">@Language.Save</button>
+            <button class="btn btn-secondary" @onclick="DismissChanges">@Language.Cancel</button>
         </div>
     </div>
 }

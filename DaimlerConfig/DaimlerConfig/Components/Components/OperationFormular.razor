@@ -10,7 +10,7 @@
 <div class="container-lg px-3">
     <div class="class-header justify-content-between align-items-center">
         <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-            @Fassade.Language.Operation
+            @Language.Operation
             @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
             {
                 <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-left: 8px;" />
@@ -28,7 +28,7 @@
                            Value="selectedVersionId"
                            ValueChanged="OnVersionChanged"
                            OnBlur="LockOperation">
-                    <MudSelectItem T="int?" Value="-1">@Fassade.Language.CurrentVersion</MudSelectItem>
+                    <MudSelectItem T="int?" Value="-1">@Language.CurrentVersion</MudSelectItem>
                     @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                     {
                         <MudSelectItem T="int?" Value="@version.operationVersionID">
@@ -46,7 +46,7 @@
                                Color="Color.Primary"
                                Class="btn btn-primary btn-sm"
                                @onclick="AddOperationAsync">
-                        @Fassade.Language.Create
+                        @Language.Create
                     </MudButton>
                 </div>
             }
@@ -58,7 +58,7 @@
                            Class="btn btn-primary btn-sm"
                            @onclick="UpdateOperationAsync"
                            Disabled="@ReadOnly">
-                    @Fassade.Language.Save
+                    @Language.Save
                 </MudButton>
             }
         </div>
@@ -67,7 +67,7 @@
         <!-- First Row: Operation ID and Operation Shortname -->
         <div class="col-md-6 mb-3">
             <MudTextField T="int?"
-                          Label="@Fassade.Language.OperationId"
+                          Label="@Language.OperationId"
                           Value="SelectedOperation.operationID"
                           ReadOnly="true"
                           Variant="Variant.Outlined"
@@ -80,7 +80,7 @@
         <div class="col-md-6 mb-3">
             <div style="position: relative;">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.OperationShortname"
+                              Label="@Language.OperationShortname"
                               @bind-Value="SelectedOperation.operationShortname"
                               MaxLength="16"
                               ReadOnly="@ReadOnly"
@@ -100,7 +100,7 @@
         <!-- Second Row: Processing Mode and Operation Sequence -->
         <div class="col-md-6 mb-3">
             <MudSelect T="int"
-                       Label="@Fassade.Language.ProcessingMode"
+                       Label="@Language.ProcessingMode"
                        @bind-Value="SelectedOperation.parallel"
                        ReadOnly="@ReadOnly"
                        Variant="Variant.Outlined"
@@ -110,14 +110,14 @@
                        OnBlur="CheckIfDirty"
                        Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
                        AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)">
-                <MudSelectItem Value="0">@Fassade.Language.Parallel</MudSelectItem>
-                <MudSelectItem Value="1">@Fassade.Language.Serial</MudSelectItem>
+                <MudSelectItem Value="0">@Language.Parallel</MudSelectItem>
+                <MudSelectItem Value="1">@Language.Serial</MudSelectItem>
             </MudSelect>
         </div>
         <div class="col-md-6 mb-3">
             <div class="form-floating">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.OperationSequence"
+                              Label="@Language.OperationSequence"
                               @bind-Value="SelectedOperation.operationSequence"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
@@ -134,7 +134,7 @@
         <div class="col-md-6 mb-3">
             <div class="form-floating">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.OperationSequenceGroup"
+                              Label="@Language.OperationSequenceGroup"
                               @bind-Value="SelectedOperation.operationSequenceGroup"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
@@ -151,7 +151,7 @@
 
                 <div style="position: relative;">
                     <MudTextField T="string"
-                                  Label="@Fassade.Language.Comment"
+                                  Label="@Language.Comment"
                                   @bind-Value="SelectedOperation.Comment"
                                   ReadOnly="@ReadOnly"
                                   Variant="Variant.Outlined"
@@ -175,11 +175,11 @@
         </div>
     </div>
     <hr />
-    <h2>@Fassade.Language.Classes</h2>
+    <h2>@Language.Classes</h2>
     <div class="row mb-4">
         <!-- First Row: Decision Class and Generation Class -->
         <div class="col-md-6 mb-3">
-            <MudSelect T="int?" Label="@Fassade.Language.DecisionClass"
+            <MudSelect T="int?" Label="@Language.DecisionClass"
                        Variant="Variant.Outlined"
                        Margin="Margin.Normal"
                        Disabled="@ReadOnly"
@@ -195,7 +195,7 @@
         </div>
 
         <div class="col-md-6 mb-3">
-            <MudSelect T="int?" Label="@Fassade.Language.GenerationClass"
+            <MudSelect T="int?" Label="@Language.GenerationClass"
                        Variant="Variant.Outlined"
                        Margin="Margin.Normal"
                        Disabled="@ReadOnly"
@@ -212,7 +212,7 @@
 
         <!-- Second Row: Verification Class and Saving Class -->
         <div class="col-md-6 mb-3">
-            <MudSelect T="int?" Label="@Fassade.Language.VerificationClass"
+            <MudSelect T="int?" Label="@Language.VerificationClass"
                        Variant="Variant.Outlined"
                        Margin="Margin.Normal"
                        Disabled="@ReadOnly"
@@ -228,7 +228,7 @@
         </div>
 
         <div class="col-md-6 mb-3">
-            <MudSelect T="int?" Label="@Fassade.Language.SavingClass"
+            <MudSelect T="int?" Label="@Language.SavingClass"
                        Variant="Variant.Outlined"
                        Margin="Margin.Normal"
                        Disabled="@ReadOnly"
@@ -247,7 +247,7 @@
         <div class="col-md-12 mb-3">
             <div class="form-floating">
                 <textarea class="form-control form-control" maxlength="100" placeholder="" id="DecisionCriteria" style="height: 150px" readonly="@ReadOnly" @onclick="LockOperation"></textarea>
-                <label for="DecisionCriteria">@Fassade.Language.DecisionCriteria</label>
+                <label for="DecisionCriteria">@Language.DecisionCriteria</label>
             </div>
         </div>
     </div>
@@ -396,7 +396,7 @@
         //OperationShortname
         if (string.IsNullOrWhiteSpace(SelectedOperation.operationShortname))
         {
-            errorMessages["OperationShortname"] = Fassade.Language.OperationShortnameMissing;
+            errorMessages["OperationShortname"] = Language.OperationShortnameMissing;
         }
 
         if (!SelectedOperation.toolID.HasValue)
@@ -404,7 +404,7 @@
 
         if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.operationID.Value, SelectedOperation.toolID.Value))
         {
-            errorMessages["OperationShortname"] = Fassade.Language.OperationShortnameAlreadyExists;
+            errorMessages["OperationShortname"] = Language.OperationShortnameAlreadyExists;
 
         }
 

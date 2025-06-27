@@ -6,6 +6,7 @@
 @using System.IO
 @using System.Text.Json
 @using System.Text.Json.Nodes
+@using DaimlerConfig.Components.Models
 @using DaimlerConfig.Security
 @using DaimlerConfig.Services
 
@@ -13,16 +14,14 @@
 @inject AppStartupValidationService ValidationService
 @inject SettingsValidationService SettingsValidation
 @inject UsernameService UsernameS
-@inject DaimlerConfig.Components.Fassade.Fassade Fassade
 @inject LanguageLoad LangLoader
+@inject ISnackbar Snackbar
 
-@if (Fassade != null)
-{
     <div class="popup-backdrop">
         <div class="popup-dialog">
 
             <div class="popup-header">
-                <MudText Typo="Typo.h5">@Fassade.Language.Settings</MudText>
+                <MudText Typo="Typo.h5">@Language.Settings</MudText>
                 <MudIconButton Icon="@Icons.Material.Filled.Close"
                                Color="Color.Default"
                                Size="Size.Medium"
@@ -54,8 +53,8 @@
                                                    Color="Color.Primary"
                                                    StartIcon="Icons.Material.Filled.Save"
                                                    Size="Size.Medium"
-                                                   OnClick="async () => { await SaveGeneralSettings(); await ChangeUsername(); }">
-                                            @Fassade.Language.SaveSettings
+                                                   OnClick="SaveGeneralSettings">
+                                            @Language.SaveSettings
                                         </MudButton>
                                     </MudItem>
                                 </MudGrid>
@@ -65,17 +64,17 @@
                                     <MudCardContent Class="pa-6">
                                         <MudText Typo="Typo.h6" Class="mb-4 d-flex align-center">
                                             <MudIcon Icon="Icons.Material.Filled.Person" Class="mr-2" Color="Color.Primary"/>
-                                            @Fassade.Language.Username
+                                            @Language.Username
                                         </MudText>
 
                                         <MudGrid AlignItems="End" Spacing="3">
                                             <MudItem xs="12" sm="7" md="8">
                                                 <MudTextField @bind-Value="_newUsername"
-                                                              Label="@Fassade.Language.Username"
-                                                              Placeholder="@Fassade.Language.EnterUsername"
+                                                              Label="@Language.Username"
+                                                              Placeholder="@Language.EnterUsername"
                                                               Variant="Variant.Outlined"
                                                               @oninput="OnUsernameInput"
-                                                              HelperText="@Fassade.Language.UsernameHelperText"
+                                                              HelperText="@Language.UsernameHelperText"
                                                               Class="flex-grow-1"/>
                                             </MudItem>
                                             <MudItem xs="12" sm="7" md="8">
@@ -85,7 +84,7 @@
                                                            FullWidth="true"
                                                            Size="Size.Medium"
                                                            OnClick="ResetToWindowsName">
-                                                    @Fassade.Language.Reset
+                                                    @Language.Reset
                                                 </MudButton>
                                             </MudItem>
                                         </MudGrid>
@@ -97,13 +96,13 @@
                                     <MudCardContent Class="pa-6">
                                         <MudText Typo="Typo.h6" Class="mb-4 d-flex align-center">
                                             <MudIcon Icon="Icons.Material.Filled.Language" Class="mr-2" Color="Color.Primary"/>
-                                            @Fassade.Language.LanguageText
+                                            @Language.LanguageText
                                         </MudText>
 
                                         <MudGrid AlignItems="End" Spacing="3">
                                             <MudItem xs="12" sm="7" md="8">
                                                 <MudSelect T="string"
-                                                           Label="@Fassade.Language.LanguageSelect"
+                                                           Label="@Language.LanguageSelect"
                                                            Value="@LangLoader.SelectedLanguage"
                                                            ValueChanged="OnLanguageChanged"
                                                            Variant="Variant.Outlined">
@@ -120,7 +119,7 @@
                                                            FullWidth="true"
                                                            Size="Size.Medium"
                                                            OnClick="OpenLanguageFolder">
-                                                    @Fassade.Language.OpenLangFolder
+                                                    @Language.OpenLangFolder
                                                 </MudButton>
                                             </MudItem>
                                         </MudGrid>
@@ -130,7 +129,7 @@
                         </MudTabPanel>
 
 
-                        <MudTabPanel Text="@Fassade.Language.ConnectionSettings">
+                        <MudTabPanel Text="@Language.ConnectionSettings">
 
                             @if (validationErrors.Any())
                             {
@@ -147,20 +146,20 @@
                                 <MudAlert Severity="Severity.Info" Class="mt-4">
                                     <div class="d-flex align-center">
                                         <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2"/>
-                                        <span>@Fassade.Language.ValidatingConnection</span>
+                                        <span>@Language.ValidatingConnection</span>
                                     </div>
                                 </MudAlert>
                             }
                             @if (hasError)
                             {
                                 <MudAlert Severity="Severity.Error" Class="mb-4">
-                                    <strong>@Fassade.Language.ErrorOccured</strong> @errorMessage
+                                    <strong>@Language.ErrorOccured</strong> @errorMessage
                                 </MudAlert>
                             }
                             else if (isLoading)
                             {
                                 <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
-                                <MudText Class="ml-3">@Fassade.Language.LoadingSettings</MudText>
+                                <MudText Class="ml-3">@Language.LoadingSettings</MudText>
                             }
                             else
                             {
@@ -169,7 +168,7 @@
                                     <MudAlert Severity="Severity.Info" Class="mb-4" Variant="Variant.Outlined">
                                         <div class="d-flex align-center">
                                             <MudIcon Icon="Icons.Material.Filled.Info" Class="mr-2"/>
-                                            <span>@Fassade.Language.ReadOnlySettings</span>
+                                            <span>@Language.ReadOnlySettings</span>
                                         </div>
                                     </MudAlert>
                                 }
@@ -182,10 +181,10 @@
                                                 {
                                                     <MudIcon Icon="Icons.Material.Filled.Lock" Size="Size.Small" Class="mr-2" Color="Color.Secondary"/>
                                                 }
-                                                <MudText Typo="Typo.h6">@Fassade.Language.DbConnectionConfig</MudText>
+                                                <MudText Typo="Typo.h6">@Language.DbConnectionConfig</MudText>
                                                 @if (!isEditMode)
                                                 {
-                                                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Class="ml-2">@Fassade.Language.ReadOnly</MudChip>
+                                                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Class="ml-2">@Language.ReadOnly</MudChip>
                                                 }
                                             </div>
                                         </CardHeaderContent>
@@ -196,7 +195,7 @@
                                                            Color="Color.Primary"
                                                            StartIcon="Icons.Material.Filled.Edit"
                                                            OnClick="EnableEditMode">
-                                                    @Fassade.Language.EditSettings
+                                                    @Language.EditSettings
                                                 </MudButton>
                                             }
                                             else
@@ -210,18 +209,18 @@
                                                         {
                                                             <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2"/>
                                                         }
-                                                        @Fassade.Language.SaveSettings
+                                                        @Language.SaveSettings
                                                     </MudButton>
                                                     <MudButton Color="Color.Secondary"
                                                                StartIcon="Icons.Material.Filled.Refresh"
                                                                OnClick="ResetChanges"
                                                                Disabled="@(!hasUnsavedChanges || isSaving)">
-                                                        @Fassade.Language.ResetChanges
+                                                        @Language.ResetChanges
                                                     </MudButton>
                                                     <MudButton Color="Color.Default"
                                                                StartIcon="Icons.Material.Filled.Cancel"
                                                                OnClick="CancelEdit">
-                                                        @Fassade.Language.Cancel
+                                                        @Language.Cancel
                                                     </MudButton>
                                                 </MudButtonGroup>
                                             }
@@ -232,16 +231,16 @@
                                         <MudGrid>
                                             <!-- Database Connection Section -->
                                             <MudItem xs="12">
-                                                <MudText Typo="Typo.h6" Class="mb-4" Color="Color.Primary">@Fassade.Language.DatabaseConnection</MudText>
+                                                <MudText Typo="Typo.h6" Class="mb-4" Color="Color.Primary">@Language.DatabaseConnection</MudText>
                                             </MudItem>
 
                                             <MudItem xs="12" md="8">
                                                 <MudTextField @bind-Value="serverIp"
-                                                              Label="@Fassade.Language.ServerIp"
+                                                              Label="@Language.ServerIp"
                                                               Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
                                                               ReadOnly="@(!isEditMode)"
                                                               OnKeyUp="OnFieldChanged"
-                                                              HelperText="@Fassade.Language.ServerIpDesc"
+                                                              HelperText="@Language.ServerIpDesc"
                                                               Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
                                                               AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
                                                               Class="@(!isEditMode ? "readonly-field-variant" : "")"/>
@@ -249,11 +248,11 @@
 
                                             <MudItem xs="12" md="4">
                                                 <MudNumericField @bind-Value="port"
-                                                                 Label="@Fassade.Language.Port"
+                                                                 Label="@Language.Port"
                                                                  Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
                                                                  ReadOnly="@(!isEditMode)"
                                                                  OnKeyUp="OnFieldChanged"
-                                                                 HelperText="@Fassade.Language.PortDesc"
+                                                                 HelperText="@Language.PortDesc"
                                                                  Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
                                                                  AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
                                                                  Class="@(!isEditMode ? "readonly-field-variant" : "")"/>
@@ -261,11 +260,11 @@
 
                                             <MudItem xs="12" md="6">
                                                 <MudTextField @bind-Value="initialCatalog"
-                                                              Label="@Fassade.Language.InitialCatalog"
+                                                              Label="@Language.InitialCatalog"
                                                               Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
                                                               ReadOnly="@(!isEditMode)"
                                                               OnKeyUp="OnFieldChanged"
-                                                              HelperText="@Fassade.Language.InitialCatalogDesc"
+                                                              HelperText="@Language.InitialCatalogDesc"
                                                               Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
                                                               AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
                                                               Class="@(!isEditMode ? "readonly-field-variant" : "")"/>
@@ -273,11 +272,11 @@
 
                                             <MudItem xs="12" md="6">
                                                 <MudTextField @bind-Value="userId"
-                                                              Label="@Fassade.Language.UserId"
+                                                              Label="@Language.UserId"
                                                               Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
                                                               ReadOnly="@(!isEditMode)"
                                                               OnKeyUp="OnFieldChanged"
-                                                              HelperText="@Fassade.Language.UserIdDesc"
+                                                              HelperText="@Language.UserIdDesc"
                                                               Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
                                                               AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
                                                               Class="@(!isEditMode ? "readonly-field-variant" : "")"/>
@@ -285,7 +284,7 @@
 
                                             <MudItem xs="12" md="6">
                                                 <MudTextField @bind-Value="password"
-                                                              Label="@Fassade.Language.Password"
+                                                              Label="@Language.Password"
                                                               Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
                                                               InputType="@(showPassword ? InputType.Text : InputType.Password)"
                                                               ReadOnly="@(!isEditMode)"
@@ -294,17 +293,17 @@
                                                               AdornmentIcon="@(isEditMode ? (showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility) : Icons.Material.Filled.Lock)"
                                                               OnAdornmentClick="@(isEditMode ? TogglePasswordVisibility : null)"
                                                               AdornmentAriaLabel="@(isEditMode ? "Show/Hide Password" : "Read-only field")"
-                                                              HelperText="@Fassade.Language.PasswordDesc"
+                                                              HelperText="@Language.PasswordDesc"
                                                               Class="@(!isEditMode ? "readonly-field-variant" : "")"/>
                                             </MudItem>
 
                                             <MudItem xs="12" md="6">
                                                 <MudNumericField @bind-Value="connectionTimeout"
-                                                                 Label="@Fassade.Language.Timeout"
+                                                                 Label="@Language.Timeout"
                                                                  Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
                                                                  ReadOnly="@(!isEditMode)"
                                                                  OnKeyUp="OnFieldChanged"
-                                                                 HelperText="@Fassade.Language.TimeoutDesc"
+                                                                 HelperText="@Language.TimeoutDesc"
                                                                  Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
                                                                  AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
                                                                  Class="@(!isEditMode ? "readonly-field-variant" : "")"/>
@@ -312,14 +311,14 @@
 
                                             <!-- Checkboxes Section -->
                                             <MudItem xs="12">
-                                                <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">@Fassade.Language.ConnectionOptions</MudText>
+                                                <MudText Typo="Typo.subtitle1" Class="mb-2 mt-4">@Language.ConnectionOptions</MudText>
                                             </MudItem>
 
                                             <MudItem xs="12" sm="6" md="3">
                                                 <MudCheckBox T="bool"
                                                              @bind-Value="persistSecurityInfo"
                                                              @bind-Value:after="OnFieldChanged"
-                                                             Label="@Fassade.Language.PersistSecurityInfo"
+                                                             Label="@Language.PersistSecurityInfo"
                                                              ReadOnly="@(!isEditMode)"
                                                              Color="Color.Primary"
                                                              Class="@(!isEditMode ? "readonly-checkbox" : "")"/>
@@ -329,7 +328,7 @@
                                                 <MudCheckBox T="bool"
                                                              @bind-Value="multipleActiveResultSets"
                                                              @bind-Value:after="OnFieldChanged"
-                                                             Label="@Fassade.Language.Mars"
+                                                             Label="@Language.Mars"
                                                              ReadOnly="@(!isEditMode)"
                                                              Color="Color.Primary"
                                                              Class="@(!isEditMode ? "readonly-checkbox" : "")"/>
@@ -339,7 +338,7 @@
                                                 <MudCheckBox T="bool"
                                                              @bind-Value="encrypt"
                                                              @bind-Value:after="OnFieldChanged"
-                                                             Label="@Fassade.Language.Encrypt"
+                                                             Label="@Language.Encrypt"
                                                              ReadOnly="@(!isEditMode)"
                                                              Color="Color.Primary"
                                                              Class="@(!isEditMode ? "readonly-checkbox" : "")"/>
@@ -349,7 +348,7 @@
                                                 <MudCheckBox T="bool"
                                                              @bind-Value="trustServerCertificate"
                                                              @bind-Value:after="OnFieldChanged"
-                                                             Label="@Fassade.Language.TrustCert"
+                                                             Label="@Language.TrustCert"
                                                              ReadOnly="@(!isEditMode)"
                                                              Color="Color.Primary"
                                                              Class="@(!isEditMode ? "readonly-checkbox" : "")"/>
@@ -358,16 +357,16 @@
                                             <!-- SignalR Section -->
                                             <MudItem xs="12">
                                                 <MudDivider Class="my-4"/>
-                                                <MudText Typo="Typo.h6" Class="mb-4" Color="Color.Primary">@Fassade.Language.SignalrConfig</MudText>
+                                                <MudText Typo="Typo.h6" Class="mb-4" Color="Color.Primary">@Language.SignalrConfig</MudText>
                                             </MudItem>
 
                                             <MudItem xs="12">
                                                 <MudTextField @bind-Value="signalRHubUrl"
-                                                              Label="@Fassade.Language.SignalrHubUrl"
+                                                              Label="@Language.SignalrHubUrl"
                                                               Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
                                                               ReadOnly="@(!isEditMode)"
                                                               OnKeyUp="OnFieldChanged"
-                                                              HelperText="@Fassade.Language.SignalrHubDesc"
+                                                              HelperText="@Language.SignalrHubDesc"
                                                               Adornment="@(!isEditMode ? Adornment.End : Adornment.None)"
                                                               AdornmentIcon="@(!isEditMode ? Icons.Material.Filled.Lock : null)"
                                                               Class="@(!isEditMode ? "readonly-field-variant" : "")"/>
@@ -389,7 +388,7 @@
             </div>
         </div>
     </div>
-}
+
 
 <style>
     /* Popup Dialog mit flexbox Layout */
@@ -490,9 +489,8 @@
 </style>
 
 @code {
-    [Parameter]
-    public EventCallback OnClosing { get; set; }
-    
+    [Parameter] public EventCallback OnClosing { get; set; }
+
     // Original fields
     private string connectionString = "";
     private string signalRHubUrl = "";
@@ -535,7 +533,7 @@
 
     private bool isValidating = false;
     private List<string> validationErrors = new List<string>();
-    
+
     private void ParseConnectionString(string connStr)
     {
         if (string.IsNullOrEmpty(connStr)) return;
@@ -661,8 +659,9 @@
 
     private async Task SaveGeneralSettings()
     {
-        if (Fassade != null && LangLoader != null)
-        await LangLoader.SaveLanguageSettings(LangLoader.SelectedLanguage, Fassade);
+        Snackbar.Add(LangLoader.SelectedLanguage,Severity.Error);
+        await ChangeUsername();
+        await LangLoader.SaveLanguageSettings(LangLoader.SelectedLanguage);
         StateHasChanged();
     }
 
@@ -675,14 +674,14 @@
         if (string.IsNullOrWhiteSpace(serverIp) || string.IsNullOrWhiteSpace(initialCatalog) ||
             string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(password))
         {
-            statusMessage = Fassade?.Language.MissingDbInfo ?? "Database information is missing";
+            statusMessage = Language.MissingDbInfo ?? "Database information is missing";
             isStatusError = true;
             return;
         }
 
         if (string.IsNullOrWhiteSpace(signalRHubUrl))
         {
-            statusMessage = Fassade?.Language.MissingSignalRInfo ?? "SignalR information is missing";
+            statusMessage = Language.MissingSignalRInfo ?? "SignalR information is missing";
             isStatusError = true;
             return;
         }
@@ -751,7 +750,7 @@
                 ConfigurationEncryptor.EncryptConnectionString(newConnectionString, appSettingsPath);
             }
 
-            statusMessage = Fassade?.Language.SavedAppWillRestart ?? "Settings saved successfully. Application will restart...";
+            statusMessage = Language.SavedAppWillRestart ?? "Settings saved successfully. Application will restart...";
             isStatusError = false;
             hasUnsavedChanges = false;
             isEditMode = false;
@@ -771,7 +770,7 @@
         }
         catch (Exception ex)
         {
-            statusMessage =  Fassade?.Language.SaveError ?? "Error while saving settings: " + ex.Message;
+            statusMessage =  Language.SaveError ?? "Error while saving settings: " + ex.Message;
             isStatusError = true;
             System.Diagnostics.Debug.WriteLine($"Save Error: {ex}");
             Console.WriteLine($"Save Error: {ex}");
@@ -784,16 +783,14 @@
         }
     }
 
-    private async Task OnLanguageChanged(string newLang)
+    private void OnLanguageChanged(string newLang)
     {
-        if (LangLoader != null)
-        await LangLoader.OnLanguageChanged(newLang);
+        LangLoader.OnLanguageChanged(newLang);
     }
 
     private void OpenLanguageFolder()
     {
         var folderPath = "";
-        if (LangLoader != null)
         folderPath = LangLoader.GetLanguagesFolderPath();
 
         if (Directory.Exists(folderPath))
@@ -812,7 +809,7 @@
             }
         }
     }
-    
+
     private async Task CloseSomething()
     {
         if (isEditMode) return;
@@ -825,9 +822,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (LangLoader != null)
         LangLoader.SetAvailableLanguages();
-        if (LangLoader != null)
         LangLoader.SetSelectedLang();
         // Extrahiere nur den Username-Teil (vor dem Semikolon)
         _newUsername = GetDisplayUsername(UsernameS.Username);
@@ -847,7 +842,7 @@
         catch (Exception ex)
         {
             hasError = true;
-            errorMessage = Fassade?.Language.LoadingError ?? "Error loading configuration: " + ex.Message;
+            errorMessage = Language.LoadingError ?? "Error loading configuration: " + ex.Message;
             isLoading = false;
         }
 

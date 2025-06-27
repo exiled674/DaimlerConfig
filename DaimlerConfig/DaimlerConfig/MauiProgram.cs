@@ -102,7 +102,7 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<UsernameService>();
             builder.Services.AddSingleton<Settings>();
             builder.Services.AddSingleton<LanguageLoad>();
-
+            builder.Services.AddSingleton<Language>();
             
 
             builder.Services.AddMudServices();
@@ -184,7 +184,6 @@ namespace DaimlerConfig
                         builder.Services.AddScoped<IRepository<Template>, Repository<Template>>();
                         builder.Services.AddScoped<IRepository<OperationVersion>, Repository<OperationVersion>>();
                         builder.Services.AddScoped<ExcelExport, ExcelExport>();
-                        builder.Services.AddScoped<Language, Language>();
 
                         builder.Services.AddSingleton<Fassade>(sp =>
                         {
@@ -204,11 +203,10 @@ namespace DaimlerConfig
                             var export = sp.GetRequiredService<ExcelExport>();
                             var toolversion = sp.GetRequiredService<IRepository<ToolVersion>>();
                             var operationversion = sp.GetRequiredService<IRepository<OperationVersion>>();
-                            var language = sp.GetRequiredService<Language>();
 
                             return new Fassade(toolRepo, operationRepo, stationRepo, lineRepo, stationType, decisionClassRepo,
                                 generationClassRepo, savingClassRepo, verificationClassRepo, toolClassRepo, toolTypeRepo,
-                                toolTypeHasTemplateRepo, templateRepo, export, toolversion, operationversion, language);
+                                toolTypeHasTemplateRepo, templateRepo, export, toolversion, operationversion);
                         });
                     }
                     else

@@ -11,7 +11,7 @@
 
     <div class="class-header  justify-content-between align-items-center">
         <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-            @Fassade.Language.Tool
+            @Language.Tool
             @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedTool?.lockedBy))
             {
                 <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-left: 8px;" />
@@ -30,7 +30,7 @@
                            Value="selectedVersionId"
                            ValueChanged="OnVersionChanged"
                            OnBlur="LockTool">
-                    <MudSelectItem T="int?" Value="-1">@Fassade.Language.CurrentVersion</MudSelectItem>
+                    <MudSelectItem T="int?" Value="-1">@Language.CurrentVersion</MudSelectItem>
                     @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                     {
                         <MudSelectItem T="int?" Value="@version.toolVersionID">
@@ -47,7 +47,7 @@
                                Color="Color.Primary"
                                Class="btn btn-primary btn-sm add-station-btn"
                                @onclick="CreateToolAsync">
-                        @Fassade.Language.Create
+                        @Language.Create
                     </MudButton>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
@@ -64,7 +64,7 @@
                                Color="Color.Primary"
                                Class="btn btn-primary btn-sm add-station-btn"
                                @onclick="UpdateToolAsync" disabled="@ReadOnly">
-                        @Fassade.Language.Save
+                        @Language.Save
                     </MudButton>
                 </div>
                 @if (!string.IsNullOrEmpty(ValidationMessage))
@@ -80,7 +80,7 @@
         <!-- First Row: Tool ID and Tool Shortname -->
         <div class="col-md-6 mb-3">
             <MudTextField T="int?"
-                          Label="@Fassade.Language.ToolId"
+                          Label="@Language.ToolId"
                           Value="SelectedTool.toolID"
                           ReadOnly="true"
                           Variant="Variant.Outlined"
@@ -94,7 +94,7 @@
         <div class="col-md-6 mb-3">
             <div style="position: relative;">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.ToolShortname"
+                              Label="@Language.ToolShortname"
                               @bind-Value="SelectedTool.toolShortname"
                               MaxLength="16"
                               ReadOnly="@ReadOnly"
@@ -154,7 +154,7 @@
         <div class="col-md-6 mb-3">
             <div style="position: relative;">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.ToolDescription"
+                              Label="@Language.ToolDescription"
                               @bind-Value="SelectedTool.toolDescription"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
@@ -178,7 +178,7 @@
             <div style="position: relative;">
                 <MudTextField T="string"
                               @bind-Value="SelectedTool.Comment"
-                              Label="@Fassade.Language.Comment"
+                              Label="@Language.Comment"
                               Variant="Variant.Outlined"
                               Class="w-100"
                               Style="background: white; border-radius: 12px;"
@@ -204,14 +204,14 @@
     <!-- Network Section -->
     <div>
         <MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-            @Fassade.Language.Network
+            @Language.Network
         </MudText>
 
         <div class="row">
             <!-- First Row: IP Address, PLC Name, DB No Send -->
             <div class="col-md-4 mb-3">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.IpAddressDevice"
+                              Label="@Language.IpAddressDevice"
                               @bind-Value="SelectedTool.ipAddressDevice"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
@@ -229,7 +229,7 @@
 
             <div class="col-md-4 mb-3">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.PlcName"
+                              Label="@Language.PlcName"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
                               Margin="Margin.Normal"
@@ -241,7 +241,7 @@
 
             <div class="col-md-4 mb-3">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.DbNoSend"
+                              Label="@Language.DbNoSend"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
                               Margin="Margin.Normal"
@@ -254,7 +254,7 @@
             <!-- Second Row: DB No Receive, Address Send DB, Address Receive DB -->
             <div class="col-md-4 mb-3">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.DbNoReceive"
+                              Label="@Language.DbNoReceive"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
                               Margin="Margin.Normal"
@@ -266,7 +266,7 @@
 
             <div class="col-md-4 mb-3">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.AddressSendDb"
+                              Label="@Language.AddressSendDb"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
                               Margin="Margin.Normal"
@@ -278,7 +278,7 @@
 
             <div class="col-md-4 mb-3">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.AddressReceiveDb"
+                              Label="@Language.AddressReceiveDb"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
                               Margin="Margin.Normal"
@@ -291,7 +291,7 @@
             <!-- Third Row: Byte Pre Check (centered or full width) -->
             <div class="col-md-4 mb-3">
                 <MudTextField T="string"
-                              Label="@Fassade.Language.BytePreCheck"
+                              Label="@Language.BytePreCheck"
                               ReadOnly="@ReadOnly"
                               Variant="Variant.Outlined"
                               Margin="Margin.Normal"
@@ -436,7 +436,7 @@
         //ToolShortname
         if (string.IsNullOrWhiteSpace(SelectedTool.toolShortname))
         {
-            errorMessages["ToolShortname"] = Fassade.Language.MissingToolShortname;
+            errorMessages["ToolShortname"] = Language.MissingToolShortname;
 
         }
 
@@ -445,7 +445,7 @@
 
         if (await Fassade.ToolExistsInStation(SelectedTool.toolShortname, SelectedTool.toolID.Value, SelectedTool.stationID.Value))
         {
-            errorMessages["ToolShortname"] = Fassade.Language.ToolAlreadyExists;
+            errorMessages["ToolShortname"] = Language.ToolAlreadyExists;
         }
 
 
@@ -453,7 +453,7 @@
         //IP-Adresse
         if (string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice))
         {
-            errorMessages["IP"] = Fassade.Language.MissingIpAddress;
+            errorMessages["IP"] = Language.MissingIpAddress;
 
         }
 
@@ -461,7 +461,7 @@
 
         if (!string.IsNullOrWhiteSpace(SelectedTool.ipAddressDevice) && !regex.IsMatch(SelectedTool.ipAddressDevice))
         {
-            errorMessages["IP"] = Fassade.Language.InvalidIp;
+            errorMessages["IP"] = Language.InvalidIp;
         }
 
         showErrors = errorMessages.Any();

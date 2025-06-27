@@ -1,20 +1,18 @@
 ﻿@using System.Text.Json
 @using DaimlerConfig.Components.Models
 @using Microsoft.Extensions.FileProviders
+@inject ISnackbar Snackbar
 @code {
     private const string SELECTED_LANGUAGE_KEY = "SelectedLanguage";
     public string SelectedLanguage = "";
     public List<string> AvailableLanguages = new();
-    
-    [Inject] private DaimlerConfig.Components.Fassade.Fassade? Fassade { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             SetSelectedLang();
-            if (Fassade != null)
-                await SaveLanguageSettings(SelectedLanguage, Fassade);
+            await SaveLanguageSettings(SelectedLanguage);
             SetAvailableLanguages();
         }
         catch (Exception) { }
@@ -34,30 +32,17 @@
         SelectedLanguage = Preferences.Default.Get(SELECTED_LANGUAGE_KEY, SelectedLanguage);
     }
 
-    public async Task SaveLanguageSettings(string selectedLang, Fassade.Fassade fassade)
+    public async Task SaveLanguageSettings(string selectedLang)
     {
-        try
-        {
-            Preferences.Default.Set(SELECTED_LANGUAGE_KEY, selectedLang);
-            await LoadSelectedLanguage(fassade);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Speichern der Sprache: {ex.Message}");
-        }
+        Preferences.Default.Set(SELECTED_LANGUAGE_KEY, selectedLang);
+        await LoadSelectedLanguage( selectedLang);
     }
 
-    public async Task LoadSelectedLanguage(Fassade.Fassade fassade)
+    private async Task LoadSelectedLanguage(string selectedLang)
     {
-        try
-        {
-            var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{SelectedLanguage}.json");
-            await LoadLanguageFromFileAsync(languageFilePath, fassade);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Laden der Sprache: {ex.Message}");
-        }
+        var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{selectedLang}.json");
+        await LoadLanguageFromFileAsync(languageFilePath);
+        Snackbar.Add( "breakpoint 1",Severity.Success);
     }
 
     public string GetLanguagesFolderPath()
@@ -66,43 +51,29 @@
         return Path.Combine(appDataPath);
     }
 
-    public async Task OnLanguageChanged(string newLanguage)
-    {
+    public void OnLanguageChanged(string newLanguage)
+    { 
         SelectedLanguage = newLanguage;
     }
 
-    private async Task LoadLanguageFromFileAsync(string filePath, Fassade.Fassade fassade)
+    private async Task LoadLanguageFromFileAsync(string filePath)
     {
-        try
-        {
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"Sprachdatei nicht gefunden: {filePath}");
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"Sprachdatei nicht gefunden: {filePath}");
 
-            var jsonContent = await File.ReadAllTextAsync(filePath);
-            fassade.Language = LoadLanguageFromJson(jsonContent);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Laden der Sprachdatei: {ex.Message}");
-        }
+        var jsonContent = await File.ReadAllTextAsync(filePath);
+        Language.SetLanguage(LoadLanguageFromJson(jsonContent));
+        Snackbar.Add( "breakpoint 3",Severity.Success);
     }
 
-    private Language LoadLanguageFromJson(string jsonContent)
+    private LanguageHelper LoadLanguageFromJson(string jsonContent)
     {
-        try
+        var options = new JsonSerializerOptions
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
-            return JsonSerializer.Deserialize<Language>(jsonContent, options) ?? new Language();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Deserialisieren der Sprache: {ex.Message}");
-            return new Language();
-        }
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        Snackbar.Add( "breakpoint 5",Severity.Success);
+        return JsonSerializer.Deserialize<LanguageHelper>(jsonContent, options) ?? new LanguageHelper();
     }
 }

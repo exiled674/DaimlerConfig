@@ -37,7 +37,7 @@
             <MudText Typo="Typo.h5"
                      Class="font-weight-bold"
                      Style="letter-spacing: 0.4px; font-size: 1.3rem;">
-                @Fassade.Language.ProjectManager
+                @Language.ProjectManager
             </MudText>
         </div>
 
@@ -45,7 +45,7 @@
             <MudText Typo="Typo.subtitle1"
                      Class="font-weight-medium"
                      Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
-                @(usernameService.Username?.Split(';')[0] ?? Fassade.Language.UnknownUser)
+                @(usernameService.Username?.Split(';')[0] ?? Language.UnknownUser)
             </MudText>
 
             <MudIconButton Icon="@Icons.Material.Filled.Settings"
@@ -86,7 +86,7 @@
             <div style="flex: 0 0 calc(33.333% - 10px); max-width: calc(33.333% - 10px);">
                 <MudTextField @bind-Value="searchText"
                 @bind-Value:after="UpdateFilteredLines"
-                Placeholder="@Fassade.Language.SearchProjects"
+                Placeholder="@Language.SearchProjects"
                 Adornment="Adornment.Start"
                 AdornmentIcon="@Icons.Material.Filled.Search"
                 Immediate="true"
@@ -112,19 +112,19 @@
                     <MudSelectItem Value="@("date")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="me-2" />
-                            @Fassade.Language.SortedByDateDesc
+                            @Language.SortedByDateDesc
                         </div>
                     </MudSelectItem>
                     <MudSelectItem Value="@("name")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.SortByAlpha" Size="Size.Small" Class="me-2" />
-                            @Fassade.Language.SortedByNameAsc
+                            @Language.SortedByNameAsc
                         </div>
                     </MudSelectItem>
                     <MudSelectItem Value="@("favorites")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" Class="me-2" />
-                            @Fassade.Language.SortedByFavorites
+                            @Language.SortedByFavorites
                         </div>
                     </MudSelectItem>
                 </MudSelect>
@@ -161,7 +161,7 @@
                                 <MudText Typo="Typo.body2"
                                 Class="ma-0 pa-0"
                                 Style="color: #6c757d; font-size: 0.875rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                    @(string.IsNullOrWhiteSpace(line.lineDescription) ? Fassade.Language.NoDescription : line.lineDescription)
+                                    @(string.IsNullOrWhiteSpace(line.lineDescription) ? Language.NoDescription : line.lineDescription)
                                 </MudText>
                             </div>
 
@@ -194,7 +194,7 @@
                                 <!-- Stationen Anzahl -->
                                 @{
                                     var totalStations = statusCounts.Green + statusCounts.Yellow + statusCounts.Red + statusCounts.Undefined;
-                                    var stationText = totalStations == 1 ? Fassade.Language.Station : Fassade.Language.Stations;
+                                    var stationText = totalStations == 1 ? Language.Station : Language.Stations;
                                 }
                                 <MudChip Size="Size.Small"
                                 T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.75rem;">
@@ -209,7 +209,7 @@
                             <MudText Typo="Typo.caption"
                             Class="text-left"
                             Style="color: #6c757d; font-size: 0.75rem;">
-                                @($"{Fassade.Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Fassade.Language.By} {line.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
+                                @($"{Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Language.By} {line.modifiedBy?.Split(';')[0] ?? Language.UnknownUser}")
                             </MudText>
 
                             <!-- Hover-Aktionsleiste -->
@@ -259,7 +259,7 @@
     }
     else
     {
-        <p class="text-muted">@Fassade.Language.NoLinesFound</p>
+        <p class="text-muted">@Language.NoLinesFound</p>
     }
 
     <div>
@@ -268,7 +268,7 @@
         Size="Size.Large"
         Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:8px;"
         Onclick="OpenDialogAsync"
-        Label="@Fassade.Language.CreateNewProject"
+        Label="@Language.CreateNewProject"
         Class="fab-optimized px-4 py-2" />
     </div>
 </div>
