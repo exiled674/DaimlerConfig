@@ -490,7 +490,7 @@
                             <MudList T="string" Clickable="false">
                                 @foreach (var tool in tools)
                                 {
-            <MudCard Class="@($"station-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
+            <MudCard Class="@($"station-card tool-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
                      Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;">
                 <MudCardContent Class="pa-0">
                   <!-- Tool Header als klickbarer Bereich -->
@@ -870,7 +870,7 @@
 }
 
 .station-card:hover .hover-actions {
-  opacity: 0 !important;  /* Geändert von 1 auf 0 */
+  opacity: 1 !important;  /* Geändert von 1 auf 0 */
   transform: translateY(-1px);
 }
 
@@ -1245,6 +1245,23 @@
 
 .status-options-vertical {
   z-index: 1002 !important;
+}
+
+/* Überschreibt station-card Hover für tool-cards */
+.station-card.tool-card:hover .hover-actions {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Aktiviert nur spezifische Hover-Bereiche in Tool Cards */
+.tool-card .tool-header-section:hover .tool-hover-actions {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+.tool-card .operation-item-section:hover .operation-hover-actions {
+  opacity: 1 !important;
+  pointer-events: all !important;
 }
 
 
