@@ -2946,8 +2946,8 @@
 
         if(restoredState== null) return;
 
-        OnInitializedAsync(); 
-        //await RestoreSavedSelection(restoredState);
+        
+        await RestoreSavedSelection(restoredState);
         StateHasChanged();
 
     }
