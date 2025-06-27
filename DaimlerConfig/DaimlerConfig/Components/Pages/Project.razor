@@ -2938,11 +2938,15 @@
 
         Navigation.NavigateTo(uriS[0], replace: true);
         NavState.SetCurrentRoute(uriS[0]);
+        StateHasChanged();
+        
+        OnInitializedAsync();
+
 
         if(uriS[1]== null) return;
 
         SelectionState? restoredState = JsonSerializer.Deserialize<SelectionState>(uriS[1]);
-        StateHasChanged();
+        
 
         if(restoredState== null) return;
 
