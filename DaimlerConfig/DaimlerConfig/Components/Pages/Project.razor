@@ -982,37 +982,37 @@
   color: var(--mud-palette-text-secondary) !important;
 }
 
-/* MudDrawer-ähnliche Scrollbar für Tool Panel */
+/* Nur für das Haupt-Tool-Panel - vertikale Scrollbar */
 #toolsList {
-  /* Entferne die versteckten Scrollbar-Regeln */
   scrollbar-width: thin !important; /* Firefox */
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent !important; /* Firefox */
+  overflow-x: hidden !important; /* Verhindert horizontale Scrollbar */
+  overflow-y: auto !important; /* Erlaubt nur vertikale Scrollbar */
 }
 
-/* Webkit Scrollbar (Chrome, Safari, Edge) */
-#toolsList::-webkit-scrollbar {
-  width: 6px !important; /* Dünne Scrollbar wie MudDrawer */
-  display: block !important; /* Zeige die Scrollbar wieder */
+/* Webkit Scrollbar nur für vertikale Richtung */
+#toolsList::-webkit-scrollbar:vertical {
+  width: 6px !important;
+  display: block !important;
 }
 
-#toolsList::-webkit-scrollbar-track {
+#toolsList::-webkit-scrollbar:horizontal {
+  display: none !important; /* Versteckt horizontale Scrollbar */
+}
+
+#toolsList::-webkit-scrollbar-track:vertical {
   background: transparent !important;
   border-radius: 3px !important;
 }
 
-#toolsList::-webkit-scrollbar-thumb {
+#toolsList::-webkit-scrollbar-thumb:vertical {
   background: rgba(0, 0, 0, 0.2) !important;
   border-radius: 3px !important;
   transition: background 0.2s ease !important;
 }
 
-#toolsList::-webkit-scrollbar-thumb:hover {
+#toolsList::-webkit-scrollbar-thumb:hover:vertical {
   background: rgba(0, 0, 0, 0.4) !important;
-}
-
-/* Scrollbar Corner */
-#toolsList::-webkit-scrollbar-corner {
-  background: transparent !important;
 }
 
 
@@ -3080,19 +3080,13 @@
 
         Navigation.NavigateTo(uriS[0], replace: true);
         NavState.SetCurrentRoute(uriS[0]);
-        StateHasChanged();
-        
-        OnInitializedAsync();
-
 
         if(uriS[1]== null) return;
 
         SelectionState? restoredState = JsonSerializer.Deserialize<SelectionState>(uriS[1]);
-        
 
         if(restoredState== null) return;
 
-        
         await RestoreSavedSelection(restoredState);
         StateHasChanged();
 
