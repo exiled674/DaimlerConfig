@@ -599,25 +599,25 @@
                             </div>
                         </div>
 
-                    <!-- Operations Section - Kompakter und weniger prominent -->
-<MudStack Spacing="0" Class="mt-0 mb-1 px-3">
-    <MudDivider Class="thick-divider" />
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0;">
-        <div style="display: flex; align-items: center; gap: 4px;">
-            <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
-                          Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
-                          Style="font-size: 16px; color: rgba(51, 51, 51, 0.4); min-width: 20px; height: 20px; padding: 0; margin: 0;"
-                          @onclick="() => ToggleExpand(tool.toolID.Value)" />
-            <MudText Typo="Typo.body2" Class="text-uppercase" Style="letter-spacing: 0.08em; color: rgba(51, 51, 51, 0.5); font-size: 0.75rem; font-weight: 500;">
-                @Fassade.Language.Operations (@allOperations.Count(op => op.toolID == tool.toolID))
-            </MudText>
-        </div>
-        <MudIconButton Icon="@Icons.Material.Filled.Add"
-                      Style="font-size: 16px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0;"
-                      @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }"
-                      AriaLabel="Add Operation" />
-    </div>
-</MudStack>
+                            <!-- Operations Section - Kompakter und weniger prominent -->
+        <MudStack Spacing="0" Class="mt-0 mb-1 px-3">
+            <MudDivider Class="thick-divider" />
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 0px 4px 0px;">
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                                  Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
+                                  Style="font-size: 16px; color: rgba(51, 51, 51, 0.4); min-width: 20px; height: 20px; padding: 0; margin: 0;"
+                                  @onclick="() => ToggleExpand(tool.toolID.Value)" />
+                    <MudText Typo="Typo.body2" Class="text-uppercase" Style="letter-spacing: 0.08em; color: rgba(51, 51, 51, 0.5); font-size: 0.75rem; font-weight: 500;">
+                                                                @Fassade.Language.Operations (@allOperations.Count(op => op.toolID == tool.toolID))
+                    </MudText>
+                </div>
+                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                              Style="font-size: 16px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0;"
+                              @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }"
+                              AriaLabel="Add Operation" />
+            </div>
+        </MudStack>
 
 
                         <!-- Operationen -->
@@ -628,7 +628,7 @@
                                                             {
                                             <div class="operation-item-section position-relative">
                                                 <MudListItem Class="@($"{(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
-                                                             Style="min-height: 70px; padding: 10px 12px; display: flex; flex-direction: column; align-items: flex-start;"
+                                                             Style="min-height: 70px; padding: 4px 12px; display: flex; flex-direction: column; align-items: flex-start;"
                                                              @onclick="() => { OnOperationClicked(operation, false); SelectItem(operation); }"
                                                              Selected="@(selectedOperation?.operationID == operation.operationID)">
 
