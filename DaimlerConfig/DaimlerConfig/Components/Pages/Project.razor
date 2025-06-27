@@ -982,9 +982,56 @@
   color: var(--mud-palette-text-secondary) !important;
 }
 
-#toolsList::-webkit-scrollbar {
-  display: none;
+/* MudDrawer-ähnliche Scrollbar für Tool Panel */
+#toolsList {
+  /* Entferne die versteckten Scrollbar-Regeln */
+  scrollbar-width: thin !important; /* Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent !important; /* Firefox */
 }
+
+/* Webkit Scrollbar (Chrome, Safari, Edge) */
+#toolsList::-webkit-scrollbar {
+  width: 6px !important; /* Dünne Scrollbar wie MudDrawer */
+  display: block !important; /* Zeige die Scrollbar wieder */
+}
+
+#toolsList::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 3px !important;
+}
+
+#toolsList::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-radius: 3px !important;
+  transition: background 0.2s ease !important;
+}
+
+#toolsList::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Scrollbar Corner */
+#toolsList::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+
+
+
+.tool-operation-panel *::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 3px !important;
+}
+
+.tool-operation-panel *::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-radius: 3px !important;
+  transition: background 0.2s ease !important;
+}
+
+.tool-operation-panel *::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
 
 /* Drag and drop - KORRIGIERT für Line Card Timing */
 .draggable {
