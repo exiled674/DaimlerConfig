@@ -1,7 +1,6 @@
 ﻿@using System.Text.Json
 @using DaimlerConfig.Components.Models
 @using Microsoft.Extensions.FileProviders
-@inject ISnackbar Snackbar
 @code {
     private const string SELECTED_LANGUAGE_KEY = "SelectedLanguage";
     public string SelectedLanguage = "";
@@ -42,7 +41,6 @@
     {
         var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{selectedLang}.json");
         await LoadLanguageFromFileAsync(languageFilePath);
-        Snackbar.Add( "breakpoint 1",Severity.Success);
     }
 
     public string GetLanguagesFolderPath()
@@ -63,7 +61,6 @@
 
         var jsonContent = await File.ReadAllTextAsync(filePath);
         Language.SetLanguage(LoadLanguageFromJson(jsonContent));
-        Snackbar.Add( "breakpoint 3",Severity.Success);
     }
 
     private LanguageHelper LoadLanguageFromJson(string jsonContent)
@@ -73,7 +70,6 @@
             PropertyNameCaseInsensitive = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-        Snackbar.Add( "breakpoint 5",Severity.Success);
         return JsonSerializer.Deserialize<LanguageHelper>(jsonContent, options) ?? new LanguageHelper();
     }
 }
