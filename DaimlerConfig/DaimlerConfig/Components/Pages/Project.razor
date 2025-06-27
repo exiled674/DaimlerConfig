@@ -451,9 +451,10 @@
             <main class="p-3 pb-0 d-flex gap-3">
 
                 <!-- Linke Spalte: Tools und Operationen -->
-      <div class="tool-operation-panel p-5 py-2" style="width: 500px;">
+     <div class="tool-operation-panel" style="width: 500px; display: flex; flex-direction: column; height: calc(100vh - 100px);">
     <!-- ENTFERNE das margin-top: 15px und verwende stattdessen padding-top: 17px -->
-    <div class="d-flex align-center justify-space-between" style="margin-bottom: 24px !important; padding-bottom: 8px !important; padding-top: 17px !important;">
+   <div class="tools-header-fixed" style="padding: 25px 20px 32px 20px; border-bottom: 1px solid rgba(0,0,0,0.08); background: white; flex-shrink: 0;">
+   <div class="d-flex align-center justify-space-between" style="margin-bottom: 0 !important; padding-bottom: 0 !important; padding-top: 0 !important;">
         <MudText Typo="Typo.h5" 
                  Class="mud-typography-h5" 
                  Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
@@ -472,9 +473,10 @@
                                 @Fassade.Language.Tool
     </MudButton>
         }
+        </div>
     </div>
 
-                   <div id="toolsList" style="max-height: 80vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding-top: 2px;">
+                <div id="toolsList" style="flex: 1; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 20px 20px 60px 20px;">
 
                         @if (selectedStation == null)
                         {
@@ -487,7 +489,7 @@
                         else
                         {
 
-                                   <MudList T="string" Clickable="false">
+                                   <MudList T="string" Clickable="false" >
                                     @foreach (var tool in tools)
                                     {
                 <MudCard Class="@($"station-card tool-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
@@ -1327,7 +1329,22 @@
 }
 
 
+/* Fixed Header für Tools and Operations */
+.tools-header-fixed {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
 
+/* Tool Operation Panel - Flexbox Layout */
+.tool-operation-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  height: calc(100vh - 100px) !important;
+  padding: 0 !important;
+}
 </style>
 
 
