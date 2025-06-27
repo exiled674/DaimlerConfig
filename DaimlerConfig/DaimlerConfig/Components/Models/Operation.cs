@@ -18,7 +18,7 @@ namespace DaimlerConfig.Components.Models
         public  string? operationSequence { get; set; }
         public  string? operationSequenceGroup { get; set; }
         public  string? operationDecisionCriteria { get; set; }
-        public bool alwaysPerform { get; set; }
+        public int alwaysPerform { get; set; }
         public int decisionClassID { get; set; }
         public int generationClassID { get; set; }
         public int verificationClassID { get; set; }
