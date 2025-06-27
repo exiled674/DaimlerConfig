@@ -500,14 +500,10 @@
             <MudGrid AlignItems="Center" Spacing="0" Style="height: 100%; width: 100%;">
                 <MudItem xs="10" Style="display: flex; align-items: center; height: 100%;">
                     <div class="d-flex align-items-center" style="gap: 8px;">
-                        <MudIcon Icon="@GetStatusIcon(tool.Status)"
-                                Size="Size.Small"
-                                Class="mr-1"
-                                Color="@GetStatusColor(tool.Status)" 
-                                Style="display: flex; align-items: center;" />
-                        <span class="tool-name" style="line-height: 1; display: flex; align-items: center;">
-                                                                @tool.toolShortname
-                        </span>
+                       
+                                <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
+                                                                    @tool.toolShortname
+                                    </MudText>
                     </div>
                 </MudItem>
                 <MudItem xs="2" Class="d-flex justify-end align-items-center" Style="height: 100%;">
@@ -627,20 +623,17 @@
                                                         {
                                        <div class="operation-item-section position-relative">
                 <MudListItem Class="@($"{(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
-                             Style="min-height: 48px; padding: 12px 8px; display: flex; align-items: center;"
+                             Style="min-height: 48px; padding: 12px 12px; display: flex; align-items: center;"
                              @onclick="() => { OnOperationClicked(operation, false); SelectItem(operation); }"
                              Selected="@(selectedOperation?.operationID == operation.operationID)">
 
                     <MudGrid AlignItems="Center" Spacing="0" Style="height: 100%; width: 100%;">
                         <MudItem xs="10" Style="display: flex; align-items: center; height: 100%;">
                             <div class="d-flex align-items-center" style="gap: 8px;">
-                                <MudIcon Icon="@GetStatusIcon(operation.Status)"
-                                        Size="Size.Small"
-                                        Color="@GetStatusColor(operation.Status)"
-                                        Style="display: flex; align-items: center;" />
-                                <span class="operation-name" style="line-height: 1; display: flex; align-items: center;">
-                                                                                    @operation.operationShortname
-                                </span>
+                               
+                               <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
+                                @operation.operationShortname
+                            </MudText>
                             </div>
                         </MudItem>
 
