@@ -58,11 +58,11 @@
 
             <!-- Navigate Input (breiter mit besserem Hover) -->
             <MudTextField @bind-Value="uriInput"
-              Variant="Variant.Outlined"
-              Placeholder="@Fassade.Language.NavigateTo"
-              Class="navigate-input"
-              Style="width: 140px;"
-              OnKeyUp="HandleKeyUp" />
+                          Variant="Variant.Outlined"
+                          Placeholder="@Fassade.Language.NavigateTo"
+                          Class="navigate-input"
+                          Style="width: 140px;"
+                          OnKeyUp="HandleKeyUp" />
 
 
             <MudText Typo="Typo.subtitle1"
@@ -145,6 +145,12 @@
                     border-color: rgba(255,255,255,0.9) !important;
                     box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
                 }
+
+        .navigate-input .mud-input {
+            color: inherit !important;
+            font-size: 0.8rem;
+            height: 32px;
+            paddin
 </style>
 
 @if (ShowSettings)
