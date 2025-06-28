@@ -33,7 +33,7 @@
         </div>
 
         <!-- Content -->
-        <div class="settings-content">
+        <div class="settings-content" >
             @if (ValidationService.HasErrors)
             {
                 <MudAlert Severity="Severity.Error" Class="mb-3 compact-alert">
@@ -43,6 +43,7 @@
 
             <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" 
                       PanelClass="tab-content" Class="settings-tabs"
+                     ActiveTabClass="settings-tabs-active"
                      HeaderClass="tabs-header">
                 
                 <!-- General Tab -->
@@ -57,12 +58,12 @@
                                 </div>
     
                                 <div class="profile-container-vertical">
-                                    <div class="avatar-section-centered">
+                                    @* <div class="avatar-section-centered">
                                         <MudAvatar Size="Size.Large" Style="@GetAvatarStyle()">
                                             <MudText Typo="Typo.body1">@GetUserInitial()</MudText>
                                         </MudAvatar>
                                         <MudText Typo="Typo.caption" Class="avatar-label">@GetDisplayUsernameForUI()</MudText>
-                                    </div>
+                                    </div> *@
         
                                     <div class="profile-input-row">
                                         <MudTextField @bind-Value="_newUsername"
@@ -528,10 +529,9 @@
 
 
 /* Active tab highlighting */
-.settings-tabs .mud-tabs-toolbar .mud-tab.mud-tab-active {
-    background-color: rgba(25, 118, 210, 0.08);
-    border-bottom: 2px solid #1976d2;
-    color: #1976d2;
+.settings-tabs-active {
+    @* background-color: rgba(25, 118, 210, 0.4); *@
+    border-bottom: 2px solid rgba(27,42,65,1);
     font-weight: 600;
 }
 
@@ -545,17 +545,17 @@
 }
 
 .tab-content::-webkit-scrollbar {
-    width: 6px;
+    width: 2px;
 }
 
 .tab-content::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-radius: 3px;
+    border-radius: 1px;
 }
 
 .tab-content::-webkit-scrollbar-thumb {
     background: #c1c1c1;
-    border-radius: 3px;
+    border-radius: 1px;
 }
 
     .tab-content::-webkit-scrollbar-thumb:hover {
