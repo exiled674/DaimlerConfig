@@ -17,6 +17,7 @@
 @inject DirtyManagerService DirtyManagerService
 @using DaimlerConfig.Components.Models
 @inject UsernameService usernameService
+@inject SelectionStateService SelectionState
 @inject IJSRuntime JS;
 @inject ISnackbar Snackbar
 
@@ -1053,9 +1054,22 @@
 
         var uriS = uriInput.Split(";");
 
+        try {
+        if(uriS[1]== null) return;
+
+        SelectionState? restoredState = JsonSerializer.Deserialize<SelectionState>(uriS[1]);
+
+        SelectionState.SaveSelection(restoredState.StationID, restoredState.ToolID, restoredState.OperationID);
+
 
         Navigation.NavigateTo(uriS[0], replace: true);
         NavState.SetCurrentRoute(uriS[0]);
+        } catch {
+
+        }
+
+
+        
 
     }
 
