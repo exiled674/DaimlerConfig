@@ -83,14 +83,14 @@
 
     <!-- Card-basierter Formular-Bereich mit Collapse -->
     <div class="layout position-relative" style="padding: 28px 24px 24px 24px;">
-        <!-- Basic Information Card -->
+        <!-- General Information Card -->
         <MudExpansionPanels Elevation="0" Class="mb-4">
-            <MudExpansionPanel IsInitiallyExpanded="true" 
+            <MudExpansionPanel IsInitiallyExpanded="true"
                                Style="border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 <TitleContent>
                     <div style="display: flex; align-items: center; padding: 4px 0;">
                         <MudIcon Icon="@Icons.Material.Filled.Info" Style="margin-right: 12px; color: var(--mud-palette-primary);" />
-                        <h6 style="margin: 0; font-weight: 600; color: var(--mud-palette-text-primary);">Basic Information</h6>
+                        <h6 style="margin: 0; font-weight: 600; color: var(--mud-palette-text-primary);">General</h6>
                     </div>
                 </TitleContent>
                 <ChildContent>
@@ -133,7 +133,7 @@
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Normal"
                                            Disabled="@ReadOnly"
-                                           Class="flex-grow-1 search-field-enhanced"
+                                           Class="w-100"
                                            Style="background: white; border-radius: 12px;"
                                            Value="SelectedTool.toolClassID"
                                            ValueChanged="OnToolClassChanged"
@@ -149,7 +149,7 @@
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Normal"
                                            Disabled="@ReadOnly"
-                                           Class="flex-grow-1 search-field-enhanced"
+                                           Class="w-100"
                                            Style="background: white; border-radius: 12px;"
                                            Value="SelectedTool.toolTypeID"
                                            ValueChanged="OnToolTypeChanged"
@@ -168,7 +168,7 @@
 
         <!-- Description Card -->
         <MudExpansionPanels Elevation="0" Class="mb-4">
-            <MudExpansionPanel IsInitiallyExpanded="true" 
+            <MudExpansionPanel IsInitiallyExpanded="true"
                                Style="border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 <TitleContent>
                     <div style="display: flex; align-items: center; padding: 4px 0;">
@@ -231,7 +231,7 @@
 
         <!-- Network Card -->
         <MudExpansionPanels Elevation="0">
-            <MudExpansionPanel IsInitiallyExpanded="false" 
+            <MudExpansionPanel IsInitiallyExpanded="false"
                                Style="border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 <TitleContent>
                     <div style="display: flex; align-items: center; padding: 4px 0;">
@@ -339,11 +339,11 @@
         min-height: 32px !important;
     }
 
-    .compact-select .mud-input-outlined .mud-input {
-        height: 32px !important;
-        padding: 4px 8px !important;
-        font-size: 0.75rem !important;
-    }
+        .compact-select .mud-input-outlined .mud-input {
+            height: 32px !important;
+            padding: 4px 8px !important;
+            font-size: 0.75rem !important;
+        }
 
     /* Expansion Panel Styling */
     .mud-expand-panel {
@@ -359,7 +359,6 @@
         padding: 0 !important;
     }
 </style>
-
 @code {
 
     [Parameter]
