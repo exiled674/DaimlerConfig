@@ -96,11 +96,11 @@
 
             <!-- Navigate Input (breiter mit besserem Hover) -->
             <MudTextField @bind-Value="uriInput"
-            Variant="Variant.Outlined"
-            Placeholder="@Fassade.Language.NavigateTo"
-            Class="navigate-input"
-            Style="width: 140px;"
-            OnKeyDown="@(e => { if (e.Key == "Enter") RouteN(); })" />
+              Variant="Variant.Outlined"
+              Placeholder="@Fassade.Language.NavigateTo"
+              Class="navigate-input"
+              Style="width: 140px;"
+              OnKeyUp="HandleKeyUp" />
 
             <!-- Divider -->
             <div style="width: 1px; height: 24px; background-color: rgba(255,255,255,0.3);"></div>
@@ -3072,6 +3072,15 @@
 
     String uriInput;
 
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+{
+    if (e.Key == "Enter")
+    {
+        await RouteN();
+    }
+}
+
     public async Task RouteN(){
         if(uriInput == null) return;
 
@@ -3095,6 +3104,8 @@
         Navigation.NavigateTo(uriS[0], replace: true);
 
     }
+
+
 
 
     public static string ResetSelection(string input, string newJson)
