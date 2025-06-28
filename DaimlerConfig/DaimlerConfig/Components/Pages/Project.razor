@@ -507,26 +507,33 @@
                                 </MudText>
                             </div>
 
-                            <!-- Status und Modified Info nebeneinander -->
+                           <!-- Status und Modified Info nebeneinander -->
                             <div class="d-flex align-center justify-space-between">
                                 <!-- Status-Zahlen für Operationen links -->
                                 <div class="d-flex align-center" style="gap: 12px;">
+                                    @{
+                                        ToolStatusCounts.TryGetValue(tool.toolID.Value, out var toolStatusCounts);
+                                    }
+        
                                     <!-- Grüner Status -->
                                     <div class="d-flex align-center" style="gap: 4px;">
                                         <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #4caf50;"></div>
-                                        <span style="font-size: 0.85rem; font-weight: 500;">2</span>
+                                        <span style="font-size: 0.85rem; font-weight: 500;">@(toolStatusCounts.Green)</span>
                                     </div>
+
                                     <!-- Gelber Status -->
                                     <div class="d-flex align-center" style="gap: 4px;">
                                         <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ff9800;"></div>
-                                        <span style="font-size: 0.85rem; font-weight: 500;">1</span>
+                                        <span style="font-size: 0.85rem; font-weight: 500;">@(toolStatusCounts.Yellow)</span>
                                     </div>
+
                                     <!-- Roter Status -->
                                     <div class="d-flex align-center" style="gap: 4px;">
                                         <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f44336;"></div>
-                                        <span style="font-size: 0.85rem; font-weight: 500;">0</span>
+                                        <span style="font-size: 0.85rem; font-weight: 500;">@(toolStatusCounts.Red)</span>
                                     </div>
                                 </div>
+
 
                                 <!-- Modified Text rechts (eine Zeile) -->
                                 <MudText Typo="Typo.caption"
@@ -2304,9 +2311,11 @@
                                         operationFormularModel.operationID = selectedOperation.operationID;
                                         operationFormularModel.toolID = selectedOperation.toolID;
                                     }
-                                    StateHasChanged();
+                                    
                                 }
                             }
+                            await LoadStatusCountsForAllTools();
+                            StateHasChanged();
                             break;
                         }
 
@@ -2328,8 +2337,10 @@
                                     operationFormularModel = selectedOperation.Clone();
                                     operationFormularModel.toolID = selectedTool.toolID;
                                 }
-                                StateHasChanged();
+                                
                             }
+                            await LoadStatusCountsForAllTools();
+                            StateHasChanged();
                             break;
                         }
 
@@ -2350,6 +2361,8 @@
                                 }
                                 StateHasChanged();
                             }
+                             await LoadStatusCountsForAllTools();
+                            StateHasChanged();
                             break;
                         }
 
@@ -2426,6 +2439,7 @@
             SelectionState savedSelection = SelectionState.GetSavedSelection();
             await RestoreSavedSelection(savedSelection);
             await LoadStatusCountsForAllStations();
+            await LoadStatusCountsForAllTools();
         }
 
         NavState.SetCurrentRoute($"/line/{lineName}");
@@ -2687,7 +2701,19 @@
         await Task.WhenAll(tasks);
     }
 
+    
+    private Dictionary<int, (int Red, int Yellow, int Green, int Undefined)> ToolStatusCounts = new();
+    private async Task LoadStatusCountsForAllTools()
+    {
+        var ToolList = tools.ToList();
+        var tasks = ToolList.Select(async tool =>
+        {
+            var (undefined, red, yellow, green) = await Fassade.GetStatusCountsForTool(tool.toolID.Value);
+            ToolStatusCounts[tool.toolID.Value] = (Red: red, Yellow: yellow, Green: green, Undefined: undefined);
+        });
 
+        await Task.WhenAll(tasks);
+    }
 
 
 
