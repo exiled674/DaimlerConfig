@@ -10,125 +10,159 @@
 <div class="container-lg" style="padding-left: 0px;">
     <!-- Header mit konsistenter Styling wie die anderen Spalten -->
     <div style="background: white;">
-        <div class="d-flex justify-content-between align-items-center" style="padding: 25px 20px 32px 20px; margin-bottom: 0 !important;">
-
-            <MudText Typo="Typo.h5" 
-                     Class="mud-typography-h5" 
-                     Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
+        <div class="d-flex justify-content-between align-items-center" style="padding: 25px 20px 20px 20px; margin-bottom: 0 !important;">
+            <MudText Typo="Typo.h5"
+                     Class="mud-typography-h5"
+                     Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important; padding-bottom:12px;">
                 @Fassade.Language.Station
             </MudText>
-
             <div class="d-flex align-items-center gap-2">
                 @if (errorMessages.ContainsKey("General"))
                 {
-                        <div class="alert alert-danger mb-0 me-2">@errorMessages["General"]</div>
+                    <div class="alert alert-danger mb-0 me-2">@errorMessages["General"]</div>
                 }
-
                 @if (SelectedStation?.stationID == 0)
                 {
-                        <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   Size="Size.Small"
-                                   Class="add-station-btn-consistent"
-                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
-                                   @onclick="CreateStationAsync">
+                    <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               Class="add-station-btn-consistent"
+                               Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                               @onclick="CreateStationAsync">
                         @Fassade.Language.Create
-                        </MudButton>
+                    </MudButton>
                 }
-
                 @if (SelectedStation?.stationID != 0)
                 {
-                        <MudButton StartIcon="@Icons.Material.Filled.Save"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   Size="Size.Small"
-                                   Class="add-station-btn-consistent"
-                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
-                                   @onclick="UpdateStationAsync">
+                    <MudButton StartIcon="@Icons.Material.Filled.Save"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               Class="add-station-btn-consistent"
+                               Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                               @onclick="UpdateStationAsync">
                         @Fassade.Language.Save
-                        </MudButton>
+                    </MudButton>
                 }
             </div>
         </div>
     </div>
-    <!-- NEU: Separate Linie mit Padding -->
+
+    <!-- Separate Linie mit Padding -->
     <div style="padding: 0px 24px 0px 0px;">
         <div style="border-bottom: 1px solid rgba(0,0,0,0.08);"></div>
     </div>
 
-    <!-- Optimierter Formular-Bereich mit besserem Spacing -->
+    <!-- Card-basierter Formular-Bereich mit Collapse - EXAKT wie Tool -->
     <div class="layout position-relative" style="padding: 28px 24px 24px 24px;">
-        <div class="stationColoumn" style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- General Information Card -->
+        <MudExpansionPanels Elevation="0" Class="mb-4">
+            <MudExpansionPanel IsInitiallyExpanded="true"
+                               Style="border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <TitleContent>
+                    <div style="display: flex; align-items: center; padding: 4px 0;">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Style="margin-right: 12px; color: var(--mud-palette-primary);" />
+                        <h6 style="margin: 0; font-weight: 600; color: var(--mud-palette-text-primary);">General</h6>
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <div style="padding: 0 24px 24px 24px;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div style="position: relative;">
+                                    <MudTextField @bind-Value="SelectedStation.assemblystation"
+                                                  Label="@Fassade.Language.AssemblyStation"
+                                                  Variant="Variant.Outlined"
+                                                  MaxLength="10"
+                                                  Margin="Margin.Normal"
+                                                  Class="w-100"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  Immediate="true"
+                                                  OnBlur="CheckIfDirty"
+                                                  Error="@errorMessages.ContainsKey("Assemblystation")"
+                                                  ErrorText="@errorMessages.GetValueOrDefault("Assemblystation")" />
+                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                        @($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div style="position: relative;">
+                                    <MudTextField @bind-Value="SelectedStation.stationName"
+                                                  Label="@Fassade.Language.AssemblyStationDesc"
+                                                  Variant="Variant.Outlined"
+                                                  MaxLength="50"
+                                                  Margin="Margin.Normal"
+                                                  Class="w-100"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  Immediate="true"
+                                                  OnBlur="CheckIfDirty" />
+                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                        @($"{SelectedStation?.stationName?.Length ?? 0}/50")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <MudSelect T="int" Label="@Fassade.Language.StationType"
+                                           @bind-Value="SelectedStation.stationTypeID"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Normal"
+                                           Class="w-100"
+                                           Style="background: white; border-radius: 12px;"
+                                           OnBlur="CheckIfDirty">
+                                    @if (stationTypes != null)
+                                    {
+                                        @foreach (var stationType in stationTypes)
+                                        {
+                                            <MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
+                                        }
+                                    }
+                                </MudSelect>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <div style="position: relative;">
+                                    <MudTextField @bind-Value="SelectedStation.Comment"
+                                                  Label="@Fassade.Language.Comment"
+                                                  Variant="Variant.Outlined"
+                                                  Class="w-100"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  Margin="Margin.Normal"
+                                                  Immediate="true"
+                                                  OnBlur="CheckIfDirty"
+                                                  MaxLength="1000"
+                                                  Lines="4"
+                                                  TextArea="true" />
+                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                        @($"{SelectedStation?.Comment?.Length ?? 0}/1000")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
 
-            <!-- Assembly Station Field -->
-            <div style="position: relative;">
-                <MudTextField @bind-Value="SelectedStation.assemblystation"
-                              Label="@Fassade.Language.AssemblyStation"
-                              Variant="Variant.Outlined"
-                              MaxLength="10"
-                              Class="search-field-enhanced"
-                              Style="background: white; border-radius: 12px;"
-                              Immediate="true"
-                              OnBlur="CheckIfDirty"
-                              Error="@errorMessages.ContainsKey("Assemblystation")"
-                              ErrorText="@errorMessages.GetValueOrDefault("Assemblystation")" />
-                <span class="position-absolute end-0 bottom-0 me-3 mb-2 text-muted small">
-                    @($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
-                </span>
-            </div>
-
-            <!-- Assembly Station Description Field -->
-            <div style="position: relative;">
-                <MudTextField @bind-Value="SelectedStation.stationName"
-                              Label="@Fassade.Language.AssemblyStationDesc"
-                              Variant="Variant.Outlined"
-                              MaxLength="50"
-                              Class="search-field-enhanced"
-                              Style="background: white; border-radius: 12px;"
-                              Immediate="true"
-                              OnBlur="CheckIfDirty" />
-                <span class="position-absolute end-0 bottom-0 me-3 mb-2 text-muted small">
-                    @($"{SelectedStation?.stationName?.Length ?? 0}/50")
-                </span>
-            </div>
-
-            <!-- Station Type Field -->
-            <MudSelect T="int" Label="@Fassade.Language.StationType" 
-                       @bind-Value="SelectedStation.stationTypeID" 
-                       Variant="Variant.Outlined"
-                       Class="search-field-enhanced" 
-                       Style="background: white; border-radius: 12px;"
-                       OnBlur="CheckIfDirty">
-                @if (stationTypes != null)
-                {
-                    @foreach (var stationType in stationTypes)
-                    {
-                                <MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
-                    }
-                }
-            </MudSelect>
-
-            <!-- Comment Field -->
-            <div style="position: relative;">
-                <MudTextField @bind-Value="SelectedStation.Comment"
-                              Label="@Fassade.Language.Comment"
-                              Variant="Variant.Outlined"
-                              Class="search-field-enhanced"
-                              Style="background: white; border-radius: 12px;"
-                              Immediate="true"
-                              OnBlur="CheckIfDirty"
-                              MaxLength="1000"
-                              Lines="5"
-                              TextArea="true" />
-                <span class="position-absolute end-0 bottom-0 me-3 mb-2 text-muted small">
-                    @($"{SelectedStation?.Comment.Length ?? 0}/1000")
-                </span>
-            </div>
-        </div>
     </div>
 </div>
 
+<style>
+    /* Expansion Panel Styling */
+    .mud-expand-panel {
+        margin-bottom: 0 !important;
+    }
+
+    .mud-expand-panel-header {
+        padding: 16px 24px !important;
+        min-height: auto !important;
+    }
+
+    .mud-expand-panel-content {
+        padding: 0 !important;
+    }
+</style>
 @code {
 
 	[Parameter]
