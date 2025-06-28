@@ -8,58 +8,76 @@
     <TitleContent>
         <MudText Typo="Typo.h6" Class="mt-2 ml-2">@(IsEditMode ? Language.EditProject : Language.NewProject)</MudText>
     </TitleContent>
-
     <DialogContent>
         <MudForm @ref="_form" OnValidSubmit="HandleValidSubmit">
-            <MudPaper Class="p-4" Elevation="0" Style="border-radius:12px;">
+            <MudPaper Class="p-4 dialog-form-container" Elevation="0" Style="border-radius:12px;">
                 <MudTextField @bind-Value="_inputValue"
-                              Label="@Language.ProjectName"
-                              Variant="Variant.Filled"
-                              AutoFocus="true"
-                              Margin="Margin.Dense"
-                              Class="search-field-enhanced"
-                              Error="@lineExists"
-                              ErrorText="@errorText"
-                               @onkeypress="OnKeyDown"/>
-            </MudPaper>
+                Label="@Language.ProjectName"
+                Variant="Variant.Outlined"
+                AutoFocus="true"
+                Margin="Margin.Normal"
+                Class="w-100 dialog-input-field"
+                Style="background: white; border-radius: 12px;"
+                Error="@lineExists"
+                ErrorText="@errorText"
+                @onkeypress="OnKeyDown"/>
 
+                <MudTextField @bind-Value="_inputValue2"
+                Label="@Language.ProjectName"
+                Variant="Variant.Outlined"
+                AutoFocus="true"
+                Margin="Margin.Normal"
+                Class="w-100 dialog-input-field"
+                Style="background: white; border-radius: 12px;"
+                Error="@lineExists"
+                ErrorText="@errorText"
+                @onkeypress="OnKeyDown" />
+            </MudPaper>
             <!-- Optionaler versteckter Submit-Button für Enter-Taste -->
             <MudButton Type="ButtonType.Submit" Style="display:none;" />
         </MudForm>
     </DialogContent>
-
     <DialogActions>
         <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">@Language.Cancel</MudButton>
         <MudButton Type="ButtonType.Submit"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   OnClick="HandleValidSubmit"
-                   Class="rounded-button">
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        OnClick="HandleValidSubmit"
+        Class="rounded-button">
             @(IsEditMode ? Language.Save : Language.Confirm)
         </MudButton>
     </DialogActions>
 </MudDialog>
 
 <style>
-    /* Card Hintergrundfarbe */
-    .mud-paper.p-4 {
-        background-color: white !important; /* sehr helles kühles Grau */
-        border-radius: 12px;
+    /* Nur für diesen Dialog - spezifische Container-Klasse */
+    .dialog-form-container {
+    background-color: white !important;
+    border-radius: 12px;
     }
 
-    /* Input Hintergrundfarbe etwas dunkler als Card */
-    .search-field-enhanced .mud-input-root {
-        background-color: #e1e8ef !important; /* kühles, helles Grau-Blau, etwas dunkler als Card */
-        color: #202020;
-        border-radius: 12px;
+    /* Nur für Input-Felder innerhalb des Dialog-Containers */
+    .dialog-form-container .dialog-input-field.mud-input-outlined {
+    background: white !important;
+    border-radius: 12px !important;
     }
 
-        /* Fokuszustand Input */
-        .search-field-enhanced .mud-input-root.mud-focused {
-            background-color: #cbd6e3 !important; /* noch etwas dunkler beim Fokus */
-            box-shadow: 0 0 8px rgba(70,130,180,0.3) !important;
-        }
+    .dialog-form-container .dialog-input-field.mud-input-outlined .mud-input-root {
+    background: white !important;
+    border-radius: 12px !important;
+    }
 
+    /* Entfernt die alten problematischen Styles */
+    .dialog-form-container .search-field-enhanced .mud-input-root {
+    background-color: transparent !important;
+    color: inherit !important;
+    border-radius: 0 !important;
+    }
+
+    .dialog-form-container .search-field-enhanced .mud-input-root.mud-focused {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    }
 </style>
 
 @code {
@@ -71,26 +89,28 @@
 
     private MudForm _form;
     private string _inputValue;
+    private string _inputValue2;
     private bool lineExists;
     private string errorText;
     private string _originalValue;
+    private string _originalValue2;
 
     private bool IsEditMode => ExistingLine != null;
 
     protected override void OnInitialized()
     {
         usernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
-
         if (IsEditMode)
         {
             _inputValue = ExistingLine.lineName;
+            _inputValue2 = ExistingLine.lineDescription;
             _originalValue = ExistingLine.lineName;
+            _originalValue2 = ExistingLine.lineDescription;
         }
         else
         {
             _inputValue = string.Empty;
         }
-
         lineExists = false;
     }
 
@@ -119,6 +139,7 @@
             {
                 // Bearbeiten eines bestehenden Projekts
                 ExistingLine.lineName = _inputValue;
+                ExistingLine.lineDescription = _inputValue2;
                 ExistingLine.lastModified = DateTime.Now;
                 ExistingLine.modifiedBy = usernameService.Username;
 
@@ -137,12 +158,13 @@
                 Line line = new Line
                     {
                         lineName = _inputValue,
+                        lineDescription = _inputValue2,
                         lastModified = DateTime.Now,
                         modifiedBy = usernameService.Username,
                         lineID = 0,
                     };
 
-               /**/ if (!(await Fassade.AddLine(line)))
+                if (!(await Fassade.AddLine(line)))
                 {
                     lineExists = true;
                     errorText = Language.ProjectErrorInDb;

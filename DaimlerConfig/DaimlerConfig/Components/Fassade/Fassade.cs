@@ -210,6 +210,25 @@ namespace DaimlerConfig.Components.Fassade
             return await ToolRepository.GetToolsFromStation(stationID);
         }
 
+        public async Task<(int Undefined, int Red, int Yellow, int Green)> GetStatusCountsForStationAsync(int stationID)
+        {
+            var tools = await GetToolsFromStation(stationID);
+
+            return (
+                Undefined: tools.Count(s => s.Status == Status.Undefined),
+                Red: tools.Count(s => s.Status == Status.Red),
+                Yellow: tools.Count(s => s.Status == Status.Yellow),
+                Green: tools.Count(s => s.Status == Status.Green)
+            );
+        }
+
+
+
+        
+
+
+
+
         public async Task<bool> UpdateTool(Tool tool)
         {
             tool.lastModified = DateTime.Now;
@@ -364,6 +383,19 @@ namespace DaimlerConfig.Components.Fassade
         public async Task<Operation> GetOperation(int? operationID)
         {
             return await OperationRepository.Get(operationID);
+        }
+
+
+        public async Task<(int Undefined, int Red, int Yellow, int Green)> GetStatusCountsForTool(int toolID)
+        {
+            var operations = await GetOperationsFromTool(toolID);
+
+            return (
+                Undefined: operations.Count(s => s.Status == Status.Undefined),
+                Red: operations.Count(s => s.Status == Status.Red),
+                Yellow: operations.Count(s => s.Status == Status.Yellow),
+                Green: operations.Count(s => s.Status == Status.Green)
+            );
         }
 
         public async Task<Operation> GetOperationByName(string operationShortname, int toolID)

@@ -28,11 +28,11 @@ MudBlazor Default Theme
                 TertiaryContrastText = "rgba(255,255,255,1)",
                 Info = "rgba(33,150,243,1)",
                 InfoContrastText = "rgba(255,255,255,1)",
-                Success = "#198754",
+                Success = "#4caf50",  // Geändert von #198754
                 SuccessContrastText = "rgba(255,255,255,1)",
-                Warning = "#FFC107 ",
+                Warning = "#ffc107",  // Bleibt gleich (war schon richtig)
                 WarningContrastText = "rgba(255,255,255,1)",
-                Error = "#C62828",
+                Error = "#f44336",    // Geändert von #C62828
                 ErrorContrastText = "rgba(255,255,255,1)",
                 Dark = "rgba(66,66,66,1)",
                 DarkContrastText = "rgba(255,255,255,1)",
@@ -65,12 +65,12 @@ MudBlazor Default Theme
                 TertiaryLighten = "rgb(42,223,187)",
                 InfoDarken = "rgb(12,128,223)",
                 InfoLighten = "rgb(71,167,245)",
-                SuccessDarken = "#146c43",
-                SuccessLighten = "#27a76d",
-                WarningDarken = "#cc9a06",
-                WarningLighten = "#FFD447",
-                ErrorDarken = " #8E0000",
-                ErrorLighten = "#E53935",
+                SuccessDarken = "#388e3c",    // Dunklere Version von #4caf50
+                SuccessLighten = "#66bb6a",   // Hellere Version von #4caf50
+                WarningDarken = "#f57c00",    // Dunklere Version von #ffc107
+                WarningLighten = "#ffca28",   // Hellere Version von #ffc107
+                ErrorDarken = "#d32f2f",      // Dunklere Version von #f44336
+                ErrorLighten = "#f66",        // Hellere Version von #f44336
                 DarkDarken = "rgb(46,46,46)",
                 DarkLighten = "rgb(87,87,87)",
                 HoverOpacity = 0.06,
@@ -83,8 +83,6 @@ MudBlazor Default Theme
                 GrayDarker = "#616161",
                 OverlayDark = "rgba(33,33,33,0.4980392156862745)",
                 OverlayLight = "rgba(255,255,255,0.4980392156862745)",
-
-
             },
             PaletteDark = new PaletteDark()
             {

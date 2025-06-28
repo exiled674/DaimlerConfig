@@ -17,6 +17,9 @@
 @inject DirtyManagerService DirtyManagerService
 @using DaimlerConfig.Components.Models
 @inject UsernameService usernameService
+@inject SelectionStateService SelectionState
+@inject IJSRuntime JS;
+@inject ISnackbar Snackbar
 
 @using MudBlazor
 @inject IDialogService DialogService
@@ -42,6 +45,26 @@
         </div>
 
         <div class="d-flex align-center" style="gap: 14px;">
+
+            <!-- Share Link Button -->
+            <MudButton Variant="Variant.Text"
+            StartIcon="@Icons.Material.Filled.ContentCopy"
+            OnClick="CopyUriToClipboard"
+            Color="Color.Inherit"
+            Class="share-button"
+            Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
+                @Fassade.Language.ShareLink
+            </MudButton>
+
+            <!-- Navigate Input (breiter mit besserem Hover) -->
+            <MudTextField @bind-Value="uriInput"
+                          Variant="Variant.Outlined"
+                          Placeholder="@Fassade.Language.NavigateTo"
+                          Class="navigate-input"
+                          Style="width: 140px;"
+                          OnKeyUp="HandleKeyUp" />
+
+
             <MudText Typo="Typo.subtitle1"
                      Class="font-weight-medium"
                      Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
@@ -71,6 +94,63 @@
             transform: scale(1.05);
             opacity: 1;
         }
+
+
+        .share-button {
+        border-radius: 6px;
+        padding: 4px 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+    }
+
+        .share-button:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            transform: scale(1.05);
+            box-shadow: none;
+        }
+
+    /* Navigate Input - Weiß bleiben beim Hover */
+    .navigate-input {
+        height: 32px;
+    }
+
+        .navigate-input .mud-input-outlined {
+            background-color: rgba(255,255,255,0.1) !important;
+            border-radius: 4px;
+            height: 32px;
+            transition: all 0.2s ease;
+        }
+
+            .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
+                border-color: rgba(255,255,255,0.4) !important;
+                transition: all 0.2s ease;
+            }
+
+            /* Hover: Heller aber WEISS bleiben */
+            .navigate-input .mud-input-outlined:hover {
+                background-color: rgba(255,255,255,0.15) !important;
+            }
+
+                .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
+                    border-color: rgba(255,255,255,0.7) !important;
+                    box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
+                }
+
+            /* Focus: Auch weiß bleiben */
+            .navigate-input .mud-input-outlined.mud-input-outlined-focused {
+                background-color: rgba(255,255,255,0.2) !important;
+            }
+
+                .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
+                    border-color: rgba(255,255,255,0.9) !important;
+                    box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
+                }
+
+        .navigate-input .mud-input {
+            color: inherit !important;
+            font-size: 0.8rem;
+            height: 32px;
+            paddin
 </style>
 
 @if (ShowSettings)
@@ -400,8 +480,10 @@
     private Dictionary<Line, bool> pendingConfirmation = new();
     private Dictionary<int, (int Red, int Yellow, int Green, int Undefined)> StatusCounts = new();
 
+    String uri;
     protected override async Task OnInitializedAsync()
     {
+        uri = Navigation.Uri;
         NavState.SetCurrentRoute("/");
 
         // SignalR Event Handler registrieren
@@ -955,6 +1037,56 @@
         }
     }
 
+
+    #endregion
+
+
+    #region navCop
+
+    String uriInput;
+
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await RouteN();
+        }
+    }
+
+    public async Task RouteN()
+    {
+        if (uriInput == null) return;
+
+        var uriS = uriInput.Split(";");
+
+        try {
+        if(uriS[1]== null) return;
+
+        SelectionState? restoredState = JsonSerializer.Deserialize<SelectionState>(uriS[1]);
+
+        SelectionState.SaveSelection(restoredState.StationID, restoredState.ToolID, restoredState.OperationID);
+
+
+        Navigation.NavigateTo(uriS[0], replace: true);
+        NavState.SetCurrentRoute(uriS[0]);
+        } catch {
+
+        }
+
+
+        
+
+    }
+
+    private async Task CopyUriToClipboard()
+    {
+        
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", uri);
+        // Optional: kurzes Feedback
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        Snackbar.Add("URL kopiert!", Severity.Success);
+    }
 
     #endregion
 }
