@@ -7,135 +7,135 @@
 @inject UsernameService UsernameService
 @using System.Linq
 
-<div class="container-lg px-3" style="margin-top:-5px">
+<div class="container-lg px-3" >
+    <!-- Header mit konsistenter Styling wie die anderen Spalten -->
+    <div class="d-flex justify-content-between align-items-center" style="padding: 25px 20px 32px 20px; border-bottom: 1px solid rgba(0,0,0,0.08); background: white; margin-bottom: 0 !important;">
 
-	<div class="class-header justify-content-between align-items-center">
+        <MudText Typo="Typo.h5"
+                 Class="mud-typography-h5"
+                 Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
+            @Fassade.Language.Station
+        </MudText>
 
-		<MudText Typo="Typo.h5" Style="color: var(--mud-palette-text-primary); font-weight: 600;">
-							@Fassade.Language.Station
-		</MudText>
-		<div class="d-flex justify-content-end align-items-center gap-2"> 
-			@if (errorMessages.ContainsKey("General"))
-			{
-					<div class="alert alert-danger mb-3">@errorMessages["General"]</div>
-			}
-			@if (SelectedStation?.stationID == 0)
-			{
-						<MudButton StartIcon="@Icons.Material.Filled.AddCircle"
-			   Variant="Variant.Filled"
-			   Color="Color.Primary"
-			   Class="btn btn-primary btn-sm add-station-btn"
-			   @onclick="CreateStationAsync">
-						@Fassade.Language.Create
-					</MudButton>
-			}
+        <div class="d-flex align-items-center gap-2">
+            @if (errorMessages.ContainsKey("General"))
+            {
+                <div class="alert alert-danger mb-0 me-2">@errorMessages["General"]</div>
+            }
 
+            @if (SelectedStation?.stationID == 0)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Small"
+                           Class="add-station-btn-consistent"
+                           Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
+                           @onclick="CreateStationAsync">
+                    @Fassade.Language.Create
+                </MudButton>
+            }
 
-			@if (SelectedStation?.stationID != 0)
-			{
-					<div class="d-flex justify-content-between align-items-center mb-3">
-								<MudButton StartIcon="@Icons.Material.Filled.Save"
-									   Variant="Variant.Filled"
-									   Color="Color.Primary"
-									   Class="btn btn-primary btn-sm add-station-btn"
-									   @onclick="UpdateStationAsync">
-									@Fassade.Language.Save
-							</MudButton>
-					</div>
+            @if (SelectedStation?.stationID != 0)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Save"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Small"
+                           Class="add-station-btn-consistent"
+                           Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
+                           @onclick="UpdateStationAsync">
+                    @Fassade.Language.Save
+                </MudButton>
+            }
+        </div>
+    </div>
 
+    <!-- Rest des Formulars bleibt unverändert -->
+    <div class="layout position-relative" style="padding: 20px;">
+        <div class="stationColoumn">
+            <MudTextField @bind-Value="SelectedStation.assemblystation"
+                          Label="@Fassade.Language.AssemblyStation"
+                          Variant="Variant.Outlined"
+                          MaxLength="10"
+                          Class="search-field-enhanced"
+                          Style="background: white; border-radius: 12px;"
+                          Margin="Margin.Normal"
+                          Immediate="true"
+                          OnBlur="CheckIfDirty"
+                          Error="@errorMessages.ContainsKey("Assemblystation")"
+                          ErrorText="@errorMessages.GetValueOrDefault("Assemblystation")" />
+            <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                @($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
+            </span>
 
+            <MudTextField @bind-Value="SelectedStation.stationName"
+                          Label="@Fassade.Language.AssemblyStationDesc"
+                          Variant="Variant.Outlined"
+                          MaxLength="50"
+                          Class="flex-grow-1 search-field-enhanced"
+                          Style="background: white; border-radius: 12px;"
+                          Margin="Margin.Normal"
+                          Immediate="true"
+                          OnBlur="CheckIfDirty" />
+            <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                @($"{SelectedStation?.stationName?.Length ?? 0}/50")
+            </span>
 
-			}
+            <MudSelect T="int" Label="@Fassade.Language.StationType" @bind-Value="SelectedStation.stationTypeID" Variant="Variant.Outlined"
+                       Class="flex-grow-1 search-field-enhanced" Style="background: white; border-radius: 12px;"
+                       Margin="Margin.Normal" OnBlur="CheckIfDirty">
+                @if (stationTypes != null)
+                {
+                    @foreach (var stationType in stationTypes)
+                    {
+                        <MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
+                    }
+                }
+            </MudSelect>
 
-		</div>
-	</div>
-
-
-
-	<div class="layout position-relative">
-		<div class="stationColoumn">
-
-			<MudTextField @bind-Value="SelectedStation.assemblystation"
-			  Label="@Fassade.Language.AssemblyStation"
-			  Variant="Variant.Outlined"
-			  MaxLength="10"
-			  Class="search-field-enhanced"
-			  Style="background: white; border-radius: 12px;" 
-			  Margin="Margin.Normal"
-			  Immediate="true"
-			  OnBlur="CheckIfDirty"
-			  Error="@errorMessages.ContainsKey("Assemblystation")"
-			  ErrorText="@errorMessages.GetValueOrDefault("Assemblystation")" />
-			<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-				@($"{SelectedStation?.assemblystation?.Length ?? 0}/10")
-			</span>
-
-			
-
-
-			<MudTextField @bind-Value="SelectedStation.stationName"
-			  Label="@Fassade.Language.AssemblyStationDesc"
-			  Variant="Variant.Outlined"
-			  MaxLength="50"
-			  Class="flex-grow-1 search-field-enhanced"
-			Style="background: white; border-radius: 12px;"
-				Margin="Margin.Normal"
-			  Immediate="true"
-			  OnBlur="CheckIfDirty" />
-			<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-				@($"{SelectedStation?.stationName?.Length ?? 0}/50")
-			</span>
-
-			<MudSelect T="int" Label="@Fassade.Language.StationType" @bind-Value="SelectedStation.stationTypeID" Variant="Variant.Outlined"
-			Class="flex-grow-1 search-field-enhanced" Style="background: white; border-radius: 12px;"
-							   Margin="Margin.Normal" OnBlur="CheckIfDirty">
-				@if (stationTypes != null)
-				{
-					@foreach (var stationType in stationTypes)
-					{
-									<MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
-					}
-				}
-		   </MudSelect>
-
-			<MudTextField @bind-Value="SelectedStation.Comment"
-			  Label="@Fassade.Language.Comment"
-			  Variant="Variant.Outlined"
-			  Class="flex-grow-1 search-field-enhanced"
-				Style="background: white; border-radius: 12px;"
-						   Margin="Margin.Normal"
-			  Immediate="true"
-			  OnBlur="CheckIfDirty"
-			  MaxLength="1000"
-			  Lines="5"
-			  TextArea="true" />
-				<span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
-				@($"{SelectedStation?.Comment.Length ?? 0}/1000")
-				</span>
-
-
-		</div>
-
-	</div>
+            <MudTextField @bind-Value="SelectedStation.Comment"
+                          Label="@Fassade.Language.Comment"
+                          Variant="Variant.Outlined"
+                          Class="flex-grow-1 search-field-enhanced"
+                          Style="background: white; border-radius: 12px;"
+                          Margin="Margin.Normal"
+                          Immediate="true"
+                          OnBlur="CheckIfDirty"
+                          MaxLength="1000"
+                          Lines="5"
+                          TextArea="true" />
+            <span class="position-absolute end-0 bottom-0 me-2 mb-1 text-muted small">
+                @($"{SelectedStation?.Comment.Length ?? 0}/1000")
+            </span>
+        </div>
+    </div>
 </div>
 
-
-
 <style>
+    .search-field-enhanced {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
+        transition: box-shadow 0.2s ease-in-out !important;
+    }
 
-.search-field-enhanced {
-	box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06) !important;
-	transition: box-shadow 0.2s ease-in-out !important;
-	}
+        .search-field-enhanced:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
 
-	.search-field-enhanced:hover {
-	box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1) !important;
-	}
+        .search-field-enhanced .mud-input-outlined {
+            background: white !important;
+            border-radius: 12px !important;
+        }
 
-	.search-field-enhanced .mud-input-outlined {
-	background: white !important;
-	border-radius: 12px !important;
-	}
+    /* Konsistente Button-Styles */
+    .add-station-btn-consistent {
+        transition: all 0.2s ease;
+        border-radius: 6px;
+    }
+
+        .add-station-btn-consistent:hover {
+            transform: scale(1.02);
+        }
 </style>
 
 @code {
