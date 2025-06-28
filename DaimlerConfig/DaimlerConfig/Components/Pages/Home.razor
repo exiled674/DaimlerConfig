@@ -53,13 +53,13 @@
             Color="Color.Inherit"
             Class="share-button"
             Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
-                @Fassade.Language.ShareLink
+                @Language.ShareLink
             </MudButton>
 
             <!-- Navigate Input (breiter mit besserem Hover) -->
             <MudTextField @bind-Value="uriInput"
                           Variant="Variant.Outlined"
-                          Placeholder="@Fassade.Language.NavigateTo"
+                          Placeholder="@Language.NavigateTo"
                           Class="navigate-input"
                           Style="width: 140px;"
                           OnKeyUp="HandleKeyUp" />

@@ -24,6 +24,14 @@
             .Where(f => f.Name.EndsWith("LANG.json"))
             .Select(f => Path.GetFileNameWithoutExtension(f.Name))
             .ToList();
+        var cleanedLanguages = AvailableLanguages
+            .Select(lang =>
+            {
+                var parts = lang.Split('_');
+                return parts.Length >= 3 ? parts[1] : lang;
+            })
+            .ToList();
+        AvailableLanguages = cleanedLanguages;
     }
 
     public void SetSelectedLang()
@@ -34,6 +42,7 @@
     public async Task SaveLanguageSettings(string selectedLang)
     {
         Preferences.Default.Set(SELECTED_LANGUAGE_KEY, selectedLang);
+        selectedLang = "DConfig_" + selectedLang + "_LANG";
         await LoadSelectedLanguage( selectedLang);
     }
 
