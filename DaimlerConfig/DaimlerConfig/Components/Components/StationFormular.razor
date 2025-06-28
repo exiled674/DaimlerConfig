@@ -19,31 +19,31 @@
             <div class="d-flex align-items-center gap-2">
                 @if (errorMessages.ContainsKey("General"))
                 {
-                    <div class="alert alert-danger mb-0 me-2">@errorMessages["General"]</div>
+                        <div class="alert alert-danger mb-0 me-2">@errorMessages["General"]</div>
                 }
                 @if (SelectedStation?.stationID == 0)
                 {
-                    <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               Class="add-station-btn-consistent"
-                               Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
-                               @onclick="CreateStationAsync">
+                        <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Class="add-station-btn-consistent"
+                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                                   @onclick="CreateStationAsync">
                         @Fassade.Language.Create
-                    </MudButton>
+                        </MudButton>
                 }
                 @if (SelectedStation?.stationID != 0)
                 {
-                    <MudButton StartIcon="@Icons.Material.Filled.Save"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               Class="add-station-btn-consistent"
-                               Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
-                               @onclick="UpdateStationAsync">
+                        <MudButton StartIcon="@Icons.Material.Filled.Save"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Class="add-station-btn-consistent"
+                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                                   @onclick="UpdateStationAsync">
                         @Fassade.Language.Save
-                    </MudButton>
+                        </MudButton>
                 }
             </div>
         </div>
@@ -56,7 +56,7 @@
 
     <!-- Card-basierter Formular-Bereich mit Collapse - EXAKT wie Tool -->
     <div class="layout position-relative" style="padding: 28px 24px 24px 24px;">
-        
+
         <!-- General Information Card -->
         <MudExpansionPanels Elevation="0" Class="mb-4">
             <MudExpansionPanel IsInitiallyExpanded="true"
@@ -116,7 +116,7 @@
                                     {
                                         @foreach (var stationType in stationTypes)
                                         {
-                                            <MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
+                                                    <MudSelectItem T="int" Value="@stationType.stationTypeID">@stationType.stationTypeName</MudSelectItem>
                                         }
                                     }
                                 </MudSelect>
