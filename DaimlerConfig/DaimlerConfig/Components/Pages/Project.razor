@@ -3090,6 +3090,10 @@
         await RestoreSavedSelection(restoredState);
         StateHasChanged();
 
+
+        Navigation.NavigateTo("/", replace: true);
+        Navigation.NavigateTo(uriS[0], replace: true);
+
     }
 
 
