@@ -12,15 +12,26 @@
         <MudForm @ref="_form" OnValidSubmit="HandleValidSubmit">
             <MudPaper Class="p-4 dialog-form-container" Elevation="0" Style="border-radius:12px;">
                 <MudTextField @bind-Value="_inputValue"
-                              Label="@Fassade.Language.ProjectName"
-                              Variant="Variant.Outlined"
-                              AutoFocus="true"
-                              Margin="Margin.Normal"
-                              Class="w-100 dialog-input-field"
-                              Style="background: white; border-radius: 12px;"
-                              Error="@lineExists"
-                              ErrorText="@errorText"
-                              @onkeypress="OnKeyDown"/>
+                Label="@Fassade.Language.ProjectName"
+                Variant="Variant.Outlined"
+                AutoFocus="true"
+                Margin="Margin.Normal"
+                Class="w-100 dialog-input-field"
+                Style="background: white; border-radius: 12px;"
+                Error="@lineExists"
+                ErrorText="@errorText"
+                @onkeypress="OnKeyDown"/>
+
+                <MudTextField @bind-Value="_inputValue2"
+                Label="@Fassade.Language.ProjectName"
+                Variant="Variant.Outlined"
+                AutoFocus="true"
+                Margin="Margin.Normal"
+                Class="w-100 dialog-input-field"
+                Style="background: white; border-radius: 12px;"
+                Error="@lineExists"
+                ErrorText="@errorText"
+                @onkeypress="OnKeyDown" />
             </MudPaper>
             <!-- Optionaler versteckter Submit-Button für Enter-Taste -->
             <MudButton Type="ButtonType.Submit" Style="display:none;" />
@@ -29,10 +40,10 @@
     <DialogActions>
         <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">@Fassade.Language.Cancel</MudButton>
         <MudButton Type="ButtonType.Submit"
-                   Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   OnClick="HandleValidSubmit"
-                   Class="rounded-button">
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        OnClick="HandleValidSubmit"
+        Class="rounded-button">
             @(IsEditMode ? Fassade.Language.Save : Fassade.Language.Confirm)
         </MudButton>
     </DialogActions>
@@ -41,35 +52,38 @@
 <style>
     /* Nur für diesen Dialog - spezifische Container-Klasse */
     .dialog-form-container {
-        background-color: white !important;
-        border-radius: 12px;
+    background-color: white !important;
+    border-radius: 12px;
     }
 
     /* Nur für Input-Felder innerhalb des Dialog-Containers */
     .dialog-form-container .dialog-input-field.mud-input-outlined {
-        background: white !important;
-        border-radius: 12px !important;
+    background: white !important;
+    border-radius: 12px !important;
     }
 
     .dialog-form-container .dialog-input-field.mud-input-outlined .mud-input-root {
-        background: white !important;
-        border-radius: 12px !important;
+    background: white !important;
+    border-radius: 12px !important;
     }
 
     /* Entfernt die alten problematischen Styles */
     .dialog-form-container .search-field-enhanced .mud-input-root {
-        background-color: transparent !important;
-        color: inherit !important;
-        border-radius: 0 !important;
+    background-color: transparent !important;
+    color: inherit !important;
+    border-radius: 0 !important;
     }
 
     .dialog-form-container .search-field-enhanced .mud-input-root.mud-focused {
-        background-color: transparent !important;
-        box-shadow: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
     }
 </style>
 
 @code {
+
+
+
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
@@ -78,9 +92,12 @@
 
     private MudForm _form;
     private string _inputValue;
+
+    private string _inputValue2;
     private bool lineExists;
     private string errorText;
     private string _originalValue;
+    private string _originalValue2;
 
     private bool IsEditMode => ExistingLine != null;
 
@@ -90,7 +107,10 @@
         if (IsEditMode)
         {
             _inputValue = ExistingLine.lineName;
+            _inputValue2 = ExistingLine.lineDescription;
+
             _originalValue = ExistingLine.lineName;
+            _originalValue2 = ExistingLine.lineDescription;
         }
         else
         {
@@ -124,6 +144,8 @@
             {
                 // Bearbeiten eines bestehenden Projekts
                 ExistingLine.lineName = _inputValue;
+
+                ExistingLine.lineDescription = _inputValue2;
                 ExistingLine.lastModified = DateTime.Now;
                 ExistingLine.modifiedBy = usernameService.Username;
 
@@ -140,12 +162,13 @@
             {
                 // Erstellen eines neuen Projekts
                 Line line = new Line
-                {
-                    lineName = _inputValue,
-                    lastModified = DateTime.Now,
-                    modifiedBy = usernameService.Username,
-                    lineID = 0,
-                };
+                    {
+                        lineName = _inputValue,
+                        lineDescription = _inputValue2,
+                        lastModified = DateTime.Now,
+                        modifiedBy = usernameService.Username,
+                        lineID = 0,
+                    };
 
                 if (!(await Fassade.AddLine(line)))
                 {
