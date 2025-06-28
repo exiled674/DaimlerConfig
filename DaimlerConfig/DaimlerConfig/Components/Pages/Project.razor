@@ -3074,12 +3074,12 @@
 
 
     private async Task HandleKeyUp(KeyboardEventArgs e)
-{
-    if (e.Key == "Enter")
     {
-        await RouteN();
+        if (e.Key == "Enter")
+        {
+            await RouteN();
+        }
     }
-}
 
     public async Task RouteN(){
         if(uriInput == null) return;
@@ -3089,7 +3089,7 @@
 
         Navigation.NavigateTo(uriS[0], replace: true);
         NavState.SetCurrentRoute(uriS[0]);
-
+        try {
         if(uriS[1]== null) return;
 
         SelectionState? restoredState = JsonSerializer.Deserialize<SelectionState>(uriS[1]);
@@ -3102,6 +3102,9 @@
 
         Navigation.NavigateTo("/", replace: true);
         Navigation.NavigateTo(uriS[0], replace: true);
+        } catch {
+
+        }
 
     }
 
