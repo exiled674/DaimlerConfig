@@ -1,4 +1,4 @@
-.popup-backdrop {
+/*.popup-backdrop {
     position: fixed;
     top: 0;
     left: 0;
@@ -57,4 +57,30 @@
     .profile-avatar:hover {
         transform: scale(1.06);
         box-shadow: 0 10px 32px rgba(102, 126, 234, 0.45);
+    }*/
+
+/* Responsive adjustments */
+/*@media (max-width: 768px) {
+    .settings-container {
+        max-width: 95%;
+        max-height: 85vh;
     }
+
+    .field-row {
+        flex-direction: column;
+    }
+
+    .field-primary,
+    .field-secondary {
+        min-width: 100%;
+    }
+
+    .profile-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-fields {
+        min-width: 100%;
+    }
+}*/
