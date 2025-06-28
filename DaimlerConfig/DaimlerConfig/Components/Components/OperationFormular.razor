@@ -185,7 +185,7 @@
                        Disabled="@ReadOnly"
                        Class="flex-grow-1"
                        Style="background: white; border-radius: 12px;"
-                       Value="SelectedOperation.decisionClassID"
+                       @bind-Value="SelectedOperation.decisionClassID"
                        OnBlur="LockOperation">
                 @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
                 {
@@ -201,7 +201,7 @@
                        Disabled="@ReadOnly"
                        Class="flex-grow-1"
                        Style="background: white; border-radius: 12px;"
-                       Value="SelectedOperation.generationClassID"
+                       @bind-Value="SelectedOperation.generationClassID"
                        OnBlur="LockOperation">
                 @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
                 {
@@ -218,7 +218,7 @@
                        Disabled="@ReadOnly"
                        Class="flex-grow-1"
                        Style="background: white; border-radius: 12px;"
-                       Value="SelectedOperation.verificationClassID"
+                       @bind-Value="SelectedOperation.verificationClassID"
                        OnBlur="LockOperation">
                 @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
                 {
@@ -234,7 +234,7 @@
                        Disabled="@ReadOnly"
                        Class="flex-grow-1"
                        Style="background: white; border-radius: 12px;"
-                       Value="SelectedOperation.savingClassID"
+                       @bind-Value="SelectedOperation.savingClassID"
                        OnBlur="LockOperation">
                 @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
                 {
@@ -534,6 +534,8 @@
             //Set standards if classes are null (Saving never null)
             if (verificationClassesList.IsNullOrEmpty())
                 verificationClassesList.AddRange(await Fassade.GetVerificationClasses(0));
+                if(SelectedOperation!=null)
+                    SelectedOperation.verificationClassID = 0;
             if (generationClassesList.IsNullOrEmpty())
                 generationClassesList.AddRange(await Fassade.GetGenerationClasses(0));
 
