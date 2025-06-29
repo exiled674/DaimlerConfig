@@ -91,7 +91,7 @@
                     @Language.ShareLink
                 </MudButton>
 
-               
+
 
                 <!-- Divider -->
                 <div style="width: 1px; height: 24px; background-color: rgba(255,255,255,0.3);"></div>
@@ -483,6 +483,7 @@
                                 <MudList T="string" Clickable="false" >
                                     @foreach (var tool in tools)
                                     {
+                                      
                                         <MudCard Class="@($"station-card tool-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
                                         Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;">
                                             <MudCardContent Class="pa-0">
@@ -735,6 +736,10 @@
 
         private void ToggleExpand(int toolID)
         {
+              if(showToolFormular == true && selectedTool.toolID == toolID)
+                                        {
+                                            toolFormular.ResetTool();
+                                        }
             if (expandedTools.Contains(toolID))
                         expandedTools.Remove(toolID);
             else
@@ -2272,8 +2277,8 @@
                                 {
                                     op.decisionClassID = 1;
                                     op.verificationClassID = 0;
-                                    op.savingClassID = 0;
-                                    op.generationClassID = 0;
+                                    op.savingClassID = 1;
+                                    op.generationClassID = 1;
                                     await Fassade.UpdateOperation(op);
                                     var operationID = op.operationID;
                                     var operationList = allOperations.ToList();
@@ -2292,7 +2297,7 @@
                                                 operationFormularModel.operationID = selectedOperation.operationID;
                                                 operationFormularModel.toolID = selectedOperation.toolID;
                                             }
-                                            StateHasChanged();
+                                           
                                         }
                                     }
                                 }
