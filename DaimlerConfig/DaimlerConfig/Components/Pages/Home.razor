@@ -878,8 +878,7 @@ Style="height: 64px;">
                 pendingConfirmation.Remove(line);
                 await SignalRService.SendMessageToServer($"LineDeleted;{line.lineID}");
                 UpdateFilteredLines();
-                Snackbar.Add($"Projekt '{line.lineName}' wurde erfolgreich gelöscht", Severity.Success);
-
+                Snackbar.Add(Language.Project + line.lineName + Language.HasBeenDeleted, Severity.Success);
             }
             catch (Exception ex)
             {
@@ -1145,7 +1144,7 @@ Style="height: 64px;">
             usernameService.SaveList(names);
             UpdateFilteredLines();   
           
-            Snackbar.Add($"Projekt '{line.lineName}' wurde erfolgreich favorisiert!", Severity.Success);
+            Snackbar.Add(Language.Project + line.lineName + Language.HasBeenFavorized, Severity.Success);
             StateHasChanged();
         }
 
@@ -1161,7 +1160,7 @@ Style="height: 64px;">
             usernameService.SaveList(names);
             UpdateFilteredLines();   
            
-            Snackbar.Add($"Projekt '{line.lineName}' wurde erfolgreich entfavorisiert!", Severity.Success);
+            Snackbar.Add(Language.Project + line.lineName + Language.HasBeenDefavored, Severity.Success);
             StateHasChanged();
         }
     }
@@ -1214,7 +1213,7 @@ Style="height: 64px;">
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", uri);
         // Optional: kurzes Feedback
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
-        Snackbar.Add("URL kopiert!", Severity.Success);
+        Snackbar.Add(Language.UrlCopied, Severity.Success);
     }
 
     #endregion

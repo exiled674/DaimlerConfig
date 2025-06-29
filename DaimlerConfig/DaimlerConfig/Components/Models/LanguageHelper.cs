@@ -152,4 +152,6 @@ public class LanguageHelper
     public string ToolHasBeenAdded { get; set; } = "Tool has been added";
     public string UrlCopied { get; set; } = "URL copied";
     public string Project { get; set; } = "Project: ";
+    public string EditedByPart1 { get; set; } = "The tool is currently edited by: ";
+    public string EditedByPart2 { get; set; } = ". All files are read-only.";
 }

@@ -109,7 +109,7 @@
                     <div class="d-flex align-items-center">
                         <MudIcon Icon="@Icons.Material.Filled.Info" Style="color: #1e40af; margin-right: 8px; font-size: 1rem;" />
                         <span style="color: #1e40af; font-size: 0.875rem; font-weight: 500;">
-                            Dieses Tool wird gerade von <strong>@SelectedTool.lockedBy.Split(';')[0]</strong> bearbeitet. Alle Felder sind schreibgeschützt.
+                            @Language.EditedByPart1<strong>@SelectedTool.lockedBy.Split(';')[0]</strong> @Language.EditedByPart2
                         </span>
                     </div>
                 </div>

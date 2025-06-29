@@ -152,6 +152,8 @@ public class Language
     public static string ToolHasBeenAdded { get; set; } = "Tool has been added";
     public static string UrlCopied { get; set; } = "URL copied";
     public static string Project { get; set; } = "Project: ";
+    public static string EditedByPart1 { get; set; } = "The tool is currently edited by: ";
+    public static string EditedByPart2 { get; set; } = ". All files are read-only.";
 
     public static void SetLanguage(LanguageHelper newLang)
     {
@@ -305,5 +307,7 @@ public class Language
         ToolHasBeenAdded = newLang.ToolHasBeenAdded;
         UrlCopied = newLang.UrlCopied;
         Project = newLang.Project;
+        EditedByPart1 = newLang.EditedByPart1;
+        EditedByPart2 = newLang.EditedByPart2;
     }
 }
