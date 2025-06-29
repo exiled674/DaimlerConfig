@@ -1602,6 +1602,7 @@
             UsernameService.SaveStationList(names);
 
             UpdateFilteredStations();
+             Snackbar.Add($"Station '{station.assemblystation}' wurde favorisiert", Severity.Success);
             StateHasChanged();
         }
     }
@@ -1614,6 +1615,7 @@
         UsernameService.SaveStationList(names);
 
         UpdateFilteredStations();
+        Snackbar.Add($"Station '{station.assemblystation}' wurde entfavorisiert", Severity.Success);
         StateHasChanged();
     }
 
