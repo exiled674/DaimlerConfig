@@ -11,16 +11,32 @@
     <!-- Header mit konsistenter Styling wie die anderen Spalten -->
     <div style="background: white;">
         <div class="d-flex justify-content-between align-items-center" style="padding: 25px 20px 20px 20px; margin-bottom: 0 !important;">
-            <MudText Typo="Typo.h5"
-                     Class="mud-typography-h5"
-                     Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important; padding-bottom:12px;">
-                @Language.Tool
-                @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedTool?.lockedBy))
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-left: 8px;" />
-                    <span style="margin-left: 4px;">@SelectedTool.lockedBy.Split(';')[0]</span>
-                }
-            </MudText>
+            <div class="d-flex align-items-center gap-3">
+                <MudText Typo="Typo.h5"
+                         Class="mud-typography-h5"
+                         Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important; padding-bottom:12px;">
+                    @Language.Tool
+                </MudText>
+
+                <!-- Status Badges -->
+                <div class="d-flex align-items-center gap-2">
+                    @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedTool?.lockedBy))
+                    {
+                            <div class="status-badge locked-badge">
+                                <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-right: 4px; font-size: 0.75rem;" />
+                                <span>Gesperrt</span>
+                            </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(SelectedTool?.lockedBy))
+                    {
+                            <div class="status-badge user-badge">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Style="margin-right: 4px; font-size: 0.75rem;" />
+                                <span>@SelectedTool.lockedBy.Split(';')[0]</span>
+                            </div>
+                    }
+                </div>
+            </div>
 
             <div class="d-flex align-items-center gap-2">
                 <!-- Dropdown mit eigenständiger Positionierung -->
@@ -36,41 +52,43 @@
                         <MudSelectItem T="int?" Value="-1">@Language.CurrentVersion</MudSelectItem>
                         @foreach (var version in ToolVersions.OrderByDescending(v => v.toolVersionID))
                         {
-                            <MudSelectItem T="int?" Value="@version.toolVersionID">
+                                <MudSelectItem T="int?" Value="@version.toolVersionID">
                                 @version.modifiedBy?.Split(';')[0] - @version.lastModified
-                            </MudSelectItem>
+                                </MudSelectItem>
                         }
                     </MudSelect>
                 </div>
 
                 @if (SelectedTool?.toolID == 0)
                 {
-                    <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               Class="add-station-btn-consistent"
-                               Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
-                               @onclick="CreateToolAsync">
+                        <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Class="add-station-btn-consistent"
+                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                                   @onclick="CreateToolAsync">
                         @Language.Create
-                    </MudButton>
+                        </MudButton>
                 }
+
                 @if (SelectedTool?.toolID != 0)
                 {
-                    <MudButton StartIcon="@Icons.Material.Filled.Save"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               Class="add-station-btn-consistent"
-                               Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
-                               @onclick="UpdateToolAsync"
-                               disabled="@ReadOnly">
+                        <MudButton StartIcon="@Icons.Material.Filled.Save"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Class="add-station-btn-consistent"
+                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                                   @onclick="UpdateToolAsync"
+                                   disabled="@ReadOnly">
                         @Language.Save
-                    </MudButton>
+                        </MudButton>
                 }
+
                 @if (!string.IsNullOrEmpty(ValidationMessage))
                 {
-                    <div class="alert alert-danger mb-0 ms-2">@ValidationMessage</div>
+                        <div class="alert alert-danger mb-0 ms-2">@ValidationMessage</div>
                 }
             </div>
         </div>
@@ -83,6 +101,20 @@
 
     <!-- Card-basierter Formular-Bereich mit Collapse -->
     <div class="layout position-relative" style="padding: 28px 24px 24px 24px;">
+
+        <!-- Info Banner - nur wenn gesperrt -->
+        @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedTool?.lockedBy))
+        {
+                <div class="info-banner mb-4">
+                    <div class="d-flex align-items-center">
+                            <MudIcon Icon="@Icons.Material.Filled.Info" Style="color: #1e40af; margin-right: 8px; font-size: 1rem;" />
+    <span style="color: #1e40af; font-size: 0.875rem; font-weight: 500;">
+                            Dieses Tool wird gerade von <strong>@SelectedTool.lockedBy.Split(';')[0]</strong> bearbeitet. Alle Felder sind schreibgeschützt.
+                        </span>
+                    </div>
+                </div>
+        }
+
         <!-- General Information Card -->
         <MudExpansionPanels Elevation="0" Class="mb-4">
             <MudExpansionPanel Expanded="true"
@@ -140,7 +172,7 @@
                                            OnBlur="LockTool">
                                     @foreach (var toolClass in toolClasses.OrderBy(t => t.toolClassName))
                                     {
-                                        <MudSelectItem T="int?" Value="@toolClass.toolClassID">@toolClass.toolClassName</MudSelectItem>
+                                            <MudSelectItem T="int?" Value="@toolClass.toolClassID">@toolClass.toolClassName</MudSelectItem>
                                     }
                                 </MudSelect>
                             </div>
@@ -156,7 +188,7 @@
                                            OnBlur="LockTool">
                                     @foreach (var toolType in toolTypes.OrderBy(t => t.toolTypeName))
                                     {
-                                        <MudSelectItem T="int?" Value="@toolType.toolTypeID">@toolType.toolTypeName</MudSelectItem>
+                                            <MudSelectItem T="int?" Value="@toolType.toolTypeID">@toolType.toolTypeName</MudSelectItem>
                                     }
                                 </MudSelect>
                             </div>
@@ -256,7 +288,7 @@
                                               AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
                                 @if (errorMessages.ContainsKey("IP"))
                                 {
-                                    <div class="mud-input-error-text">@errorMessages["IP"]</div>
+                                        <div class="mud-input-error-text">@errorMessages["IP"]</div>
                                 }
                             </div>
                             <div class="col-md-4 mb-3">
@@ -344,6 +376,38 @@
             padding: 4px 8px !important;
             font-size: 0.75rem !important;
         }
+
+    /* Status Badge Styling */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+
+   .locked-badge {
+    background-color: #dbeafe; /* Helles Blau - gleich wie Info-Banner */
+    color: #1e40af; /* Dunkles Blau für Text */
+    border: 1px solid #3b82f6; /* Mittleres Blau für Border */
+}
+
+    .user-badge {
+        background-color: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+  /* Info Banner Styling - angepasst an dunkelblaue Primary Color */
+.info-banner {
+    background-color: #dbeafe; /* Helles Blau */
+    border: 1px solid #3b82f6; /* Mittleres Blau für Border */
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
 
     /* Expansion Panel Styling */
     .mud-expand-panel {

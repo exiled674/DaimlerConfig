@@ -46,15 +46,7 @@ Style="height: 64px;">
 
         <div class="d-flex align-center" style="gap: 14px;">
 
-            <!-- Share Link Button -->
-            <MudButton Variant="Variant.Text"
-            StartIcon="@Icons.Material.Filled.ContentCopy"
-            OnClick="CopyUriToClipboard"
-            Color="Color.Inherit"
-            Class="share-button"
-            Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
-                @Language.ShareLink
-            </MudButton>
+          
 
             <!-- Navigate Input (breiter mit besserem Hover) -->
             <MudTextField @bind-Value="uriInput"
@@ -63,6 +55,9 @@ Style="height: 64px;">
             Class="navigate-input"
             Style="width: 140px;"
             OnKeyUp="HandleKeyUp" />
+
+             <!-- Divider -->
+                <div style="width: 1px; height: 24px; background-color: rgba(255,255,255,0.3);"></div>
 
 
             <MudText Typo="Typo.subtitle1"
@@ -558,10 +553,6 @@ Style="height: 64px;">
     }
 
 
-    private async Task HandleStationUpdated(int stationID)
-    {
-        
-    }
 
     private async Task HandleLineUpdated(int lineID)
     {
