@@ -2083,28 +2083,30 @@
                             var stationID = int.Parse(parts[1]);
                             var stationList = stations.ToList();
 
-
                             var newStation = await Fassade.GetStation(stationID);
                             if (newStation != null && !stationList.Any(s => s.stationID == stationID))
                             {
-
-                                stationList.Add(newStation);
-                                stations = stationList.AsEnumerable();
-                                UpdateFilteredStations();
-
-
-                                if (newStation.modifiedBy.Trim() == UsernameService.Username)
+                                // Überprüfe, ob die lineID übereinstimmt
+                                if (newStation.lineID == line.lineID)
                                 {
-                                    selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
-                                    stationFormularModel = selectedStation.Clone();
-                                    stationFormularModel.lineID = selectedStation.lineID;
-                                    tools = Enumerable.Empty<Tool>();
-                                    allOperations = Enumerable.Empty<Operation>();
+                                    stationList.Add(newStation);
+                                    stations = stationList.AsEnumerable();
+                                    UpdateFilteredStations();
+
+                                    if (newStation.modifiedBy.Trim() == UsernameService.Username)
+                                    {
+                                        selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
+                                        stationFormularModel = selectedStation.Clone();
+                                        stationFormularModel.lineID = selectedStation.lineID;
+                                        tools = Enumerable.Empty<Tool>();
+                                        allOperations = Enumerable.Empty<Operation>();
+                                    }
+                                    StateHasChanged();
                                 }
-                                StateHasChanged();
                             }
                             break;
                         }
+
 
                     case var msg when msg.StartsWith("StationDeleted;"):
                         {
