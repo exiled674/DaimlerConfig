@@ -85,7 +85,7 @@ a.sidebar-link {
     width: 75%;
     padding: 0px 0px 20px 0px;
     background-color: #fff;
-    max-height: 80vh; /* maximale Höhe 80% vom Viewport */
+    max-height: 91vh; /* maximale Höhe 80% vom Viewport */
     overflow-y: auto; /* vertikales Scrollen erlauben, wenn Inhalt größer ist */
     scrollbar-width: none; /* Scrollbar in Firefox ausblenden */
     -ms-overflow-style: none; /* Scrollbar in IE/Edge ausblenden */
