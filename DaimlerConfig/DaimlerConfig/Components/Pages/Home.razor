@@ -27,130 +27,125 @@
 
 <!-- Navbar -->
 <MudAppBar Elevation="2"
-           Color="Color.Primary"
-           Style="height: 64px;">
+Color="Color.Primary"
+Style="height: 64px;">
 
     <div class="d-flex align-center justify-space-between w-100 px-4">
 
         <!-- Links: Icon + Titel -->
         <div class="d-flex align-center" style="gap: 10px;">
             <MudIcon Icon="@Icons.Material.Filled.Dashboard"
-                     Size="Size.Medium"
-                     Style="color: rgba(255,255,255,0.9); font-size: 20px;" />
+            Size="Size.Medium"
+            Style="color: rgba(255,255,255,0.9); font-size: 20px;" />
             <MudText Typo="Typo.h5"
-                     Class="font-weight-bold"
-                     Style="letter-spacing: 0.4px; font-size: 1.3rem;">
-                @Fassade.Language.ProjectManager
+            Class="font-weight-bold"
+            Style="letter-spacing: 0.4px; font-size: 1.3rem;">
+                @Language.ProjectManager
             </MudText>
         </div>
 
         <div class="d-flex align-center" style="gap: 14px;">
 
-            <!-- Share Link Button -->
-            <MudButton Variant="Variant.Text"
-            StartIcon="@Icons.Material.Filled.ContentCopy"
-            OnClick="CopyUriToClipboard"
-            Color="Color.Inherit"
-            Class="share-button"
-            Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
-                @Fassade.Language.ShareLink
-            </MudButton>
+          
 
             <!-- Navigate Input (breiter mit besserem Hover) -->
             <MudTextField @bind-Value="uriInput"
-                          Variant="Variant.Outlined"
-                          Placeholder="@Fassade.Language.NavigateTo"
-                          Class="navigate-input"
-                          Style="width: 140px;"
-                          OnKeyUp="HandleKeyUp" />
+            Variant="Variant.Outlined"
+            Placeholder="@Language.NavigateTo"
+            Class="navigate-input"
+            Style="width: 140px;"
+            OnKeyUp="HandleKeyUp" />
+
+             <!-- Divider -->
+                <div style="width: 1px; height: 24px; background-color: rgba(255,255,255,0.3);"></div>
 
 
             <MudText Typo="Typo.subtitle1"
-                     Class="font-weight-medium"
-                     Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
-                @(usernameService.Username?.Split(';')[0] ?? Fassade.Language.UnknownUser)
+            Class="font-weight-medium"
+            Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
+                @(usernameService.Username?.Split(';')[0] ?? Language.UnknownUser)
             </MudText>
 
             <MudIconButton Icon="@Icons.Material.Filled.Settings"
-                           Color="Color.Inherit"
-                           Size="Size.Medium"
-                           OnClick="OpenSettings"
-                           Class="settings-hover-effect" />
+            Color="Color.Inherit"
+            Size="Size.Medium"
+            OnClick="OpenSettings"
+            Class="settings-hover-effect" />
         </div>
     </div>
 </MudAppBar>
 
 <style>
     .settings-hover-effect {
-        transition: all 0.2s ease;
-        opacity: 0.9;
-        border-radius: 6px;
-        width: 36px;
-        height: 36px;
+    transition: all 0.2s ease;
+    opacity: 0.9;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
     }
 
-        .settings-hover-effect:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            transform: scale(1.05);
-            opacity: 1;
-        }
-
-
-        .share-button {
-        border-radius: 6px;
-        padding: 4px 8px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        transform-origin: center;
+    .settings-hover-effect:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    transform: scale(1.05);
+    opacity: 1;
     }
 
-        .share-button:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            transform: scale(1.05);
-            box-shadow: none;
-        }
+
+    .share-button {
+    border-radius: 6px;
+    padding: 4px 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+    }
+
+    .share-button:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    transform: scale(1.05);
+    box-shadow: none;
+    }
 
     /* Navigate Input - Weiß bleiben beim Hover */
     .navigate-input {
-        height: 32px;
+    height: 32px;
     }
 
-        .navigate-input .mud-input-outlined {
-            background-color: rgba(255,255,255,0.1) !important;
-            border-radius: 4px;
-            height: 32px;
-            transition: all 0.2s ease;
-        }
+    .navigate-input .mud-input-outlined {
+    background-color: rgba(255,255,255,0.1) !important;
+    border-radius: 4px;
+    height: 32px;
+    transition: all 0.2s ease;
+    }
 
-            .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
-                border-color: rgba(255,255,255,0.4) !important;
-                transition: all 0.2s ease;
-            }
+    .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.4) !important;
+    transition: all 0.2s ease;
+    }
 
-            /* Hover: Heller aber WEISS bleiben */
-            .navigate-input .mud-input-outlined:hover {
-                background-color: rgba(255,255,255,0.15) !important;
-            }
+    /* Hover: Heller aber WEISS bleiben */
+    .navigate-input .mud-input-outlined:hover {
+    background-color: rgba(255,255,255,0.15) !important;
+    }
 
-                .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
-                    border-color: rgba(255,255,255,0.7) !important;
-                    box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
-                }
+    .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.7) !important;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
+    }
 
-            /* Focus: Auch weiß bleiben */
-            .navigate-input .mud-input-outlined.mud-input-outlined-focused {
-                background-color: rgba(255,255,255,0.2) !important;
-            }
+    /* Focus: Auch weiß bleiben */
+    .navigate-input .mud-input-outlined.mud-input-outlined-focused {
+    background-color: rgba(255,255,255,0.2) !important;
+    }
 
-                .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
-                    border-color: rgba(255,255,255,0.9) !important;
-                    box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
-                }
+    .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.9) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
+    }
 
-        .navigate-input .mud-input {
-            color: inherit !important;
-            font-size: 0.8rem;
-            height: 32px;
-            paddin
+    .navigate-input .mud-input {
+    color: inherit !important;
+    font-size: 0.8rem;
+    height: 32px;
+    paddin
 </style>
 
 @if (ShowSettings)
@@ -166,7 +161,7 @@
             <div style="flex: 0 0 calc(33.333% - 10px); max-width: calc(33.333% - 10px);">
                 <MudTextField @bind-Value="searchText"
                 @bind-Value:after="UpdateFilteredLines"
-                Placeholder="@Fassade.Language.SearchProjects"
+                Placeholder="@Language.SearchProjects"
                 Adornment="Adornment.Start"
                 AdornmentIcon="@Icons.Material.Filled.Search"
                 Immediate="true"
@@ -192,19 +187,19 @@
                     <MudSelectItem Value="@("date")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="me-2" />
-                            @Fassade.Language.SortedByDateDesc
+                            @Language.SortedByDateDesc
                         </div>
                     </MudSelectItem>
                     <MudSelectItem Value="@("name")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.SortByAlpha" Size="Size.Small" Class="me-2" />
-                            @Fassade.Language.SortedByNameAsc
+                            @Language.SortedByNameAsc
                         </div>
                     </MudSelectItem>
                     <MudSelectItem Value="@("favorites")">
                         <div class="d-flex align-items-center">
                             <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" Class="me-2" />
-                            @Fassade.Language.SortedByFavorites
+                            @Language.SortedByFavorites
                         </div>
                     </MudSelectItem>
                 </MudSelect>
@@ -241,7 +236,7 @@
                                 <MudText Typo="Typo.body2"
                                 Class="ma-0 pa-0"
                                 Style="color: #6c757d; font-size: 0.875rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                    @(string.IsNullOrWhiteSpace(line.lineDescription) ? Fassade.Language.NoDescription : line.lineDescription)
+                                    @(string.IsNullOrWhiteSpace(line.lineDescription) ? Language.NoDescription : line.lineDescription)
                                 </MudText>
                             </div>
 
@@ -274,7 +269,7 @@
                                 <!-- Stationen Anzahl -->
                                 @{
                                     var totalStations = statusCounts.Green + statusCounts.Yellow + statusCounts.Red + statusCounts.Undefined;
-                                    var stationText = totalStations == 1 ? Fassade.Language.Station : Fassade.Language.Stations;
+                                    var stationText = totalStations == 1 ? Language.Station : Language.Stations;
                                 }
                                 <MudChip Size="Size.Small"
                                 T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.75rem;">
@@ -289,7 +284,7 @@
                             <MudText Typo="Typo.caption"
                             Class="text-left"
                             Style="color: #6c757d; font-size: 0.75rem;">
-                                @($"{Fassade.Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Fassade.Language.By} {line.modifiedBy?.Split(';')[0] ?? Fassade.Language.UnknownUser}")
+                                @($"{Language.ModifiedOn} {line.lastModified:dd.MM.yyyy} {Language.By} {line.modifiedBy?.Split(';')[0] ?? Language.UnknownUser}")
                             </MudText>
 
                             <!-- Hover-Aktionsleiste -->
@@ -339,7 +334,7 @@
     }
     else
     {
-        <p class="text-muted">@Fassade.Language.NoLinesFound</p>
+        <p class="text-muted">@Language.NoLinesFound</p>
     }
 
     <div>
@@ -348,7 +343,7 @@
         Size="Size.Large"
         Style="position:fixed;bottom:32px;right:32px;z-index:2000;border-radius:8px;"
         Onclick="OpenDialogAsync"
-        Label="@Fassade.Language.CreateNewProject"
+        Label="@Language.CreateNewProject"
         Class="fab-optimized px-4 py-2" />
     </div>
 </div>
@@ -547,9 +542,16 @@
                 case "LineDeleted":
                     HandleLineDeleted(lineID);
                     break;
+                case var msg when msg.StartsWith("Station"):
+
+                    await LoadStatusCountsForAllLines();
+                    StateHasChanged();
+                    break;
+
             }
         });
     }
+
 
 
     private async Task HandleLineUpdated(int lineID)

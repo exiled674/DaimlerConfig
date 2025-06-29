@@ -19,10 +19,10 @@ namespace DaimlerConfig.Components.Models
         public  string? operationSequenceGroup { get; set; }
         public  string? operationDecisionCriteria { get; set; }
         public int alwaysPerform { get; set; }
-        public int decisionClassID { get; set; }
-        public int generationClassID { get; set; }
-        public int verificationClassID { get; set; }
-        public int savingClassID { get; set; }
+        public int? decisionClassID { get; set; }
+        public int? generationClassID { get; set; }
+        public int? verificationClassID { get; set; }
+        public int? savingClassID { get; set; }
        
         public int parallel { get; set; }
         public int qGateID { get; set; } = 1;

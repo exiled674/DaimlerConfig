@@ -5,18 +5,16 @@
     private const string SELECTED_LANGUAGE_KEY = "SelectedLanguage";
     public string SelectedLanguage = "";
     public List<string> AvailableLanguages = new();
-    
-    [Inject] private DaimlerConfig.Components.Fassade.Fassade Fassade { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             SetSelectedLang();
-            await SaveLanguageSettings(SelectedLanguage, Fassade);
+            await SaveLanguageSettings(SelectedLanguage);
             SetAvailableLanguages();
         }
-        catch (Exception ex){}
+        catch (Exception) { }
     }
 
     public void SetAvailableLanguages()
@@ -26,36 +24,32 @@
             .Where(f => f.Name.EndsWith("LANG.json"))
             .Select(f => Path.GetFileNameWithoutExtension(f.Name))
             .ToList();
+        var cleanedLanguages = AvailableLanguages
+            .Select(lang =>
+            {
+                var parts = lang.Split('_');
+                return parts.Length >= 3 ? parts[1] : lang;
+            })
+            .ToList();
+        AvailableLanguages = cleanedLanguages;
     }
+
     public void SetSelectedLang()
     {
         SelectedLanguage = Preferences.Default.Get(SELECTED_LANGUAGE_KEY, SelectedLanguage);
     }
 
-    public async Task SaveLanguageSettings(string selectedLang, Fassade.Fassade fassade)
+    public async Task SaveLanguageSettings(string selectedLang)
     {
-        try
-        {
-            Preferences.Default.Set(SELECTED_LANGUAGE_KEY, selectedLang);
-            await LoadSelectedLanguage(fassade);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Speichern der Sprache: {ex.Message}");
-        }
+        Preferences.Default.Set(SELECTED_LANGUAGE_KEY, selectedLang);
+        selectedLang = "DConfig_" + selectedLang + "_LANG";
+        await LoadSelectedLanguage( selectedLang);
     }
 
-    public async Task LoadSelectedLanguage(Fassade.Fassade fassade)
+    private async Task LoadSelectedLanguage(string selectedLang)
     {
-        try
-        {
-            var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{SelectedLanguage}.json");
-            await LoadLanguageFromFileAsync(languageFilePath, fassade);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Laden der Sprache: {ex.Message}");
-        }
+        var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{selectedLang}.json");
+        await LoadLanguageFromFileAsync(languageFilePath);
     }
 
     public string GetLanguagesFolderPath()
@@ -63,43 +57,28 @@
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         return Path.Combine(appDataPath);
     }
-    public async Task OnLanguageChanged(string newLanguage)
-    {
+
+    public void OnLanguageChanged(string newLanguage)
+    { 
         SelectedLanguage = newLanguage;
-        
-    }
-    private async Task LoadLanguageFromFileAsync(string filePath, Fassade.Fassade fassade)
-    {
-        try
-        {
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"Sprachdatei nicht gefunden: {filePath}");
-
-            var jsonContent = await File.ReadAllTextAsync(filePath);
-            fassade.Language = LoadLanguageFromJson(jsonContent);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Fehler beim Laden der Sprachdatei: {ex.Message}");
-        }
     }
 
-    private Language LoadLanguageFromJson(string jsonContent)
+    private async Task LoadLanguageFromFileAsync(string filePath)
     {
-        try
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"Sprachdatei nicht gefunden: {filePath}");
 
-            return JsonSerializer.Deserialize<Language>(jsonContent, options) ?? new Language();
-        }
-        catch (Exception ex)
+        var jsonContent = await File.ReadAllTextAsync(filePath);
+        Language.SetLanguage(LoadLanguageFromJson(jsonContent));
+    }
+
+    private LanguageHelper LoadLanguageFromJson(string jsonContent)
+    {
+        var options = new JsonSerializerOptions
         {
-            Console.WriteLine($"Fehler beim Deserialisieren der Sprache: {ex.Message}");
-            return new Language();
-        }
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        return JsonSerializer.Deserialize<LanguageHelper>(jsonContent, options) ?? new LanguageHelper();
     }
 }

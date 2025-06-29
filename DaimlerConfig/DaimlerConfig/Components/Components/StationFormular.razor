@@ -14,7 +14,7 @@
             <MudText Typo="Typo.h5"
                      Class="mud-typography-h5"
                      Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important; padding-bottom:12px;">
-                @Fassade.Language.Station
+                @Language.Station
             </MudText>
             <div class="d-flex align-items-center gap-2">
                 @if (errorMessages.ContainsKey("General"))
@@ -30,7 +30,7 @@
                                    Class="add-station-btn-consistent"
                                    Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
                                    @onclick="CreateStationAsync">
-                        @Fassade.Language.Create
+                        @Language.Create
                         </MudButton>
                 }
                 @if (SelectedStation?.stationID != 0)
@@ -42,7 +42,7 @@
                                    Class="add-station-btn-consistent"
                                    Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
                                    @onclick="UpdateStationAsync">
-                        @Fassade.Language.Save
+                        @Language.Save
                         </MudButton>
                 }
             </div>
@@ -73,7 +73,7 @@
                             <div class="col-md-6 mb-3">
                                 <div style="position: relative;">
                                     <MudTextField @bind-Value="SelectedStation.assemblystation"
-                                                  Label="@Fassade.Language.AssemblyStation"
+                                                  Label="@Language.AssemblyStation"
                                                   Variant="Variant.Outlined"
                                                   MaxLength="10"
                                                   Margin="Margin.Normal"
@@ -91,7 +91,7 @@
                             <div class="col-md-6 mb-3">
                                 <div style="position: relative;">
                                     <MudTextField @bind-Value="SelectedStation.stationName"
-                                                  Label="@Fassade.Language.AssemblyStationDesc"
+                                                  Label="@Language.AssemblyStationDesc"
                                                   Variant="Variant.Outlined"
                                                   MaxLength="50"
                                                   Margin="Margin.Normal"
@@ -105,7 +105,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int" Label="@Fassade.Language.StationType"
+                                <MudSelect T="int" Label="@Language.StationType"
                                            @bind-Value="SelectedStation.stationTypeID"
                                            Variant="Variant.Outlined"
                                            Margin="Margin.Normal"
@@ -124,7 +124,7 @@
                             <div class="col-12 mb-3">
                                 <div style="position: relative;">
                                     <MudTextField @bind-Value="SelectedStation.Comment"
-                                                  Label="@Fassade.Language.Comment"
+                                                  Label="@Language.Comment"
                                                   Variant="Variant.Outlined"
                                                   Class="w-100"
                                                   Style="background: white; border-radius: 12px;"
@@ -247,19 +247,19 @@
 		//Objekt
 		if (SelectedStation is null)
 		{
-			errorMessages["General"] = Fassade.Language.MissingStationData;
+			errorMessages["General"] = Language.MissingStationData;
 			return false;
 		}
 
 		//Assemblystation
 		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
 		{
-			errorMessages["Assemblystation"] = Fassade.Language.MissingAssemblyStation;
+			errorMessages["Assemblystation"] = Language.MissingAssemblyStation;
 		}
 
 		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.stationID.Value, SelectedStation.lineID.Value)) 
 		{
-			errorMessages["Assemblystation"] = Fassade.Language.StationAlreadyExists;
+			errorMessages["Assemblystation"] = Language.StationAlreadyExists;
 		}
 
 		showErrors = errorMessages.Any();

@@ -6,13 +6,13 @@
 
 <MudDialog Close="true" Style="width:500px; max-width:90vw; border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
     <TitleContent>
-        <MudText Typo="Typo.h6" Class="mt-2 ml-2">@(IsEditMode ? Fassade.Language.EditProject : Fassade.Language.NewProject)</MudText>
+        <MudText Typo="Typo.h6" Class="mt-2 ml-2">@(IsEditMode ? Language.EditProject : Language.NewProject)</MudText>
     </TitleContent>
     <DialogContent>
         <MudForm @ref="_form" OnValidSubmit="HandleValidSubmit">
             <MudPaper Class="p-4 dialog-form-container" Elevation="0" Style="border-radius:12px;">
                 <MudTextField @bind-Value="_inputValue"
-                Label="@Fassade.Language.ProjectName"
+                Label="@Language.ProjectName"
                 Variant="Variant.Outlined"
                 AutoFocus="true"
                 Margin="Margin.Normal"
@@ -23,7 +23,7 @@
                 @onkeypress="OnKeyDown"/>
 
                 <MudTextField @bind-Value="_inputValue2"
-                Label="@Fassade.Language.ProjectName"
+                Label="@Language.ProjectName"
                 Variant="Variant.Outlined"
                 AutoFocus="true"
                 Margin="Margin.Normal"
@@ -38,13 +38,13 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">@Fassade.Language.Cancel</MudButton>
+        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">@Language.Cancel</MudButton>
         <MudButton Type="ButtonType.Submit"
         Variant="Variant.Filled"
         Color="Color.Primary"
         OnClick="HandleValidSubmit"
         Class="rounded-button">
-            @(IsEditMode ? Fassade.Language.Save : Fassade.Language.Confirm)
+            @(IsEditMode ? Language.Save : Language.Confirm)
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -81,9 +81,6 @@
 </style>
 
 @code {
-
-
-
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
@@ -92,7 +89,6 @@
 
     private MudForm _form;
     private string _inputValue;
-
     private string _inputValue2;
     private bool lineExists;
     private string errorText;
@@ -108,7 +104,6 @@
         {
             _inputValue = ExistingLine.lineName;
             _inputValue2 = ExistingLine.lineDescription;
-
             _originalValue = ExistingLine.lineName;
             _originalValue2 = ExistingLine.lineDescription;
         }
@@ -125,7 +120,7 @@
         if (string.IsNullOrWhiteSpace(_inputValue))
         {
             lineExists = true;
-            errorText = Fassade.Language.ProjectNameCannotBeEmpty;
+            errorText = Language.ProjectNameCannotBeEmpty;
             return;
         }
 
@@ -134,7 +129,7 @@
         if (nameExists && (!IsEditMode || _inputValue != _originalValue))
         {
             lineExists = true;
-            errorText = Fassade.Language.ProjectNameAlreadyExists;
+            errorText = Language.ProjectNameAlreadyExists;
             return;
         }
 
@@ -144,7 +139,6 @@
             {
                 // Bearbeiten eines bestehenden Projekts
                 ExistingLine.lineName = _inputValue;
-
                 ExistingLine.lineDescription = _inputValue2;
                 ExistingLine.lastModified = DateTime.Now;
                 ExistingLine.modifiedBy = usernameService.Username;
@@ -152,7 +146,7 @@
                 if (!(await Fassade.UpdateLine(ExistingLine)))
                 {
                     lineExists = true;
-                    errorText = Fassade.Language.ProjectErrorInDb;
+                    errorText = Language.ProjectErrorInDb;
                     return;
                 }
 
@@ -173,7 +167,7 @@
                 if (!(await Fassade.AddLine(line)))
                 {
                     lineExists = true;
-                    errorText = Fassade.Language.ProjectErrorInDb;
+                    errorText = Language.ProjectErrorInDb;
                     return;
                 }
 
@@ -190,7 +184,7 @@
         catch (Exception ex)
         {
             lineExists = true;
-            errorText = Fassade.Language.ErrorOccured + ex.Message;
+            errorText = Language.ErrorOccured + ex.Message;
         }
     }
 
