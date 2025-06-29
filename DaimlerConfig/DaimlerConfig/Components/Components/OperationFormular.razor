@@ -878,8 +878,7 @@
             //Set standards if classes are null (Saving never null)
             if (verificationClassesList.IsNullOrEmpty())
                 verificationClassesList.AddRange(await Fassade.GetVerificationClasses(0));
-                if(SelectedOperation!=null)
-                    SelectedOperation.verificationClassID = 0;
+          
             if (generationClassesList.IsNullOrEmpty())
                 generationClassesList.AddRange(await Fassade.GetGenerationClasses(0));
 
