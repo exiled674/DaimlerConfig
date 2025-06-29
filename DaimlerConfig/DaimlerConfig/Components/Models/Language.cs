@@ -154,6 +154,7 @@ public class Language
     public static string Project { get; set; } = "Project: ";
     public static string EditedByPart1 { get; set; } = "The tool is currently edited by: ";
     public static string EditedByPart2 { get; set; } = ". All files are read-only.";
+    public static string Locked { get; set; } = "Locked";
 
     public static void SetLanguage(LanguageHelper newLang)
     {
@@ -309,5 +310,6 @@ public class Language
         Project = newLang.Project;
         EditedByPart1 = newLang.EditedByPart1;
         EditedByPart2 = newLang.EditedByPart2;
+        Locked = newLang.Locked;
     }
 }

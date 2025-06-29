@@ -154,4 +154,5 @@ public class LanguageHelper
     public string Project { get; set; } = "Project: ";
     public string EditedByPart1 { get; set; } = "The tool is currently edited by: ";
     public string EditedByPart2 { get; set; } = ". All files are read-only.";
+    public string Locked { get; set; } = "Locked";
 }
