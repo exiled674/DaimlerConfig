@@ -20,7 +20,7 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="4.2969027"
-     inkscape:cx="70.748635"
+     inkscape:cx="70.981361"
      inkscape:cy="70.864998"
      inkscape:window-width="1536"
      inkscape:window-height="811"
@@ -44,6 +44,23 @@
       }
     </style>
   </defs>
+  <rect
+     style="fill:#262524;fill-opacity:1;stroke:#c2c2c2"
+     id="rect12"
+     width="148.71176"
+     height="145.22087"
+     x="-0.46545154"
+     y="-1.3963547" />
+  <rect
+     class="cls-2"
+     x="15.74"
+     y="13.14"
+     width="112.79"
+     height="115.58"
+     rx="16"
+     ry="16"
+     id="rect11"
+     style="fill:#ffffff;fill-opacity:1" />
   <g
      id="g11">
     <path
@@ -133,14 +150,4 @@
          id="rect10" />
     </g>
   </g>
-  <rect
-     class="cls-2"
-     x="15.74"
-     y="13.14"
-     width="112.79"
-     height="115.58"
-     rx="16"
-     ry="16"
-     id="rect11"
-     style="fill:#ffffff;fill-opacity:0" />
 </svg>
