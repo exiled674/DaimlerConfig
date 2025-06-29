@@ -107,8 +107,8 @@
         {
                 <div class="info-banner mb-4">
                     <div class="d-flex align-items-center">
-                            <MudIcon Icon="@Icons.Material.Filled.Info" Style="color: #1e40af; margin-right: 8px; font-size: 1rem;" />
-    <span style="color: #1e40af; font-size: 0.875rem; font-weight: 500;">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Style="color: #1e40af; margin-right: 8px; font-size: 1rem;" />
+                        <span style="color: #1e40af; font-size: 0.875rem; font-weight: 500;">
                             Dieses Tool wird gerade von <strong>@SelectedTool.lockedBy.Split(';')[0]</strong> bearbeitet. Alle Felder sind schreibgeschützt.
                         </span>
                     </div>
@@ -129,19 +129,23 @@
                     <div style="padding: 0 24px 24px 24px;">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <MudTextField T="int?"
-                                              Label="@Language.ToolId"
-                                              Value="SelectedTool.toolID"
-                                              ReadOnly="true"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              Style="background: white; border-radius: 12px;"
-                                              Adornment="Adornment.End"
-                                              AdornmentIcon="@Icons.Material.Filled.Lock" />
+                                <div class="input-container">
+                                    <MudTextField T="int?"
+                                                  Label="@Language.ToolId"
+                                                  Value="SelectedTool.toolID"
+                                                  ReadOnly="true"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="w-100 locked-field"
+                                                  Style="background: white; border-radius: 12px;" />
+                                    @if (true)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <div style="position: relative;">
+                                <div class="input-container">
                                     <MudTextField T="string"
                                                   Label="@Language.ToolShortname"
                                                   @bind-Value="SelectedTool.toolShortname"
@@ -149,48 +153,57 @@
                                                   ReadOnly="@ReadOnly"
                                                   Variant="Variant.Outlined"
                                                   Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
                                                   @onclick="LockTool"
                                                   OnBlur="CheckIfDirty"
                                                   Error="@errorMessages.ContainsKey("ToolShortname")"
-                                                  ErrorText="@((errorMessages.ContainsKey("ToolShortname")) ? errorMessages["ToolShortname"] : null)"
-                                                  Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                                  AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
-                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                                  ErrorText="@((errorMessages.ContainsKey("ToolShortname")) ? errorMessages["ToolShortname"] : null)" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                    <span class="character-count">
                                         @($"{SelectedTool?.toolShortname?.Length ?? 0}/16")
                                     </span>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int?" Label="Tool Class"
-                                           Variant="Variant.Outlined"
-                                           Margin="Margin.Normal"
-                                           Disabled="@ReadOnly"
-                                           Class="w-100"
-                                           Style="background: white; border-radius: 12px;"
-                                           Value="SelectedTool.toolClassID"
-                                           ValueChanged="OnToolClassChanged"
-                                           OnBlur="LockTool">
-                                    @foreach (var toolClass in toolClasses.OrderBy(t => t.toolClassName))
-                                    {
-                                            <MudSelectItem T="int?" Value="@toolClass.toolClassID">@toolClass.toolClassName</MudSelectItem>
-                                    }
-                                </MudSelect>
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="Tool Class"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               Value="SelectedTool.toolClassID"
+                                               ValueChanged="OnToolClassChanged"
+                                               OnBlur="LockTool">
+                                        @foreach (var toolClass in toolClasses.OrderBy(t => t.toolClassName))
+                                        {
+                                                <MudSelectItem T="int?" Value="@toolClass.toolClassID">@toolClass.toolClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                   
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int?" Label="Tool Type"
-                                           Variant="Variant.Outlined"
-                                           Margin="Margin.Normal"
-                                           Disabled="@ReadOnly"
-                                           Class="w-100"
-                                           Style="background: white; border-radius: 12px;"
-                                           Value="SelectedTool.toolTypeID"
-                                           ValueChanged="OnToolTypeChanged"
-                                           OnBlur="LockTool">
-                                    @foreach (var toolType in toolTypes.OrderBy(t => t.toolTypeName))
-                                    {
-                                            <MudSelectItem T="int?" Value="@toolType.toolTypeID">@toolType.toolTypeName</MudSelectItem>
-                                    }
-                                </MudSelect>
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="Tool Type"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               Value="SelectedTool.toolTypeID"
+                                               ValueChanged="OnToolTypeChanged"
+                                               OnBlur="LockTool">
+                                        @foreach (var toolType in toolTypes.OrderBy(t => t.toolTypeName))
+                                        {
+                                                <MudSelectItem T="int?" Value="@toolType.toolTypeID">@toolType.toolTypeName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                   
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -212,7 +225,7 @@
                     <div style="padding: 0 24px 24px 24px;">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <div style="position: relative;">
+                                <div class="input-container textarea-container">
                                     <MudTextField T="string"
                                                   Label="@Language.ToolDescription"
                                                   @bind-Value="SelectedTool.toolDescription"
@@ -221,24 +234,27 @@
                                                   Margin="Margin.Normal"
                                                   Lines="4"
                                                   MaxLength="1000"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
                                                   Style="background: white; border-radius: 12px;"
                                                   @onclick="LockTool"
                                                   OnBlur="CheckIfDirty"
-                                                  Class="w-100"
-                                                  Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                                  AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
-                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                                  TextArea="true" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                    }
+                                    <span class="character-count textarea-count">
                                         @($"{SelectedTool?.toolDescription?.Length ?? 0}/1000")
                                     </span>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <div style="position: relative;">
+                                <div class="input-container textarea-container">
                                     <MudTextField T="string"
                                                   @bind-Value="SelectedTool.Comment"
                                                   Label="@Language.Comment"
                                                   Variant="Variant.Outlined"
-                                                  Class="w-100"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
                                                   Style="background: white; border-radius: 12px;"
                                                   Margin="Margin.Normal"
                                                   Immediate="true"
@@ -247,10 +263,12 @@
                                                   MaxLength="1000"
                                                   Lines="4"
                                                   TextArea="true"
-                                                  ReadOnly="@ReadOnly"
-                                                  Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                                  AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
-                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                                  ReadOnly="@ReadOnly" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                    }
+                                    <span class="character-count textarea-count">
                                         @($"{SelectedTool?.Comment?.Length ?? 0}/1000")
                                     </span>
                                 </div>
@@ -275,87 +293,115 @@
                     <div style="padding: 0 24px 24px 24px;">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.IpAddressDevice"
-                                              @bind-Value="SelectedTool.ipAddressDevice"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="@($"w-100 {(errorMessages.ContainsKey("IP") ? "mud-input-error" : "")}")"
-                                              @onclick="LockTool"
-                                              OnBlur="CheckIfDirty"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.IpAddressDevice"
+                                                  @bind-Value="SelectedTool.ipAddressDevice"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")} {(errorMessages.ContainsKey("IP") ? "mud-input-error" : "")}")"
+                                                  @onclick="LockTool"
+                                                  OnBlur="CheckIfDirty" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                                 @if (errorMessages.ContainsKey("IP"))
                                 {
                                         <div class="mud-input-error-text">@errorMessages["IP"]</div>
                                 }
                             </div>
                             <div class="col-md-4 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.PlcName"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              @onclick="LockTool"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.PlcName"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  @onclick="LockTool" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.DbNoSend"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              @onclick="LockTool"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.DbNoSend"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  @onclick="LockTool" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.DbNoReceive"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              @onclick="LockTool"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.DbNoReceive"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  @onclick="LockTool" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.AddressSendDb"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              @onclick="LockTool"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.AddressSendDb"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  @onclick="LockTool" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.AddressReceiveDb"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              @onclick="LockTool"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.AddressReceiveDb"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  @onclick="LockTool" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.BytePreCheck"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              @onclick="LockTool"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.BytePreCheck"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  @onclick="LockTool" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -388,11 +434,11 @@
         margin-bottom: 12px;
     }
 
-   .locked-badge {
-    background-color: #dbeafe; /* Helles Blau - gleich wie Info-Banner */
-    color: #1e40af; /* Dunkles Blau für Text */
-    border: 1px solid #3b82f6; /* Mittleres Blau für Border */
-}
+    .locked-badge {
+        background-color: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #3b82f6;
+    }
 
     .user-badge {
         background-color: #f3f4f6;
@@ -400,14 +446,67 @@
         border: 1px solid #d1d5db;
     }
 
-  /* Info Banner Styling - angepasst an dunkelblaue Primary Color */
-.info-banner {
-    background-color: #dbeafe; /* Helles Blau */
-    border: 1px solid #3b82f6; /* Mittleres Blau für Border */
-    border-radius: 12px;
-    padding: 12px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
+    /* Info Banner Styling */
+    .info-banner {
+        background-color: #dbeafe;
+        border: 1px solid #3b82f6;
+        border-radius: 12px;
+        padding: 12px 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* Input Container für relative Positionierung */
+    .input-container {
+        position: relative;
+    }
+
+    /* Locked Field Styling */
+    .locked-field .mud-input-outlined {
+        background-color: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+    }
+
+    .locked-field .mud-input-outlined:hover {
+        border-color: #cbd5e1 !important;
+    }
+
+    /* Lock Icon Styling - oben rechts */
+    .lock-icon {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: #3b82f6 !important;
+        font-size: 1rem !important;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    /* Lock Icon für Textareas - oben rechts */
+    .textarea-lock {
+        top: 12px;
+        right: 12px;
+    }
+
+    /* Character Count Styling - unten rechts */
+    .character-count {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2px 4px;
+        border-radius: 4px;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    /* Character Count für Textareas */
+    .textarea-count {
+        bottom: 12px;
+        right: 12px;
+    }
 
     /* Expansion Panel Styling */
     .mud-expand-panel {
