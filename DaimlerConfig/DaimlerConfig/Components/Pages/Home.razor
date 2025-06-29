@@ -27,19 +27,19 @@
 
 <!-- Navbar -->
 <MudAppBar Elevation="2"
-           Color="Color.Primary"
-           Style="height: 64px;">
+Color="Color.Primary"
+Style="height: 64px;">
 
     <div class="d-flex align-center justify-space-between w-100 px-4">
 
         <!-- Links: Icon + Titel -->
         <div class="d-flex align-center" style="gap: 10px;">
             <MudIcon Icon="@Icons.Material.Filled.Dashboard"
-                     Size="Size.Medium"
-                     Style="color: rgba(255,255,255,0.9); font-size: 20px;" />
+            Size="Size.Medium"
+            Style="color: rgba(255,255,255,0.9); font-size: 20px;" />
             <MudText Typo="Typo.h5"
-                     Class="font-weight-bold"
-                     Style="letter-spacing: 0.4px; font-size: 1.3rem;">
+            Class="font-weight-bold"
+            Style="letter-spacing: 0.4px; font-size: 1.3rem;">
                 @Language.ProjectManager
             </MudText>
         </div>
@@ -58,99 +58,99 @@
 
             <!-- Navigate Input (breiter mit besserem Hover) -->
             <MudTextField @bind-Value="uriInput"
-                          Variant="Variant.Outlined"
-                          Placeholder="@Language.NavigateTo"
-                          Class="navigate-input"
-                          Style="width: 140px;"
-                          OnKeyUp="HandleKeyUp" />
+            Variant="Variant.Outlined"
+            Placeholder="@Language.NavigateTo"
+            Class="navigate-input"
+            Style="width: 140px;"
+            OnKeyUp="HandleKeyUp" />
 
 
             <MudText Typo="Typo.subtitle1"
-                     Class="font-weight-medium"
-                     Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
+            Class="font-weight-medium"
+            Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
                 @(usernameService.Username?.Split(';')[0] ?? Language.UnknownUser)
             </MudText>
 
             <MudIconButton Icon="@Icons.Material.Filled.Settings"
-                           Color="Color.Inherit"
-                           Size="Size.Medium"
-                           OnClick="OpenSettings"
-                           Class="settings-hover-effect" />
+            Color="Color.Inherit"
+            Size="Size.Medium"
+            OnClick="OpenSettings"
+            Class="settings-hover-effect" />
         </div>
     </div>
 </MudAppBar>
 
 <style>
     .settings-hover-effect {
-        transition: all 0.2s ease;
-        opacity: 0.9;
-        border-radius: 6px;
-        width: 36px;
-        height: 36px;
+    transition: all 0.2s ease;
+    opacity: 0.9;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
     }
 
-        .settings-hover-effect:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            transform: scale(1.05);
-            opacity: 1;
-        }
-
-
-        .share-button {
-        border-radius: 6px;
-        padding: 4px 8px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        transform-origin: center;
+    .settings-hover-effect:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    transform: scale(1.05);
+    opacity: 1;
     }
 
-        .share-button:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            transform: scale(1.05);
-            box-shadow: none;
-        }
+
+    .share-button {
+    border-radius: 6px;
+    padding: 4px 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+    }
+
+    .share-button:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    transform: scale(1.05);
+    box-shadow: none;
+    }
 
     /* Navigate Input - Weiß bleiben beim Hover */
     .navigate-input {
-        height: 32px;
+    height: 32px;
     }
 
-        .navigate-input .mud-input-outlined {
-            background-color: rgba(255,255,255,0.1) !important;
-            border-radius: 4px;
-            height: 32px;
-            transition: all 0.2s ease;
-        }
+    .navigate-input .mud-input-outlined {
+    background-color: rgba(255,255,255,0.1) !important;
+    border-radius: 4px;
+    height: 32px;
+    transition: all 0.2s ease;
+    }
 
-            .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
-                border-color: rgba(255,255,255,0.4) !important;
-                transition: all 0.2s ease;
-            }
+    .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.4) !important;
+    transition: all 0.2s ease;
+    }
 
-            /* Hover: Heller aber WEISS bleiben */
-            .navigate-input .mud-input-outlined:hover {
-                background-color: rgba(255,255,255,0.15) !important;
-            }
+    /* Hover: Heller aber WEISS bleiben */
+    .navigate-input .mud-input-outlined:hover {
+    background-color: rgba(255,255,255,0.15) !important;
+    }
 
-                .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
-                    border-color: rgba(255,255,255,0.7) !important;
-                    box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
-                }
+    .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.7) !important;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
+    }
 
-            /* Focus: Auch weiß bleiben */
-            .navigate-input .mud-input-outlined.mud-input-outlined-focused {
-                background-color: rgba(255,255,255,0.2) !important;
-            }
+    /* Focus: Auch weiß bleiben */
+    .navigate-input .mud-input-outlined.mud-input-outlined-focused {
+    background-color: rgba(255,255,255,0.2) !important;
+    }
 
-                .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
-                    border-color: rgba(255,255,255,0.9) !important;
-                    box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
-                }
+    .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
+    border-color: rgba(255,255,255,0.9) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
+    }
 
-        .navigate-input .mud-input {
-            color: inherit !important;
-            font-size: 0.8rem;
-            height: 32px;
-            paddin
+    .navigate-input .mud-input {
+    color: inherit !important;
+    font-size: 0.8rem;
+    height: 32px;
+    paddin
 </style>
 
 @if (ShowSettings)
@@ -547,10 +547,21 @@
                 case "LineDeleted":
                     HandleLineDeleted(lineID);
                     break;
+                case var msg when msg.StartsWith("Station"):
+
+                    await LoadStatusCountsForAllLines();
+                    StateHasChanged();
+                    break;
+
             }
         });
     }
 
+
+    private async Task HandleStationUpdated(int stationID)
+    {
+        
+    }
 
     private async Task HandleLineUpdated(int lineID)
     {
