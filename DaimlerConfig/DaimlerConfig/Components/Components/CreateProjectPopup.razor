@@ -24,7 +24,7 @@
                 @onkeypress="OnKeyDown"/>
 
                 <MudTextField @bind-Value="_inputValue2"
-                Label="@Language.ProjectName"
+                Label="@Language.ProjectDescription"
                 Variant="Variant.Outlined"
                 AutoFocus="true"
                 Margin="Margin.Normal"
@@ -209,7 +209,7 @@
                 }
 
                 await SignalRService.SendMessageToServer($"LineUpdated;{ExistingLine.lineID}");
-                Snackbar.Add($"Projekt '{ExistingLine.lineName}' wurde erfolgreich aktualisiert!", Severity.Success);
+                Snackbar.Add(Language.Project +" "+ ExistingLine.lineName + Language.HasBeenUpdated, Severity.Success);
             }
             else
             {
@@ -234,7 +234,7 @@
                 if (savedLine != null)
                 {
                     await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
-                    Snackbar.Add($"Projekt '{savedLine.lineName}' wurde erfolgreich erstellt!", Severity.Success);
+                    Snackbar.Add(Language.Project +" "+ savedLine.lineName + Language.HasBeenCreated, Severity.Success);
                 }
             }
 

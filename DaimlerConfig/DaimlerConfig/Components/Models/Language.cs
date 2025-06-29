@@ -2,26 +2,26 @@
 
 public class Language
 {
-    public static string ProjectManager { get; set; } = "Project Manager";
-    public static string SearchProjects { get; set; } = "Search projects";
+    public static string ProjectManager { get; set; } = "Line Manager";
+    public static string SearchProjects { get; set; } = "Search lines";
     public static string SortedByDateDesc { get; set; } = "Sorted by date descending";
     public static string SortedByNameAsc { get; set; } = "Sorted by name ascending";
-    public static string SortedByFavorites { get; set; } = "Sorted by Favorites";
+    public static string SortedByFavorites { get; set; } = "Filter by favorites";
     public static string ModifiedOn { get; set; } = "Modified on";
     public static string By { get; set; } = "by";
-    public static string CreateNewProject { get; set; } = "Create new project";
-    public static string NewProject { get; set; } = "New project";
-    public static string ProjectName { get; set; } = "Project Name";
+    public static string CreateNewProject { get; set; } = "Create new line";
+    public static string NewProject { get; set; } = "New line";
+    public static string ProjectName { get; set; } = "Line Name";
     public static string Cancel { get; set; } = "Cancel";
     public static string Save { get; set; } = "Save";
     public static string AddToFavorites { get; set; } = "Add to favorites";
     public static string Edit { get; set; } = "Edit";
     public static string ExportToExcel { get; set; } = "Export to Excel";
     public static string ExportToJson { get; set; } = "Export to JSON";
-    public static string EditProject { get; set; } = "Edit Project";
-    public static string DeleteProject { get; set; } = "Delete Project";
+    public static string EditProject { get; set; } = "Edit line";
+    public static string DeleteProject { get; set; } = "Delete line";
     public static string Confirmation { get; set; } = "Confirmation";
-    public static string DeleteProjectConfirm { get; set; } = "Do you really want to delete the project? This action cannot be undone.";
+    public static string DeleteProjectConfirm { get; set; } = "Do you really want to delete the line? This action cannot be undone.";
     public static string Delete { get; set; } = "Delete";
     public static string Settings { get; set; } = "Settings";
     public static string Profile { get; set; } = "Profile";
@@ -33,7 +33,7 @@ public class Language
     public static string Reset { get; set; } = "Reset";
     public static string GeneralSettings { get; set; } = "General Settings";
     public static string GeneralSettingsInfo { get; set; } = "General application settings will be available here.";
-    public static string ReadOnlySettings { get; set; } = "Settings are in read-only mode. Click \"Edit Settings\" to make changes.";
+    public static string ReadOnlySettings { get; set; } ="Settings are in read-only mode. Click \"Edit Settings\" to make changes.";
     public static string ValidatingConnection { get; set; } = "Validating connection settings...";
     public static string InvalidDbSettings { get; set; } = "The new database settings are invalid.";
     public static string SaveSettings { get; set; } = "SAVE SETTINGS";
@@ -107,13 +107,13 @@ public class Language
     public static string SavingClass { get; set; } = "Saving Class";
     public static string DecisionCriteria { get; set; } = "Decision Criteria";
     public static string Confirm { get; set; } = "Confirm";
-    public static string ProjectNameCannotBeEmpty { get; set; } = "Project name cannot be empty. Please enter a valid name.";
-    public static string ProjectNameAlreadyExists { get; set; } = "Project already exists. Please choose a different name.";
-    public static string ProjectErrorInDb { get; set; } = "Error updating project in database";
+    public static string ProjectNameCannotBeEmpty { get; set; } = "Line name cannot be empty. Please enter a valid name.";
+    public static string ProjectNameAlreadyExists { get; set; } = "Line already exists. Please choose a different name.";
+    public static string ProjectErrorInDb { get; set; } = "Error updating line in database";
     public static string ErrorOccured { get; set; } = "An Error occured: ";
     public static string OperationShortnameMissing { get; set; } = "OperationShortname is missing";
     public static string OperationShortnameAlreadyExists { get; set; } = "An operation with this shortname already exists in this station";
-    public static string UnchangedChanges { get; set; } = "Du hast ungespeicherte Änderungen. Möchtest du speichern oder verwerfen?";
+    public static string UnchangedChanges { get; set; } = "You have unsaved changes. Do you want to save or discard them?";
     public static string Searching { get; set; } = "Searching...";
     public static string EnterUsername { get; set; } = "Enter your username";
     public static string UsernameHelperText { get; set; } = "Your display name for the application";
@@ -148,13 +148,25 @@ public class Language
     public static string HasBeenDefavored { get; set; } = " has been de-favored";
     public static string HasBeenDeleted { get; set; } = " has been deleted";
     public static string HasBeenCopied { get; set; } = " has been copied";
+    public static string HasBeenUpdated { get; set; } = " has been updated";
+    public static string HasBeenCreated { get; set; } = " has been created";
     public static string OperationHasBeenAdded { get; set; } = "Operation has been added";
     public static string ToolHasBeenAdded { get; set; } = "Tool has been added";
     public static string UrlCopied { get; set; } = "URL copied";
-    public static string Project { get; set; } = "Project: ";
+    public static string Project { get; set; } = "Line: ";
     public static string EditedByPart1 { get; set; } = "The tool is currently edited by: ";
     public static string EditedByPart2 { get; set; } = ". All files are read-only.";
     public static string Locked { get; set; } = "Locked";
+    public static string ToolDeleteText1 { get; set; } = "Are you sure you want to delete this tool: ";
+    public static string ToolDeleteText2 { get; set; } = "? This action cannot be undone.";
+    public static string DeleteTool { get; set; } = "Delete tool: ";
+    public static string OperationDeleteText1 { get; set; } = "Are you sure you want to delete this operation: ";
+    public static string StationDeleteText1 { get; set; } = "Are you sure you want to delete this station: ";
+    public static string DescriptionAndComments { get; set; } = "Description & Comments";
+    public static string NetworkConfig { get; set; } = "Network Configuration";
+    public static string OperationClasses { get; set; } = "Operation Classes";
+    public static string ProjectDescription { get; set; } = "Linedescription";
+    public static string Tools { get; set; } = "Tools";
 
     public static void SetLanguage(LanguageHelper newLang)
     {
@@ -304,6 +316,8 @@ public class Language
         HasBeenDefavored = newLang.HasBeenDefavored;
         HasBeenDeleted = newLang.HasBeenDeleted;
         HasBeenCopied = newLang.HasBeenCopied;
+        HasBeenUpdated = newLang.HasBeenUpdated;
+        HasBeenCreated = newLang.HasBeenCreated;
         OperationHasBeenAdded = newLang.OperationHasBeenAdded;
         ToolHasBeenAdded = newLang.ToolHasBeenAdded;
         UrlCopied = newLang.UrlCopied;
@@ -311,5 +325,15 @@ public class Language
         EditedByPart1 = newLang.EditedByPart1;
         EditedByPart2 = newLang.EditedByPart2;
         Locked = newLang.Locked;
+        ToolDeleteText1 = newLang.ToolDeleteText1;
+        ToolDeleteText2 = newLang.ToolDeleteText2;
+        DeleteTool = newLang.DeleteTool;
+        OperationDeleteText1 = newLang.OperationDeleteText1;
+        StationDeleteText1 = newLang.StationDeleteText1;
+        DescriptionAndComments = newLang.DescriptionAndComments;
+        NetworkConfig = newLang.NetworkConfig;
+        OperationClasses = newLang.OperationClasses;
+        ProjectDescription = newLang.ProjectDescription;
+        Tools = newLang.Tools;
     }
 }

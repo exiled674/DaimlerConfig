@@ -67,7 +67,7 @@
                 <TitleContent>
                     <div style="display: flex; align-items: center; padding: 4px 0;">
                         <MudIcon Icon="@Icons.Material.Filled.Info" Style="margin-right: 12px; color: var(--mud-palette-primary);" />
-                        <h6 style="margin: 0; font-weight: 600; color: var(--mud-palette-text-primary);">General</h6>
+                        <h6 style="margin: 0; font-weight: 600; color: var(--mud-palette-text-primary);">@Language.General</h6>
                     </div>
                 </TitleContent>
                 <ChildContent>
@@ -276,7 +276,7 @@
         await DirtyManagerService.setClean();
 
         // Erfolgs-Toast
-        Snackbar.Add($"Station '{SelectedStation.assemblystation}' erfolgreich aktualisiert!", Severity.Success);
+        Snackbar.Add(Language.Station +" "+ SelectedStation.assemblystation + Language.HasBeenUpdated, Severity.Success);
     }
 
     private async Task CreateStationAsync()
@@ -305,7 +305,7 @@
         await DirtyManagerService.setClean();
 
         // Erfolgs-Toast
-        Snackbar.Add($"Station '{SelectedStation.assemblystation}' erfolgreich erstellt!", Severity.Success);
+        Snackbar.Add(Language.Station +" "+ SelectedStation.assemblystation + Language.HasBeenCreated, Severity.Success);
     }
 
     private async Task DeleteStationAsync()
@@ -320,7 +320,7 @@
         await DirtyManagerService.setClean();
 
         // Erfolgs-Toast
-        Snackbar.Add($"Station '{SelectedStation.assemblystation}' erfolgreich gelöscht!", Severity.Warning);
+        Snackbar.Add(Language.Station +" "+ SelectedStation.assemblystation + Language.HasBeenDeleted, Severity.Warning);
     }
 
     #endregion

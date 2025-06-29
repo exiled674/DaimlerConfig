@@ -290,7 +290,7 @@
                                 <MudText Typo="Typo.body2"
                                 Class="ma-0 pa-0"
                                 Style="color: #6c757d; font-size: 0.8rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                    @(string.IsNullOrWhiteSpace(station.stationName) ? "No description" : station.stationName)
+                                    @(string.IsNullOrWhiteSpace(station.stationName) ? Language.NoDescription : station.stationName)
                                 </MudText>
                             </div>
 
@@ -322,7 +322,7 @@
                                 <!-- Tools Anzahl Chip -->
                                 @{
                                     var totalTools = stationStatusCounts.Green + stationStatusCounts.Yellow + stationStatusCounts.Red + stationStatusCounts.Undefined;
-                                    var toolText = totalTools == 1 ? "Tool" : "Tools";
+                                    var toolText = totalTools == 1 ? Language.Tool : Language.Tools;
                                 }
                                 <MudChip Size="Size.Small"
                                 T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.65rem;">
@@ -1607,7 +1607,7 @@
             UsernameService.SaveStationList(names);
 
             UpdateFilteredStations();
-             Snackbar.Add(Language.Station + station.assemblystation+ Language.HasBeenFavorized, Severity.Success);
+             Snackbar.Add(Language.Station +" "+ station.assemblystation+ Language.HasBeenFavorized, Severity.Success);
             StateHasChanged();
         }
     }
@@ -1620,7 +1620,7 @@
         UsernameService.SaveStationList(names);
 
         UpdateFilteredStations();
-        Snackbar.Add(Language.Station + station.assemblystation + Language.HasBeenDefavored, Severity.Success);
+        Snackbar.Add(Language.Station +" "+ station.assemblystation + Language.HasBeenDefavored, Severity.Success);
         StateHasChanged();
     }
 
@@ -2865,8 +2865,8 @@
     {
         var parameters = new DialogParameters<ConfirmationDialog>
     {
-        { x => x.ContentText, $"Möchten Sie das Tool \"{tool.toolShortname}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden." },
-        { x => x.ButtonText, "Löschen" },
+        { x => x.ContentText, Language.ToolDeleteText1 + tool.toolShortname + Language.ToolDeleteText2},
+        { x => x.ButtonText, Language.Delete },
         { x => x.Color, Color.Error }
     };
 
@@ -2877,7 +2877,7 @@
                 CloseOnEscapeKey = true
             };
 
-        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Projekt löschen", parameters, options);
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>(Language.DeleteProject, parameters, options);
         var result = await dialog.Result;
 
         if (result != null && !result.Canceled)
@@ -2887,7 +2887,7 @@
                 await Fassade.DeleteTool(tool);
 
 
-                await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
+                await SignalRService.SendMessageToServer(Language.DeleteTool + tool.toolID);
                 await DirtyManagerService.setClean();
                 Snackbar.Add(Language.Tool + tool.toolShortname + Language.HasBeenDeleted, Severity.Success);
                 //  if (showOperationFormular == true) showOperationFormular = false;
@@ -2906,8 +2906,8 @@
     {
         var parameters = new DialogParameters<ConfirmationDialog>
     {
-        { x => x.ContentText, $"Möchten Sie die Operation \"{operation.operationShortname}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden." },
-        { x => x.ButtonText, "Löschen" },
+        { x => x.ContentText, Language.OperationDeleteText1 + operation.operationShortname + Language.ToolDeleteText2},
+        { x => x.ButtonText, Language.Delete },
         { x => x.Color, Color.Error }
     };
 
@@ -2918,7 +2918,7 @@
                 CloseOnEscapeKey = true
             };
 
-        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Projekt löschen", parameters, options);
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>(Language.DeleteProject, parameters, options);
         var result = await dialog.Result;
 
         if (result != null && !result.Canceled)
@@ -2947,8 +2947,8 @@
     {
         var parameters = new DialogParameters<ConfirmationDialog>
     {
-        { x => x.ContentText, $"Möchten Sie die Station \"{station.assemblystation}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden." },
-        { x => x.ButtonText, "Löschen" },
+        { x => x.ContentText, Language.StationDeleteText1 + station.assemblystation + Language.ToolDeleteText2},
+        { x => x.ButtonText, Language.Delete},
         { x => x.Color, Color.Error }
     };
 
@@ -2959,7 +2959,7 @@
                 CloseOnEscapeKey = true
             };
 
-        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Projekt löschen", parameters, options);
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>(Language.DeleteProject, parameters, options);
         var result = await dialog.Result;
 
         if (result != null && !result.Canceled)

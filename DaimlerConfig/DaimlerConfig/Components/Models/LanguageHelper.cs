@@ -2,26 +2,26 @@
 
 public class LanguageHelper
 {
-    public string ProjectManager { get; set; } = "Project Manager";
-    public string SearchProjects { get; set; } = "Search projects";
+    public string ProjectManager { get; set; } = "Line Manager";
+    public string SearchProjects { get; set; } = "Search lines";
     public string SortedByDateDesc { get; set; } = "Sorted by date descending";
     public string SortedByNameAsc { get; set; } = "Sorted by name ascending";
     public string SortedByFavorites { get; set; } = "Sorted by Favorites";
     public string ModifiedOn { get; set; } = "Modified on";
     public string By { get; set; } = "by";
-    public string CreateNewProject { get; set; } = "Create new project";
-    public string NewProject { get; set; } = "New project";
-    public string ProjectName { get; set; } = "Project Name";
+    public string CreateNewProject { get; set; } = "Create new line";
+    public string NewProject { get; set; } = "New line";
+    public string ProjectName { get; set; } = "Line Name";
     public string Cancel { get; set; } = "Cancel";
     public string Save { get; set; } = "Save";
     public string AddToFavorites { get; set; } = "Add to favorites";
     public string Edit { get; set; } = "Edit";
     public string ExportToExcel { get; set; } = "Export to Excel";
     public string ExportToJson { get; set; } = "Export to JSON";
-    public string EditProject { get; set; } = "Edit Project";
-    public string DeleteProject { get; set; } = "Delete Project";
+    public string EditProject { get; set; } = "Edit line";
+    public string DeleteProject { get; set; } = "Delete line";
     public string Confirmation { get; set; } = "Confirmation";
-    public string DeleteProjectConfirm { get; set; } = "Do you really want to delete the project? This action cannot be undone.";
+    public string DeleteProjectConfirm { get; set; } = "Do you really want to delete the line? This action cannot be undone.";
     public string Delete { get; set; } = "Delete";
     public string Settings { get; set; } = "Settings";
     public string Profile { get; set; } = "Profile";
@@ -107,13 +107,13 @@ public class LanguageHelper
     public string SavingClass { get; set; } = "Saving Class";
     public string DecisionCriteria { get; set; } = "Decision Criteria";
     public string Confirm { get; set; } = "Confirm";
-    public string ProjectNameCannotBeEmpty { get; set; } = "Project name cannot be empty. Please enter a valid name.";
-    public string ProjectNameAlreadyExists { get; set; } = "Project already exists. Please choose a different name.";
-    public string ProjectErrorInDb { get; set; } = "Error updating project in database";
+    public string ProjectNameCannotBeEmpty { get; set; } = "Line name cannot be empty. Please enter a valid name.";
+    public string ProjectNameAlreadyExists { get; set; } = "Line already exists. Please choose a different name.";
+    public string ProjectErrorInDb { get; set; } = "Error updating line in database";
     public string ErrorOccured { get; set; } = "An Error occured: ";
     public string OperationShortnameMissing { get; set; } = "OperationShortname is missing";
     public string OperationShortnameAlreadyExists { get; set; } = "An operation with this shortname already exists in this station";
-    public string UnchangedChanges { get; set; } = "Du hast ungespeicherte Änderungen. Möchtest du speichern oder verwerfen?";
+    public string UnchangedChanges { get; set; } = "You have unsaved changes. Do you want to save or discard them?";
     public string Searching { get; set; } = "Searching...";
     public string EnterUsername { get; set; } = "Enter your username";
     public string UsernameHelperText { get; set; } = "Your display name for the application";
@@ -148,11 +148,23 @@ public class LanguageHelper
     public string HasBeenDefavored { get; set; } = " has been de-favored";
     public string HasBeenDeleted { get; set; } = " has been deleted";
     public string HasBeenCopied { get; set; } = " has been copied";
+    public string HasBeenUpdated { get; set; } = " has been updated";
+    public string HasBeenCreated { get; set; } = " has been created";
     public string OperationHasBeenAdded { get; set; } = "Operation has been added";
     public string ToolHasBeenAdded { get; set; } = "Tool has been added";
     public string UrlCopied { get; set; } = "URL copied";
-    public string Project { get; set; } = "Project: ";
+    public string Project { get; set; } = "Line: ";
     public string EditedByPart1 { get; set; } = "The tool is currently edited by: ";
     public string EditedByPart2 { get; set; } = ". All files are read-only.";
     public string Locked { get; set; } = "Locked";
+    public string ToolDeleteText1 { get; set; } = "Are you sure you want to delete this tool: ";
+    public string ToolDeleteText2 { get; set; } = "? This action cannot be undone.";
+    public string DeleteTool { get; set; } = "Delete tool: ";
+    public string OperationDeleteText1 { get; set; } = "Are you sure you want to delete this operation: ";
+    public string StationDeleteText1 { get; set; } = "Are you sure you want to delete this station: ";
+    public string DescriptionAndComments { get; set; } = "Description & Comments";
+    public string NetworkConfig { get; set; } = "Network Configuration";
+    public string OperationClasses { get; set; } = "Operation Classes";
+    public string ProjectDescription { get; set; } = "Line description";
+    public string Tools { get; set; } = "Tools";
 }
