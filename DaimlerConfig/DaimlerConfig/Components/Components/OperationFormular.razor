@@ -11,16 +11,32 @@
     <!-- Header mit konsistenter Styling wie die anderen Spalten -->
     <div style="background: white;">
         <div class="d-flex justify-content-between align-items-center" style="padding: 25px 20px 20px 20px; margin-bottom: 0 !important;">
-            <MudText Typo="Typo.h5"
-                     Class="mud-typography-h5"
-                     Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important; padding-bottom:12px;">
-                @Language.Operation
-                @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-left: 8px;" />
-                    <span style="margin-left: 4px;">@SelectedOperation.lockedBy.Split(';')[0]</span>
-                }
-            </MudText>
+            <div class="d-flex align-items-center gap-3">
+                <MudText Typo="Typo.h5"
+                         Class="mud-typography-h5"
+                         Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important; padding-bottom:12px;">
+                    @Language.Operation
+                </MudText>
+
+                <!-- Status Badges -->
+                <div class="d-flex align-items-center gap-2">
+                    @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
+                    {
+                        <div class="status-badge locked-badge">
+                            <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-right: 4px; font-size: 0.75rem;" />
+                            <span>Gesperrt</span>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
+                    {
+                        <div class="status-badge user-badge">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Style="margin-right: 4px; font-size: 0.75rem;" />
+                            <span>@SelectedOperation.lockedBy.Split(';')[0]</span>
+                        </div>
+                    }
+                </div>
+            </div>
 
             <div class="d-flex align-items-center gap-2">
                 <!-- Dropdown mit eigenständiger Positionierung -->
@@ -55,6 +71,7 @@
                         @Language.Create
                     </MudButton>
                 }
+
                 @if (SelectedOperation.operationID != 0)
                 {
                     <MudButton StartIcon="@Icons.Material.Filled.Save"
@@ -79,6 +96,20 @@
 
     <!-- Card-basierter Formular-Bereich mit Collapse -->
     <div class="layout position-relative" style="padding: 28px 24px 24px 24px;">
+        
+        <!-- Info Banner - nur wenn gesperrt -->
+        @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
+        {
+            <div class="info-banner mb-4">
+                <div class="d-flex align-items-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Info" Style="color: #1e40af; margin-right: 8px; font-size: 1rem;" />
+                    <span style="color: #1e40af; font-size: 0.875rem; font-weight: 500;">
+                        Diese Operation wird gerade von <strong>@SelectedOperation.lockedBy.Split(';')[0]</strong> bearbeitet. Alle Felder sind schreibgeschützt.
+                    </span>
+                </div>
+            </div>
+        }
+
         <!-- General Information Card -->
         <MudExpansionPanels Elevation="0" Class="mb-4">
             <MudExpansionPanel Expanded="true"
@@ -93,19 +124,23 @@
                     <div style="padding: 0 24px 24px 24px;">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <MudTextField T="int?"
-                                              Label="@Language.OperationId"
-                                              Value="SelectedOperation.operationID"
-                                              ReadOnly="true"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              Style="background: white; border-radius: 12px;"
-                                              Adornment="Adornment.End"
-                                              AdornmentIcon="@Icons.Material.Filled.Lock" />
+                                <div class="input-container">
+                                    <MudTextField T="int?"
+                                                  Label="@Language.OperationId"
+                                                  Value="SelectedOperation.operationID"
+                                                  ReadOnly="true"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="w-100 locked-field"
+                                                  Style="background: white; border-radius: 12px;" />
+                                    @if (true)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <div style="position: relative;">
+                                <div class="input-container">
                                     <MudTextField T="string"
                                                   Label="@Language.OperationShortname"
                                                   @bind-Value="SelectedOperation.operationShortname"
@@ -113,78 +148,89 @@
                                                   ReadOnly="@ReadOnly"
                                                   Variant="Variant.Outlined"
                                                   Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
                                                   @onclick="LockOperation"
                                                   OnBlur="CheckIfDirty"
                                                   Error="@errorMessages.ContainsKey("OperationShortname")"
-                                                  ErrorText="@((errorMessages.ContainsKey("OperationShortname")) ? errorMessages["OperationShortname"] : null)"
-                                                  Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                                  AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
-                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                                  ErrorText="@((errorMessages.ContainsKey("OperationShortname")) ? errorMessages["OperationShortname"] : null)" />
+                                    @if (ReadOnly)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                    <span class="character-count">
                                         @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
                                     </span>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int"
-                                           Label="@Language.ProcessingMode"
-                                           @bind-Value="SelectedOperation.parallel"
-                                           ReadOnly="@ReadOnly"
-                                           Variant="Variant.Outlined"
-                                           Margin="Margin.Normal"
-                                           Class="w-100"
-                                           Style="background: white; border-radius: 12px;"
-                                           OnOpen="LockOperation"
-                                           OnBlur="CheckIfDirty"
-                                           Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                           AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)">
-                                    <MudSelectItem Value="0">@Language.Parallel</MudSelectItem>
-                                    <MudSelectItem Value="1">@Language.Serial</MudSelectItem>
-                                </MudSelect>
+                                <div class="input-container">
+                                    <MudSelect T="int"
+                                               Label="@Language.ProcessingMode"
+                                               @bind-Value="SelectedOperation.parallel"
+                                               ReadOnly="@ReadOnly"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               OnOpen="LockOperation"
+                                               OnBlur="CheckIfDirty">
+                                        <MudSelectItem Value="0">@Language.Parallel</MudSelectItem>
+                                        <MudSelectItem Value="1">@Language.Serial</MudSelectItem>
+                                    </MudSelect>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.OperationSequence"
-                                              @bind-Value="SelectedOperation.operationSequence"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              Style="background: white; border-radius: 12px;"
-                                              @onclick="LockOperation"
-                                              OnBlur="CheckIfDirty"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.OperationSequence"
+                                                  @bind-Value="SelectedOperation.operationSequence"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty" />
+                                    @if (ReadOnly)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.OperationSequenceGroup"
-                                              @bind-Value="SelectedOperation.operationSequenceGroup"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Class="w-100"
-                                              Style="background: white; border-radius: 12px;"
-                                              @onclick="LockOperation"
-                                              OnBlur="CheckIfDirty"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.OperationSequenceGroup"
+                                                  @bind-Value="SelectedOperation.operationSequenceGroup"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty" />
+                                    @if (ReadOnly)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int"
-                                           Label="alwaysPerform"
-                                           @bind-Value="SelectedOperation.alwaysPerform"
-                                           ReadOnly="@ReadOnly"
-                                           Variant="Variant.Outlined"
-                                           Margin="Margin.Normal"
-                                           Class="w-100"
-                                           Style="background: white; border-radius: 12px;"
-                                           OnOpen="LockOperation"
-                                           OnBlur="CheckIfDirty"
-                                           Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                           AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)">
-                                    <MudSelectItem Value="0">False</MudSelectItem>
-                                    <MudSelectItem Value="1">True</MudSelectItem>
-                                </MudSelect>
+                                <div class="input-container">
+                                    <MudSelect T="int"
+                                               Label="alwaysPerform"
+                                               @bind-Value="SelectedOperation.alwaysPerform"
+                                               ReadOnly="@ReadOnly"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               OnOpen="LockOperation"
+                                               OnBlur="CheckIfDirty">
+                                        <MudSelectItem Value="0">False</MudSelectItem>
+                                        <MudSelectItem Value="1">True</MudSelectItem>
+                                    </MudSelect>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -206,7 +252,7 @@
                     <div style="padding: 0 24px 24px 24px;">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <div style="position: relative;">
+                                <div class="input-container textarea-container">
                                     <MudTextField T="string"
                                                   Label="@Language.OperationDescription"
                                                   @bind-Value="SelectedOperation.operationDescription"
@@ -215,19 +261,22 @@
                                                   Margin="Margin.Normal"
                                                   Lines="4"
                                                   MaxLength="1000"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
                                                   Style="background: white; border-radius: 12px;"
                                                   @onclick="LockOperation"
                                                   OnBlur="CheckIfDirty"
-                                                  Class="w-100"
-                                                  Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                                  AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
-                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                                  TextArea="true" />
+                                    @if (ReadOnly)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                    }
+                                    <span class="character-count textarea-count">
                                         @($"{SelectedOperation?.operationDescription?.Length ?? 0}/1000")
                                     </span>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <div style="position: relative;">
+                                <div class="input-container textarea-container">
                                     <MudTextField T="string"
                                                   Label="@Language.Comment"
                                                   @bind-Value="SelectedOperation.Comment"
@@ -236,31 +285,39 @@
                                                   Margin="Margin.Normal"
                                                   Lines="4"
                                                   MaxLength="1000"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
                                                   Style="background: white; border-radius: 12px;"
                                                   @onclick="LockOperation"
                                                   OnBlur="CheckIfDirty"
-                                                  Class="w-100"
-                                                  Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                                  AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
-                                    <span style="position: absolute; right: 10px; bottom: 5px; color: rgba(0, 0, 0, 0.6); font-size: 0.75rem;">
+                                                  TextArea="true" />
+                                    @if (ReadOnly)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                    }
+                                    <span class="character-count textarea-count">
                                         @($"{SelectedOperation?.Comment?.Length ?? 0}/1000")
                                     </span>
                                 </div>
                             </div>
                             <div class="col-12 mb-3">
-                                <MudTextField T="string"
-                                              Label="@Language.DecisionCriteria"
-                                              @bind-Value="SelectedOperation.operationDecisionCriteria"
-                                              ReadOnly="@ReadOnly"
-                                              Variant="Variant.Outlined"
-                                              Margin="Margin.Normal"
-                                              Lines="4"
-                                              Style="background: white; border-radius: 12px;"
-                                              @onclick="LockOperation"
-                                              OnBlur="CheckIfDirty"
-                                              Class="w-100"
-                                              Adornment="@(ReadOnly ? Adornment.End : Adornment.None)"
-                                              AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : null)" />
+                                <div class="input-container textarea-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.DecisionCriteria"
+                                                  @bind-Value="SelectedOperation.operationDecisionCriteria"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Lines="4"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty"
+                                                  TextArea="true" />
+                                    @if (ReadOnly)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -282,64 +339,72 @@
                     <div style="padding: 0 24px 24px 24px;">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int?" Label="@Language.DecisionClass"
-                                           Variant="Variant.Outlined"
-                                           Margin="Margin.Normal"
-                                           Disabled="@ReadOnly"
-                                           Class="w-100"
-                                           Style="background: white; border-radius: 12px;"
-                                           @bind-Value="SelectedOperation.decisionClassID"
-                                           OnBlur="LockOperation">
-                                    @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
-                                    {
-                                        <MudSelectItem T="int?" Value="@decision.decisionClassID">@decision.decisionClassName</MudSelectItem>
-                                    }
-                                </MudSelect>
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="@Language.DecisionClass"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               @bind-Value="SelectedOperation.decisionClassID"
+                                               OnBlur="LockOperation">
+                                        @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
+                                        {
+                                            <MudSelectItem T="int?" Value="@decision.decisionClassID">@decision.decisionClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int?" Label="@Language.GenerationClass"
-                                           Variant="Variant.Outlined"
-                                           Margin="Margin.Normal"
-                                           Disabled="@ReadOnly"
-                                           Class="w-100"
-                                           Style="background: white; border-radius: 12px;"
-                                           @bind-Value="SelectedOperation.generationClassID"
-                                           OnBlur="LockOperation">
-                                    @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
-                                    {
-                                        <MudSelectItem T="int?" Value="@generation.generationClassID">@generation.generationClassName</MudSelectItem>
-                                    }
-                                </MudSelect>
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="@Language.GenerationClass"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               @bind-Value="SelectedOperation.generationClassID"
+                                               OnBlur="LockOperation">
+                                        @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
+                                        {
+                                            <MudSelectItem T="int?" Value="@generation.generationClassID">@generation.generationClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int?" Label="@Language.VerificationClass"
-                                           Variant="Variant.Outlined"
-                                           Margin="Margin.Normal"
-                                           Disabled="@ReadOnly"
-                                           Class="w-100"
-                                           Style="background: white; border-radius: 12px;"
-                                           @bind-Value="SelectedOperation.verificationClassID"
-                                           OnBlur="LockOperation">
-                                    @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
-                                    {
-                                        <MudSelectItem T="int?" Value="@verification.verificationClassID">@verification.verificationClassName</MudSelectItem>
-                                    }
-                                </MudSelect>
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="@Language.VerificationClass"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               @bind-Value="SelectedOperation.verificationClassID"
+                                               OnBlur="LockOperation">
+                                        @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
+                                        {
+                                            <MudSelectItem T="int?" Value="@verification.verificationClassID">@verification.verificationClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <MudSelect T="int?" Label="@Language.SavingClass"
-                                           Variant="Variant.Outlined"
-                                           Margin="Margin.Normal"
-                                           Disabled="@ReadOnly"
-                                           Class="w-100"
-                                           Style="background: white; border-radius: 12px;"
-                                           @bind-Value="SelectedOperation.savingClassID"
-                                           OnBlur="LockOperation">
-                                    @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
-                                    {
-                                        <MudSelectItem T="int?" Value="@saving.savingClassID">@saving.savingClassName</MudSelectItem>
-                                    }
-                                </MudSelect>
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="@Language.SavingClass"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               @bind-Value="SelectedOperation.savingClassID"
+                                               OnBlur="LockOperation">
+                                        @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
+                                        {
+                                            <MudSelectItem T="int?" Value="@saving.savingClassID">@saving.savingClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -361,6 +426,91 @@
             font-size: 0.75rem !important;
         }
 
+    /* Status Badge Styling */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+
+    .locked-badge {
+        background-color: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #3b82f6;
+    }
+
+    .user-badge {
+        background-color: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    /* Info Banner Styling */
+    .info-banner {
+        background-color: #dbeafe;
+        border: 1px solid #3b82f6;
+        border-radius: 12px;
+        padding: 12px 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* Input Container für relative Positionierung */
+    .input-container {
+        position: relative;
+    }
+
+    /* Locked Field Styling */
+    .locked-field .mud-input-outlined {
+        background-color: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+    }
+
+    .locked-field .mud-input-outlined:hover {
+        border-color: #cbd5e1 !important;
+    }
+
+    /* Lock Icon Styling - oben rechts */
+    .lock-icon {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: #3b82f6 !important;
+        font-size: 1rem !important;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    /* Lock Icon für Textareas - oben rechts */
+    .textarea-lock {
+        top: 12px;
+        right: 12px;
+    }
+
+    /* Character Count Styling - unten rechts */
+    .character-count {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2px 4px;
+        border-radius: 4px;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    /* Character Count für Textareas */
+    .textarea-count {
+        bottom: 12px;
+        right: 12px;
+    }
+
     /* Expansion Panel Styling */
     .mud-expand-panel {
         margin-bottom: 0 !important;
@@ -375,7 +525,6 @@
         padding: 0 !important;
     }
 </style>
-
 @code {
     [Parameter]
     public string? CurrentUser { get; set; }
