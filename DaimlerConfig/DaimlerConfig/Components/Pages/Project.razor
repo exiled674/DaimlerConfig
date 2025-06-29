@@ -2905,6 +2905,7 @@
 
                 await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
                 await DirtyManagerService.setClean();
+                Snackbar.Add($"Tool '{tool.toolShortname}' wurde gelöscht", Severity.Success);
                 //  if (showOperationFormular == true) showOperationFormular = false;
 
 
@@ -2945,6 +2946,7 @@
 
                 await SignalRService.SendMessageToServer($"OperationDeleted;{operation.operationID}");
                 await DirtyManagerService.setClean();
+                 Snackbar.Add($"Operation '{operation.operationShortname}' wurde gelöscht", Severity.Success);
 
 
             }
@@ -2985,6 +2987,8 @@
 
                 await SignalRService.SendMessageToServer($"StationDeleted;{station.stationID}");
                 await DirtyManagerService.setClean();
+                Snackbar.Add($"Station '{station.assemblystation}' wurde gelöscht", Severity.Success);
+
 
 
             }
