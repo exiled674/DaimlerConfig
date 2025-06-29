@@ -769,7 +769,7 @@
             </div>
             @if (showPopup)
             {
-                <SavePopup OnDismissChange="@HandleDismiss" OnSaveChange="@HandleSave"></SavePopup>
+            
             }
 
         </MudMainContent>
@@ -1648,16 +1648,8 @@
 
     private async Task SelectStation(Station station)
     {
-        if (DirtyManagerService.IsDirty().Result == true)
-        {
-            pendingStation = station;
-            selectedStation = stationFormularModel;
-
-            showPopup = true;
-            return;
-        }
-        else
-        {
+       
+       
             pendingStation = null;
             selectedStation = station;
             selectedItem = null;
@@ -1677,7 +1669,7 @@
             SelectionState.SaveSelection(stationID: station.stationID);
             CurrentContext = $"{selectedStation.assemblystation}";
             StateHasChanged();
-        }
+        
 
     }
 
@@ -1723,16 +1715,8 @@
 
     private async Task SelectTool(Tool tool)
     {
-        if (DirtyManagerService.IsDirty().Result == true)
-        {
-            pendingTool = tool;
-            selectedTool = toolFormularModel;
-            showPopup = true;
-            return;
-        }
-        else
-        {
-            pendingTool = null;
+       
+          pendingTool = null;
             if (selectedTool != null && tool.toolID != selectedTool.toolID) await UnlockTool();
             selectedTool = tool;
 
@@ -1757,7 +1741,7 @@
             toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
             CurrentContext = $"{selectedStation.assemblystation};{selectedTool.toolShortname}";
             StateHasChanged();
-        }
+        
     }
 
     private async Task ToggleToolFormular(bool isNewTool)
@@ -1834,15 +1818,8 @@
     private Operation? pendingOperation;
     private async Task SelectOperation(Operation operation)
     {
-        if (DirtyManagerService.IsDirty().Result)
-        {
-            pendingOperation = operation;
-            selectedOperation = operationFormularModel;
-            showPopup = true;
-            return;
-        }
-        else
-        {
+       
+        
             pendingOperation = null;
             var opsList = allOperations.ToList();
             var idx = opsList.FindIndex(o => o.operationID == operation.operationID);
@@ -1880,7 +1857,7 @@
             CurrentContext = $"{selectedStation.assemblystation};{selectedTool.toolShortname};{selectedOperation.operationShortname}";
             StateHasChanged();  
 
-        }
+        
     }
 
     private async Task ToggleOperationFormular(bool isNewOperation)
