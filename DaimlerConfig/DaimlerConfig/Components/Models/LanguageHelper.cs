@@ -144,4 +144,12 @@ public class LanguageHelper
     public string NoDescription { get; set; } = "No description";
     public string ShareLink { get; set; } = "Share link";
     public string NavigateTo { get; set; } = "Navigate to...";
+    public string HasBeenFavorized { get; set; } = " has been favorized";
+    public string HasBeenDefavored { get; set; } = " has been de-favored";
+    public string HasBeenDeleted { get; set; } = " has been deleted";
+    public string HasBeenCopied { get; set; } = " has been copied";
+    public string OperationHasBeenAdded { get; set; } = "Operation has been added";
+    public string ToolHasBeenAdded { get; set; } = "Tool has been added";
+    public string UrlCopied { get; set; } = "URL copied";
+    public string Project { get; set; } = "Project: ";
 }

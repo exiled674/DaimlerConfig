@@ -45,7 +45,7 @@
             <div class="d-flex justify-center w-100">
                 <div class="d-flex align-center project-context">
                     <MudText Typo="Typo.h6" Class="font-weight-bold ma-0" Style="font-size: 1.1rem;">
-                        Project @lineName
+                        @Language.Project @lineName
                     </MudText>
                     @if (!string.IsNullOrEmpty(CurrentContext))
                     {
@@ -1602,7 +1602,7 @@
             UsernameService.SaveStationList(names);
 
             UpdateFilteredStations();
-             Snackbar.Add($"Station '{station.assemblystation}' wurde favorisiert", Severity.Success);
+             Snackbar.Add(Language.Station + station.assemblystation+ Language.HasBeenFavorized, Severity.Success);
             StateHasChanged();
         }
     }
@@ -1615,7 +1615,7 @@
         UsernameService.SaveStationList(names);
 
         UpdateFilteredStations();
-        Snackbar.Add($"Station '{station.assemblystation}' wurde entfavorisiert", Severity.Success);
+        Snackbar.Add(Language.Station + station.assemblystation + Language.HasBeenDefavored, Severity.Success);
         StateHasChanged();
     }
 
@@ -2907,7 +2907,7 @@
 
                 await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
                 await DirtyManagerService.setClean();
-                Snackbar.Add($"Tool '{tool.toolShortname}' wurde gelöscht", Severity.Success);
+                Snackbar.Add(Language.Tool + tool.toolShortname + Language.HasBeenDeleted, Severity.Success);
                 //  if (showOperationFormular == true) showOperationFormular = false;
 
 
@@ -2948,7 +2948,7 @@
 
                 await SignalRService.SendMessageToServer($"OperationDeleted;{operation.operationID}");
                 await DirtyManagerService.setClean();
-                 Snackbar.Add($"Operation '{operation.operationShortname}' wurde gelöscht", Severity.Success);
+                 Snackbar.Add(Language.Operation + operation.operationShortname + Language.HasBeenDeleted, Severity.Success);
 
 
             }
@@ -2989,7 +2989,7 @@
 
                 await SignalRService.SendMessageToServer($"StationDeleted;{station.stationID}");
                 await DirtyManagerService.setClean();
-                Snackbar.Add($"Station '{station.assemblystation}' wurde gelöscht", Severity.Success);
+                Snackbar.Add(Language.Station + station.assemblystation + Language.HasBeenDeleted, Severity.Success);
 
 
 
@@ -3027,7 +3027,7 @@
                 if (await Fassade.ToolExistsByName(tool.toolShortname) == true)
                 {
                     CloneTool(tool);
-                    Snackbar.Add($"Tool '{tool.toolShortname}' wurde kopiert", Severity.Success);
+                    Snackbar.Add(Language.Tool + tool.toolShortname + Language.HasBeenCopied, Severity.Success);
                     StateHasChanged();
                     return true;
                 }
@@ -3037,7 +3037,7 @@
                 if (await Fassade.OperationExistsByName(operation.operationShortname) == true)
                 {
                     CloneOperation(operation);
-                    Snackbar.Add($"Operation '{operation.operationShortname}' wurde kopiert", Severity.Success);
+                    Snackbar.Add(Language.Operation + operation.operationShortname + Language.HasBeenCopied, Severity.Success);
                     StateHasChanged();
                     return true;
                 }
@@ -3055,7 +3055,7 @@
         {
             await SelectTool(toolForOperation);
             await InsertOperation();
-            Snackbar.Add("Operation wurde eingefügt", Severity.Success);
+            Snackbar.Add(Language.OperationHasBeenAdded, Severity.Success);
             selectedItem = null;
             StateHasChanged();
             return true;
@@ -3063,7 +3063,7 @@
         else if (copiedTool != null)
         {
             await InsertTool();
-            Snackbar.Add("Tool wurde eingefügt", Severity.Success);
+            Snackbar.Add(Language.ToolHasBeenAdded, Severity.Success);
             selectedItem = null;
             StateHasChanged();
             return true;
@@ -3196,7 +3196,7 @@
 
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", uri);
         
-        Snackbar.Add("URL kopiert!", Severity.Success);
+        Snackbar.Add(Language.UrlCopied, Severity.Success);
     }
 
 

@@ -144,6 +144,14 @@ public class Language
     public static string NoDescription { get; set; } = "No description";
     public static string ShareLink { get; set; } = "Share link";
     public static string NavigateTo { get; set; } = "Navigate to...";
+    public static string HasBeenFavorized { get; set; } = " has been favorized";
+    public static string HasBeenDefavored { get; set; } = " has been de-favored";
+    public static string HasBeenDeleted { get; set; } = " has been deleted";
+    public static string HasBeenCopied { get; set; } = " has been copied";
+    public static string OperationHasBeenAdded { get; set; } = "Operation has been added";
+    public static string ToolHasBeenAdded { get; set; } = "Tool has been added";
+    public static string UrlCopied { get; set; } = "URL copied";
+    public static string Project { get; set; } = "Project: ";
 
     public static void SetLanguage(LanguageHelper newLang)
     {
@@ -289,5 +297,13 @@ public class Language
         NoDescription = newLang.NoDescription;
         ShareLink = newLang.ShareLink;
         NavigateTo = newLang.NavigateTo;
+        HasBeenFavorized = newLang.HasBeenFavorized;
+        HasBeenDefavored = newLang.HasBeenDefavored;
+        HasBeenDeleted = newLang.HasBeenDeleted;
+        HasBeenCopied = newLang.HasBeenCopied;
+        OperationHasBeenAdded = newLang.OperationHasBeenAdded;
+        ToolHasBeenAdded = newLang.ToolHasBeenAdded;
+        UrlCopied = newLang.UrlCopied;
+        Project = newLang.Project;
     }
 }
