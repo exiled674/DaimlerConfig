@@ -3,18 +3,18 @@
 @inject IConfiguration Configuration
 @using DaimlerConfig.Services
 @inject AppStartupValidationService ValidationService
+@inject NavigationManager NavigationManager
 @using MudBlazor
 
 @code {
     private bool showOnlySettings => ValidationService.HasErrors;
+    private bool isMainPage => NavigationManager.Uri.EndsWith("/") || NavigationManager.Uri.EndsWith("/Index");
 }
 
-<MudThemeProvider  Theme="@CustomTheme.Themetheme"/> 
+<MudThemeProvider Theme="@CustomTheme.Themetheme" />
 <MudPopoverProvider />
 <MudDialogProvider />
- <MudSnackbarProvider />
-
-
+<MudSnackbarProvider />
 
 @if (showOnlySettings)
 {
@@ -22,7 +22,7 @@
 }
 else
 {
-    <div class="page" style="height: 100vh; overflow: hidden;">
+    <div class="page" style=" @(isMainPage ? "" : "overflow: hidden; height: 100vh;")">
         <main>
             <article class="content">
                 @Body
@@ -30,4 +30,3 @@ else
         </main>
     </div>
 }
-
