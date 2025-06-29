@@ -22,18 +22,18 @@
                 <div class="d-flex align-items-center gap-2">
                     @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
                     {
-                        <div class="status-badge locked-badge">
-                            <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-right: 4px; font-size: 0.75rem;" />
-                            <span>Gesperrt</span>
-                        </div>
+                            <div class="status-badge locked-badge">
+                                <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-right: 4px; font-size: 0.75rem;" />
+                                <span>Gesperrt</span>
+                            </div>
                     }
 
                     @if (!string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
                     {
-                        <div class="status-badge user-badge">
-                            <MudIcon Icon="@Icons.Material.Filled.Person" Style="margin-right: 4px; font-size: 0.75rem;" />
-                            <span>@SelectedOperation.lockedBy.Split(';')[0]</span>
-                        </div>
+                            <div class="status-badge user-badge">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Style="margin-right: 4px; font-size: 0.75rem;" />
+                                <span>@SelectedOperation.lockedBy.Split(';')[0]</span>
+                            </div>
                     }
                 </div>
             </div>
@@ -52,38 +52,38 @@
                         <MudSelectItem T="int?" Value="-1">@Language.CurrentVersion</MudSelectItem>
                         @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
                         {
-                            <MudSelectItem T="int?" Value="@version.operationVersionID">
+                                <MudSelectItem T="int?" Value="@version.operationVersionID">
                                 @version.modifiedBy?.Split(';')[0] - @version.lastModified
-                            </MudSelectItem>
+                                </MudSelectItem>
                         }
                     </MudSelect>
                 </div>
 
                 @if (SelectedOperation.operationID == 0)
                 {
-                    <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               Class="add-station-btn-consistent"
-                               Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
-                               @onclick="AddOperationAsync">
+                        <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Class="add-station-btn-consistent"
+                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                                   @onclick="AddOperationAsync">
                         @Language.Create
-                    </MudButton>
+                        </MudButton>
                 }
 
                 @if (SelectedOperation.operationID != 0)
                 {
-                    <MudButton StartIcon="@Icons.Material.Filled.Save"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Size="Size.Small"
-                               Class="add-station-btn-consistent"
-                               Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
-                               @onclick="UpdateOperationAsync"
-                               Disabled="@ReadOnly">
+                        <MudButton StartIcon="@Icons.Material.Filled.Save"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Class="add-station-btn-consistent"
+                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                                   @onclick="UpdateOperationAsync"
+                                   Disabled="@ReadOnly">
                         @Language.Save
-                    </MudButton>
+                        </MudButton>
                 }
             </div>
         </div>
@@ -96,18 +96,18 @@
 
     <!-- Card-basierter Formular-Bereich mit Collapse -->
     <div class="layout position-relative" style="padding: 28px 24px 24px 24px;">
-        
+
         <!-- Info Banner - nur wenn gesperrt -->
         @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
         {
-            <div class="info-banner mb-4">
-                <div class="d-flex align-items-center">
-                    <MudIcon Icon="@Icons.Material.Filled.Info" Style="color: #1e40af; margin-right: 8px; font-size: 1rem;" />
-                    <span style="color: #1e40af; font-size: 0.875rem; font-weight: 500;">
-                        Diese Operation wird gerade von <strong>@SelectedOperation.lockedBy.Split(';')[0]</strong> bearbeitet. Alle Felder sind schreibgeschützt.
-                    </span>
+                <div class="info-banner mb-4">
+                    <div class="d-flex align-items-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Style="color: #1e40af; margin-right: 8px; font-size: 1rem;" />
+                        <span style="color: #1e40af; font-size: 0.875rem; font-weight: 500;">
+                            Diese Operation wird gerade von <strong>@SelectedOperation.lockedBy.Split(';')[0]</strong> bearbeitet. Alle Felder sind schreibgeschützt.
+                        </span>
+                    </div>
                 </div>
-            </div>
         }
 
         <!-- General Information Card -->
@@ -135,7 +135,7 @@
                                                   Style="background: white; border-radius: 12px;" />
                                     @if (true)
                                     {
-                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
                                     }
                                 </div>
                             </div>
@@ -155,7 +155,7 @@
                                                   ErrorText="@((errorMessages.ContainsKey("OperationShortname")) ? errorMessages["OperationShortname"] : null)" />
                                     @if (ReadOnly)
                                     {
-                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
                                     }
                                     <span class="character-count">
                                         @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
@@ -193,7 +193,7 @@
                                                   OnBlur="CheckIfDirty" />
                                     @if (ReadOnly)
                                     {
-                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
                                     }
                                 </div>
                             </div>
@@ -211,7 +211,7 @@
                                                   OnBlur="CheckIfDirty" />
                                     @if (ReadOnly)
                                     {
-                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
                                     }
                                 </div>
                             </div>
@@ -268,7 +268,7 @@
                                                   TextArea="true" />
                                     @if (ReadOnly)
                                     {
-                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
                                     }
                                     <span class="character-count textarea-count">
                                         @($"{SelectedOperation?.operationDescription?.Length ?? 0}/1000")
@@ -292,7 +292,7 @@
                                                   TextArea="true" />
                                     @if (ReadOnly)
                                     {
-                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
                                     }
                                     <span class="character-count textarea-count">
                                         @($"{SelectedOperation?.Comment?.Length ?? 0}/1000")
@@ -315,7 +315,7 @@
                                                   TextArea="true" />
                                     @if (ReadOnly)
                                     {
-                                        <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
                                     }
                                 </div>
                             </div>
@@ -350,7 +350,7 @@
                                                OnBlur="LockOperation">
                                         @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
                                         {
-                                            <MudSelectItem T="int?" Value="@decision.decisionClassID">@decision.decisionClassName</MudSelectItem>
+                                                <MudSelectItem T="int?" Value="@decision.decisionClassID">@decision.decisionClassName</MudSelectItem>
                                         }
                                     </MudSelect>
                                 </div>
@@ -367,7 +367,7 @@
                                                OnBlur="LockOperation">
                                         @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
                                         {
-                                            <MudSelectItem T="int?" Value="@generation.generationClassID">@generation.generationClassName</MudSelectItem>
+                                                <MudSelectItem T="int?" Value="@generation.generationClassID">@generation.generationClassName</MudSelectItem>
                                         }
                                     </MudSelect>
                                 </div>
@@ -384,7 +384,7 @@
                                                OnBlur="LockOperation">
                                         @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
                                         {
-                                            <MudSelectItem T="int?" Value="@verification.verificationClassID">@verification.verificationClassName</MudSelectItem>
+                                                <MudSelectItem T="int?" Value="@verification.verificationClassID">@verification.verificationClassName</MudSelectItem>
                                         }
                                     </MudSelect>
                                 </div>
@@ -401,7 +401,7 @@
                                                OnBlur="LockOperation">
                                         @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
                                         {
-                                            <MudSelectItem T="int?" Value="@saving.savingClassID">@saving.savingClassName</MudSelectItem>
+                                                <MudSelectItem T="int?" Value="@saving.savingClassID">@saving.savingClassName</MudSelectItem>
                                         }
                                     </MudSelect>
                                 </div>
