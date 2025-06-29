@@ -167,4 +167,5 @@ public class LanguageHelper
     public string OperationClasses { get; set; } = "Operation Classes";
     public string ProjectDescription { get; set; } = "Line description";
     public string Tools { get; set; } = "Tools";
+    public string AlwaysPerform { get; set; } = "Always perform";
 }

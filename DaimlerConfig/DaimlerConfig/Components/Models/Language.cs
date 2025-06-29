@@ -167,6 +167,7 @@ public class Language
     public static string OperationClasses { get; set; } = "Operation Classes";
     public static string ProjectDescription { get; set; } = "Linedescription";
     public static string Tools { get; set; } = "Tools";
+    public static string AlwaysPerform { get; set; } = "Always perform";
 
     public static void SetLanguage(LanguageHelper newLang)
     {
@@ -335,5 +336,6 @@ public class Language
         OperationClasses = newLang.OperationClasses;
         ProjectDescription = newLang.ProjectDescription;
         Tools = newLang.Tools;
+        AlwaysPerform = newLang.AlwaysPerform;
     }
 }

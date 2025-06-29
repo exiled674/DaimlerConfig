@@ -2865,7 +2865,7 @@
     {
         var parameters = new DialogParameters<ConfirmationDialog>
     {
-        { x => x.ContentText, Language.ToolDeleteText1 + tool.toolShortname + Language.ToolDeleteText2},
+        { x => x.ContentText, Language.ToolDeleteText1 + " " + tool.toolShortname + Language.ToolDeleteText2},
         { x => x.ButtonText, Language.Delete },
         { x => x.Color, Color.Error }
     };
@@ -2889,7 +2889,7 @@
 
                 await SignalRService.SendMessageToServer(Language.DeleteTool + tool.toolID);
                 await DirtyManagerService.setClean();
-                Snackbar.Add(Language.Tool + tool.toolShortname + Language.HasBeenDeleted, Severity.Success);
+                Snackbar.Add(Language.Tool + " " + tool.toolShortname + Language.HasBeenDeleted, Severity.Success);
                 //  if (showOperationFormular == true) showOperationFormular = false;
 
 
@@ -2906,7 +2906,7 @@
     {
         var parameters = new DialogParameters<ConfirmationDialog>
     {
-        { x => x.ContentText, Language.OperationDeleteText1 + operation.operationShortname + Language.ToolDeleteText2},
+        { x => x.ContentText, Language.OperationDeleteText1 + " " + operation.operationShortname + Language.ToolDeleteText2},
         { x => x.ButtonText, Language.Delete },
         { x => x.Color, Color.Error }
     };
@@ -2930,7 +2930,7 @@
 
                 await SignalRService.SendMessageToServer($"OperationDeleted;{operation.operationID}");
                 await DirtyManagerService.setClean();
-                 Snackbar.Add(Language.Operation + operation.operationShortname + Language.HasBeenDeleted, Severity.Success);
+                 Snackbar.Add(Language.Operation +" "+ operation.operationShortname + Language.HasBeenDeleted, Severity.Success);
 
 
             }
@@ -2947,7 +2947,7 @@
     {
         var parameters = new DialogParameters<ConfirmationDialog>
     {
-        { x => x.ContentText, Language.StationDeleteText1 + station.assemblystation + Language.ToolDeleteText2},
+        { x => x.ContentText, Language.StationDeleteText1 + " "  + station.assemblystation + Language.ToolDeleteText2},
         { x => x.ButtonText, Language.Delete},
         { x => x.Color, Color.Error }
     };
@@ -2971,7 +2971,7 @@
 
                 await SignalRService.SendMessageToServer($"StationDeleted;{station.stationID}");
                 await DirtyManagerService.setClean();
-                Snackbar.Add(Language.Station + station.assemblystation + Language.HasBeenDeleted, Severity.Success);
+                Snackbar.Add(Language.Station +" "+ station.assemblystation + Language.HasBeenDeleted, Severity.Success);
 
 
 
@@ -3009,7 +3009,7 @@
                 if (await Fassade.ToolExistsByName(tool.toolShortname) == true)
                 {
                     CloneTool(tool);
-                    Snackbar.Add(Language.Tool + tool.toolShortname + Language.HasBeenCopied, Severity.Success);
+                    Snackbar.Add(Language.Tool + " " + tool.toolShortname + Language.HasBeenCopied, Severity.Success);
                     StateHasChanged();
                     return true;
                 }
@@ -3019,7 +3019,7 @@
                 if (await Fassade.OperationExistsByName(operation.operationShortname) == true)
                 {
                     CloneOperation(operation);
-                    Snackbar.Add(Language.Operation + operation.operationShortname + Language.HasBeenCopied, Severity.Success);
+                    Snackbar.Add(Language.Operation +" "+ operation.operationShortname + Language.HasBeenCopied, Severity.Success);
                     StateHasChanged();
                     return true;
                 }
