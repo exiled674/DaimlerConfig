@@ -452,7 +452,7 @@
                                     @Language.ToolsAndOperations
                                 </MudText>
 
-                                @if (selectedStation != null)
+                                @if (selectedStation != null && selectedStation.stationID != 0)
                                 {
                                     <MudButton StartIcon="@Icons.Material.Filled.Add"
                                     Variant="Variant.Filled"
