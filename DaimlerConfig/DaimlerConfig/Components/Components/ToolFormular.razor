@@ -6,6 +6,7 @@
 @inject DirtyManagerService DirtyManagerService
 @implements IDisposable
 @inject UsernameService UsernameService
+@inject ISnackbar Snackbar
 
 <div class="container-lg" style="padding-left: 0px; height: 100vh; display: flex; flex-direction: column;">
     <!-- Fixed Header -->
@@ -529,6 +530,67 @@
     .mud-expand-panel-content {
         padding: 0 !important;
     }
+
+
+
+     /* Toast Position - Bottom Right */
+    .mud-snackbar-provider {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        top: unset !important;
+        left: unset !important;
+        transform: none !important;
+        z-index: 9999 !important;
+    }
+
+    /* Override all possible MudBlazor snackbar positioning classes */
+    .mud-snackbar-provider[class*="mud-snackbar-location"] {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: unset !important;
+        transform: none !important;
+    }
+
+    /* Specific overrides for common MudBlazor position classes */
+    .mud-snackbar-location-topright,
+    .mud-snackbar-location-top-right,
+    .mud-snackbar-location-topcenter,
+    .mud-snackbar-location-top-center,
+    .mud-snackbar-location-topleft,
+    .mud-snackbar-location-top-left {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: unset !important;
+    }
+
+    /* Ensure individual snackbar items are properly positioned */
+    .mud-snackbar {
+        margin-bottom: 8px !important;
+    }
+
+    /* Success Toast in your design blue */
+    .mud-alert-filled-success {
+        background-color: #1e40af !important;
+        color: white !important;
+    }
+
+    /* Error Toast styling */
+    .mud-alert-filled-error {
+        background-color: #dc2626 !important;
+        color: white !important;
+    }
+
+    /* Warning Toast styling */
+    .mud-alert-filled-warning {
+        background-color: #f59e0b !important;
+        color: white !important;
+    }
+
+
+
 </style>
 @code {
 
@@ -612,6 +674,8 @@
 
         await SignalRService.SendMessageToServer($"ToolUpdated;{SelectedTool.toolID}");
         await DirtyManagerService.setClean();
+        // Erfolgs-Toast
+        Snackbar.Add($"Tool '{SelectedTool.toolShortname}' erfolgreich aktualisiert!", Severity.Success);
     }
 
 
@@ -637,6 +701,9 @@
         }
        
         await DirtyManagerService.setClean();
+
+        // Erfolgs-Toast
+        Snackbar.Add($"Tool '{SelectedTool.toolShortname}' erfolgreich erstellt!", Severity.Success);
     }
 
 

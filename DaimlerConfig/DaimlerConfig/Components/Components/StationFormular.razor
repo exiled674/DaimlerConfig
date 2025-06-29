@@ -1,12 +1,13 @@
 ﻿@using DaimlerConfig.Components.Models
 @inject DaimlerConfig.Components.Fassade.Fassade Fassade
-
 @using DaimlerConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
 @inject UsernameService UsernameService
+@inject ISnackbar Snackbar
 @using System.Linq
 
+<!-- Dein HTML bleibt identisch -->
 <div class="container-lg" style="padding-left: 0px;">
     <!-- Header mit konsistenter Styling wie die anderen Spalten -->
     <div style="background: white;">
@@ -16,11 +17,13 @@
                      Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important; padding-bottom:12px;">
                 @Language.Station
             </MudText>
+
             <div class="d-flex align-items-center gap-2">
                 @if (errorMessages.ContainsKey("General"))
                 {
                         <div class="alert alert-danger mb-0 me-2">@errorMessages["General"]</div>
                 }
+
                 @if (SelectedStation?.stationID == 0)
                 {
                         <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
@@ -33,6 +36,7 @@
                         @Language.Create
                         </MudButton>
                 }
+
                 @if (SelectedStation?.stationID != 0)
                 {
                         <MudButton StartIcon="@Icons.Material.Filled.Save"
@@ -56,7 +60,6 @@
 
     <!-- Card-basierter Formular-Bereich mit Collapse - EXAKT wie Tool -->
     <div class="layout position-relative" style="padding: 28px 24px 24px 24px;">
-
         <!-- General Information Card -->
         <MudExpansionPanels Elevation="0" Class="mb-4">
             <MudExpansionPanel Expanded="true"
@@ -88,6 +91,7 @@
                                     </span>
                                 </div>
                             </div>
+
                             <div class="col-md-6 mb-3">
                                 <div style="position: relative;">
                                     <MudTextField @bind-Value="SelectedStation.stationName"
@@ -104,6 +108,7 @@
                                     </span>
                                 </div>
                             </div>
+
                             <div class="col-md-6 mb-3">
                                 <MudSelect T="int" Label="@Language.StationType"
                                            @bind-Value="SelectedStation.stationTypeID"
@@ -121,6 +126,7 @@
                                     }
                                 </MudSelect>
                             </div>
+
                             <div class="col-12 mb-3">
                                 <div style="position: relative;">
                                     <MudTextField @bind-Value="SelectedStation.Comment"
@@ -144,7 +150,6 @@
                 </ChildContent>
             </MudExpansionPanel>
         </MudExpansionPanels>
-
     </div>
 </div>
 
@@ -162,135 +167,217 @@
     .mud-expand-panel-content {
         padding: 0 !important;
     }
+
+    /* Toast Position - Bottom Right */
+    .mud-snackbar-provider {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        top: unset !important;
+        left: unset !important;
+        transform: none !important;
+        z-index: 9999 !important;
+    }
+
+    /* Override all possible MudBlazor snackbar positioning classes */
+    .mud-snackbar-provider[class*="mud-snackbar-location"] {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: unset !important;
+        transform: none !important;
+    }
+
+    /* Specific overrides for common MudBlazor position classes */
+    .mud-snackbar-location-topright,
+    .mud-snackbar-location-top-right,
+    .mud-snackbar-location-topcenter,
+    .mud-snackbar-location-top-center,
+    .mud-snackbar-location-topleft,
+    .mud-snackbar-location-top-left {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: unset !important;
+    }
+
+    /* Ensure individual snackbar items are properly positioned */
+    .mud-snackbar {
+        margin-bottom: 8px !important;
+    }
+
+    /* Success Toast in your design blue */
+    .mud-alert-filled-success {
+        background-color: #1e40af !important;
+        color: white !important;
+    }
+
+    /* Error Toast styling */
+    .mud-alert-filled-error {
+        background-color: #dc2626 !important;
+        color: white !important;
+    }
+
+    /* Warning Toast styling */
+    .mud-alert-filled-warning {
+        background-color: #f59e0b !important;
+        color: white !important;
+    }
 </style>
+
 @code {
+    [Parameter]
+    public Station? SelectedStation { get; set; }
 
-	[Parameter]
-	public Station? SelectedStation { get; set; }
+    IEnumerable<StationType> stationTypes;
+    private Station? OriginalStation { get; set; }
+    private Dictionary<string, string> errorMessages = new();
+    private bool showErrors = false;
 
-	IEnumerable<StationType> stationTypes;
+    protected override async Task OnInitializedAsync()
+    {
+        UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+    }
 
-	private Station? OriginalStation { get; set; }
+    protected override async Task OnParametersSetAsync()
+    {
+        stationTypes = await Fassade.GetAllStationTypes();
+        if (SelectedStation != null)
+        {
+            ResetValidationState();
+            OriginalStation = SelectedStation.Clone();
+            OriginalStation.stationID = SelectedStation.stationID;
+            OriginalStation.lineID = SelectedStation.lineID;
+        }
+    }
 
-	private Dictionary<string, string> errorMessages = new();
+    #region CRUD
 
-	private bool showErrors = false;
+    public async Task UpdateStationAsync()
+    {
+        ResetValidationState();
 
-	protected override async Task OnInitializedAsync()
-	{
-		UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+        if (await ValidateData() == false)
+        {
+           
+            return;
+        }
 
-	}
+        SelectedStation.modifiedBy = UsernameService.Username.Trim();
 
+        if (!await Fassade.UpdateStation(SelectedStation))
+        {
+           
+            return;
+        }
 
+        var signalStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
+        await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
+        await DirtyManagerService.setClean();
 
-	protected override async Task OnParametersSetAsync()
-	{
-		stationTypes = await Fassade.GetAllStationTypes();	
-		if (SelectedStation != null)
-		{
-			ResetValidationState();
-			OriginalStation = SelectedStation.Clone();
-			OriginalStation.stationID = SelectedStation.stationID;
-			OriginalStation.lineID = SelectedStation.lineID;
-		}
-	}
+        // Erfolgs-Toast
+        Snackbar.Add($"Station '{SelectedStation.assemblystation}' erfolgreich aktualisiert!", Severity.Success);
+    }
 
+    private async Task CreateStationAsync()
+    {
+        if (await ValidateData() == false)
+        {
+           
+            return;
+        }
 
-	#region CRUD
-	public async Task UpdateStationAsync()
-	{
-		ResetValidationState();
-		if (await ValidateData() == false) return;
-		SelectedStation.modifiedBy = UsernameService.Username.Trim();
-		if (!await Fassade.UpdateStation(SelectedStation)) return;
-		var signalStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
-		await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
-		await DirtyManagerService.setClean();
-	}
+        SelectedStation.modifiedBy = UsernameService.Username.Trim();
 
+        if (!await Fassade.AddStation(SelectedStation))
+        {
+           
+            return;
+        }
 
+        var createdStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
 
-	
+        if (createdStation != null)
+        {
+            await SignalRService.SendMessageToServer($"StationCreated;{createdStation.stationID}");
+        }
 
-	private async Task CreateStationAsync()
-	{
-		if (await ValidateData() == false) return;
-		SelectedStation.modifiedBy = UsernameService.Username.Trim();
-		if (!await Fassade.AddStation(SelectedStation)) return;
+        await DirtyManagerService.setClean();
 
-		var createdStation = await Fassade.GetStationByName(SelectedStation.lineID.Value, SelectedStation.assemblystation);
-		if (createdStation != null)
-		{
-			await SignalRService.SendMessageToServer($"StationCreated;{createdStation.stationID}");
-		}
-		await DirtyManagerService.setClean();
-	}
+        // Erfolgs-Toast
+        Snackbar.Add($"Station '{SelectedStation.assemblystation}' erfolgreich erstellt!", Severity.Success);
+    }
 
+    private async Task DeleteStationAsync()
+    {
+        if (SelectedStation == null || !await Fassade.DeleteStation(SelectedStation))
+        {
+         
+            return;
+        }
 
-	private async Task DeleteStationAsync()
-	{
-		if (SelectedStation == null || !await Fassade.DeleteStation(SelectedStation)) return;
+        await SignalRService.SendMessageToServer($"StationDeleted;{SelectedStation.stationID}");
+        await DirtyManagerService.setClean();
 
-		await SignalRService.SendMessageToServer($"StationDeleted;{SelectedStation.stationID}");
-		await DirtyManagerService.setClean();
-	}
+        // Erfolgs-Toast
+        Snackbar.Add($"Station '{SelectedStation.assemblystation}' erfolgreich gelöscht!", Severity.Warning);
+    }
 
-	#endregion
+    #endregion
 
+    #region Validate
 
-	#region Validate
-	public async Task<bool> ValidateData()
-	{
-		errorMessages.Clear();
+    public async Task<bool> ValidateData()
+    {
+        errorMessages.Clear();
 
-		//Objekt
-		if (SelectedStation is null)
-		{
-			errorMessages["General"] = Language.MissingStationData;
-			return false;
-		}
+        //Objekt
+        if (SelectedStation is null)
+        {
+            errorMessages["General"] = Language.MissingStationData;
+            return false;
+        }
 
-		//Assemblystation
-		if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
-		{
-			errorMessages["Assemblystation"] = Language.MissingAssemblyStation;
-		}
+        //Assemblystation
+        if (string.IsNullOrWhiteSpace(SelectedStation.assemblystation))
+        {
+            errorMessages["Assemblystation"] = Language.MissingAssemblyStation;
+        }
 
-		if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.stationID.Value, SelectedStation.lineID.Value)) 
-		{
-			errorMessages["Assemblystation"] = Language.StationAlreadyExists;
-		}
+        if (await Fassade.StationExistsInLine(SelectedStation.assemblystation, SelectedStation.stationID.Value, SelectedStation.lineID.Value))
+        {
+            errorMessages["Assemblystation"] = Language.StationAlreadyExists;
+        }
 
-		showErrors = errorMessages.Any();
-		return !showErrors;
-	}
+        showErrors = errorMessages.Any();
+        return !showErrors;
+    }
 
+    private void ResetValidationState()
+    {
+        errorMessages.Clear();
+        showErrors = false;
+        StateHasChanged();
+    }
 
-	private void ResetValidationState()
-	{
-		errorMessages.Clear();
-		showErrors = false;
-		StateHasChanged();
-	}
-	#endregion
+    #endregion
 
-	#region Dirty
-	private async Task<bool> CheckIfDirty()
-	{
-		if (SelectedStation?.stationID == 0)
-			return false;
-		return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation, "Station");
-	}
+    #region Dirty
 
-	public async Task ResetStation()
-	{
-		
-		var signalStation = await Fassade.GetStation(SelectedStation.stationID.Value);
-		await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
-		await DirtyManagerService.setClean();
-	}
-	#endregion
+    private async Task<bool> CheckIfDirty()
+    {
+        if (SelectedStation?.stationID == 0)
+            return false;
 
+        return await DirtyManagerService.CheckIfDirty(SelectedStation, OriginalStation, "Station");
+    }
 
+    public async Task ResetStation()
+    {
+        var signalStation = await Fassade.GetStation(SelectedStation.stationID.Value);
+        await SignalRService.SendMessageToServer($"StationUpdated;{signalStation.stationID}");
+        await DirtyManagerService.setClean();
+    }
+
+    #endregion
 }

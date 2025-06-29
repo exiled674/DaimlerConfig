@@ -20,6 +20,8 @@ using DaimlerConfig.Services;
 using Microsoft.Maui.LifecycleEvents;
 using DaimlerConfig.Security;
 using MudBlazor.Services;
+using MudBlazor;
+
 
 
 #if WINDOWS
@@ -103,7 +105,18 @@ namespace DaimlerConfig
             builder.Services.AddSingleton<Settings>();
             builder.Services.AddSingleton<LanguageLoad>();
             builder.Services.AddSingleton<Language>();
-            
+
+            builder.Services.AddMudServices(config =>
+            {
+                config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+                config.SnackbarConfiguration.PreventDuplicates = false;
+                config.SnackbarConfiguration.NewestOnTop = false;
+                config.SnackbarConfiguration.ShowCloseIcon = true;
+                config.SnackbarConfiguration.VisibleStateDuration = 4000;
+                config.SnackbarConfiguration.HideTransitionDuration = 500;
+                config.SnackbarConfiguration.ShowTransitionDuration = 500;
+            });
+
 
             builder.Services.AddMudServices();
 
