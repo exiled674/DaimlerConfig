@@ -697,7 +697,7 @@
 
         await SignalRService.SendMessageToServer($"OperationUpdated;{SelectedOperation.operationID}");
         await DirtyManagerService.setClean();
-        Snackbar.Add($"Operation '{SelectedOperation.operationShortname}' erfolgreich aktualisiert !", Severity.Success);
+        Snackbar.Add($"Operation '{SelectedOperation.operationShortname}' erfolgreich aktualisiert!", Severity.Success);
     }
 
     private async Task AddOperationAsync()
