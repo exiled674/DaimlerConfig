@@ -2259,6 +2259,7 @@
                                 }
                             }
                             await LoadStatusCountsForAllStations();
+                            
                             StateHasChanged();
                             break;
                         }
@@ -2887,11 +2888,11 @@
                 await Fassade.DeleteTool(tool);
 
 
-                await SignalRService.SendMessageToServer(Language.DeleteTool + tool.toolID);
+                await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
                 await DirtyManagerService.setClean();
                 Snackbar.Add(Language.Tool + " " + tool.toolShortname + Language.HasBeenDeleted, Severity.Success);
                 //  if (showOperationFormular == true) showOperationFormular = false;
-
+               
 
             }
             catch (Exception ex)
