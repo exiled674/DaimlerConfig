@@ -1,0 +1,32 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@using DaimlerConfig.Services
+@inject AppStartupValidationService ValidationService
+@inject NavigationManager NavigationManager
+@using MudBlazor
+
+@code {
+    private bool showOnlySettings => ValidationService.HasErrors;
+    private bool isMainPage => NavigationManager.Uri.EndsWith("/") || NavigationManager.Uri.EndsWith("/Index");
+}
+
+<MudThemeProvider Theme="@CustomTheme.Themetheme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@if (showOnlySettings)
+{
+    <Settings />
+}
+else
+{
+    <div class="page" style=" @(isMainPage ? "" : "overflow: hidden; height: 100vh;")">
+        <main>
+            <article class="content">
+                @Body
+            </article>
+        </main>
+    </div>
+}

@@ -1,0 +1,210 @@
+﻿
+@using DaimlerConfig.Components.Models
+
+@typeparam TItem
+@using MudBlazor
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+<MudAutocomplete T="TItem"
+                 Label="@Label"
+                 Placeholder="@Placeholder"
+                 @bind-Value="SelectedItem"
+                 SearchFunc="@SearchItems"
+                 ToStringFunc="@SafeGetDisplayText"
+                 ShowProgressIndicator="false"
+                 Dense="true"
+                 Margin="Margin.Dense"
+                 Variant="Variant.Outlined"
+                 ReadOnly="@ReadOnly"
+                 Error="@HasError"
+                 ErrorText="@ErrorMessage"
+                 Clearable="@AllowClear"
+                 MaxItems="@MaxResults"
+                 DebounceInterval="300"
+                 OnAdornmentClick="OnInputClick"
+                 AdornmentIcon="@(ReadOnly ? Icons.Material.Filled.Lock : Icons.Material.Filled.Search)"
+                 AdornmentColor="Color.Primary">
+    <ItemTemplate Context="item">
+        <div style="display: flex; flex-direction: column;">
+            <MudText Typo="Typo.body2">@GetItemDisplayText(item)</MudText>
+            @if (HelpTextFunc != null && !string.IsNullOrEmpty(HelpTextFunc(item)))
+            {
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@HelpTextFunc(item)</MudText>
+            }
+        </div>
+    </ItemTemplate>
+    <ItemSelectedTemplate Context="item">
+        <MudText Typo="Typo.body2">@GetItemDisplayText(item)</MudText>
+    </ItemSelectedTemplate>
+</MudAutocomplete>
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<TItem> Items { get; set; } = Enumerable.Empty<TItem>();
+
+    [Parameter]
+    public int? SelectedItemID { get; set; }
+
+    [Parameter]
+    public EventCallback<int?> OnSelectedItemIDChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public Func<TItem, int> GetItemID { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public Func<TItem, string> GetItemDisplayText { get; set; } = null!;
+
+    [Parameter]
+    public Func<TItem, string>? HelpTextFunc { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; } = "";
+
+    [Parameter]
+    public string Label { get; set; } = "";
+
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnInputClicked { get; set; }
+
+    [Parameter]
+    public bool HasError { get; set; } = false;
+
+    [Parameter]
+    public string ErrorMessage { get; set; } = "";
+
+    [Parameter]
+    public bool AllowClear { get; set; } = true;
+
+    [Parameter]
+    public int MaxResults { get; set; } = 50;
+
+    private TItem? _selectedItem;
+
+    private TItem? SelectedItem
+    {
+        get => _selectedItem;
+        set
+        {
+            if (!EqualityComparer<TItem>.Default.Equals(_selectedItem, value))
+            {
+                _selectedItem = value;
+                var newId = value != null ? GetItemID(value) : (int?)null;
+                _ = OnSelectedItemIDChanged.InvokeAsync(newId);
+            }
+        }
+    }
+    protected override void OnInitialized()
+    {
+        Placeholder = Language.Searching;
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Sync SelectedItemID with SelectedItem
+        if (SelectedItemID.HasValue && Items != null)
+        {
+            var item = Items.Where(x => x != null && IsValidItem(x))
+                           .FirstOrDefault(x =>
+                           {
+                               try
+                               {
+                                   return GetItemID(x) == SelectedItemID.Value;
+                               }
+                               catch
+                               {
+                                   return false;
+                               }
+                           });
+            if (!EqualityComparer<TItem>.Default.Equals(_selectedItem, item))
+            {
+                _selectedItem = item;
+            }
+        }
+        else
+        {
+            _selectedItem = default;
+        }
+    }
+
+    private async Task<IEnumerable<TItem>> SearchItems(string searchTerm, CancellationToken cancellationToken)
+    {
+        if (Items == null)
+            return Enumerable.Empty<TItem>();
+
+        var validItems = Items.Where(item => item != null && IsValidItem(item)).ToList();
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return validItems.Take(MaxResults);
+        }
+
+        // Prioritize exact matches, then starts with, then contains
+        var exactMatches = validItems.Where(item =>
+        {
+            var displayText = SafeGetDisplayText(item);
+            return !string.IsNullOrEmpty(displayText) &&
+                   string.Equals(displayText, searchTerm, StringComparison.OrdinalIgnoreCase);
+        });
+
+        var startsWithMatches = validItems.Where(item =>
+        {
+            var displayText = SafeGetDisplayText(item);
+            return !string.IsNullOrEmpty(displayText) &&
+                   displayText.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase) &&
+                   !string.Equals(displayText, searchTerm, StringComparison.OrdinalIgnoreCase);
+        });
+
+        var containsMatches = validItems.Where(item =>
+        {
+            var displayText = SafeGetDisplayText(item);
+            return !string.IsNullOrEmpty(displayText) &&
+                   displayText.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) &&
+                   !displayText.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase);
+        });
+
+        var result = exactMatches
+            .Concat(startsWithMatches.OrderBy(item => SafeGetDisplayText(item)))
+            .Concat(containsMatches.OrderBy(item => SafeGetDisplayText(item)))
+            .Take(MaxResults);
+
+        return await Task.FromResult(result);
+    }
+
+    private bool IsValidItem(TItem item)
+    {
+        try
+        {
+            if (item == null) return false;
+            var displayText = GetItemDisplayText?.Invoke(item);
+            var itemId = GetItemID?.Invoke(item);
+            return !string.IsNullOrEmpty(displayText);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private string SafeGetDisplayText(TItem item)
+    {
+        try
+        {
+            return GetItemDisplayText?.Invoke(item) ?? "";
+        }
+        catch
+        {
+            return "";
+        }
+    }
+
+    private async Task OnInputClick()
+    {
+        if (!ReadOnly && OnInputClicked.HasDelegate)
+        {
+            await OnInputClicked.InvokeAsync();
+        }
+    }
+}

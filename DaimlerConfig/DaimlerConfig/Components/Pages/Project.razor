@@ -1,0 +1,3198 @@
+@page "/line/{lineName}"
+
+@using DaimlerConfig.Services
+@inject SignalRService SignalRService
+@inject DirtyManagerService DirtyManagerService
+@inject AppLifecycleService LifecycleService
+
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+@using DaimlerConfig.Components.Models
+@inject NavigationManager Navigation
+@inject NavigationStateService NavState
+@inject SelectionStateService SelectionState
+@inject UsernameService UsernameService
+@using System.Linq
+@inject IJSRuntime JS;
+@inject ISnackbar Snackbar
+@implements IAsyncDisposable
+@using MudBlazor
+@using System.Text.Json;
+@inject IDialogService DialogService
+
+
+<div id="screenshot-target">
+    <!-- Optimierte Navbar mit ECHTER Zentrierung -->
+    <MudAppBar Elevation="2" Color="Color.Primary" Style="height: 64px;">
+        <div class="d-flex align-center w-100 px-4 position-relative">
+
+            <!-- Links: Navigation (absolute positioning) -->
+            <div class="d-flex align-center position-absolute" style="gap: 10px; left: 16px;">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                Color="Color.Inherit"
+                Size="Size.Medium"
+                OnClick="@ToggleDrawer"
+                Class="nav-button" />
+                <MudIconButton href="/"
+                Icon="@Icons.Material.Filled.Home"
+                Size="Size.Medium"
+                OnClick="@(() => { UnlockTool(); UnlockOperation(); })"
+                Color="Color.Inherit"
+                Class="nav-button" />
+            </div>
+
+            <!-- Mitte: ABSOLUT zentrierte Breadcrumbs -->
+            <div class="d-flex justify-center w-100">
+                <div class="d-flex align-center project-context">
+                    <MudText Typo="Typo.h6" Class="font-weight-bold ma-0" Style="font-size: 1.1rem;">
+                        @Language.Project @lineName
+                    </MudText>
+                    @if (!string.IsNullOrEmpty(CurrentContext))
+                    {
+                        <!-- Trennstrich -->
+                        <div style="width: 1px; height: 16px; background-color: rgba(255,255,255,0.5); margin: 0 12px;"></div>
+                        <!-- Breadcrumb mit größerem Pfeil -->
+                        <div class="d-flex align-center" style="gap: 6px;">
+                            @{
+                                var parts = CurrentContext.Split(';');
+                                for (int i = 0; i < parts.Length; i++)
+                                {
+                                    var part = parts[i];
+                                    var prefix = i == 0 ? Language.Station : i == 1 ? Language.Tool : Language.Operation;
+
+                                    <MudText Typo="Typo.body2" Class="ma-0" Style="opacity: 0.8; font-size: 0.85rem;">
+                                        @($"{prefix} {part}")
+                                    </MudText>
+
+                                    if (i < parts.Length - 1)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.ArrowForward"
+                                        Style="opacity: 0.8; font-size: 16px; font-weight: bold;" />
+                                    }
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Rechts: Aktionen & User (absolute positioning) -->
+            <div class="d-flex align-center position-absolute" style="gap: 12px; right: 16px;">
+
+                <!--- <button @onclick="SaveScreenshot">.</button> -->
+
+                <!-- Share Link Button -->
+                <MudButton Variant="Variant.Text"
+                StartIcon="@Icons.Material.Filled.ContentCopy"
+                OnClick="CopyUriToClipboard"
+                Color="Color.Inherit"
+                Class="share-button"
+                Style="text-transform: none; font-weight: 500; font-size: 0.875rem;">
+                    @Language.ShareLink
+                </MudButton>
+
+
+
+                <!-- Divider -->
+                <div style="width: 1px; height: 24px; background-color: rgba(255,255,255,0.3);"></div>
+
+                <!-- Username -->
+                <MudText Typo="Typo.subtitle1"
+                Class="font-weight-medium"
+                Style="white-space: nowrap; opacity: 0.95; font-size: 0.95rem;">
+                    @(UsernameService.Username?.Split(';')[0] ?? Language.UnknownUser)
+                </MudText>
+
+                <!-- Settings -->
+                <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                Color="Color.Inherit"
+                Size="Size.Medium"
+                OnClick="OpenSettings"
+                Class="settings-hover-effect" />
+            </div>
+        </div>
+    </MudAppBar>
+
+    <style>
+        /* Navigation Buttons */
+        .nav-button {
+        transition: all 0.2s ease;
+        border-radius: 6px;
+        width: 36px;
+        height: 36px;
+        }
+
+        .nav-button:hover {
+        background-color: rgba(255,255,255,0.1) !important;
+        transform: scale(1.05);
+        }
+
+        /* Settings Button */
+        .settings-hover-effect {
+        transition: all 0.2s ease;
+        opacity: 0.9;
+        border-radius: 6px;
+        width: 36px;
+        height: 36px;
+        }
+
+        .settings-hover-effect:hover {
+        background-color: rgba(255,255,255,0.1) !important;
+        transform: scale(1.05);
+        opacity: 1;
+        }
+
+        /* Project Context */
+        .project-context {
+        background-color: rgba(255,255,255,0.1);
+        padding: 6px 12px;
+        border-radius: 6px;
+        backdrop-filter: blur(10px);
+        }
+
+        .share-button {
+        border-radius: 6px;
+        padding: 4px 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+        }
+
+        .share-button:hover {
+        background-color: rgba(255,255,255,0.1) !important;
+        transform: scale(1.05);
+        box-shadow: none;
+        }
+
+        /* Navigate Input - Weiß bleiben beim Hover */
+        .navigate-input {
+        height: 32px;
+        }
+
+        .navigate-input .mud-input-outlined {
+        background-color: rgba(255,255,255,0.1) !important;
+        border-radius: 4px;
+        height: 32px;
+        transition: all 0.2s ease;
+        }
+
+        .navigate-input .mud-input-outlined .mud-input-outlined-notched-outline {
+        border-color: rgba(255,255,255,0.4) !important;
+        transition: all 0.2s ease;
+        }
+
+        /* Hover: Heller aber WEISS bleiben */
+        .navigate-input .mud-input-outlined:hover {
+        background-color: rgba(255,255,255,0.15) !important;
+        }
+
+        .navigate-input .mud-input-outlined:hover .mud-input-outlined-notched-outline {
+        border-color: rgba(255,255,255,0.7) !important;
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.2) !important;
+        }
+
+        /* Focus: Auch weiß bleiben */
+        .navigate-input .mud-input-outlined.mud-input-outlined-focused {
+        background-color: rgba(255,255,255,0.2) !important;
+        }
+
+        .navigate-input .mud-input-outlined.mud-input-outlined-focused .mud-input-outlined-notched-outline {
+        border-color: rgba(255,255,255,0.9) !important;
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.3) !important;
+        }
+
+        .navigate-input .mud-input {
+        color: inherit !important;
+        font-size: 0.8rem;
+        height: 32px;
+        paddin
+    </style>
+
+    @if (ShowSettings)
+    {
+        <Settings OnClosing="CloseSetting" />
+    }
+
+
+
+    <MudLayout>
+
+
+        <MudDrawer @bind-Open="@_open"
+        Elevation="2"
+        Fixed="true"
+        Width="320px"
+        Style="top: 64px; border-right: 1px solid rgba(0,0,0,0.08);">
+
+            <!-- Header mit !important Styles -->
+            <div class="pa-3" style="border-bottom: 1px solid rgba(0,0,0,0.08); padding-top: 32px !important;">
+                <div class="d-flex align-center justify-space-between" style="margin-bottom: 24px !important; padding-bottom: 8px !important;">
+                    <MudText Typo="Typo.h5" 
+                    Class="mud-typography-h5" 
+                    Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
+                        @Language.Stations
+                    </MudText>
+                    <MudButton StartIcon="@Icons.Material.Filled.Add"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Size="Size.Small"
+                    Class="add-station-btn-consistent"
+                    Style="min-width: 90px; height: 32px; font-size: 0.75rem;"
+                    @onclick="() => ToggleStationFormular(true)">
+                        @Language.Station
+                    </MudButton>
+                </div>
+
+                <!-- Rest bleibt gleich -->
+                <MudTextField @bind-Value="searchText"
+                @bind-Value:after="UpdateFilteredStations"
+                Placeholder="@Language.SearchProjects"
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Filled.Search"
+                Immediate="true"
+                Variant="Variant.Outlined"
+                Margin="Margin.Normal"
+                Class="search-field-enhanced"
+                Style="background: white; border-radius: 6px; height: 38px;" />
+
+                <div class="checkbox-container" style="margin: 8px 0 0 12px;">
+                    <MudCheckBox T="bool"
+                    Value="stationFavorites"
+                    ValueChanged="@(e => OnStationFavoritesChanged(e))"
+                    Label="Show only favorites"
+                    Class="custom-checkbox" />
+                </div>
+            </div>
+
+            <!-- Station Cards Container mit optimiertem Bottom-Padding -->
+            <div class="pa-2 pt-2" style="padding-bottom: 65px !important; overflow-y: auto;">
+
+                @foreach (var station in filteredStations)
+                {
+                    <MudCard Class="@($"station-card draggable mb-2 {(selectedStation?.stationID == station.stationID ? "station-selected" : "")}")" Elevation="0"
+                    Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;"
+                    @onclick="() => { SelectStation(station); ToggleStationFormular(false); SelectItem(station); }">
+                        <MudCardContent Class="pa-3 position-relative" Style="display: flex; flex-direction: column; min-height: 120px;">
+
+                            <!-- Oberer Bereich: Name + Stern (Status-Icon entfernt) -->
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                                @if (starStations.Any(s => s.assemblystation == station.assemblystation))
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" />
+                                }
+
+                                <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
+                                    @station.assemblystation
+                                </MudText>
+                            </div>
+
+                            <!-- Beschreibung -->
+                            <div class="mb-2">
+                                <MudText Typo="Typo.body2"
+                                Class="ma-0 pa-0"
+                                Style="color: #6c757d; font-size: 0.8rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    @(string.IsNullOrWhiteSpace(station.stationName) ? Language.NoDescription : station.stationName)
+                                </MudText>
+                            </div>
+
+                            <div class="d-flex align-center justify-space-between mb-2">
+                                <div class="d-flex align-center" style="gap: 8px;">
+                                    @{
+                                        StationStatusCounts.TryGetValue(station.stationID.Value, out var stationStatusCounts);
+                                    }
+
+                                    <!-- Grüner Status -->
+                                    <div class="d-flex align-center" style="gap: 3px;">
+                                        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #4caf50;"></div>
+                                        <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Green)</span>
+                                    </div>
+
+                                    <!-- Gelber Status -->
+                                    <div class="d-flex align-center" style="gap: 3px;">
+                                        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #ff9800;"></div>
+                                        <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Yellow)</span>
+                                    </div>
+
+                                    <!-- Roter Status -->
+                                    <div class="d-flex align-center" style="gap: 3px;">
+                                        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: #f44336;"></div>
+                                        <span style="font-size: 0.75rem; font-weight: 500;">@(stationStatusCounts.Red)</span>
+                                    </div>
+                                </div>
+
+                                <!-- Tools Anzahl Chip -->
+                                @{
+                                    var totalTools = stationStatusCounts.Green + stationStatusCounts.Yellow + stationStatusCounts.Red + stationStatusCounts.Undefined;
+                                    var toolText = totalTools == 1 ? Language.Tool : Language.Tools;
+                                }
+                                <MudChip Size="Size.Small"
+                                T=string Style="background-color: #e3f2fd; color: #1976d2; font-weight: 500; font-size: 0.65rem;">
+                                    @($"{totalTools} {toolText}")
+                                </MudChip>
+                            </div>
+
+                            <!-- Spacer um den Modified Text nach unten zu drücken -->
+                            <div style="flex-grow: 1;"></div>
+
+                            <!-- Modified Text unten links -->
+                            <MudText Typo="Typo.caption"
+                            Class="text-left"
+                            Style="color: #6c757d; font-size: 0.7rem;">
+                                @($"{Language.ModifiedOn} {station.lastModified:dd.MM.yyyy} {Language.By} {station.modifiedBy?.Split(';')[0] ?? Language.UnknownUser}")
+                            </MudText>
+
+                            <!-- Hover-Aktionsleiste -->
+                            <div class="hover-actions"
+                            style="position: absolute; top: 12px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                            @onclick:stopPropagation="true">
+                                <div class="d-flex"
+                                style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+
+                                    <!-- 1. Star/Unstar Button -->
+                                    @if (!starStations.Any(s => s.assemblystation == station.assemblystation))
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Outlined.StarOutline"
+                                        Size="Size.Small"
+                                        OnClick="@(() => StarStation(station))"
+                                        Style="color: #ff9800; transition: all 0.2s ease;" />
+                                    }
+                                    else
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.Star"
+                                        Size="Size.Small"
+                                        OnClick="@(() => DeleteStarStation(station))"
+                                        Style="color: #ff9800; transition: all 0.2s ease;" />
+                                    }
+
+                                    <!-- 2. Insert Tool Button -->
+                                    <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
+                                    Size="Size.Small"
+                                    OnClick="@(() => { SelectStation(station); InsertTool(); })"
+                                    Disabled="@(copiedTool == null || selectedStation == null)"
+                                    Style="color: #6c757d; transition: all 0.2s ease;" />
+
+                                    <!-- 3. Delete Button -->
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                    Size="Size.Small"
+                                    OnClick="@(() => DeleteStation(station))"
+                                    Style="color: #f44336; transition: all 0.2s ease;" />
+
+                                    <!-- 4. Status Button mit vertikalen Status-Icons -->
+                                    <div class="status-selector-container" style="position: relative;">
+                                        <!-- Aktuelles Status Icon -->
+                                        <MudIconButton Icon="@GetStatusIcon(station.Status)"
+                                        Size="Size.Small"
+                                        Color="@GetStatusColor(station.Status)"
+                                        Style="transition: all 0.2s ease;" />
+
+                                        <!-- Status Options - direkt unter dem Status-Icon -->
+                                        <div class="status-options-vertical" 
+                                        style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1000;">
+
+                                            <!-- Green Status -->
+                                            <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                            Size="Size.Small"
+                                            Color="Color.Success"
+                                            Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                            OnClick="@(() => SetStatus(station, Status.Green))"
+                                            title="Configured" />
+
+                                            <!-- Yellow Status -->
+                                            <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
+                                            Size="Size.Small"
+                                            Color="Color.Warning"
+                                            Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                            OnClick="@(() => SetStatus(station, Status.Yellow))"
+                                            title="Must be configured" />
+
+                                            <!-- Red Status -->
+                                            <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                            Size="Size.Small"
+                                            Color="Color.Error"
+                                            Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                            OnClick="@(() => SetStatus(station, Status.Red))"
+                                            title="Missing information" />
+
+                                            <!-- Undefined Status -->
+                                            <MudIconButton Icon="@Icons.Material.Filled.Help"
+                                            Size="Size.Small"
+                                            Color="Color.Default"
+                                            Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                            OnClick="@(() => SetStatus(station, Status.Undefined))"
+                                            title="Open" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </MudCardContent>
+                    </MudCard>
+                }
+
+            </div>
+        </MudDrawer>
+
+
+        <MudMainContent Class="pt-0  ps-0" style=" min-height: 100vh;">
+
+
+
+            <!-- Main Content -->
+            <div class="main">
+                <main class="p-3 pb-0 d-flex ">
+
+                    <!-- Linke Spalte: Tools und Operationen -->
+                    <div class="tool-operation-panel" style="width: 500px; display: flex; flex-direction: column; height: 100vh;">
+                        <!-- ENTFERNE das margin-top: 15px und verwende stattdessen padding-top: 17px -->
+                        <div class="tools-header-fixed" style="padding: 25px 20px 32px 20px; border-bottom: 1px solid rgba(0,0,0,0.08); background: white; flex-shrink: 0;">
+                            <div class="d-flex align-center justify-space-between" style="margin-bottom: 0 !important; padding-bottom: 0 !important; padding-top: 0 !important;">
+                                <MudText Typo="Typo.h5" 
+                                Class="mud-typography-h5" 
+                                Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important;">
+                                    @Language.ToolsAndOperations
+                                </MudText>
+
+                                @if (selectedStation != null && selectedStation.stationID != 0)
+                                {
+                                    <MudButton StartIcon="@Icons.Material.Filled.Add"
+                                    Variant="Variant.Filled"
+                                    Color="Color.Primary"
+                                    Size="Size.Small"
+                                    Class="add-station-btn-consistent"
+                                    Style="min-width: 70px; height: 32px; font-size: 0.75rem; margin-right:11px;"
+                                    @onclick="() => ToggleToolFormular(true)">
+                                        @Language.Tool
+                                    </MudButton>
+                                }
+                            </div>
+                        </div>
+
+                        <div id="toolsList" style="flex: 1; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 28px 20px 0px 20px;">
+
+                            @if (selectedStation == null)
+                            {
+                                <p>@Language.ChooseStation</p>
+                            }
+                            else if (!tools.Any())
+                            {
+                                <p>@Language.NoToolsFound</p>
+                            }
+                            else
+                            {
+
+                                <MudList T="string" Clickable="false" >
+                                    @foreach (var tool in tools)
+                                    {
+                                      
+                                        <MudCard Class="@($"station-card tool-card draggable mb-2 {(selectedTool?.toolID == tool.toolID ? "station-selected" : "")}")" Elevation="0"
+                                        Style="box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;">
+                                            <MudCardContent Class="pa-0">
+                                                <!-- Tool Header als klickbarer Bereich -->
+                                                <div class="tool-header-section position-relative"
+                                                style="padding: 12px; min-height: 70px; display: flex; flex-direction: column;"
+                                                @onclick="() => { SelectTool(tool); ToggleToolFormular(false); SelectItem(tool); }">
+
+                                                    <!-- Oberer Bereich: Tool Name -->
+                                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 10px;">
+                                                        <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
+                                                            @tool.toolShortname
+                                                        </MudText>
+                                                    </div>
+
+                                                    <!-- Status und Modified Info nebeneinander -->
+                                                    <div class="d-flex align-center justify-space-between">
+                                                        <!-- Status-Zahlen für Operationen links -->
+                                                        <div class="d-flex align-center" style="gap: 12px;">
+                                                            @{
+                                                                ToolStatusCounts.TryGetValue(tool.toolID.Value, out var toolStatusCounts);
+                                                            }
+
+                                                            <!-- Grüner Status -->
+                                                            <div class="d-flex align-center" style="gap: 4px;">
+                                                                <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #4caf50;"></div>
+                                                                <span style="font-size: 0.85rem; font-weight: 500;">@(toolStatusCounts.Green)</span>
+                                                            </div>
+
+                                                            <!-- Gelber Status -->
+                                                            <div class="d-flex align-center" style="gap: 4px;">
+                                                                <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #ff9800;"></div>
+                                                                <span style="font-size: 0.85rem; font-weight: 500;">@(toolStatusCounts.Yellow)</span>
+                                                            </div>
+
+                                                            <!-- Roter Status -->
+                                                            <div class="d-flex align-center" style="gap: 4px;">
+                                                                <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #f44336;"></div>
+                                                                <span style="font-size: 0.85rem; font-weight: 500;">@(toolStatusCounts.Red)</span>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <!-- Modified Text rechts (eine Zeile) -->
+                                                        <MudText Typo="Typo.caption"
+                                                        Class="text-right"
+                                                        Style="color: #6c757d; font-size: 0.7rem; white-space: nowrap;">
+                                                            @($"{Language.ModifiedOn} {tool.lastModified:dd.MM.yyyy} {Language.By} {tool.modifiedBy?.Split(';')[0] ?? Language.UnknownUser}")
+                                                        </MudText>
+                                                    </div>
+
+                                                    <!-- Hover-Aktionsleiste für Tools -->
+                                                    <div class="hover-actions tool-hover-actions"
+                                                    style="position: absolute; top: 12px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                                                    @onclick:stopPropagation="true">
+                                                        <div class="d-flex"
+                                                        style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+                                                            <!-- Copy Tool Button -->
+                                                            <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                                            Size="Size.Small"
+                                                            OnClick="@(() => CloneTool(tool))"
+                                                            Style="color: #6c757d; transition: all 0.2s ease;"
+                                                            title="@Language.Copy" />
+                                                            <!-- Insert Operation Button -->
+                                                            <MudIconButton Icon="@Icons.Material.Filled.ContentPaste"
+                                                            Size="Size.Small"
+                                                            OnClick="@(() => { SelectTool(tool); InsertOperation(); })"
+                                                            Disabled="@(copiedOperation == null || selectedTool == null)"
+                                                            Style="color: #6c757d; transition: all 0.2s ease;"
+                                                            title="@Language.InsertOperation" />
+                                                            <!-- Delete Button -->
+                                                            <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                            Size="Size.Small"
+                                                            OnClick="@(() => DeleteTool(tool))"
+                                                            Style="color: #f44336; transition: all 0.2s ease;"
+                                                            title="@Language.Delete" />
+                                                            <!-- Status Button -->
+                                                            <div class="status-selector-container" style="position: relative;">
+                                                                <MudIconButton Icon="@GetStatusIcon(tool.Status)"
+                                                                Size="Size.Small"
+                                                                Color="@GetStatusColor(tool.Status)"
+                                                                Style="transition: all 0.2s ease;"
+                                                                title="Status" />
+                                                                <!-- Status Options -->
+                                                                <div class="status-options-vertical" 
+                                                                style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1000;">
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                                                    Size="Size.Small"
+                                                                    Color="Color.Success"
+                                                                    Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                    OnClick="@(() => SetStatus(tool, Status.Green))"
+                                                                    title="Configured" />
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
+                                                                    Size="Size.Small"
+                                                                    Color="Color.Warning"
+                                                                    Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                    OnClick="@(() => SetStatus(tool, Status.Yellow))"
+                                                                    title="Must be configured" />
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                                                    Size="Size.Small"
+                                                                    Color="Color.Error"
+                                                                    Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                    OnClick="@(() => SetStatus(tool, Status.Red))"
+                                                                    title="Missing information" />
+                                                                    <MudIconButton Icon="@Icons.Material.Filled.Help"
+                                                                    Size="Size.Small"
+                                                                    Color="Color.Default"
+                                                                    Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                    OnClick="@(() => SetStatus(tool, Status.Undefined))"
+                                                                    title="Open" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Operations Section - Kompakter und weniger prominent -->
+                                                <MudStack Spacing="0" Class="mt-0 mb-1 px-3">
+                                                    <MudDivider Class="thick-divider" />
+                                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 0px 4px 0px;">
+                                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                                            <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                                                            Class="@($"chevron-icon {(expandedTools.Contains(tool.toolID.Value) ? "rotated" : "")}")"
+                                                            Style="font-size: 16px; color: rgba(51, 51, 51, 0.4); min-width: 20px; height: 20px; padding: 0; margin: 0;"
+                                                            @onclick="() => ToggleExpand(tool.toolID.Value)" />
+                                                            <MudText Typo="Typo.body2" Class="text-uppercase" Style="letter-spacing: 0.08em; color: rgba(51, 51, 51, 0.5); font-size: 0.75rem; font-weight: 500;">
+                                                                @Language.Operations (@allOperations.Count(op => op.toolID == tool.toolID))
+                                                            </MudText>
+                                                        </div>
+                                                        <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                        Style="font-size: 16px; color: rgba(51, 51, 51, 0.4); min-width: 24px; height: 24px; padding: 0;"
+                                                        @onclick="() => { SelectTool(tool); ToggleOperationFormular(true); }"
+                                                        AriaLabel="Add Operation" />
+                                                    </div>
+                                                </MudStack>
+
+
+                                                <!-- Operationen -->
+                                                <MudCollapse Expanded="@expandedTools.Contains(tool.toolID.Value)" Class="operations-section">
+                                                    <div class="pb-0">
+                                                        <MudList T="Operation" Dense="true">
+                                                            @foreach (var operation in allOperations.Where(op => op.toolID == tool.toolID))
+                                                            {
+                                                                <div class="operation-item-section position-relative">
+                                                                    <MudListItem Class="@($"{(selectedOperation?.operationID == operation.operationID ? "station-selected" : "")}")"
+                                                                    Style="min-height: 70px; padding: 4px 12px; display: flex; flex-direction: column; align-items: flex-start;"
+                                                                    @onclick="() => { OnOperationClicked(operation, false); SelectItem(operation); }"
+                                                                    Selected="@(selectedOperation?.operationID == operation.operationID)">
+
+                                                                        <!-- Operation Name -->
+                                                                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; width: 100%;">
+                                                                            <MudText Typo="Typo.subtitle1" Class="ma-0 pa-0" Style="font-weight: bold; font-size: 1.0rem;">
+                                                                                @operation.operationShortname
+                                                                            </MudText>
+                                                                        </div>
+
+
+
+                                                                        <!-- Spacer -->
+                                                                        <div style="flex-grow: 1; width: 100%;"></div>
+
+                                                                        <!-- Modified Text (eine Zeile) -->
+                                                                        <MudText Typo="Typo.caption"
+                                                                        Class="text-left"
+                                                                        Style="color: #6c757d; font-size: 0.7rem; width: 100%;">
+                                                                            @($"{Language.ModifiedOn} {operation.lastModified:dd.MM.yyyy} {Language.By} {operation.modifiedBy?.Split(';')[0] ?? Language.UnknownUser}")
+                                                                        </MudText>
+
+                                                                        <!-- Hover-Aktionsleiste für Operations -->
+                                                                        <div class="hover-actions operation-hover-actions"
+                                                                        style="position: absolute; top: 12px; right: 8px; opacity: 0; transition: all 0.3s ease-in-out;"
+                                                                        @onclick:stopPropagation="true">
+                                                                            <div class="d-flex"
+                                                                            style="gap: 4px; background: rgba(255,255,255,0.98); border-radius: 8px; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1); backdrop-filter: blur(10px);">
+                                                                                <!-- Copy Operation Button -->
+                                                                                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy"
+                                                                                Size="Size.Small"
+                                                                                OnClick="@(() => CloneOperation(operation))"
+                                                                                Style="color: #6c757d; transition: all 0.2s ease;"
+                                                                                title="@Language.Copy" />
+                                                                                <!-- Delete Button -->
+                                                                                <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                                                                Size="Size.Small"
+                                                                                OnClick="@(() => DeleteOperation(operation))"
+                                                                                Style="color: #f44336; transition: all 0.2s ease;"
+                                                                                title="@Language.Delete" />
+                                                                                <!-- Status Button -->
+                                                                                <div class="status-selector-container" style="position: relative;">
+                                                                                    <MudIconButton Icon="@GetStatusIcon(operation.Status)"
+                                                                                    Size="Size.Small"
+                                                                                    Color="@GetStatusColor(operation.Status)"
+                                                                                    Style="transition: all 0.2s ease;"
+                                                                                    title="Status" />
+                                                                                    <!-- Status Options -->
+                                                                                    <div class="status-options-vertical" 
+                                                                                    style="position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1px; opacity: 0; transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.98); border-radius: 6px; padding: 3px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-top: 1px; z-index: 1002;">
+                                                                                        <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                                                                        Size="Size.Small"
+                                                                                        Color="Color.Success"
+                                                                                        Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                                        OnClick="@(() => SetStatus(operation, Status.Green))"
+                                                                                        title="Configured" />
+                                                                                        <MudIconButton Icon="@Icons.Material.Filled.ReportProblem"
+                                                                                        Size="Size.Small"
+                                                                                        Color="Color.Warning"
+                                                                                        Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                                        OnClick="@(() => SetStatus(operation, Status.Yellow))"
+                                                                                        title="Must be configured" />
+                                                                                        <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                                                                        Size="Size.Small"
+                                                                                        Color="Color.Error"
+                                                                                        Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                                        OnClick="@(() => SetStatus(operation, Status.Red))"
+                                                                                        title="Missing information" />
+                                                                                        <MudIconButton Icon="@Icons.Material.Filled.Help"
+                                                                                        Size="Size.Small"
+                                                                                        Color="Color.Default"
+                                                                                        Style="width: 28px; height: 22px; font-size: 14px; transition: all 0.2s ease;"
+                                                                                        OnClick="@(() => SetStatus(operation, Status.Undefined))"
+                                                                                        title="Open" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </MudListItem>
+                                                                </div>
+
+                                                                <!-- Divider zwischen Operationen -->
+                                                                @if (operation != allOperations.Where(op => op.toolID == tool.toolID).Last())
+                                                                {
+                                                                    <MudDivider />
+                                                                }
+                                                            }
+                                                        </MudList>
+                                                    </div>
+                                                </MudCollapse>
+                                            </MudCardContent>
+                                        </MudCard>
+                                    }
+                                </MudList>
+
+
+
+                            }
+                        </div>
+                    </div>
+
+                    @code {
+        private HashSet<int> expandedTools = new();
+
+        private void ToggleExpand(int toolID)
+        {
+              if(showToolFormular == true && selectedTool.toolID == toolID)
+                                        {
+                                            toolFormular.ResetTool();
+                                        }
+            if (expandedTools.Contains(toolID))
+                        expandedTools.Remove(toolID);
+            else
+                        expandedTools.Add(toolID);
+        }
+                }
+
+                <!-- Rechte Spalte: Content -->
+                <div class="content-panel flex-fill">
+                    @if (showToolFormular && toolFormularModel != null)
+                        {
+
+                            <ToolFormular @ref="toolFormular" ReadOnly="toolReadOnly" SelectedTool="@toolFormularModel" CurrentUser=@UsernameService.Username ToolVersions=@toolVersions />
+
+                        }
+
+                        @if (showOperationFormular && operationFormularModel != null)
+                        {
+
+                            <OperationFormular @ref="operationFormular" ReadOnly="operationReadOnly" SelectedOperation="@operationFormularModel" CurrentUser="@UsernameService.Username" OperationVersions=operationVersions />
+
+
+
+                        }
+
+                        @if (showStationFormular && selectedStation != null)
+                        {
+                            <StationFormular @ref="stationFormular" SelectedStation="@stationFormularModel" />
+                        }
+                    </div>
+                </main>
+            </div>
+            @if (showPopup)
+            {
+            
+            }
+
+        </MudMainContent>
+    </MudLayout>
+
+</div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<script>
+    async function captureAndDownload() {
+    const target = document.getElementById('screenshot-target');
+
+    // Skalierung für höhere Auflösung (4× für ca. 4K bei FullHD-Content)
+    const scale = 6;
+
+    // Rendern
+    const canvas = await html2canvas(target, {
+    scale: scale,
+    useCORS: true
+    });
+
+    // Canvas in einen Blob umwandeln und herunterladen
+    canvas.toBlob(blob => {
+    if (!blob) {
+    console.error("Blob-Erstellung fehlgeschlagen");
+    return;
+    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'screenshot-highres.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    }, 'image/png');
+    }
+</script>
+
+@code {
+    private async Task SaveScreenshot()
+    {
+        await JS.InvokeVoidAsync("captureAndDownload");
+    }
+}
+
+<style>
+
+
+
+/* Status Selector - Vertikale Options */
+.status-selector-container:hover .status-options-vertical {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+.status-option:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* === DRAWER RELEVANTE STYLES === */
+
+/* Station Cards - angepasst an Line Card Styling */
+.station-card {
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px !important;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  background: white;
+}
+
+.station-card:hover {
+  border: 2px solid color-mix(in srgb, var(--mud-palette-primary) 70%, white) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.station-card:hover .hover-actions {
+  opacity: 1 !important;  /* Geändert von 1 auf 0 */
+  transform: translateY(-1px);
+}
+
+.hover-actions {
+  transition: all 0.3s ease-in-out;
+}
+.station-selected {
+  border-color: var(--mud-palette-primary) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.station-selected:hover {
+  border-color: var(--mud-palette-primary) !important;
+}
+
+/* Add Station Button - Kompakt */
+.add-station-btn-compact {
+  border-radius: 6px !important;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+  background-color: var(--mud-palette-primary);
+  color: white !important;
+}
+
+.add-station-btn-compact:hover {
+  background-color: color-mix(in srgb, var(--mud-palette-primary) 90%, black);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* Search Field */
+.search-field-enhanced .mud-input-outlined {
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+.search-field-enhanced .mud-input-outlined:hover {
+  border-color: rgba(25, 118, 210, 0.3) !important;
+}
+
+/* Checkbox Alignment - Aggressiver Ansatz */
+.pa-3 .mud-checkbox {
+  margin-left: -12px !important;
+  padding-left: 0 !important;
+}
+
+.pa-3 .mud-checkbox .mud-checkbox-content {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.pa-3 .mud-checkbox .mud-button-root {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* ALLE Schatten-Effekte aggressiv entfernen */
+.pa-3 .mud-checkbox .mud-button-root,
+.pa-3 .mud-checkbox .mud-button-root:hover,
+.pa-3 .mud-checkbox .mud-button-root:active,
+.pa-3 .mud-checkbox .mud-button-root:focus,
+.pa-3 .mud-checkbox .mud-button-root:focus-visible,
+.pa-3 .mud-checkbox .mud-button-root.mud-ripple-active {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  background: none !important;
+}
+
+/* Ripple komplett killen */
+.pa-3 .mud-checkbox .mud-button-root .mud-ripple,
+.pa-3 .mud-checkbox .mud-button-root .mud-ripple-active {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Alle Pseudo-Elemente entfernen */
+.pa-3 .mud-checkbox .mud-button-root::before,
+.pa-3 .mud-checkbox .mud-button-root::after,
+.pa-3 .mud-checkbox .mud-button-root:hover::before,
+.pa-3 .mud-checkbox .mud-button-root:active::before,
+.pa-3 .mud-checkbox .mud-button-root:focus::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Falls das immer noch nicht funktioniert, diese Regel: */
+.pa-3 > .mud-checkbox {
+  transform: translateX(-12px) !important;
+}
+
+/* === ANDERE STYLES (unverändert) === */
+
+/* Auswahl-Hervorhebung für Operationen */
+.mud-list-item.mud-selected {
+  background-color: rgba(0, 123, 255, 0.1) !important;
+}
+
+.mud-list-item:hover:not(.mud-selected) {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.operation-name {
+  pointer-events: none;
+}
+
+.thick-divider {
+  border-top: #333333;
+}
+
+.chevron-icon {
+  transition: transform 0.3s ease;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(90deg);
+}
+
+.text-muted {
+  color: var(--mud-palette-text-secondary) !important;
+}
+
+/* Nur für das Haupt-Tool-Panel - vertikale Scrollbar */
+#toolsList {
+  scrollbar-width: thin !important; /* Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent !important; /* Firefox */
+  overflow-x: hidden !important; /* Verhindert horizontale Scrollbar */
+  overflow-y: auto !important; /* Erlaubt nur vertikale Scrollbar */
+}
+
+/* Webkit Scrollbar nur für vertikale Richtung */
+#toolsList::-webkit-scrollbar:vertical {
+  width: 6px !important;
+  display: block !important;
+}
+
+#toolsList::-webkit-scrollbar:horizontal {
+  display: none !important; /* Versteckt horizontale Scrollbar */
+}
+
+#toolsList::-webkit-scrollbar-track:vertical {
+  background: transparent !important;
+  border-radius: 3px !important;
+}
+
+#toolsList::-webkit-scrollbar-thumb:vertical {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-radius: 3px !important;
+  transition: background 0.2s ease !important;
+}
+
+#toolsList::-webkit-scrollbar-thumb:hover:vertical {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+
+
+.tool-operation-panel *::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 3px !important;
+}
+
+.tool-operation-panel *::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-radius: 3px !important;
+  transition: background 0.2s ease !important;
+}
+
+.tool-operation-panel *::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+
+/* Drag and drop - KORRIGIERT für Line Card Timing */
+.draggable {
+  user-select: none;
+  transition: all 0.3s ease-in-out; /* Geändert von 0.2s auf 0.3s */
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.draggable.dragging,
+.is-dragging {
+  opacity: 0.8;
+  background-color: color-mix(in srgb, var(--mud-palette-primary) 15%, white);
+  border: 2px solid var(--mud-palette-primary);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transform: scale(1.03) rotate(1deg);
+  z-index: 999;
+  cursor: pointer;
+}
+
+#toolsList.drag-active,
+.operation-list.drag-active,
+.drop-zone.drag-active {
+  background-color: rgba(33, 150, 243, 0.03);
+  border: 2px dashed #2196f3;
+  border-radius: 12px;
+  padding: 8px;
+  margin: 4px 0;
+  min-height: 60px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+#toolsList.drag-active:hover,
+.operation-list.drag-active:hover,
+.drop-zone.drag-active:hover {
+  background-color: rgba(33, 150, 243, 0.06);
+  border-color: #1976d2;
+  cursor: pointer;
+}
+
+.drop-zone-placeholder {
+  background-color: rgba(33, 150, 243, 0.02);
+  border: 2px dashed rgba(33, 150, 243, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  color: rgba(33, 150, 243, 0.6);
+  font-style: italic;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.drop-zone-placeholder:hover {
+  border-color: rgba(33, 150, 243, 0.5);
+  background-color: rgba(33, 150, 243, 0.04);
+  cursor: pointer;
+}
+
+.operation-item-wrapper {
+  position: relative;
+}
+
+.operation-clickable-area {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: background-color 0.2s ease;
+}
+
+.operation-clickable-area:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.operation-clickable-area .clickable {
+  cursor: inherit;
+}
+
+/* ========================================= */
+/* === NEUE TOOL HOVER ACTIONS STYLES === */
+/* ========================================= */
+
+/* Tool-spezifische Hover-Styles */
+.tool-header-section {
+  transition: all 0.3s ease-in-out;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  z-index: 2;
+}
+
+.tool-header-section:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.tool-header-section:hover .tool-hover-actions {
+  opacity: 1 !important;
+  transform: translateY(-1px);
+}
+
+/* Tool Hover Actions */
+.tool-hover-actions {
+  transition: all 0.3s ease-in-out;
+}
+
+.tool-hover-actions .mud-icon-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Status Selector für Tools - gleiche Logik wie bei Stations */
+.tool-header-section .status-selector-container:hover .status-options-vertical {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+/* Verhindert, dass Operation-Hover das Tool-Hover überschreibt */
+.tool-header-section .hover-actions {
+  pointer-events: auto;
+}
+
+.operations-section:hover ~ .tool-header-section .hover-actions {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Bessere Trennung zwischen Tool-Header und Operations */
+.tool-header-section {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 0;
+}
+
+/* Operations Section */
+.operations-section {
+  position: relative;
+  z-index: 1;
+}
+
+/* Alle Scrollbars in Operations verstecken */
+.operations-section * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.operations-section *::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Verhindert ungewollte Hover-Effekte bei Status-Dropdown */
+.status-options-vertical {
+  z-index: 1001 !important;
+}
+
+.status-options-vertical .mud-icon-button:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+
+
+
+/* ========================================= */
+/* === NEUE OPERATION HOVER ACTIONS STYLES === */
+/* ========================================= */
+
+/* Operation-spezifische Hover-Styles */
+.operation-item-section {
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 3;
+}
+
+.operation-item-section:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.operation-item-section:hover .operation-hover-actions {
+  opacity: 1 !important;
+  transform: translateY(-1px);
+}
+
+/* Operation Hover Actions */
+.operation-hover-actions {
+  transition: all 0.3s ease-in-out;
+}
+
+.operation-hover-actions .mud-icon-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Status Selector für Operations */
+.operation-item-section .status-selector-container:hover .status-options-vertical {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+/* Overflow-Fix für Operations Status-Dropdown */
+.operations-section {
+  overflow: visible !important;
+}
+
+.operations-section .mud-collapse {
+  overflow: visible !important;
+}
+
+.operations-section .mud-list {
+  overflow: visible !important;
+}
+
+.operations-section .mud-list-item {
+  overflow: visible !important;
+}
+
+
+
+/* Verhindert Abschneiden von Dropdowns */
+.station-card {
+  overflow: visible !important;
+}
+
+.station-card .mud-card-content {
+  overflow: visible !important;
+}
+
+/* Z-Index Management für verschachtelte Hover-Bereiche */
+.tool-header-section {
+  z-index: 2;
+}
+
+.operations-section {
+  z-index: 1;
+}
+
+.operation-item-section {
+  z-index: 3;
+}
+
+.status-options-vertical {
+  z-index: 1002 !important;
+}
+
+    /* Überschreibt station-card Hover für tool-cards */
+    .station-card.tool-card:hover .hover-actions {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* Aktiviert nur spezifische Hover-Bereiche in Tool Cards */
+    .tool-card .tool-header-section:hover .tool-hover-actions {
+        opacity: 1 !important;
+        pointer-events: all !important;
+    }
+
+    .tool-card .operation-item-section:hover .operation-hover-actions {
+        opacity: 1 !important;
+        pointer-events: all !important;
+    }
+/* ========================================= */
+/* === FIX: NUR X-ACHSE VERSCHIEBUNG === */
+/* ========================================= */
+
+/* Shift the entire hover menu to the left when status is hovered - OHNE Y-Verschiebung */
+.tool-card .tool-hover-actions:has(.status-selector-container:hover) {
+  transform: translateX(-135px) !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+/* Also for operation hover actions - OHNE Y-Verschiebung */
+.tool-card .operation-hover-actions:has(.status-selector-container:hover) {
+  transform: translateX(-135px) !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+/* Sicherstellen dass die ursprüngliche Position keine Y-Transformation hat */
+.tool-card .tool-hover-actions {
+  transform: none !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+.tool-card .operation-hover-actions {
+  transform: none !important;
+  transition: transform 0.2s ease-in-out !important;
+}
+
+/* Status-Optionen bleiben horizontal und zentriert */
+.tool-card .status-options-vertical {
+  position: absolute !important;
+  top: 50% !important;
+  left: 100% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 4px !important;
+  margin-left: 8px !important;
+  margin-top: 0 !important;
+  padding: 4px !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+  z-index: 1003 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* Show status options on hover */
+.tool-card .status-selector-container:hover .status-options-vertical {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+/* Gleiches für Operations */
+.tool-card .operation-item-section .status-options-vertical {
+  position: absolute !important;
+  top: 50% !important;
+  left: 100% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 4px !important;
+  margin-left: 8px !important;
+  margin-top: 0 !important;
+  padding: 3px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+  z-index: 1003 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.tool-card .operation-item-section .status-selector-container:hover .status-options-vertical {
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
+
+
+/* Fixed Header für Tools and Operations */
+.tools-header-fixed {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Tool Operation Panel - Flexbox Layout */
+.tool-operation-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  height: calc(100vh - 65px) !important;
+  padding: 0 !important;
+}
+
+
+    /* Toast Position - Bottom Right */
+    .mud-snackbar-provider {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        top: unset !important;
+        left: unset !important;
+        transform: none !important;
+        z-index: 9999 !important;
+    }
+
+        /* Override all possible MudBlazor snackbar positioning classes */
+        .mud-snackbar-provider[class*="mud-snackbar-location"] {
+            top: unset !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            left: unset !important;
+            transform: none !important;
+        }
+
+    /* Specific overrides for common MudBlazor position classes */
+    .mud-snackbar-location-topright,
+    .mud-snackbar-location-top-right,
+    .mud-snackbar-location-topcenter,
+    .mud-snackbar-location-top-center,
+    .mud-snackbar-location-topleft,
+    .mud-snackbar-location-top-left {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: unset !important;
+    }
+
+    /* Ensure individual snackbar items are properly positioned */
+    .mud-snackbar {
+        margin-bottom: 8px !important;
+    }
+
+    /* Success Toast in your design blue */
+    .mud-alert-filled-success {
+        background-color:#1e40af !important;
+        color: white !important;
+    }
+
+    /* Error Toast styling */
+    .mud-alert-filled-error {
+        background-color: #1e40af !important;
+        color: white !important;
+    }
+
+    /* Warning Toast styling */
+    .mud-alert-filled-warning {
+        background-color:  #1e40af !important;
+        color: white !important;
+    }
+</style>
+
+@code {
+    private bool ShowSettings = false;
+
+    //private readonly string currentUser = DaimlerConfig.MauiProgram.Username;
+
+
+    protected override void OnParametersSet()
+    {
+
+
+    }
+
+    private StationFormular? stationFormular;
+    private ToolFormular? toolFormular;
+    private OperationFormular? operationFormular;
+
+    #region SavePopup
+    private bool showPopup = false;
+    private async Task HandleDismiss()
+    {
+        showPopup = false;
+
+        if (DirtyManagerService.dirtyEntity == "Station") stationFormular.ResetStation();
+        if (DirtyManagerService.dirtyEntity == "Tool") toolFormular.ResetTool();
+        if (DirtyManagerService.dirtyEntity == "Operation") operationFormular.ResetOperation();
+        DirtyManagerService.setClean();
+
+        if(pendingStation != null)
+        {
+            await SelectStation(pendingStation);
+            await ToggleStationFormular(false);
+        }
+
+        if(pendingTool != null)
+        {
+            await SelectTool(pendingTool);
+            await ToggleToolFormular(false);
+        }
+
+        if(pendingOperation != null)
+        {
+            await SelectOperation(pendingOperation);
+            await ToggleOperationFormular(false);
+        }
+
+
+    }
+
+    private async Task HandleSave()
+    {
+        showPopup = false;
+
+
+        if (stationFormular != null && DirtyManagerService.dirtyEntity == "Station" )
+        {
+            if (await stationFormular.ValidateData() == true )
+            {
+                await stationFormular.UpdateStationAsync();
+            }
+            else
+            {
+                await stationFormular.ResetStation();
+            }
+
+        }
+
+
+
+        if (toolFormular != null && DirtyManagerService.dirtyEntity == "Tool")
+        {
+            if (await toolFormular.ValidateData() == true )
+            {
+                await toolFormular.UpdateToolAsync();
+            }
+            else
+            {
+                await toolFormular.ResetTool();
+            }
+        }
+
+
+        if (operationFormular != null && DirtyManagerService.dirtyEntity == "Operation")
+        {
+            if (await operationFormular.ValidateData() == true  )
+            {
+                await operationFormular.UpdateOperationAsync();
+            }
+            else
+            {
+                await operationFormular.ResetOperation();
+            }
+        }
+        DirtyManagerService.setClean();
+
+        if (pendingStation != null)
+        {
+            await SelectStation(pendingStation);
+            await ToggleStationFormular(false);
+        }
+
+        if (pendingTool != null)
+        {
+            await SelectTool(pendingTool);
+            await ToggleToolFormular(false);
+        }
+
+        if (pendingOperation != null)
+        {
+            await SelectOperation(pendingOperation);
+            await ToggleOperationFormular(false);
+        }
+
+    }
+    #endregion
+
+    #region SideBar
+
+    private string SidebarClass { get; set; } = string.Empty;
+    private void ToggleSidebar()
+    {
+        if (SidebarClass.Contains("collapsed"))
+            SidebarClass = string.Empty;
+        else
+            SidebarClass = "collapsed";
+    }
+    #endregion
+
+    #region Line
+    [Parameter]
+    public string lineName { get; set; } = "";
+    private Line? line;
+    #endregion
+
+    #region Stations
+    private IEnumerable<Station> stations = Enumerable.Empty<Station>();
+    private Station? selectedStation;
+    private bool showStationFormular = false;
+    private Station? pendingStation;
+    private IEnumerable<Station> starStations = Enumerable.Empty<Station>();
+    private bool stationFavorites = false;
+
+
+    private void OnStationFavoritesChanged(bool value)
+    {
+        stationFavorites = value;
+        UpdateFilteredStations(); // deine Methode, um etwas zu tun
+    }
+
+    // Angenommen starStations ist IEnumerable<Station>, nicht direkt veränderbar
+
+    public void StarStation(Station station)
+    {
+        if (!starStations.Any(s => s.assemblystation == station.assemblystation))
+        {
+            starStations = starStations.Concat(new[] { station });
+
+            var names = starStations.Select(s => s.assemblystation).ToList();
+            UsernameService.SaveStationList(names);
+
+            UpdateFilteredStations();
+             Snackbar.Add(Language.Station +" "+ station.assemblystation+ Language.HasBeenFavorized, Severity.Success);
+            StateHasChanged();
+        }
+    }
+
+    public void DeleteStarStation(Station station)
+    {
+        starStations = starStations.Where(s => s.assemblystation != station.assemblystation);
+
+        var names = starStations.Select(s => s.assemblystation).ToList();
+        UsernameService.SaveStationList(names);
+
+        UpdateFilteredStations();
+        Snackbar.Add(Language.Station +" "+ station.assemblystation + Language.HasBeenDefavored, Severity.Success);
+        StateHasChanged();
+    }
+
+
+
+    private string searchText;
+    private IEnumerable<Station> filteredStations = Enumerable.Empty<Station>();
+
+    private void UpdateFilteredStations()
+    {
+        filteredStations = string.IsNullOrWhiteSpace(searchText)
+            ? stations
+            : stations.Where(s =>
+                s.assemblystation != null &&
+                s.assemblystation.StartsWith(searchText, StringComparison.OrdinalIgnoreCase));
+
+
+        if (stationFavorites)
+        {
+            filteredStations = filteredStations.Where(s =>
+                starStations.Any(fav => fav.assemblystation == s.assemblystation));
+        }
+
+
+        StateHasChanged();
+    }
+
+
+
+
+    private async Task SelectStation(Station station)
+    {
+       
+       
+            pendingStation = null;
+            selectedStation = station;
+            selectedItem = null;
+
+            await UnlockTool();
+            selectedTool = await CreateDummyTool();
+            toolFormularModel = null;
+
+            await UnlockOperation();
+            selectedOperation = await CreateDummyOP();
+            operationFormularModel = null;
+            var xy = await Fassade.GetToolsFromStation(station.stationID);
+            tools = xy;
+
+            allOperations = await Fassade.GetAllOperations();
+            tools = xy;
+            SelectionState.SaveSelection(stationID: station.stationID);
+            CurrentContext = $"{selectedStation.assemblystation}";
+            StateHasChanged();
+        
+
+    }
+
+    private Station? stationFormularModel;
+
+    private async Task ToggleStationFormular(bool isNewStation)
+
+    {
+        if (isNewStation)
+        { 
+            await UnlockOperation();
+            await UnlockTool();
+            selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
+            stationFormularModel = selectedStation.Clone();
+            stationFormularModel.lineID = selectedStation.lineID;
+            tools = Enumerable.Empty<Tool>();
+            allOperations = Enumerable.Empty<Operation>();
+
+        }
+        else if (selectedStation != null)
+        {
+            // Kopie erstellen!
+            stationFormularModel = selectedStation.Clone();
+            stationFormularModel.stationID = selectedStation.stationID;
+            stationFormularModel.lineID = selectedStation.lineID;
+        }
+        showStationFormular = true;
+        showToolFormular = false;
+        showOperationFormular = false;
+    }
+
+    #endregion
+
+    #region Tools
+    private IEnumerable<Tool> tools = Enumerable.Empty<Tool>();
+    private Tool? selectedTool;
+    private Tool? toolFormularModel; // NEU: Separate Kopie für das Formular
+    private IEnumerable<ToolVersion> toolVersions = Enumerable.Empty<ToolVersion>();
+
+    private bool toolReadOnly = false;
+    private bool showToolFormular = false;
+    private Tool? pendingTool;
+
+    private async Task SelectTool(Tool tool)
+    {
+       
+          pendingTool = null;
+            if (selectedTool != null && tool.toolID != selectedTool.toolID) await UnlockTool();
+            selectedTool = tool;
+
+            toolFormularModel = selectedTool.Clone();
+            toolFormularModel.toolID = selectedTool.toolID;
+            toolFormularModel.stationID = selectedTool.stationID;
+            toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != UsernameService.Username;
+
+
+            await UnlockOperation();
+
+            selectedOperation = await CreateDummyOP();
+            operationFormularModel = null;
+
+            tools = await Fassade.GetToolsFromStation(selectedStation.stationID);
+
+            if (tool.toolID > 0) // Dummy-Tools haben toolID = 0
+            {
+                SelectionState.SaveSelection(stationID: selectedStation.stationID, toolID: tool.toolID);
+            }
+
+            toolVersions = await Fassade.GetToolVersions(selectedTool.toolID.Value);
+            CurrentContext = $"{selectedStation.assemblystation};{selectedTool.toolShortname}";
+            StateHasChanged();
+        
+    }
+
+    private async Task ToggleToolFormular(bool isNewTool)
+    {
+
+
+
+        if (isNewTool)
+        {
+            await UnlockOperation();
+            await UnlockTool();
+            selectedTool = await CreateDummyTool();
+            toolFormularModel = selectedTool.Clone();
+            toolFormularModel.stationID = selectedStation.stationID;
+            toolReadOnly = false;
+        }
+        else if (selectedTool != null)
+        {
+            toolFormularModel = selectedTool.Clone();
+            toolFormularModel.toolID = selectedTool.toolID;
+            toolFormularModel.stationID = selectedTool.stationID;
+        }
+
+        showToolFormular = true;
+        showOperationFormular = false;
+        showStationFormular = false;
+
+        if (!isNewTool && selectedTool != null && selectedTool.toolID > 0)
+        {
+            SelectionState.SaveSelection(
+                stationID: selectedStation.stationID,
+                toolID: selectedTool.toolID
+            );
+        }
+
+        StateHasChanged();
+    }
+
+
+    public async Task UnlockTool()
+    {
+        if (selectedTool != null && selectedTool.lockedBy == UsernameService.Username && selectedTool.isLocked == true)
+        {
+            selectedTool.isLocked = false;
+            selectedTool.lockedBy = null;
+            await Fassade.UpdateTool(selectedTool);
+
+            await SignalRService.SendMessageToServer($"ToolUnlocked;{selectedTool.toolID}");
+        }
+    }
+
+    public async Task<Tool> CreateDummyTool()
+    {
+        return new Tool
+            {
+                stationID = selectedStation.stationID,
+                toolTypeID = 0,
+                toolClassID = 0,
+                isLocked = false
+            };
+    }
+    #endregion
+
+    #region Operation
+    private IEnumerable<Operation> operations = Enumerable.Empty<Operation>();
+    private IEnumerable<Operation> allOperations;
+    private Operation? selectedOperation;
+
+    private Operation? operationFormularModel; // NEU: Separate Kopie für das Formular
+
+    private IEnumerable<OperationVersion> operationVersions = Enumerable.Empty<OperationVersion>();
+    private bool operationReadOnly = false;
+    private bool showOperationFormular = false;
+    private Operation? pendingOperation;
+    private async Task SelectOperation(Operation operation)
+    {
+       
+        
+            pendingOperation = null;
+            var opsList = allOperations.ToList();
+            var idx = opsList.FindIndex(o => o.operationID == operation.operationID);
+            if (idx >= 0)
+            {
+                var freshOp = await Fassade.GetOperation(operation.operationID);
+                if (freshOp != null)
+                    opsList[idx] = freshOp;
+            }
+            allOperations = opsList.AsEnumerable();
+
+            if (selectedOperation != null && selectedOperation.operationID != operation.operationID)
+                await UnlockOperation();
+
+            selectedOperation = operation;
+            operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != UsernameService.Username;
+
+            await UnlockTool();
+            selectedTool = await Fassade.GetTool(selectedOperation.toolID);
+
+            if (operation.operationID > 0)
+            {
+                SelectionState.SaveSelection(
+                    stationID: selectedStation.stationID,
+                    toolID: selectedTool.toolID,
+                    operationID: operation.operationID
+                );
+            }
+
+            operationVersions = await Fassade.GetOperationVersions(selectedOperation.operationID.Value);
+
+            showOperationFormular = true;
+            showToolFormular = false;
+            showStationFormular = false;
+            CurrentContext = $"{selectedStation.assemblystation};{selectedTool.toolShortname};{selectedOperation.operationShortname}";
+            StateHasChanged();  
+
+        
+    }
+
+    private async Task ToggleOperationFormular(bool isNewOperation)
+    {
+        if (isNewOperation)
+        {
+            await UnlockOperation();
+            await UnlockTool();
+            selectedOperation = await CreateDummyOP();
+            operationFormularModel = selectedOperation.Clone(); // Kopie für neue Operation
+            operationFormularModel.toolID = selectedTool.toolID;
+            operationReadOnly = false;
+        }
+        else if (selectedOperation != null)
+        {
+            // WICHTIG: Kopie erstellen für bestehende Operation
+            operationFormularModel = selectedOperation.Clone();
+            operationFormularModel.operationID = selectedOperation.operationID;
+            operationFormularModel.toolID = selectedOperation.toolID;
+        }
+
+        showOperationFormular = true;
+        showToolFormular = false;
+        showStationFormular = false;
+
+        if (!isNewOperation && selectedOperation != null && selectedOperation.operationID > 0)
+        {
+            SelectionState.SaveSelection(
+                stationID: selectedStation.stationID,
+                toolID: selectedTool.toolID,
+                operationID: selectedOperation.operationID
+            );
+        }
+
+        StateHasChanged();
+    }
+
+    public async Task OnOperationClicked(Operation operation, bool isNewOperation)
+    {
+        await SelectOperation(operation);
+        await ToggleOperationFormular(isNewOperation);
+    }
+
+    public async Task UnlockOperation()
+    {
+        if (selectedOperation != null && selectedOperation.lockedBy == UsernameService.Username && selectedOperation.isLocked == true)
+        {
+            selectedOperation.isLocked = false;
+            selectedOperation.lockedBy = null;
+            await Fassade.UpdateOperation(selectedOperation);
+
+            await SignalRService.SendMessageToServer($"OperationUnlocked;{selectedOperation.operationID}");
+        }
+    }
+
+    public async Task<Operation> CreateDummyOP()
+    {
+        return new Operation
+            {
+                toolID = selectedTool?.toolID,
+                decisionClassID = 1,
+                savingClassID = 1,
+                generationClassID = 1,
+                verificationClassID = 1,
+                qGateID = 1,
+                isLocked = false,
+            };
+    }
+    #endregion
+
+    String uri;
+
+    protected override async Task OnInitializedAsync()
+    {
+        uri = Navigation.Uri;
+
+        UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+
+
+        LifecycleService.OnAppClosing += HandleAppClosingAsync;
+        SignalRService.RegisterResponseHandler(async (string msg) =>
+    {
+        await InvokeAsync(async () =>
+        {
+            if (msg.StartsWith("OperationUnlocked"))
+            {
+                var parts = msg.Split(';');
+                var operationID = int.Parse(parts[1]);
+                var operationList = allOperations.ToList();
+                var idx = operationList.FindIndex(s => s.operationID == operationID);
+                if (idx >= 0)
+                {
+                    var updatedOperation = await Fassade.GetOperation(operationID);
+                    if (updatedOperation != null)
+                    {
+                        operationList[idx] = updatedOperation;
+                        allOperations = operationList.AsEnumerable();
+                        if (showOperationFormular && selectedOperation?.operationID == operationID)
+                        {
+                            selectedOperation = updatedOperation;
+                            operationFormularModel = selectedOperation.Clone();
+                            operationFormularModel.operationID = selectedOperation.operationID;
+                            operationFormularModel.toolID = selectedOperation.toolID;
+                        }
+                        StateHasChanged();
+                    }
+                }
+
+                if ( selectedOperation != null && selectedOperation?.operationID == operationID)
+                {
+                    operationReadOnly = false;
+                }
+            }
+            else if (msg.StartsWith("OperationLocked"))
+            {
+
+                var parts = msg.Split(';');
+                var operationID = int.Parse(parts[1]);
+                var operationList = allOperations.ToList();
+                var idx = operationList.FindIndex(s => s.operationID == operationID);
+                if (idx >= 0)
+                {
+                    var updatedOperation = await Fassade.GetOperation(operationID);
+                    if (updatedOperation != null)
+                    {
+                        operationList[idx] = updatedOperation;
+                        allOperations = operationList.AsEnumerable();
+                        if (showOperationFormular && selectedOperation?.operationID == operationID)
+                        {
+                            selectedOperation = updatedOperation;
+                            operationFormularModel = selectedOperation.Clone();
+                            operationFormularModel.operationID = selectedOperation.operationID;
+                            operationFormularModel.toolID = selectedOperation.toolID;
+                        }
+                        StateHasChanged();
+                    }
+                }
+
+                if ( selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
+
+                {
+
+                    if (selectedOperation != null && selectedOperation?.lockedBy != UsernameService.Username && selectedOperation.operationID == operationID)
+                    {
+                        operationReadOnly = true;
+                    }
+                }
+            }
+            if (msg.StartsWith("ToolUnlocked"))
+            {
+                var parts = msg.Split(';');
+                var toolID = int.Parse(parts[1]);
+
+                var toolList = tools.ToList();
+                var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                if (idx >= 0)
+                {
+
+                    var updatedTool = await Fassade.GetTool(toolID);
+                    if (updatedTool != null )
+                    {
+                        toolList[idx] = updatedTool;
+                        tools = toolList.AsEnumerable();
+                        if (showToolFormular && selectedTool?.toolID == toolID)
+                        {
+                            selectedTool = updatedTool;
+                            toolFormularModel = selectedTool.Clone();
+                            toolFormularModel.toolID = selectedTool.toolID;
+                            toolFormularModel.stationID = selectedTool.stationID;
+
+                        }
+                        StateHasChanged();
+                    }
+
+                }
+
+                if (selectedTool != null && selectedTool?.toolID == toolID)
+                {
+                    toolReadOnly = false;
+                }
+            }
+            else if (msg.StartsWith("ToolLocked"))
+            {
+
+                var parts = msg.Split(';');
+                var toolID = int.Parse(parts[1]);
+
+                var toolList = tools.ToList();
+                var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                if (idx >= 0)
+
+                {
+
+                    var updatedTool = await Fassade.GetTool(toolID);
+                    if (updatedTool != null)
+                    {
+                        toolList[idx] = updatedTool;
+                        tools = toolList.AsEnumerable();
+                        if (showToolFormular && selectedTool?.toolID == toolID)
+                        {
+                            selectedTool = updatedTool;
+                            toolFormularModel = selectedTool.Clone();
+                            toolFormularModel.toolID = selectedTool.toolID;
+                            toolFormularModel.stationID = selectedTool.stationID;
+
+                        }
+                        StateHasChanged();
+                    }
+
+                }
+
+                if (selectedTool != null && selectedTool?.lockedBy != UsernameService.Username && selectedTool.toolID == toolID)
+                {
+                    toolReadOnly = true;
+                }
+            }
+
+            else
+            {
+                switch (msg)
+                {
+                    case var msg when msg.StartsWith("StationUpdated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+
+                            var stationList = stations.ToList();
+                            var idx = stationList.FindIndex(s => s.stationID == stationID);
+
+                            if (idx >= 0)
+                            {
+
+                                var updatedStation = await Fassade.GetStation(stationID);
+                                if (updatedStation != null)
+                                {
+                                    stationList[idx] = updatedStation;
+                                    stations = stationList.AsEnumerable();
+                                    UpdateFilteredStations();
+                                    if (showStationFormular && selectedStation?.stationID == stationID)
+                                    {
+                                        selectedStation = updatedStation;
+                                        stationFormularModel = selectedStation.Clone();
+                                        stationFormularModel.stationID = selectedStation.stationID;
+                                        stationFormularModel.lineID = selectedStation.lineID;
+
+                                    }
+                                    StateHasChanged();
+                                }
+
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("StationCreated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+                            var stationList = stations.ToList();
+
+                            var newStation = await Fassade.GetStation(stationID);
+                            if (newStation != null && !stationList.Any(s => s.stationID == stationID))
+                            {
+                                // Überprüfe, ob die lineID übereinstimmt
+                                if (newStation.lineID == line.lineID)
+                                {
+                                    stationList.Add(newStation);
+                                    stations = stationList.AsEnumerable();
+                                    UpdateFilteredStations();
+
+                                    if (newStation.modifiedBy.Trim() == UsernameService.Username)
+                                    {
+                                        selectedStation = new Station { lineID = line.lineID, stationTypeID = 1 };
+                                        stationFormularModel = selectedStation.Clone();
+                                        stationFormularModel.lineID = selectedStation.lineID;
+                                        tools = Enumerable.Empty<Tool>();
+                                        allOperations = Enumerable.Empty<Operation>();
+                                    }
+                                    StateHasChanged();
+                                }
+                            }
+                            break;
+                        }
+
+
+                    case var msg when msg.StartsWith("StationDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var stationID = int.Parse(parts[1]);
+                            var stationList = stations.ToList();
+
+                            var idx = stationList.FindIndex(s => s.stationID == stationID);
+                            if (idx >= 0)
+                            {
+                                stationList.RemoveAt(idx);
+                                stations = stationList.AsEnumerable();
+                                UpdateFilteredStations();
+
+                                if (selectedStation?.stationID == stationID)
+                                {
+                                    selectedStation = null;
+                                    showStationFormular = false;
+                                }
+                                if (selectedTool?.stationID == stationID && showToolFormular == true)
+                                {
+                                    showToolFormular = false;
+
+                                }
+
+                                var tools1 = await Fassade.GetToolsFromStation(stationID);
+                                if (!tools1.Any(t => t.toolID == selectedOperation?.toolID) && showOperationFormular)
+                                {
+                                    showOperationFormular = false;
+                                }
+
+                                StateHasChanged();
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolUpdated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+
+                            var toolList = tools.ToList();
+                            var idx = toolList.FindIndex(s => s.toolID == toolID);
+
+                            if (idx >= 0)
+                            {
+
+                                var updatedTool = await Fassade.GetTool(toolID);
+                                if (updatedTool != null)
+                                {
+                                    toolList[idx] = updatedTool;
+                                    tools = toolList.AsEnumerable();
+                                    if (showToolFormular && selectedTool?.toolID == toolID)
+                                    {
+                                        selectedTool = updatedTool;
+                                        toolFormularModel = selectedTool.Clone();
+                                        toolFormularModel.toolID = selectedTool.toolID;
+                                        toolFormularModel.stationID = selectedTool.stationID;
+                                    }
+                                }
+                            }
+                            await LoadStatusCountsForAllStations();
+                            StateHasChanged();
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolCreated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+                            var toolList = tools.ToList();
+                            var newTool = await Fassade.GetTool(toolID);
+                            if (selectedStation != null && newTool != null && !toolList.Any(s => s.toolID == toolID) && newTool.stationID == selectedStation.stationID)
+                            {
+                                toolList.Add(newTool);
+                                tools = toolList.AsEnumerable();
+
+
+                                if(newTool.modifiedBy == UsernameService.Username)
+                                {
+                                    selectedTool = await CreateDummyTool();
+                                    toolFormularModel = selectedTool.Clone();
+                                    toolFormularModel.stationID = selectedStation.stationID;
+                                }
+                            }
+                            await LoadStatusCountsForAllStations();
+                            StateHasChanged();
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var toolID = int.Parse(parts[1]);
+                            var toolList = tools.ToList();
+                            var idx = toolList.FindIndex(s => s.toolID == toolID);
+                            if (idx >= 0)
+                            {
+                                toolList.RemoveAt(idx);
+                                tools = toolList.AsEnumerable();
+                                if (selectedTool?.toolID == toolID)
+                                {
+                                    selectedTool = null;
+                                    showToolFormular = false;
+                                }
+                                if(selectedOperation?.toolID == toolID && showOperationFormular == true)
+                                {
+                                    showOperationFormular = false;
+                                }
+                            }
+                            await LoadStatusCountsForAllStations();
+                            
+                            StateHasChanged();
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("ToolClassChanged;"):
+                        {
+                            var id = msg.Split(';')[1];
+                            var operations = Enumerable.Empty<Operation>();
+                            if (selectedTool != null)
+                            {
+                                operations = await Fassade.GetOperationsFromTool(selectedTool.toolID);
+                            }
+                            if (operations != null)
+                            {
+                                foreach (var op in operations)
+                                {
+                                    op.decisionClassID = 1;
+                                    op.verificationClassID = 0;
+                                    op.savingClassID = 1;
+                                    op.generationClassID = 1;
+                                    await Fassade.UpdateOperation(op);
+                                    var operationID = op.operationID;
+                                    var operationList = allOperations.ToList();
+                                    var idx = operationList.FindIndex(s => s.operationID == operationID);
+                                    if (idx >= 0)
+                                    {
+                                        var updatedOperation = await Fassade.GetOperation(operationID);
+                                        if (updatedOperation != null)
+                                        {
+                                            operationList[idx] = updatedOperation;
+                                            allOperations = operationList.AsEnumerable();
+                                            if (showOperationFormular && selectedOperation?.operationID == operationID)
+                                            {
+                                                selectedOperation = updatedOperation;
+                                                operationFormularModel = selectedOperation.Clone();
+                                                operationFormularModel.operationID = selectedOperation.operationID;
+                                                operationFormularModel.toolID = selectedOperation.toolID;
+                                            }
+                                           
+                                        }
+                                    }
+                                }
+
+                            }
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("OperationUpdated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = allOperations.ToList();
+                            var idx = operationList.FindIndex(s => s.operationID == operationID);
+                            if (idx >= 0)
+                            {
+                                var updatedOperation = await Fassade.GetOperation(operationID);
+                                if (updatedOperation != null)
+                                {
+                                    operationList[idx] = updatedOperation;
+                                    allOperations = operationList.AsEnumerable();
+                                    if (showOperationFormular && selectedOperation?.operationID == operationID)
+                                    {
+                                        selectedOperation = updatedOperation;
+                                        operationFormularModel = selectedOperation.Clone();
+                                        operationFormularModel.operationID = selectedOperation.operationID;
+                                        operationFormularModel.toolID = selectedOperation.toolID;
+                                    }
+                                }
+                            }
+                            await LoadStatusCountsForAllTools();
+                            StateHasChanged();
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("OperationCreated;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = allOperations.ToList();
+                            var newOperation = await Fassade.GetOperation(operationID);
+                            if (newOperation != null && !operationList.Any(s => s.operationID == operationID))
+                            {
+                                operationList.Add(newOperation);
+                                allOperations = operationList.AsEnumerable();
+
+
+                                if(newOperation.modifiedBy == UsernameService.Username)
+                                {
+                                    selectedOperation = await CreateDummyOP();
+                                    operationFormularModel = selectedOperation.Clone();
+                                    operationFormularModel.toolID = selectedTool.toolID;
+                                }
+                            }
+                            await LoadStatusCountsForAllTools();
+                            StateHasChanged();
+                            break;
+                        }
+
+                    case var msg when msg.StartsWith("OperationDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var operationID = int.Parse(parts[1]);
+                            var operationList = allOperations.ToList();
+                            var idx = operationList.FindIndex(s => s.operationID == operationID);
+                            if (idx >= 0)
+                            {
+                                operationList.RemoveAt(idx);
+                                allOperations = operationList.AsEnumerable();
+                                if (selectedOperation?.operationID == operationID)
+                                {
+                                    selectedOperation = null;
+                                    showOperationFormular = false;
+                                }
+                                StateHasChanged();
+                            }
+                            await LoadStatusCountsForAllTools();
+                            StateHasChanged();
+                            break;
+                        }
+
+
+
+
+
+                    case var msg when msg.StartsWith("LineDeleted;"):
+                        {
+                            var parts = msg.Split(';');
+                            var lineID = int.Parse(parts[1]);
+                            if (line != null)
+                            {
+                                var stillExists = await Fassade.GetLine(lineID);
+                                if (stillExists == null && line.lineID == lineID)
+                                {
+
+                                    NavState.SetCurrentRoute("/");
+                                    Navigation.NavigateTo("/", replace: true);
+                                    return;
+                                }
+                            }
+                            break;
+                        }
+
+                }
+            }
+            StateHasChanged();
+        });
+    });
+        // 2) Starte die Verbindung
+        await SignalRService.StartConnectionAsync();
+
+        line = await Fassade.GetLineByName(lineName);
+
+        if (line == null)
+        {
+            // Line existiert nicht (mehr) - zur Home navigieren
+            NavState.SetCurrentRoute("/");
+            Navigation.NavigateTo("/", replace: true);
+            return;
+        }
+
+        stations = await Fassade.GetStationsFromLine(line.lineID);
+        UpdateFilteredStations();
+        if (stations != null)
+        {
+            stations = await Fassade.GetStationsFromLine(line.lineID);
+            UpdateFilteredStations();
+            filteredStations = stations;
+
+
+
+            var favoriteStationNames = UsernameService.LoadStationList();
+            var myline = await Fassade.GetLineByName(lineName);
+            foreach (var name in favoriteStationNames)
+            {
+                var station = await Fassade.GetStationByName(myline.lineID, name);
+                if (station != null)
+                {
+                    var starStationsList = starStations.ToList();
+
+                    starStationsList.Add(station);
+                    starStations = starStationsList;
+                }
+            }
+
+
+            if (stations != null)
+            {
+                allOperations = await Fassade.GetAllOperations();
+
+            }
+            SelectionState savedSelection = SelectionState.GetSavedSelection();
+            await RestoreSavedSelection(savedSelection);
+            await LoadStatusCountsForAllStations();
+            await LoadStatusCountsForAllTools();
+        }
+
+        NavState.SetCurrentRoute($"/line/{lineName}");
+    }
+
+    #region Clone
+    private Tool? copiedTool;
+    private List<Operation> copiedOperations;
+    private Operation? copiedOperation;
+    public async Task CloneTool(Tool copied)
+    {
+        if (copiedOperation != null) copiedOperation = null;
+        copiedTool = Fassade.Clone(copied);
+        copiedTool.isLocked = false;
+        copiedTool.lockedBy = null;
+        copiedTool.lockTimestamp = null;
+        copiedOperations = (await Fassade.GetOperationsFromTool(copied.toolID)).Select(op => op.Clone()).ToList();
+    }
+
+    public void CloneOperation(Operation copied)
+    {
+        if (copiedTool != null) copiedTool = null;
+        copiedOperation = Fassade.Clone(copied);
+        copiedOperation.isLocked = false;
+        copiedOperation.lockedBy = null;
+        copiedOperation.lockTimestamp = null;
+    }
+
+    public async Task InsertTool()
+    {
+        copiedTool.stationID = selectedStation.stationID;
+
+
+        tools = await Fassade.GetToolsFromStation(copiedTool.stationID);
+        if (tools.Any(t => t.toolShortname == copiedTool.toolShortname))
+        {
+            string baseName = copiedTool.toolShortname;
+            int copyIndex = 1;
+            string newName;
+
+            do
+            {
+                newName = $"{baseName}({copyIndex})";
+                copyIndex++;
+            }
+            while (tools.Any(t => t.toolShortname == newName));
+
+            copiedTool.toolShortname = newName;
+        }
+
+
+        await Fassade.AddTool(copiedTool);
+
+
+        copiedTool = await Fassade.GetToolByName(copiedTool.toolShortname, selectedStation.stationID.Value);
+        await SignalRService.SendMessageToServer($"ToolCreated;{copiedTool.toolID}");
+        foreach(var operation in copiedOperations)
+        {
+            operation.toolID = copiedTool.toolID;
+            await Fassade.AddOperation(operation);
+            var signalOperation = await Fassade.GetOperationByName(operation.operationShortname, copiedTool.toolID.Value);
+            await SignalRService.SendMessageToServer($"OperationCreated;{signalOperation.operationID}");
+        }
+
+        await DirtyManagerService.setClean();
+
+
+
+        copiedTool = null;
+
+
+    }
+
+
+    public async Task InsertOperation()
+    {
+        copiedOperation.toolID = selectedTool.toolID;
+
+
+        operations = await Fassade.GetOperationsFromTool(copiedOperation.toolID);
+        if (operations.Any(t => t.operationShortname == copiedOperation.operationShortname))
+        {
+            string baseName = copiedOperation.operationShortname;
+            int copyIndex = 1;
+            string newName;
+
+            do
+            {
+                newName = $"{baseName}({copyIndex})";
+                copyIndex++;
+            }
+            while (operations.Any(t => t.operationShortname == newName));
+
+            copiedOperation.operationShortname = newName;
+        }
+
+        await Fassade.AddOperation(copiedOperation);
+        copiedOperation = await Fassade.GetOperationByName(copiedOperation.operationShortname, selectedTool.toolID.Value);
+        await SignalRService.SendMessageToServer($"OperationCreated;{copiedOperation.operationID}");
+        await DirtyManagerService.setClean();
+
+
+
+        copiedOperation = null;
+    }
+    #endregion
+
+    #region Drag
+    private bool _initialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("keyboardHandler.addKeyListener", objRef);
+
+            // Initialize drag and drop for stations
+            await JS.InvokeVoidAsync("initializeStationDragDrop");
+
+            // Set up the callback for when elements are reordered
+            await JS.InvokeVoidAsync("eval", @"
+            window.onElementReordered = function(elementType, newOrder) {
+                console.log('New ' + elementType + ' order:', newOrder);
+
+                // Call appropriate Blazor method based on element type
+                switch(elementType) {
+                    case 'station':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleStationReorder', newOrder);
+                        break;
+                    case 'tool':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleToolReorder', newOrder);
+                        break;
+                    case 'operation':
+                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleOperationReorder', newOrder);
+                        break;
+                }
+            };
+        ");
+        }
+        // Initialize tool and operation drag and drop when they become available
+        if (selectedStation != null && tools.Any())
+        {
+            await JS.InvokeVoidAsync("initializeToolDragDrop");
+        }
+
+        if (selectedTool != null && allOperations.Any(op => op.toolID == selectedTool.toolID))
+        {
+            await JS.InvokeVoidAsync("initializeOperationDragDrop");
+        }
+    }
+    [JSInvokable]
+    public static async Task HandleStationReorder(string[] newOrder)
+    {
+        // Handle the new order - save to database, update state, etc.
+        Console.WriteLine($"Stations reordered: {string.Join(", ", newOrder)}");
+
+        // Example: Update your stations collection based on the new order
+        // You would need to implement this based on your specific requirements
+    }
+
+    [JSInvokable]
+    public static async Task HandleToolReorder(string[] newOrder)
+    {
+        Console.WriteLine($"Tools reordered: {string.Join(", ", newOrder)}");
+        // Implement your tool reordering logic here
+        // Example: Update tool order in database
+    }
+
+    [JSInvokable]
+    public static async Task HandleOperationReorder(string[] newOrder)
+    {
+        Console.WriteLine($"Operations reordered: {string.Join(", ", newOrder)}");
+        // Implement your operation reordering logic here
+        // Example: Update operation sequence in database
+    }
+    #endregion
+
+    #region Badge
+
+
+    private static string GetStatusIcon1(Status status)
+    {
+        return status switch
+        {
+            Status.Green => Icons.Material.Filled.FiberManualRecord,
+            Status.Yellow => Icons.Material.Filled.FiberManualRecord,
+            Status.Red => Icons.Material.Filled.FiberManualRecord,
+            _ => Icons.Material.Filled.FiberManualRecord
+        };
+    }
+
+    private static string GetStatusIcon(Status status)
+    {
+        return status switch
+        {
+            Status.Green => Icons.Material.Filled.DoneAll,
+            Status.Yellow => Icons.Material.Filled.ReportProblem,
+            Status.Red => Icons.Material.Filled.Cancel,
+            _ => Icons.Material.Filled.Help
+        };
+    }
+
+    private static Color GetStatusColor(Status status)
+    {
+        return status switch
+        {
+            Status.Green => Color.Success,
+            Status.Yellow => Color.Warning,
+            Status.Red => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+
+    private async Task SetStatus(object? o, Status neuerStatus)
+    {
+
+        if(o is Operation operation)
+        {
+            operation.Status = neuerStatus;
+            if(!await Fassade.UpdateOperation(operation)) return;
+            await SignalRService.SendMessageToServer($"OperationUpdated;{operation.operationID}");
+            StateHasChanged();
+
+        }
+        else if (o is Tool tool)
+        {
+            tool.Status = neuerStatus;
+            if (!await Fassade.UpdateTool(tool)) return;
+            await SignalRService.SendMessageToServer($"ToolUpdated;{tool.toolID}");
+            StateHasChanged();
+        }
+        else if (o is Station station)
+        {
+            station.Status = neuerStatus;
+            if (!await Fassade.UpdateStation(station)) return;
+            await SignalRService.SendMessageToServer($"StationUpdated;{station.stationID}");
+            StateHasChanged();
+
+        }
+
+
+    }
+
+    private Dictionary<int, (int Red, int Yellow, int Green, int Undefined)> StationStatusCounts = new();
+    private async Task LoadStatusCountsForAllStations()
+    {
+        var Stationslist = stations.ToList();
+        var tasks = Stationslist.Select(async station =>
+        {
+            var (undefined, red, yellow, green) = await Fassade.GetStatusCountsForStationAsync(station.stationID.Value);
+            StationStatusCounts[station.stationID.Value] = (Red: red, Yellow: yellow, Green: green, Undefined: undefined);
+        });
+
+        await Task.WhenAll(tasks);
+    }
+
+    private Dictionary<int, (int Red, int Yellow, int Green, int Undefined)> ToolStatusCounts = new();
+    private async Task LoadStatusCountsForAllTools()
+    {
+        var ToolList = tools.ToList();
+        var tasks = ToolList.Select(async tool =>
+        {
+            var (undefined, red, yellow, green) = await Fassade.GetStatusCountsForTool(tool.toolID.Value);
+            ToolStatusCounts[tool.toolID.Value] = (Red: red, Yellow: yellow, Green: green, Undefined: undefined);
+        });
+        await Task.WhenAll(tasks);
+    }
+    #endregion
+
+    #region Restore Selection
+
+    private async Task RestoreSavedSelection(SelectionState savedSelection)
+    {
+        if (savedSelection.StationID.HasValue)
+        {
+            var station = stations.FirstOrDefault(s => s.stationID == savedSelection.StationID.Value);
+            if (station != null)
+            {
+
+                selectedStation = station;
+                stationFormularModel = station.Clone();
+                stationFormularModel.lineID = selectedStation.lineID;
+                stationFormularModel.stationID = selectedStation.stationID;
+                tools = await Fassade.GetToolsFromStation(station.stationID);
+
+                if (savedSelection.ToolID.HasValue)
+                {
+                    var tool = tools.FirstOrDefault(t => t.toolID == savedSelection.ToolID.Value);
+                    if (tool != null)
+                    {
+                        selectedTool = tool;
+
+                        toolFormularModel = tool.Clone();
+                        toolFormularModel.stationID = selectedTool.stationID;
+                        toolFormularModel.toolID = selectedTool.toolID;
+
+                        toolReadOnly = (selectedTool.isLocked ?? false) && tool.lockedBy != UsernameService.Username;
+
+
+                        if (savedSelection.OperationID.HasValue)
+                        {
+                            var operation = allOperations.FirstOrDefault(o => o.operationID == savedSelection.OperationID.Value);
+                            if (operation != null && operation.toolID == tool.toolID)
+                            {
+                                selectedOperation = operation;
+
+                                operationFormularModel = operation.Clone();
+                                operationFormularModel.operationID = selectedOperation.operationID;
+                                operationFormularModel.toolID = selectedOperation.toolID;
+
+                                operationReadOnly = (selectedOperation.isLocked ?? false) && operation.lockedBy != UsernameService.Username;
+
+
+                                // Operation-Formular anzeigen
+                                showOperationFormular = true;
+                                showToolFormular = false;
+                                showStationFormular = false;
+                                expandedTools.Add(operation.toolID.Value);
+                            }
+                        }
+                        else
+                        {
+
+                            selectedOperation = await CreateDummyOP();
+
+                            // Tool-Formular anzeigen
+                            showToolFormular = true;
+                            showOperationFormular = false;
+                            showStationFormular = false;
+                        }
+                    }
+                }
+                else
+                {
+
+                    selectedTool = await CreateDummyTool();
+                    selectedOperation = await CreateDummyOP();
+
+                    // Station-Formular anzeigen - Das war der fehlende Teil!
+                    showStationFormular = true;
+                    showToolFormular = false;
+                    showOperationFormular = false;
+                }
+
+                StateHasChanged();
+            }
+        }
+    }
+
+
+    #endregion
+
+    private async Task HandleAppClosingAsync()
+    {
+        // Hier dein UnlockTool() aufrufen oder Warnung anzeigen
+        await UnlockTool();
+        await UnlockOperation();
+
+        if (selectedStation != null)
+        {
+            SelectionState.SaveSelection(
+                stationID: selectedStation.stationID,
+                toolID: selectedTool?.toolID,
+                operationID: selectedOperation?.operationID
+            );
+        }
+
+    }
+
+    public void Dispose()
+    {
+        UsernameService.PropertyChanged -= (_, __) => InvokeAsync(StateHasChanged);
+    }
+
+
+    #region Settings
+    private void OpenSettings()
+    {
+        if (ShowSettings) return;
+        ShowSettings = true;
+    }
+
+    private void CloseSetting()
+    {
+        ShowSettings = false;
+    }
+    #endregion
+
+
+    #region n
+    private string SidebarPaperClass => $"{SidebarClass} border-end mud-width-full";
+
+    #endregion
+
+    private bool _open = true;
+
+    private void ToggleDrawer()
+    {
+        _open = !_open;
+    }
+
+
+
+
+    private async Task DeleteTool(Tool tool)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+    {
+        { x => x.ContentText, Language.ToolDeleteText1 + " " + tool.toolShortname + Language.ToolDeleteText2},
+        { x => x.ButtonText, Language.Delete },
+        { x => x.Color, Color.Error }
+    };
+
+        var options = new DialogOptions()
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                CloseOnEscapeKey = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>(Language.DeleteProject, parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                await Fassade.DeleteTool(tool);
+
+
+                await SignalRService.SendMessageToServer($"ToolDeleted;{tool.toolID}");
+                await DirtyManagerService.setClean();
+                Snackbar.Add(Language.Tool + " " + tool.toolShortname + Language.HasBeenDeleted, Severity.Success);
+                //  if (showOperationFormular == true) showOperationFormular = false;
+               
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+
+
+    private async Task DeleteOperation(Operation operation)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+    {
+        { x => x.ContentText, Language.OperationDeleteText1 + " " + operation.operationShortname + Language.ToolDeleteText2},
+        { x => x.ButtonText, Language.Delete },
+        { x => x.Color, Color.Error }
+    };
+
+        var options = new DialogOptions()
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                CloseOnEscapeKey = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>(Language.DeleteProject, parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                await Fassade.DeleteOperation(operation);
+
+
+                await SignalRService.SendMessageToServer($"OperationDeleted;{operation.operationID}");
+                await DirtyManagerService.setClean();
+                 Snackbar.Add(Language.Operation +" "+ operation.operationShortname + Language.HasBeenDeleted, Severity.Success);
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+
+
+
+    private async Task DeleteStation(Station station)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+    {
+        { x => x.ContentText, Language.StationDeleteText1 + " "  + station.assemblystation + Language.ToolDeleteText2},
+        { x => x.ButtonText, Language.Delete},
+        { x => x.Color, Color.Error }
+    };
+
+        var options = new DialogOptions()
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                CloseOnEscapeKey = true
+            };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>(Language.DeleteProject, parameters, options);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            try
+            {
+                await Fassade.DeleteStation(station);
+
+
+                await SignalRService.SendMessageToServer($"StationDeleted;{station.stationID}");
+                await DirtyManagerService.setClean();
+                Snackbar.Add(Language.Station +" "+ station.assemblystation + Language.HasBeenDeleted, Severity.Success);
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }
+
+
+
+
+
+
+    private DotNetObjectReference<Project>? objRef;
+
+    private object? selectedItem;
+
+    void SelectItem(object? item)
+    {
+        selectedItem = item;
+        StateHasChanged(); // UI aktualisieren
+    }
+    // JavaScript-aufrufbare Methoden
+    [JSInvokable]
+    public async Task<bool> HandleCtrlC()
+    {
+        if (selectedItem != null)
+        {
+            if (selectedItem is Station) return false;
+            if (selectedItem is Tool tool)
+            {
+                if (await Fassade.ToolExistsByName(tool.toolShortname) == true)
+                {
+                    CloneTool(tool);
+                    Snackbar.Add(Language.Tool + " " + tool.toolShortname + Language.HasBeenCopied, Severity.Success);
+                    StateHasChanged();
+                    return true;
+                }
+            }
+            else if (selectedItem is Operation operation)
+            {
+                if (await Fassade.OperationExistsByName(operation.operationShortname) == true)
+                {
+                    CloneOperation(operation);
+                    Snackbar.Add(Language.Operation +" "+ operation.operationShortname + Language.HasBeenCopied, Severity.Success);
+                    StateHasChanged();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    [JSInvokable]
+    public async Task<bool> HandleCtrlV()
+    {
+
+        if (copiedOperation != null && selectedItem is Tool toolForOperation)
+        {
+            await SelectTool(toolForOperation);
+            await InsertOperation();
+            Snackbar.Add(Language.OperationHasBeenAdded, Severity.Success);
+            selectedItem = null;
+            StateHasChanged();
+            return true;
+        }
+        else if (copiedTool != null)
+        {
+            await InsertTool();
+            Snackbar.Add(Language.ToolHasBeenAdded, Severity.Success);
+            selectedItem = null;
+            StateHasChanged();
+            return true;
+        }
+
+        return false;
+    }
+
+
+    [JSInvokable]
+    public async Task<bool> HandleDelete()
+    {
+        if (selectedItem != null)
+        {
+            if(selectedItem is Tool tool)
+            {
+                await DeleteTool(tool);
+                selectedItem = null;
+                return true;
+            }
+            else if (selectedItem is Operation operation)
+            {
+                await DeleteOperation(operation);
+                selectedItem = null;
+                return true;
+            }
+            else if (selectedItem is Station station)
+            {
+                await DeleteStation(station);
+                selectedItem = null;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    [JSInvokable]
+    public async Task HandleEscape()
+    {
+        /*  selectedTool = null;
+        selectedOperation = null;
+        Snackbar.Add("Auswahl aufgehoben", Severity.Info);
+        StateHasChanged();*/
+    }
+
+    // Cleanup beim Dispose
+    public async ValueTask DisposeAsync()
+    {
+        if (objRef != null)
+        {
+            await JS.InvokeVoidAsync("keyboardHandler.removeKeyListener");
+            objRef.Dispose();
+        }
+    }
+
+
+
+    #region navCop
+
+    String uriInput;
+
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await RouteN();
+        }
+    }
+
+    public async Task RouteN(){
+        if(uriInput == null) return;
+
+        var uriS = uriInput.Split(";");
+
+
+        Navigation.NavigateTo(uriS[0], replace: true);
+        NavState.SetCurrentRoute(uriS[0]);
+        try {
+            if(uriS[1]== null) return;
+
+            SelectionState? restoredState = JsonSerializer.Deserialize<SelectionState>(uriS[1]);
+
+            if(restoredState== null) return;
+
+            await RestoreSavedSelection(restoredState);
+            StateHasChanged();
+
+
+            Navigation.NavigateTo("/", replace: true);
+            Navigation.NavigateTo(uriS[0], replace: true);
+        } catch {
+
+        }
+
+    }
+
+
+
+
+    public static string ResetSelection(string input, string newJson)
+    {
+
+        int separatorIndex = input.IndexOf(';');
+
+        if (separatorIndex >= 0)
+        {
+
+            string uri = input.Substring(0, separatorIndex);
+            return $"{uri};{newJson}";
+        }
+        else
+        {
+
+            return $"{input};{newJson}";
+        }
+    }
+
+
+    private async Task CopyUriToClipboard()
+    {
+        // nutzt das Clipboard-API des Browsers
+        SelectionState savedSelection = SelectionState.GetSavedSelection();
+
+        SelectionState.SaveSelection(savedSelection.StationID, savedSelection.ToolID, savedSelection.OperationID);
+
+        String savedSelectionJson = JsonSerializer.Serialize(savedSelection);
+        uri = ResetSelection(uri, savedSelectionJson);
+
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", uri);
+        
+        Snackbar.Add(Language.UrlCopied, Severity.Success);
+    }
+
+
+    #endregion
+
+
+
+
+    private string CurrentContext { get; set; } = "";
+
+
+    private async Task OnHomeButtonClicked() {
+    
+    }
+}
+

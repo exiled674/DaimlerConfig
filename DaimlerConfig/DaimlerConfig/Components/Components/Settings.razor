@@ -1,0 +1,1341 @@
+﻿@page "/settings"
+
+@using System.Diagnostics
+@using Microsoft.Extensions.Configuration
+@using System.IO
+@using System.Text.Json
+@using System.Text.Json.Nodes
+@using DaimlerConfig.Components.Models
+@using DaimlerConfig.Security
+@using DaimlerConfig.Services
+
+@inject IConfiguration Configuration
+@inject AppStartupValidationService ValidationService
+@inject SettingsValidationService SettingsValidation
+@inject UsernameService UsernameS
+@inject LanguageLoad LangLoader
+
+<div class="settings-overlay">
+    <div class="settings-container">
+        <!-- Header -->
+        <div class="settings-header">
+            <div class="header-content">
+                <MudIcon Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" Size="Size.Small" Class="mr-2" />
+                <MudText Typo="Typo.h6" Class="header-title">@Language.Settings</MudText>
+            </div>
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Color="Color.Default"
+                           Size="Size.Small"
+                           OnClick="@CloseSomething"
+                           Disabled="@isEditMode"
+                           Class="close-btn"
+                           aria-label="Close" />
+        </div>
+
+        <!-- Content -->
+        <div class="settings-content" >
+            @if (ValidationService.HasErrors)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3 compact-alert">
+                    <MudText Typo="Typo.body2">@ValidationService.ErrorMessage</MudText>
+                </MudAlert>
+            }
+
+            <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" 
+                      PanelClass="tab-content" Class="settings-tabs"
+                     ActiveTabClass="settings-tabs-active"
+                     HeaderClass="tabs-header">
+                
+                <!-- General Tab -->
+                <MudTabPanel Icon="@Icons.Material.Filled.Person" Text="@Language.General"  Style="min-width: 128px">
+                    <div class="tab-panel">
+                        <div class="tab-panel-content">
+                          <!-- Profile Section -->
+                            <div class="settings-section">
+                                <div class="section-header">
+                                    <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Primary" Size="Size.Small" />
+                                    <MudText Typo="Typo.subtitle1" Class="section-title">@Language.Username</MudText>
+                                </div>
+    
+                                <div class="profile-container-vertical">
+                                    @* <div class="avatar-section-centered">
+                                        <MudAvatar Size="Size.Large" Style="@GetAvatarStyle()">
+                                            <MudText Typo="Typo.body1">@GetUserInitial()</MudText>
+                                        </MudAvatar>
+                                        <MudText Typo="Typo.caption" Class="avatar-label">@GetDisplayUsernameForUI()</MudText>
+                                    </div> *@
+        
+                                    <div class="profile-input-row">
+                                        <MudTextField @bind-Value="_newUsername"
+                                                      Label="@Language.Username"
+                                                      Placeholder="@Language.EnterUsername"
+                                                      Variant="Variant.Outlined"
+                                                      @oninput="OnUsernameInput"
+                                                      Margin="Margin.Dense"
+                                                      Class="compact-input username-input" />
+                                        <MudTooltip Text="@Language.Reset"
+                                                            Arrow="true" 
+                                                            Placement="Placement.Right"  >
+                                            <MudIconButton Icon="@Icons.Material.Filled.Refresh"
+                                                           Color="Color.Secondary"
+                                                           Size="Size.Small"
+                                                           OnClick="ResetToWindowsName"
+                                                           Class="reset-icon-btn" />
+                                        </MudTooltip>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Language Section -->
+                            <div class="settings-section">
+                                <div class="section-header">
+                                    <MudIcon Icon="@Icons.Material.Filled.Language" Color="Color.Primary" Size="Size.Small" />
+                                    <MudText Typo="Typo.subtitle1" Class="section-title">@Language.LanguageText</MudText>
+                                </div>
+    
+                                <div class="language-input-row">
+                                    <MudSelect T="string" 
+                                               Label="@Language.LanguageSelect" 
+                                               Value="@LangLoader.SelectedLanguage"
+                                               ValueChanged="OnLanguageChanged"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense"
+                                               Class="compact-input language-select">
+                                        @foreach (var lang in LangLoader.AvailableLanguages)
+                                        {
+                                            <MudSelectItem Value="@lang">@lang.ToUpper()</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                    <MudTooltip Text="@Language.OpenLangFolder"
+                                                       Arrow="true" 
+                                                       Placement="Placement.Right"  >
+                                        <MudIconButton Icon="@Icons.Material.Filled.FolderOpen"
+                                                       Color="Color.Secondary"
+                                                       Size="Size.Small"
+                                                       OnClick="OpenLanguageFolder"
+                                                       Class="folder-icon-btn" />
+                                    </MudTooltip>
+                                </div>
+                            </div>     
+                    </div>
+                    </div>
+                    <!-- Save Button -->
+                     <div class="sticky-action-bar">
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.Save"
+                                       Size="Size.Small"
+                                       OnClick="async () => {
+                                                    await SaveGeneralSettings();
+                                                    await ChangeUsername();
+                                                }"
+                                       Class="save-btn">
+                                @Language.SaveSettings
+                            </MudButton>
+                        </div>
+
+                </MudTabPanel>
+                   
+
+                <!-- Connection Tab -->
+<MudTabPanel Icon="@Icons.Material.Filled.Storage" Text="@Language.ConnectionSettings">
+    <div class="tab-panel">
+        @if (validationErrors.Any())
+        {
+            @foreach (var error in validationErrors)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-2 compact-alert">
+                    <MudText Typo="Typo.body2">@error</MudText>
+                </MudAlert>
+            }
+        }
+
+        @if (isValidating)
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-2 compact-alert">
+                <div class="d-flex align-center">
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    <MudText Typo="Typo.body2">@Language.ValidatingConnection</MudText>
+                </div>
+            </MudAlert>
+        }
+
+        @if (hasError)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-2 compact-alert">
+                <MudText Typo="Typo.body2"><strong>@Language.ErrorOccured</strong> @errorMessage</MudText>
+            </MudAlert>
+        }
+        else if (isLoading)
+        {
+            <div class="loading-state">
+                <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+                <MudText Typo="Typo.body2" Class="ml-2">@Language.LoadingSettings</MudText>
+            </div>
+        }
+        else
+        {
+            <!-- Database Connection Section -->
+            <div class="settings-section">
+                <div class="section-header">
+                            <MudIcon Icon="@Icons.Material.Filled.Storage" Color="Color.Primary" Size="Size.Small" />
+    
+                            <MudText Typo="Typo.subtitle1" Class="section-title">@Language.DatabaseConnection</MudText>
+    
+                            @if (!isEditMode)
+                            {
+                                <MudTooltip Text="Locked" 
+                                            Arrow="true" 
+                                            Placement="Placement.Right"                                           
+                                            ShowOnHover="true"
+                                            ShowOnFocus="true">
+                                    <MudIcon Icon="@Icons.Material.Filled.Lock"
+                                             Color="Color.Secondary"
+                                             Size="Size.Small"
+                                             Class="ml-auto lock-icon" />
+                                </MudTooltip>
+                            }
+                        </div>
+
+                <!-- Server & Port Row -->
+                <div class="connection-input-row">
+                    <MudTextField @bind-Value="serverIp"
+                                  Label="@Language.ServerIp"
+                                  Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                  ReadOnly="@(!isEditMode)"
+                                  OnKeyUp="OnFieldChanged"
+                                  Margin="Margin.Dense"
+                                  Class="compact-input connection-field-primary" />
+                    <MudNumericField @bind-Value="port"
+                                     Label="@Language.Port"
+                                     Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                     ReadOnly="@(!isEditMode)"
+                                     OnKeyUp="OnFieldChanged"
+                                     Margin="Margin.Dense"
+                                     Class="compact-input connection-field-secondary" />
+                </div>
+
+                <!-- Database Name -->
+                <div class="connection-input-row">
+                    <MudTextField @bind-Value="initialCatalog"
+                                  Label="@Language.InitialCatalog"
+                                  Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                  ReadOnly="@(!isEditMode)"
+                                  OnKeyUp="OnFieldChanged"
+                                  Margin="Margin.Dense"
+                                  Class="compact-input connection-field-full" />
+                </div>
+
+                <!-- User & Password Row -->
+                <div class="connection-input-row">
+                    <MudTextField @bind-Value="userId"
+                                  Label="@Language.UserId"
+                                  Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                  ReadOnly="@(!isEditMode)"
+                                  OnKeyUp="OnFieldChanged"
+                                  Margin="Margin.Dense"
+                                  Class="compact-input connection-field-primary" />
+                    <div class="password-field-container">
+                        <MudTextField @bind-Value="password"
+                                      Label="@Language.Password"
+                                      Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                      InputType="@(showPassword ? InputType.Text : InputType.Password)"
+                                      ReadOnly="@(!isEditMode)"
+                                      OnKeyUp="OnFieldChanged"
+                                      Margin="Margin.Dense"
+                                      Class="compact-input connection-field-secondary" />
+                        @if (isEditMode)
+                        {
+                            <MudTooltip Text="@(showPassword ? "Hide Password" : "Show Password")" Placement="Placement.Top">
+                                <ChildContent>
+                                    <MudIconButton Icon="@(showPassword ? @Icons.Material.Filled.VisibilityOff : @Icons.Material.Filled.Visibility)"
+                                                   Color="Color.Secondary"
+                                                   Size="Size.Small"
+                                                   OnClick="TogglePasswordVisibility"
+                                                   Class="password-toggle-btn" />
+                                </ChildContent>
+                            </MudTooltip>
+                        }
+                    </div>
+                </div>
+
+                <!-- Timeout -->
+                <div class="connection-input-row">
+                    <MudNumericField @bind-Value="connectionTimeout"
+                                     Label="@Language.Timeout"
+                                     Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                     ReadOnly="@(!isEditMode)"
+                                     OnKeyUp="OnFieldChanged"
+                                     Margin="Margin.Dense"
+                                     Class="compact-input connection-field-full" />
+                </div>
+            </div>
+
+            <!-- Connection Options Section -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <MudIcon Icon="@Icons.Material.Filled.Tune" Color="Color.Primary" Size="Size.Small" />
+                    <MudText Typo="Typo.subtitle1" Class="section-title">@Language.ConnectionOptions</MudText>
+
+
+                    @if (!isEditMode)
+                            {
+                                <MudTooltip Text="Locked" 
+                                            Arrow="true" 
+                                            Placement="Placement.Right"  
+                                            ShowOnHover="true"
+                                            ShowOnFocus="true">
+                                    <MudIcon Icon="@Icons.Material.Filled.Lock"
+                                             Color="Color.Secondary"
+                                             Size="Size.Small"
+                                             Class="ml-auto lock-icon" />
+                                </MudTooltip>
+                            }
+                </div>
+                
+                <div class="connection-options-grid">
+                    <MudCheckBox T="bool"
+                                 @bind-Value="persistSecurityInfo"
+                                 @bind-Value:after="OnFieldChanged"
+                                 Label="@Language.PersistSecurityInfo"
+                                 ReadOnly="@(!isEditMode)"
+                                 Color="Color.Primary"
+                                 Size="Size.Small"
+                                 Class="connection-checkbox" />
+                    <MudCheckBox T="bool"
+                                 @bind-Value="multipleActiveResultSets"
+                                 @bind-Value:after="OnFieldChanged"
+                                 Label="@Language.Mars"
+                                 ReadOnly="@(!isEditMode)"
+                                 Color="Color.Primary"
+                                 Size="Size.Small"
+                                 Class="connection-checkbox" />
+                    <MudCheckBox T="bool"
+                                 @bind-Value="encrypt"
+                                 @bind-Value:after="OnFieldChanged"
+                                 Label="@Language.Encrypt"
+                                 ReadOnly="@(!isEditMode)"
+                                 Color="Color.Primary"
+                                 Size="Size.Small"
+                                 Class="connection-checkbox" />
+                    <MudCheckBox T="bool"
+                                 @bind-Value="trustServerCertificate"
+                                 @bind-Value:after="OnFieldChanged"
+                                 Label="@Language.TrustCert"
+                                 ReadOnly="@(!isEditMode)"
+                                 Color="Color.Primary"
+                                 Size="Size.Small"
+                                 Class="connection-checkbox" />
+                </div>
+            </div>
+
+            <!-- SignalR Section -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <MudIcon Icon="@Icons.Material.Filled.Hub" Color="Color.Primary" Size="Size.Small" />
+                    <MudText Typo="Typo.subtitle1" Class="section-title">@Language.SignalrConfig</MudText>
+
+                    @if (!isEditMode)
+                            {
+                                <MudTooltip Text="Locked" 
+                                            Arrow="true" 
+                                            Placement="Placement.Right"  
+                                            ShowOnHover="true"
+                                            ShowOnFocus="true">
+                                    <MudIcon Icon="@Icons.Material.Filled.Lock"
+                                             Color="Color.Secondary"
+                                             Size="Size.Small"
+                                             Class="ml-auto lock-icon" />
+                                </MudTooltip>
+                            }
+                </div>
+                
+                <div class="connection-input-row">
+                    <MudTextField @bind-Value="signalRHubUrl"
+                                  Label="@Language.SignalrHubUrl"
+                                  Variant="@(isEditMode ? Variant.Outlined : Variant.Filled)"
+                                  ReadOnly="@(!isEditMode)"
+                                  OnKeyUp="OnFieldChanged"
+                                  Margin="Margin.Dense"
+                                  Class="compact-input connection-field-full" />
+                </div>
+            </div>
+
+
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <MudAlert Severity="@(isStatusError ? Severity.Error : Severity.Success)" Class="mt-2 compact-alert">
+                    <MudText Typo="Typo.body2">@statusMessage</MudText>
+                </MudAlert>
+            }
+        }
+    </div>
+    <!-- Move this outside of the main content, at the end of the tab panel -->
+<div class="sticky-action-bar">
+    @if (!isEditMode)
+    {
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Edit"
+                   Size="Size.Small"
+                   OnClick="EnableEditMode"
+                   Class="edit-btn">
+            @Language.EditSettings
+        </MudButton>
+    }
+    else
+    {
+        <div class="edit-action-buttons">
+            <MudButton Variant="Variant.Text"
+                       Style="@($"color:{Colors.Red.Lighten2};")"
+                       StartIcon="@Icons.Material.Filled.Cancel"
+                       Size="Size.Small"
+                       OnClick="CancelEdit"
+                       Class="mr-2">
+                @Language.Cancel
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Save"
+                       Size="Size.Small"
+                       OnClick="SaveSettings"
+                       Disabled="@(!hasUnsavedChanges || isSaving)"
+                       Class="save-btn">
+                @if (isSaving)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-1" />
+                }
+                @Language.SaveSettings
+            </MudButton>
+                    </div>
+                }
+            </div>
+            </MudTabPanel>
+
+            </MudTabs>
+        </div>
+    </div>
+</div>
+
+<style>
+   /* Main Layout */
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.settings-container {
+    width: 100%;
+    max-width: 500px; /* Reduced from 900px */
+    height: 75vh; /* Reduced from 85vh */
+    background: white;
+    border-radius: 12px; /* Reduced from 16px */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.settings-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    padding: 12px 16px; /* Reduced from 20px 24px */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+.mud-tooltip {
+    z-index: 9999 !important;
+}
+.lock-icon {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.lock-icon:hover {
+    opacity: 0.8;
+}
+
+
+.header-title {
+    margin: 0;
+    font-weight: 600;
+    color: #495057;
+}
+
+.close-btn {
+    border-radius: 6px;
+}
+
+/* Content Area */
+.settings-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-tabs {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.tabs-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    flex-shrink: 0;
+}
+
+/* Adjust tab content to account for sticky bar */
+.tab-content {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(75vh - 120px);
+    padding: 0;
+}
+
+.tab-panel {
+    padding: 16px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 88%;
+}
+
+.tab-panel-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.settings-tabs .mud-tabs-toolbar .mud-tab:hover:not(.mud-tab-active) {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.settings-tabs .mud-tabs-toolbar .mud-tab {
+    transition: all 0.2s ease-in-out;
+    border-radius: 4px 4px 0 0;
+}
+
+.tab-content::-webkit-scrollbar {
+    width: 2px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 1px;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 1px;
+}
+
+    .tab-content::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+/* Sections */
+.settings-section {
+    margin-bottom: 20px; /* Reduced from 32px */
+}
+
+    .settings-section:last-child {
+        margin-bottom: 0;
+    }
+
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px; /* Reduced from 20px */
+    padding-bottom: 8px; /* Reduced from 12px */
+    border-bottom: 2px solid #e9ecef;
+}
+
+    .section-header.compact {
+        margin-bottom: 10px; /* Reduced from 16px */
+        padding-bottom: 6px; /* Reduced from 8px */
+        border-bottom: 1px solid #e9ecef;
+    }
+
+.section-title {
+    margin: 0 0 0 8px; /* Reduced from 12px */
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Profile Section */
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Reduced from 24px */
+    flex-wrap: wrap;
+}
+
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px; /* Reduced from 8px */
+    flex-shrink: 0;
+}
+
+.avatar-label {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.profile-fields {
+    flex: 1;
+    min-width: 220px; /* Reduced from 280px */
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Reduced from 12px */
+}
+
+.reset-btn {
+    align-self: flex-start;
+}
+
+/* Language Section */
+.language-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px; /* Reduced from 16px */
+    flex-wrap: wrap;
+}
+
+.folder-btn {
+    flex-shrink: 0;
+}
+
+/* Connection Card */
+.connection-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px; /* Reduced from 12px */
+    background: white;
+    overflow: hidden;
+}
+
+    .connection-card.readonly {
+        background: #f8f9fa;
+        border-color: #e9ecef;
+    }
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    padding: 12px 16px; /* Reduced from 20px 24px */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px; /* Reduced from 16px */
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px; /* Reduced from 8px */
+}
+
+.readonly-chip {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    font-size: 0.7rem; /* Reduced from 0.75rem */
+}
+
+.edit-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px; /* Reduced from 8px */
+}
+
+/* Fields */
+.fields-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Reduced from 16px */
+}
+
+.field-row {
+    display: flex;
+    gap: 12px; /* Reduced from 16px */
+    flex-wrap: wrap;
+}
+
+.field-primary {
+    flex: 2;
+    min-width: 160px; /* Reduced from 200px */
+}
+
+.field-secondary {
+    flex: 1;
+    min-width: 120px; /* Reduced from 150px */
+}
+
+.field-full {
+    width: 100%;
+}
+
+/* Compact Input Styling */
+.compact-input {
+    margin-bottom: 0;
+}
+
+    .compact-input .mud-input-control {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+        .compact-input .mud-input-control .mud-input {
+            padding: 8px 12px; /* Reduced padding */
+            font-size: 0.875rem; /* Smaller font size */
+            min-height: 32px; /* Reduced height */
+        }
+
+        .compact-input .mud-input-control .mud-input-label {
+            font-size: 0.8rem; /* Smaller label */
+        }
+
+    .compact-input .mud-select .mud-input-control .mud-input {
+        padding: 8px 12px;
+        min-height: 32px;
+    }
+
+/* Options Section */
+.options-section {
+    margin-top: 16px; /* Reduced from 24px */
+    padding-top: 12px; /* Reduced from 16px */
+    border-top: 1px solid #e9ecef;
+}
+
+.options-title {
+    margin-bottom: 10px; /* Reduced from 16px */
+    color: #495057;
+    font-weight: 600;
+}
+
+.checkboxes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Reduced from 200px */
+    gap: 8px; /* Reduced from 12px */
+}
+
+.compact-checkbox {
+    margin: 0;
+}
+
+    .compact-checkbox .mud-checkbox-content {
+        font-size: 0.875rem; /* Smaller checkbox text */
+    }
+
+/* Sticky Action Bar */
+.sticky-action-bar {
+     position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 12px 16px;
+    margin-top: auto; /* This pushes it to the bottom */
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    z-index: 10;
+    border-top: 1px solid #e9ecef; /* Optional: adds visual separation */
+}
+
+.edit-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.save-btn, .edit-btn {
+    min-width: 120px;
+}
+
+/* Alerts */
+.compact-alert {
+    margin-bottom: 10px; /* Reduced from 16px */
+    padding: 8px 12px; /* Reduced from 12px 16px */
+}
+
+    .compact-alert .mud-alert-message {
+        font-size: 0.875rem; /* Smaller alert text */
+    }
+
+/* Loading State */
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px; /* Reduced from 40px */
+    color: #6c757d;
+}
+
+/* Vertical Profile Layout */
+.profile-container-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar-section-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.username-input {
+    flex: 1;
+}
+
+.reset-icon-btn {
+    flex-shrink: 0;
+    margin-bottom: 8px; /* Increased from 2px to better align with input */
+    height: 40px; /* Match the input field height */
+}
+
+/* Language Input Row */
+.language-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.language-select {
+    flex: 1;
+}
+
+.folder-icon-btn {
+    flex-shrink: 0;
+    margin-bottom: 6px; /* Increased from 2px to better align with input */
+    height: 40px; /* Match the input field height */
+}
+
+/* Connection Tab Styling */
+.connection-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 16px auto;
+}
+
+.connection-field-primary {
+    flex: 2;
+}
+
+.connection-field-secondary {
+    flex: 1;
+}
+
+.connection-field-full {
+    flex: 1;
+}
+
+.password-field-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    flex: 1;
+}
+
+.password-toggle-btn {
+    margin-bottom: 8px;
+    height: 40px;
+}
+
+.edit-icon-btn {
+    margin-left: auto;
+}
+
+.connection-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.connection-checkbox {
+    margin: 0;
+}
+
+</style>
+
+@code {
+    [Parameter] public EventCallback OnClosing { get; set; }
+
+    // Original fields
+    private string connectionString = "";
+    private string signalRHubUrl = "";
+    private string statusMessage = "";
+    private string errorMessage = "";
+    private bool isLoading = true;
+    private bool hasError = false;
+    private bool isStatusError = false;
+    private bool isSaving = false;
+
+    // New fields for edit mode and form handling
+    private bool isEditMode = false;
+    private bool hasUnsavedChanges = false;
+    private bool showPassword = false;
+
+    // Connection string components
+    private string serverIp = "";
+    private int port = 1433;
+    private string initialCatalog = "";
+    private string userId = "";
+    private string password = "";
+    private bool persistSecurityInfo = false;
+    private bool multipleActiveResultSets = false;
+    private bool encrypt = false;
+    private bool trustServerCertificate = true;
+    private int connectionTimeout = 30;
+
+    // Backup values for reset functionality
+    private string backupServerIp = "";
+    private int backupPort = 1433;
+    private string backupInitialCatalog = "";
+    private string backupUserId = "";
+    private string backupPassword = "";
+    private bool backupPersistSecurityInfo = false;
+    private bool backupMultipleActiveResultSets = false;
+    private bool backupEncrypt = false;
+    private bool backupTrustServerCertificate = true;
+    private int backupConnectionTimeout = 30;
+    private string backupSignalRHubUrl = "";
+
+    private bool isValidating = false;
+    private List<string> validationErrors = new List<string>();
+
+    private void ParseConnectionString(string connStr)
+    {
+        if (string.IsNullOrEmpty(connStr)) return;
+
+        var parts = connStr.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var part in parts)
+        {
+            var keyValue = part.Split('=', 2);
+            if (keyValue.Length != 2) continue;
+
+            var key = keyValue[0].Trim();
+            var value = keyValue[1].Trim();
+
+            switch (key.ToLower())
+            {
+                case "server":
+                    var serverParts = value.Split(',');
+                    serverIp = serverParts[0];
+                    if (serverParts.Length > 1 && int.TryParse(serverParts[1], out int parsedPort))
+                        port = parsedPort;
+                    break;
+                case "initial catalog":
+                    initialCatalog = value;
+                    break;
+                case "user id":
+                    userId = value;
+                    break;
+                case "password":
+                    password = value;
+                    break;
+                case "persist security info":
+                    persistSecurityInfo = bool.TryParse(value, out bool psi) && psi;
+                    break;
+                case "multipleactiveresultsets":
+                    multipleActiveResultSets = bool.TryParse(value, out bool mars) && mars;
+                    break;
+                case "encrypt":
+                    encrypt = bool.TryParse(value, out bool enc) && enc;
+                    break;
+                case "trustservercertificate":
+                    trustServerCertificate = bool.TryParse(value, out bool tsc) && tsc;
+                    break;
+                case "connection timeout":
+                    if (int.TryParse(value, out int timeout))
+                        connectionTimeout = timeout;
+                    break;
+            }
+        }
+    }
+
+    private string BuildConnectionString()
+    {
+        return $"Server={serverIp},{port};Initial Catalog={initialCatalog};Persist Security Info={persistSecurityInfo};User ID={userId};Password={password};MultipleActiveResultSets={multipleActiveResultSets};Encrypt={encrypt};TrustServerCertificate={trustServerCertificate};Connection Timeout={connectionTimeout};";
+    }
+
+    private void BackupCurrentValues()
+    {
+        backupServerIp = serverIp;
+        backupPort = port;
+        backupInitialCatalog = initialCatalog;
+        backupUserId = userId;
+        backupPassword = password;
+        backupPersistSecurityInfo = persistSecurityInfo;
+        backupMultipleActiveResultSets = multipleActiveResultSets;
+        backupEncrypt = encrypt;
+        backupTrustServerCertificate = trustServerCertificate;
+        backupConnectionTimeout = connectionTimeout;
+        backupSignalRHubUrl = signalRHubUrl;
+    }
+
+    private void EnableEditMode()
+    {
+        isEditMode = true;
+        hasUnsavedChanges = false;
+        BackupCurrentValues();
+    }
+
+    private void CancelEdit()
+    {
+        isEditMode = false;
+        hasUnsavedChanges = false;
+        ResetChanges();
+    }
+
+    private void ResetChanges()
+    {
+        serverIp = backupServerIp;
+        port = backupPort;
+        initialCatalog = backupInitialCatalog;
+        userId = backupUserId;
+        password = backupPassword;
+        persistSecurityInfo = backupPersistSecurityInfo;
+        multipleActiveResultSets = backupMultipleActiveResultSets;
+        encrypt = backupEncrypt;
+        trustServerCertificate = backupTrustServerCertificate;
+        connectionTimeout = backupConnectionTimeout;
+        signalRHubUrl = backupSignalRHubUrl;
+
+        hasUnsavedChanges = false;
+        StateHasChanged();
+    }
+
+    private void OnFieldChanged()
+    {
+        hasUnsavedChanges = true;
+        StateHasChanged();
+    }
+
+    private void OnFieldChanged(bool value)
+    {
+        hasUnsavedChanges = true;
+        StateHasChanged();
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        if (isEditMode)
+        {
+            showPassword = !showPassword;
+        }
+    }
+
+    private async Task SaveGeneralSettings()
+    {
+        await ChangeUsername();
+        await LangLoader.SaveLanguageSettings(LangLoader.SelectedLanguage);
+        StateHasChanged();
+    }
+
+    private async Task SaveSettings()
+    {
+        // Clear previous validation errors
+        validationErrors.Clear();
+        statusMessage = "";
+
+        if (string.IsNullOrWhiteSpace(serverIp) || string.IsNullOrWhiteSpace(initialCatalog) ||
+            string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(password))
+        {
+            statusMessage = Language.MissingDbInfo;
+            isStatusError = true;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(signalRHubUrl))
+        {
+            statusMessage = Language.MissingSignalRInfo;
+            isStatusError = true;
+            return;
+        }
+
+        isValidating = true;
+        isSaving = true;
+        statusMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            // Build the new connection string (declare once and reuse)
+            var newConnectionString = BuildConnectionString();
+
+            // Validate settings using the new service
+            var validationResult = await SettingsValidation.ValidateSettingsAsync(newConnectionString, signalRHubUrl);
+
+            if (!validationResult.IsValid)
+            {
+                validationErrors = validationResult.ErrorMessages;
+                isStatusError = true;
+                return;
+            }
+
+            var appSettingsPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "appsettings.json");
+
+            // Create file if it doesn't exist
+            if (!File.Exists(appSettingsPath))
+            {
+                var initialConfig = @"{
+  ""ConnectionStrings"": {
+    ""DefaultConnection"": """"
+  },
+  ""SignalR"": {
+    ""HubUrl"": """"
+  }
+}";
+                await File.WriteAllTextAsync(appSettingsPath, initialConfig);
+            }
+
+            // Load current JSON content
+            string jsonText = await File.ReadAllTextAsync(appSettingsPath);
+            var jsonNode = JsonNode.Parse(jsonText) ?? new JsonObject();
+
+            // Use the already declared newConnectionString variable
+            if (jsonNode["ConnectionStrings"] == null)
+                jsonNode["ConnectionStrings"] = new JsonObject();
+
+            jsonNode["ConnectionStrings"]["DefaultConnection"] = newConnectionString;
+
+            // Set SignalR URL
+            if (jsonNode["SignalR"] == null)
+                jsonNode["SignalR"] = new JsonObject();
+
+            jsonNode["SignalR"]["HubUrl"] = signalRHubUrl;
+
+            // Write JSON back to the file
+            var updatedJson = jsonNode.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(appSettingsPath, updatedJson);
+
+            // Apply encryption if available
+            if (typeof(ConfigurationEncryptor).GetMethod("EncryptConnectionString") != null)
+            {
+                ConfigurationEncryptor.EncryptConnectionString(newConnectionString, appSettingsPath);
+            }
+
+            statusMessage = Language.SavedAppWillRestart;
+            isStatusError = false;
+            hasUnsavedChanges = false;
+            isEditMode = false;
+
+            // Update backup values
+            BackupCurrentValues();
+
+            StateHasChanged();
+
+            await Task.Delay(2000);
+
+            // Restart application
+            if (Microsoft.Maui.Controls.Application.Current != null)
+            {
+                Microsoft.Maui.Controls.Application.Current.Quit();
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage =  Language.SaveError;
+            isStatusError = true;
+            System.Diagnostics.Debug.WriteLine($"Save Error: {ex}");
+            Console.WriteLine($"Save Error: {ex}");
+        }
+        finally
+        {
+            isValidating = false;
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnLanguageChanged(string newLang)
+    {
+        LangLoader.OnLanguageChanged(newLang);
+    }
+
+    private void OpenLanguageFolder()
+    {
+        var folderPath = "";
+        folderPath = LangLoader.GetLanguagesFolderPath();
+
+        if (Directory.Exists(folderPath))
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = folderPath,
+                    UseShellExecute = true // wichtig für Ordner/Dateien
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ordner konnte nicht geöffnet werden: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task CloseSomething()
+    {
+        if (isEditMode) return;
+        await OnClosing.InvokeAsync();
+    }
+
+    #region Username Change Logic
+
+    private string _newUsername = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        LangLoader.SetAvailableLanguages();
+        LangLoader.SetSelectedLang();
+        // Extrahiere nur den Username-Teil (vor dem Semikolon)
+        _newUsername = GetDisplayUsername(UsernameS.Username);
+
+        await Task.Delay(100);
+
+        try
+        {
+            connectionString = Configuration?.GetConnectionString("DefaultConnection") ?? "";
+            signalRHubUrl = Configuration?["SignalR:HubUrl"] ?? "";
+
+            ParseConnectionString(connectionString);
+            BackupCurrentValues();
+
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            hasError = true;
+            errorMessage = Language.LoadingError;
+            isLoading = false;
+        }
+
+        StateHasChanged();
+    }
+
+    private string GetDisplayUsername(string fullUsername)
+    {
+        if (string.IsNullOrWhiteSpace(fullUsername))
+            return "";
+
+        // Extrahiere nur den Teil vor dem Semikolon
+        var semicolonIndex = fullUsername.IndexOf(';');
+        if (semicolonIndex > 0)
+        {
+            return fullUsername.Substring(0, semicolonIndex);
+        }
+
+        return fullUsername;
+    }
+
+    private string GetGuidPart(string fullUsername)
+    {
+        if (string.IsNullOrWhiteSpace(fullUsername))
+            return "";
+
+        // Extrahiere den Teil nach dem Semikolon (die GUID)
+        var semicolonIndex = fullUsername.IndexOf(';');
+        if (semicolonIndex >= 0 && semicolonIndex < fullUsername.Length - 1)
+        {
+            return fullUsername.Substring(semicolonIndex + 1);
+        }
+
+        return "";
+    }
+
+    private async Task ChangeUsername()
+    {
+        if (!string.IsNullOrWhiteSpace(_newUsername))
+        {
+            // Kombiniere den neuen Username mit der existierenden GUID
+            var guidPart = GetGuidPart(UsernameS.Username);
+            var newFullUsername = string.IsNullOrWhiteSpace(guidPart)
+                ? _newUsername
+                : $"{_newUsername};{guidPart}";
+
+            UsernameS.UpdateUsername(newFullUsername);
+            StateHasChanged();
+        }
+    }
+
+    private void ResetToWindowsName()
+    {
+        UsernameS.ResetToWindowsUsername();
+        _newUsername = GetDisplayUsername(UsernameS.Username);
+        StateHasChanged();
+    }
+
+    private void OnUsernameInput(ChangeEventArgs e)
+    {
+        _newUsername = e.Value?.ToString() ?? "";
+        StateHasChanged(); // Trigger re-render to update avatar
+    }
+
+    private string GetUserInitial()
+    {
+        var displayName = string.IsNullOrWhiteSpace(_newUsername)
+            ? GetDisplayUsername(UsernameS.Username)
+            : _newUsername;
+        return string.IsNullOrWhiteSpace(displayName) ? "U" : displayName[0].ToString().ToUpper();
+    }
+
+    // Für die Anzeige des Usernames im HTML
+    private string GetDisplayUsernameForUI()
+    {
+        return string.IsNullOrWhiteSpace(_newUsername)
+            ? GetDisplayUsername(UsernameS.Username)
+            : _newUsername;
+    }
+
+    private string GetAvatarStyle()
+    {
+        return "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;";
+    }
+
+    #endregion
+}

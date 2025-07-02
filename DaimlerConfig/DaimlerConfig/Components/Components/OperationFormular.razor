@@ -1,0 +1,941 @@
+﻿@using DaimlerConfig.Components.Models
+@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+
+@using DaimlerConfig.Services
+@using Microsoft.IdentityModel.Tokens
+@inject SignalRService SignalRService
+@inject DirtyManagerService DirtyManagerService
+@inject UsernameService UsernameService
+@inject ISnackbar Snackbar
+
+<div class="container-lg" style="padding-left: 0px; height: 100vh; display: flex; flex-direction: column;">
+    <!-- Fixed Header -->
+    <div style="background: white; position: sticky; top: 0; z-index: 100; flex-shrink: 0;">
+        <div class="d-flex justify-content-between align-items-center" style="padding: 25px 24px 20px 24px; margin-bottom: 0 !important;">
+            <div class="d-flex align-items-center gap-3">
+                <MudText Typo="Typo.h5"
+                         Class="mud-typography-h5"
+                         Style="color: var(--mud-palette-text-primary) !important; font-weight: 700 !important; font-size: 1.3rem !important; margin: 0 !important; padding-bottom:12px;">
+                    @Language.Operation
+                </MudText>
+
+                <!-- Status Badges -->
+                <div class="d-flex align-items-center gap-2">
+                    @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
+                    {
+                            <div class="status-badge locked-badge">
+                                <MudIcon Icon="@Icons.Material.Filled.Lock" Style="margin-right: 4px; font-size: 0.75rem;" />
+                                <span>Gesperrt</span>
+                            </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
+                    {
+                            <div class="status-badge user-badge">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Style="margin-right: 4px; font-size: 0.75rem;" />
+                                <span>@SelectedOperation.lockedBy.Split(';')[0]</span>
+                            </div>
+                    }
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <!-- Dropdown mit eigenständiger Positionierung -->
+                <div style="align-self: flex-start; margin-top: -8px;">
+                    <MudSelect T="int?" Label="Version"
+                               Variant="Variant.Outlined"
+                               Disabled="@ReadOnly"
+                               Class="compact-select"
+                               Style="background: white; border-radius: 6px; min-width: 180px;"
+                               Value="selectedVersionId"
+                               ValueChanged="OnVersionChanged"
+                               OnBlur="LockOperation">
+                        <MudSelectItem T="int?" Value="-1">@Language.CurrentVersion</MudSelectItem>
+                        @foreach (var version in OperationVersions.OrderByDescending(v => v.operationVersionID))
+                        {
+                                <MudSelectItem T="int?" Value="@version.operationVersionID">
+                                @version.modifiedBy?.Split(';')[0] - @version.lastModified
+                                </MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+
+                @if (SelectedOperation.operationID == 0)
+                {
+                        <MudButton StartIcon="@Icons.Material.Filled.AddCircle"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Class="add-station-btn-consistent"
+                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                                   @onclick="AddOperationAsync">
+                        @Language.Create
+                        </MudButton>
+                }
+
+                @if (SelectedOperation.operationID != 0)
+                {
+                        <MudButton StartIcon="@Icons.Material.Filled.Save"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   Class="add-station-btn-consistent"
+                                   Style="min-width: 90px; height: 32px; font-size: 0.75rem; margin-bottom:12px;"
+                                   @onclick="UpdateOperationAsync"
+                                   Disabled="@ReadOnly">
+                        @Language.Save
+                        </MudButton>
+                }
+            </div>
+        </div>
+
+        <!-- Separate Linie mit Padding -->
+        <div style="padding: 0px 24px 0px 0px;">
+            <div style="border-bottom: 1px solid rgba(0,0,0,0.08);"></div>
+        </div>
+    </div>
+
+    <!-- Scrollable Content Area -->
+    <div style="flex: 1; overflow-y: auto; padding: 28px 24px 24px 24px;">
+        <!-- Info Banner - nur wenn gesperrt -->
+        @if (ReadOnly && !string.IsNullOrWhiteSpace(SelectedOperation?.lockedBy))
+        {
+                <div class="info-banner mb-4">
+                    <div class="d-flex align-items-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Style="color: #1e40af; margin-right: 8px; font-size: 1rem;" />
+                        <span style="color: #1e40af; font-size: 0.875rem; font-weight: 500;">
+                            Diese Operation wird gerade von <strong>@SelectedOperation.lockedBy.Split(';')[0]</strong> bearbeitet. Alle Felder sind schreibgeschützt.
+                        </span>
+                    </div>
+                </div>
+        }
+
+        <!-- Rest des Inhalts bleibt identisch... -->
+        <!-- General Information Card -->
+        <MudExpansionPanels Elevation="0" Class="mb-4">
+            <MudExpansionPanel Expanded="true"
+                               Style="border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <TitleContent>
+                    <div style="display: flex; align-items: center; padding: 4px 0;">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Style="margin-right: 12px; color: var(--mud-palette-primary);" />
+                        <h6 style="margin: 0; font-weight: 600; color: var(--mud-palette-text-primary);">@Language.General</h6>
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <div style="padding: 0 24px 24px 24px;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudTextField T="int?"
+                                                  Label="@Language.OperationId"
+                                                  Value="SelectedOperation.operationID"
+                                                  ReadOnly="true"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="w-100 locked-field"
+                                                  Style="background: white; border-radius: 12px;" />
+                                    @if (true)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.OperationShortname"
+                                                  @bind-Value="SelectedOperation.operationShortname"
+                                                  MaxLength="16"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty"
+                                                  Error="@errorMessages.ContainsKey("OperationShortname")"
+                                                  ErrorText="@((errorMessages.ContainsKey("OperationShortname")) ? errorMessages["OperationShortname"] : null)" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                    <span class="character-count">
+                                        @($"{SelectedOperation?.operationShortname?.Length ?? 0}/16")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudSelect T="int"
+                                               Label="@Language.ProcessingMode"
+                                               @bind-Value="SelectedOperation.parallel"
+                                               ReadOnly="@ReadOnly"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               OnOpen="LockOperation"
+                                               OnBlur="CheckIfDirty">
+                                        <MudSelectItem Value="0">@Language.Parallel</MudSelectItem>
+                                        <MudSelectItem Value="1">@Language.Serial</MudSelectItem>
+                                    </MudSelect>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.OperationSequence"
+                                                  @bind-Value="SelectedOperation.operationSequence"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.OperationSequenceGroup"
+                                                  @bind-Value="SelectedOperation.operationSequenceGroup"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon" />
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudSelect T="int"
+                                               Label="@Language.AlwaysPerform"
+                                               @bind-Value="SelectedOperation.alwaysPerform"
+                                               ReadOnly="@ReadOnly"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               OnOpen="LockOperation"
+                                               OnBlur="CheckIfDirty">
+                                        <MudSelectItem Value="0">False</MudSelectItem>
+                                        <MudSelectItem Value="1">True</MudSelectItem>
+                                    </MudSelect>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+
+        <!-- Description & Comments Card -->
+        <MudExpansionPanels Elevation="0" Class="mb-4">
+            <MudExpansionPanel Expanded="true"
+                               Style="border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <TitleContent>
+                    <div style="display: flex; align-items: center; padding: 4px 0;">
+                        <MudIcon Icon="@Icons.Material.Filled.Description" Style="margin-right: 12px; color: var(--mud-palette-primary);" />
+                        <h6 style="margin: 0; font-weight: 600; color: var(--mud-palette-text-primary);">@Language.DescriptionAndComments</h6>
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <div style="padding: 0 24px 24px 24px;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container textarea-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.OperationDescription"
+                                                  @bind-Value="SelectedOperation.operationDescription"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Lines="4"
+                                                  MaxLength="1000"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty"
+                                                  TextArea="true" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                    }
+                                    <span class="character-count textarea-count">
+                                        @($"{SelectedOperation?.operationDescription?.Length ?? 0}/1000")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container textarea-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.Comment"
+                                                  @bind-Value="SelectedOperation.Comment"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Lines="4"
+                                                  MaxLength="1000"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty"
+                                                  TextArea="true" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                    }
+                                    <span class="character-count textarea-count">
+                                        @($"{SelectedOperation?.Comment?.Length ?? 0}/1000")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <div class="input-container textarea-container">
+                                    <MudTextField T="string"
+                                                  Label="@Language.DecisionCriteria"
+                                                  @bind-Value="SelectedOperation.operationDecisionCriteria"
+                                                  ReadOnly="@ReadOnly"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Normal"
+                                                  Lines="4"
+                                                  Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                                  Style="background: white; border-radius: 12px;"
+                                                  @onclick="LockOperation"
+                                                  OnBlur="CheckIfDirty"
+                                                  TextArea="true" />
+                                    @if (ReadOnly)
+                                    {
+                                            <MudIcon Icon="@Icons.Material.Filled.Lock" Class="lock-icon textarea-lock" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+
+        <!-- Operation Classes Card -->
+        <MudExpansionPanels Elevation="0">
+            <MudExpansionPanel Expanded="false"
+                               Style="border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <TitleContent>
+                    <div style="display: flex; align-items: center; padding: 4px 0;">
+                        <MudIcon Icon="@Icons.Material.Filled.Category" Style="margin-right: 12px; color: var(--mud-palette-primary);" />
+                        <h6 style="margin: 0; font-weight: 600; color: var(--mud-palette-text-primary);">@Language.OperationClasses</h6>
+                    </div>
+                </TitleContent>
+                <ChildContent>
+                    <div style="padding: 0 24px 24px 24px;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="@Language.DecisionClass"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               @bind-Value="SelectedOperation.decisionClassID"
+                                               OnBlur="LockOperation">
+                                        @foreach (var decision in decisionClasses.OrderBy(d => d.decisionClassName))
+                                        {
+                                                <MudSelectItem T="int?" Value="@decision.decisionClassID">@decision.decisionClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="@Language.GenerationClass"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               @bind-Value="SelectedOperation.generationClassID"
+                                               OnBlur="LockOperation">
+                                        @foreach (var generation in generationClasses.OrderBy(g => g.generationClassName))
+                                        {
+                                                <MudSelectItem T="int?" Value="@generation.generationClassID">@generation.generationClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="@Language.VerificationClass"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               @bind-Value="SelectedOperation.verificationClassID"
+                                               OnBlur="LockOperation">
+                                        @foreach (var verification in verificationClasses.OrderBy(v => v.verificationClassName))
+                                        {
+                                                <MudSelectItem T="int?" Value="@verification.verificationClassID">@verification.verificationClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-container">
+                                    <MudSelect T="int?" Label="@Language.SavingClass"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Normal"
+                                               Disabled="@ReadOnly"
+                                               Class="@($"w-100 {(ReadOnly ? "locked-field" : "")}")"
+                                               Style="background: white; border-radius: 12px;"
+                                               @bind-Value="SelectedOperation.savingClassID"
+                                               OnBlur="LockOperation">
+                                        @foreach (var saving in savingClasses.OrderBy(s => s.savingClassName))
+                                        {
+                                                <MudSelectItem T="int?" Value="@saving.savingClassID">@saving.savingClassName</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    </div>
+</div>
+
+<style>
+    .compact-select .mud-input-outlined {
+        height: 32px !important;
+        min-height: 32px !important;
+    }
+
+        .compact-select .mud-input-outlined .mud-input {
+            height: 32px !important;
+            padding: 4px 8px !important;
+            font-size: 0.75rem !important;
+        }
+
+    /* Scrollbar verstecken */
+    .container-lg > div:last-child {
+        /* Für Webkit Browser (Chrome, Safari, Edge) */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+    }
+
+    .container-lg > div:last-child::-webkit-scrollbar {
+        display: none; /* Webkit Browser */
+    }
+
+    /* Status Badge Styling */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+
+    .locked-badge {
+        background-color: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #3b82f6;
+    }
+
+    .user-badge {
+        background-color: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    /* Info Banner Styling */
+    .info-banner {
+        background-color: #dbeafe;
+        border: 1px solid #3b82f6;
+        border-radius: 12px;
+        padding: 12px 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* Input Container für relative Positionierung */
+    .input-container {
+        position: relative;
+    }
+
+    /* Locked Field Styling */
+    .locked-field .mud-input-outlined {
+        background-color: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+    }
+
+    .locked-field .mud-input-outlined:hover {
+        border-color: #cbd5e1 !important;
+    }
+
+    /* Lock Icon Styling - oben rechts */
+    .lock-icon {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: #3b82f6 !important;
+        font-size: 1rem !important;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    /* Lock Icon für Textareas - oben rechts */
+    .textarea-lock {
+        top: 12px;
+        right: 12px;
+    }
+
+    /* Character Count Styling - unten rechts */
+    .character-count {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2px 4px;
+        border-radius: 4px;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    /* Character Count für Textareas */
+    .textarea-count {
+        bottom: 12px;
+        right: 12px;
+    }
+
+    /* Expansion Panel Styling */
+    .mud-expand-panel {
+        margin-bottom: 0 !important;
+    }
+
+    .mud-expand-panel-header {
+        padding: 16px 24px !important;
+        min-height: auto !important;
+    }
+
+    .mud-expand-panel-content {
+        padding: 0 !important;
+    }
+
+
+     /* Toast Position - Bottom Right */
+    .mud-snackbar-provider {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        top: unset !important;
+        left: unset !important;
+        transform: none !important;
+        z-index: 9999 !important;
+    }
+
+    /* Override all possible MudBlazor snackbar positioning classes */
+    .mud-snackbar-provider[class*="mud-snackbar-location"] {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: unset !important;
+        transform: none !important;
+    }
+
+    /* Specific overrides for common MudBlazor position classes */
+    .mud-snackbar-location-topright,
+    .mud-snackbar-location-top-right,
+    .mud-snackbar-location-topcenter,
+    .mud-snackbar-location-top-center,
+    .mud-snackbar-location-topleft,
+    .mud-snackbar-location-top-left {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: unset !important;
+    }
+
+    /* Ensure individual snackbar items are properly positioned */
+    .mud-snackbar {
+        margin-bottom: 8px !important;
+    }
+
+    /* Success Toast in your design blue */
+    .mud-alert-filled-success {
+        background-color: #1e40af !important;
+        color: white !important;
+    }
+
+    /* Error Toast styling */
+    .mud-alert-filled-error {
+        background-color: #dc2626 !important;
+        color: white !important;
+    }
+
+    /* Warning Toast styling */
+    .mud-alert-filled-warning {
+        background-color: #f59e0b !important;
+        color: white !important;
+    }
+
+
+
+
+</style>
+@code {
+    [Parameter]
+    public string? CurrentUser { get; set; }
+
+
+    [Parameter]
+    public Operation? SelectedOperation { get; set; }
+
+    [Parameter]
+    public IEnumerable<OperationVersion> OperationVersions { get; set; } = Enumerable.Empty<OperationVersion>();
+    private int selectedVersionId = -1;
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    private Operation? OriginalOperation { get; set; }
+    private Dictionary<string, string> errorMessages = new();
+    private bool showErrors = false;
+
+
+    private Tool? currentTool;
+
+    private List<int> currentTemplates = new List<int>();
+
+    private IEnumerable<DecisionClass> decisionClasses = Enumerable.Empty<DecisionClass>();
+
+    private IEnumerable<SavingClass> savingClasses = Enumerable.Empty<SavingClass>();
+
+    private IEnumerable<VerificationClass> verificationClasses = Enumerable.Empty<VerificationClass>();
+
+    private IEnumerable<GenerationClass> generationClasses = Enumerable.Empty<GenerationClass>();
+
+    private IEnumerable<ToolTypeHasTemplate> toolTypeHasTemplates = Enumerable.Empty<ToolTypeHasTemplate>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        UsernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ResetValidationState();
+        if (SelectedOperation != null)
+        {
+            OriginalOperation = SelectedOperation.Clone();
+            OriginalOperation.operationID = SelectedOperation.operationID;
+            OriginalOperation.toolID = SelectedOperation.toolID;
+
+            currentTool = await Fassade.GetTool(SelectedOperation.toolID);
+            if(currentTool != null)
+            {
+                var toolTypeId = currentTool?.toolTypeID ?? 0;
+
+                toolTypeHasTemplates = await Fassade.ToolTypeHasTemplateRepository.Find(t=>t.ToolTypeId ==toolTypeId);
+
+                currentTemplates.Clear();
+                foreach (var toolTypeHasTemplate in toolTypeHasTemplates)
+                {
+                    currentTemplates.Add(toolTypeHasTemplate.TemplateId);
+                }
+            }
+            await InitializeClasses();
+
+			OperationVersions = await Fassade.GetOperationVersions(SelectedOperation.operationID.Value);
+            selectedVersionId = -1;
+
+            StateHasChanged();
+        }
+    }
+
+    #region CRUD
+    public async Task UpdateOperationAsync()
+    {
+        ResetValidationState();
+
+
+        //if (!await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation))
+        //return;
+
+        var dbOperation = await Fassade.GetOperation(SelectedOperation.operationID);
+        if (dbOperation.Equals(SelectedOperation))
+        {
+            return;
+        }
+
+
+
+        if (await ValidateData() == false)
+            return;
+
+		    SelectedOperation.modifiedBy = UsernameService.Username;
+
+        if (!await Fassade.UpdateOperationWithVersion(SelectedOperation, OriginalOperation))
+            return;
+
+        await SignalRService.SendMessageToServer($"OperationUpdated;{SelectedOperation.operationID}");
+        await DirtyManagerService.setClean();
+        Snackbar.Add($"Operation '{SelectedOperation.operationShortname}' erfolgreich aktualisiert!", Severity.Success);
+    }
+
+    private async Task AddOperationAsync()
+    {
+        if (await ValidateData() == false)
+            return;
+
+		SelectedOperation.modifiedBy = UsernameService.Username;
+
+        if (!await Fassade.AddOperation(SelectedOperation))
+            return;
+		var createdOperation = await Fassade.GetOperationByName(SelectedOperation.operationShortname, SelectedOperation.toolID.Value);
+        await SignalRService.SendMessageToServer($"OperationCreated;{createdOperation.operationID}");
+        await DirtyManagerService.setClean();
+        Snackbar.Add($"Operation '{SelectedOperation.operationShortname}' erfolgreich erstellt!", Severity.Success);
+    }
+
+    private async Task DeleteOperationAsync()
+    {
+        if (SelectedOperation != null && (SelectedOperation.isLocked == false || SelectedOperation.lockedBy == UsernameService.Username))
+        {
+            if (!await Fassade.DeleteOperation(SelectedOperation))
+                return;
+
+            await SignalRService.SendMessageToServer($"OperationDeleted;{SelectedOperation.operationID}");
+            await DirtyManagerService.setClean();
+        }
+    }
+    #endregion
+
+    #region Validate
+    public async Task<bool> ValidateData()
+    {
+        ResetValidationState();
+
+        //Objekt
+        if (SelectedOperation == null)
+            return false; //??
+
+        //OperationShortname
+        if (string.IsNullOrWhiteSpace(SelectedOperation.operationShortname))
+        {
+            errorMessages["OperationShortname"] = Language.OperationShortnameMissing;
+        }
+
+        if (!SelectedOperation.toolID.HasValue)
+            return false; //??
+
+        if (await Fassade.OperationExistsInTool(SelectedOperation.operationShortname, SelectedOperation.operationID.Value, SelectedOperation.toolID.Value))
+        {
+            errorMessages["OperationShortname"] = Language.OperationShortnameAlreadyExists;
+
+        }
+
+        showErrors = errorMessages.Any();
+        return !showErrors;
+    }
+
+    private void ResetValidationState()
+    {
+        errorMessages.Clear();
+        showErrors = false;
+    }
+
+    #endregion
+
+    #region Dirty
+    private async Task<bool> CheckIfDirty()
+    {
+        if (SelectedOperation?.operationID == 0)
+            return false;
+        return await DirtyManagerService.CheckIfDirty(SelectedOperation, OriginalOperation, "Operation");
+    }
+
+    public async Task ResetOperation()
+    {
+        var signaloperation = await Fassade.GetOperation(SelectedOperation.operationID.Value);
+        await SignalRService.SendMessageToServer($"OperationUpdated;{signaloperation.operationID}");
+        await DirtyManagerService.setClean();
+    }
+    #endregion
+
+    #region Lock
+    private System.Threading.CancellationTokenSource? lockCancellationTokenSource;
+
+    public async Task LockOperation()
+    {
+
+        if (SelectedOperation.operationID == 0) return;
+        if(SelectedOperation.isLocked == true && SelectedOperation.lockedBy == UsernameService.Username)
+        {
+            lockCancellationTokenSource?.Cancel();
+			StartUnlockTimer();
+        }
+        if (SelectedOperation.isLocked == false)
+        {
+            SelectedOperation.isLocked = true;
+            SelectedOperation.lockedBy = UsernameService.Username;
+			SelectedOperation.lockTimestamp = DateTime.Now;
+            await Fassade.UpdateOperation(SelectedOperation);
+            
+           
+            await SignalRService.SendMessageToServer($"OperationLocked;{SelectedOperation.operationID}");
+            ReadOnly = false;
+			StateHasChanged();
+			StartUnlockTimer();
+           
+
+        }
+    }
+
+   
+    private void StartUnlockTimer()
+    {
+        // Wenn bereits ein Timer läuft, abbrechen
+        lockCancellationTokenSource?.Cancel();
+        lockCancellationTokenSource = new System.Threading.CancellationTokenSource();
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                // Warte 10 Minuten (600000 ms)
+                await Task.Delay(TimeSpan.FromSeconds(600000), lockCancellationTokenSource.Token);
+
+                // Nach 10 Minuten entsperren
+                await UnlockOperationAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Timer wurde abgebrochen (z.B. bei erneutem Lock)
+            }
+        });
+    }
+
+    private async Task UnlockOperationAsync()
+    {
+        if (SelectedOperation == null) return;
+
+        SelectedOperation.isLocked = false;
+        SelectedOperation.lockedBy = null;
+        SelectedOperation.lockTimestamp = null;
+        await Fassade.UpdateOperation(SelectedOperation);
+
+        
+        await SignalRService.SendMessageToServer($"OperationUnlocked;{SelectedOperation.operationID}");
+
+        ReadOnly = true;
+        StateHasChanged();
+    }
+
+    // Optional: Falls man das Lock manuell aufheben will
+    public async Task ManualUnlockOperationAsync()
+    {
+        // Timer stoppen
+        lockCancellationTokenSource?.Cancel();
+        await UnlockOperationAsync();
+    }
+    #endregion
+
+    #region Classes
+    private async Task InitializeClasses()
+    {
+        decisionClasses = await Fassade.GetDecisionClasses();
+
+        if (!currentTemplates.IsNullOrEmpty())
+        {
+            var savingClassesList = new List<SavingClass>();
+            var verificationClassesList = new List<VerificationClass>();
+            var generationClassesList = new List<GenerationClass>();
+
+            foreach (var currentTemplate in currentTemplates.ToList())
+            {
+                savingClassesList.AddRange(await Fassade.GetSavingClasses(currentTemplate));
+                verificationClassesList.AddRange(await Fassade.GetVerificationClasses(currentTemplate));
+                generationClassesList.AddRange(await Fassade.GetGenerationClasses(currentTemplate));
+            }
+            //Set standards if classes are null (Saving never null)
+            if (verificationClassesList.IsNullOrEmpty())
+                verificationClassesList.AddRange(await Fassade.GetVerificationClasses(0));
+          
+            if (generationClassesList.IsNullOrEmpty())
+                generationClassesList.AddRange(await Fassade.GetGenerationClasses(0));
+
+            savingClasses = savingClassesList;
+            verificationClasses = verificationClassesList;
+            generationClasses = generationClassesList;
+        }
+    }
+
+    #endregion
+
+    #region 
+    private async Task OnVersionChanged(int? versionId)
+    {
+        if (versionId.HasValue)
+        {
+            selectedVersionId = versionId.Value;
+
+            if (versionId == -1)
+            {
+                if (SelectedOperation?.operationID != null)
+                {
+                    var currentOperation = await Fassade.GetOperation(SelectedOperation.operationID);
+                    if (currentOperation != null)
+                    {
+                        SelectedOperation = currentOperation;
+                    }
+                }
+            }
+            else
+            {
+                var selectedVersion = OperationVersions.FirstOrDefault(v => v.operationVersionID == versionId);
+                if (selectedVersion != null && SelectedOperation != null)
+                {
+                    SelectedOperation.operationShortname = selectedVersion.operationShortname;
+                    SelectedOperation.operationDescription = selectedVersion.operationDescription;
+                    SelectedOperation.operationSequence = selectedVersion.operationSequence;
+                    SelectedOperation.operationSequenceGroup = selectedVersion.operationSequenceGroup;
+                    SelectedOperation.operationDecisionCriteria = selectedVersion.operationDecisionCriteria;
+                    SelectedOperation.alwaysPerform = selectedVersion.alwaysPerform;
+                    SelectedOperation.decisionClassID = selectedVersion.decisionClassID;
+                    SelectedOperation.generationClassID = selectedVersion.generationClassID;
+                    SelectedOperation.verificationClassID = selectedVersion.verificationClassID;
+                    SelectedOperation.savingClassID = selectedVersion.savingClassID;
+                    SelectedOperation.parallel = selectedVersion.parallel;
+                    SelectedOperation.qGateID = selectedVersion.qGateID;
+                    SelectedOperation.lastModified = selectedVersion.lastModified;
+                    SelectedOperation.modifiedBy = selectedVersion.modifiedBy;
+                    SelectedOperation.Comment = selectedVersion.Comment;
+                    SelectedOperation.Status = selectedVersion.Status;
+                }
+            }
+            StateHasChanged();
+        }
+    }
+
+
+
+    #endregion
+}

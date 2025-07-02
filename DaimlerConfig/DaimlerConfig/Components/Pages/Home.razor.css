@@ -1,0 +1,79 @@
+﻿body {
+    background-color: #F8FCFF;
+}
+
+.ProjectManager {
+    background-color: #FEFEFE;
+    border-radius: 8px;
+    padding-top: 60px;
+}
+
+p {
+    margin-bottom: 0px;
+}
+
+hr {
+    margin-top: 0px;
+}
+
+    hr:not([size]) {
+        height: 0.3px;
+    }
+
+.line-div:hover {
+    background-color: #f8f9fa;
+}
+
+.projects {
+    margin-bottom: 20px;
+}
+
+.plus-icon {
+    margin-right: 8px;
+    font-size: 18px;
+    line-height: 0;
+    position: relative;
+    top: 2px;
+}
+
+.lineLabel {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+}
+
+
+/* Modernes MudTextField Styling mit Hover-Effekt */
+.mud-modern-textfield .mud-input-root {
+    border-radius: 12px !important;
+    transition: box-shadow 0.2s, background 0.2s;
+    background: #fafbfc;
+}
+
+   
+    
+
+
+.line-hover:hover {
+    background-color: rgba(var(--mud-palette-primary), 0.1) !important;
+}
+
+.hover-highlight {
+    transition: background-color 0.2s ease;
+}
+
+    .hover-highlight:hover {
+        background-color: #e3f2fd; /* leichtes Blau */
+        cursor: pointer;
+    }
+
+
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }

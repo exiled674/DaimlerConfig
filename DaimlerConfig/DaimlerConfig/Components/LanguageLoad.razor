@@ -1,0 +1,84 @@
+﻿@using System.Text.Json
+@using DaimlerConfig.Components.Models
+@using Microsoft.Extensions.FileProviders
+@code {
+    private const string SELECTED_LANGUAGE_KEY = "SelectedLanguage";
+    public string SelectedLanguage = "";
+    public List<string> AvailableLanguages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            SetSelectedLang();
+            await SaveLanguageSettings(SelectedLanguage);
+            SetAvailableLanguages();
+        }
+        catch (Exception) { }
+    }
+
+    public void SetAvailableLanguages()
+    {
+        var fileProvider = new PhysicalFileProvider(Path.Combine(GetLanguagesFolderPath()));
+        AvailableLanguages = fileProvider.GetDirectoryContents("")
+            .Where(f => f.Name.EndsWith("LANG.json"))
+            .Select(f => Path.GetFileNameWithoutExtension(f.Name))
+            .ToList();
+        var cleanedLanguages = AvailableLanguages
+            .Select(lang =>
+            {
+                var parts = lang.Split('_');
+                return parts.Length >= 3 ? parts[1] : lang;
+            })
+            .ToList();
+        AvailableLanguages = cleanedLanguages;
+    }
+
+    public void SetSelectedLang()
+    {
+        SelectedLanguage = Preferences.Default.Get(SELECTED_LANGUAGE_KEY, SelectedLanguage);
+    }
+
+    public async Task SaveLanguageSettings(string selectedLang)
+    {
+        Preferences.Default.Set(SELECTED_LANGUAGE_KEY, selectedLang);
+        selectedLang = "DConfig_" + selectedLang + "_LANG";
+        await LoadSelectedLanguage( selectedLang);
+    }
+
+    private async Task LoadSelectedLanguage(string selectedLang)
+    {
+        var languageFilePath = Path.Combine(GetLanguagesFolderPath(), $"{selectedLang}.json");
+        await LoadLanguageFromFileAsync(languageFilePath);
+    }
+
+    public string GetLanguagesFolderPath()
+    {
+        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        return Path.Combine(appDataPath);
+    }
+
+    public void OnLanguageChanged(string newLanguage)
+    { 
+        SelectedLanguage = newLanguage;
+    }
+
+    private async Task LoadLanguageFromFileAsync(string filePath)
+    {
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"Sprachdatei nicht gefunden: {filePath}");
+
+        var jsonContent = await File.ReadAllTextAsync(filePath);
+        Language.SetLanguage(LoadLanguageFromJson(jsonContent));
+    }
+
+    private LanguageHelper LoadLanguageFromJson(string jsonContent)
+    {
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        return JsonSerializer.Deserialize<LanguageHelper>(jsonContent, options) ?? new LanguageHelper();
+    }
+}

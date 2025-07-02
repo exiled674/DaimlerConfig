@@ -1,0 +1,265 @@
+﻿@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+@using DaimlerConfig.Components.Models
+@using DaimlerConfig.Services
+@inject UsernameService usernameService
+@inject SignalRService SignalRService
+@inject ISnackbar Snackbar
+
+<MudDialog Close="true" Style="width:500px; max-width:90vw; border-radius:16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Class="mt-2 ml-2">@(IsEditMode ? Language.EditProject : Language.NewProject)</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" OnValidSubmit="HandleValidSubmit">
+            <MudPaper Class="p-4 dialog-form-container" Elevation="0" Style="border-radius:12px;">
+                <MudTextField @bind-Value="_inputValue"
+                Label="@Language.ProjectName"
+                Variant="Variant.Outlined"
+                AutoFocus="true"
+                Margin="Margin.Normal"
+                Class="w-100 dialog-input-field"
+                Style="background: white; border-radius: 12px;"
+                Error="@lineExists"
+                ErrorText="@errorText"
+                @onkeypress="OnKeyDown"/>
+
+                <MudTextField @bind-Value="_inputValue2"
+                Label="@Language.ProjectDescription"
+                Variant="Variant.Outlined"
+                AutoFocus="true"
+                Margin="Margin.Normal"
+                Class="w-100 dialog-input-field"
+                Style="background: white; border-radius: 12px;"
+                Error="@lineExists"
+                ErrorText="@errorText"
+                @onkeypress="OnKeyDown" />
+            </MudPaper>
+            <!-- Optionaler versteckter Submit-Button für Enter-Taste -->
+            <MudButton Type="ButtonType.Submit" Style="display:none;" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Text" Color="Color.Default" Class="rounded-button">@Language.Cancel</MudButton>
+        <MudButton Type="ButtonType.Submit"
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        OnClick="HandleValidSubmit"
+        Class="rounded-button">
+            @(IsEditMode ? Language.Save : Language.Confirm)
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    /* Nur für diesen Dialog - spezifische Container-Klasse */
+    .dialog-form-container {
+    background-color: white !important;
+    border-radius: 12px;
+    }
+
+    /* Nur für Input-Felder innerhalb des Dialog-Containers */
+    .dialog-form-container .dialog-input-field.mud-input-outlined {
+    background: white !important;
+    border-radius: 12px !important;
+    }
+
+    .dialog-form-container .dialog-input-field.mud-input-outlined .mud-input-root {
+    background: white !important;
+    border-radius: 12px !important;
+    }
+
+    /* Entfernt die alten problematischen Styles */
+    .dialog-form-container .search-field-enhanced .mud-input-root {
+    background-color: transparent !important;
+    color: inherit !important;
+    border-radius: 0 !important;
+    }
+
+    .dialog-form-container .search-field-enhanced .mud-input-root.mud-focused {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    }
+
+
+       /* Toast Position - Bottom Right */
+    .mud-snackbar-provider {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        top: unset !important;
+        left: unset !important;
+        transform: none !important;
+        z-index: 9999 !important;
+    }
+
+        /* Override all possible MudBlazor snackbar positioning classes */
+        .mud-snackbar-provider[class*="mud-snackbar-location"] {
+            top: unset !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            left: unset !important;
+            transform: none !important;
+        }
+
+    /* Specific overrides for common MudBlazor position classes */
+    .mud-snackbar-location-topright,
+    .mud-snackbar-location-top-right,
+    .mud-snackbar-location-topcenter,
+    .mud-snackbar-location-top-center,
+    .mud-snackbar-location-topleft,
+    .mud-snackbar-location-top-left {
+        top: unset !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        left: unset !important;
+    }
+
+    /* Ensure individual snackbar items are properly positioned */
+    .mud-snackbar {
+        margin-bottom: 8px !important;
+    }
+
+    /* Success Toast in your design blue */
+    .mud-alert-filled-success {
+        background-color: #1e40af !important;
+        color: white !important;
+    }
+
+    /* Error Toast styling */
+    .mud-alert-filled-error {
+        background-color: #1e40af !important;
+        color: white !important;
+    }
+
+    /* Warning Toast styling */
+    .mud-alert-filled-warning {
+        background-color:#1e40af !important;
+        color: white !important;
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public Line ExistingLine { get; set; }
+
+    private MudForm _form;
+    private string _inputValue;
+    private string _inputValue2;
+    private bool lineExists;
+    private string errorText;
+    private string _originalValue;
+    private string _originalValue2;
+
+    private bool IsEditMode => ExistingLine != null;
+
+    protected override void OnInitialized()
+    {
+        usernameService.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
+        if (IsEditMode)
+        {
+            _inputValue = ExistingLine.lineName;
+            _inputValue2 = ExistingLine.lineDescription;
+            _originalValue = ExistingLine.lineName;
+            _originalValue2 = ExistingLine.lineDescription;
+        }
+        else
+        {
+            _inputValue = string.Empty;
+        }
+        lineExists = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // Prüfung auf leeren Namen
+        if (string.IsNullOrWhiteSpace(_inputValue))
+        {
+            lineExists = true;
+            errorText = Language.ProjectNameCannotBeEmpty;
+            return;
+        }
+
+        // Prüfung auf doppelte Namen (außer bei sich selbst im Edit-Modus)
+        bool nameExists = await Fassade.LineExistsByName(_inputValue);
+        if (nameExists && (!IsEditMode || _inputValue != _originalValue))
+        {
+            lineExists = true;
+            errorText = Language.ProjectNameAlreadyExists;
+            return;
+        }
+
+        try
+        {
+            if (IsEditMode)
+            {
+                // Bearbeiten eines bestehenden Projekts
+                ExistingLine.lineName = _inputValue;
+                ExistingLine.lineDescription = _inputValue2;
+                ExistingLine.lastModified = DateTime.Now;
+                ExistingLine.modifiedBy = usernameService.Username;
+
+                if (!(await Fassade.UpdateLine(ExistingLine)))
+                {
+                    lineExists = true;
+                    errorText = Language.ProjectErrorInDb;
+                    return;
+                }
+
+                await SignalRService.SendMessageToServer($"LineUpdated;{ExistingLine.lineID}");
+                Snackbar.Add(Language.Project +" "+ ExistingLine.lineName + Language.HasBeenUpdated, Severity.Success);
+            }
+            else
+            {
+                // Erstellen eines neuen Projekts
+                Line line = new Line
+                    {
+                        lineName = _inputValue,
+                        lineDescription = _inputValue2,
+                        lastModified = DateTime.Now,
+                        modifiedBy = usernameService.Username,
+                        lineID = 0,
+                    };
+
+                if (!(await Fassade.AddLine(line)))
+                {
+                    lineExists = true;
+                    errorText = Language.ProjectErrorInDb;
+                    return;
+                }
+
+                var savedLine = await Fassade.GetLineByName(line.lineName);
+                if (savedLine != null)
+                {
+                    await SignalRService.SendMessageToServer($"LineAdded;{savedLine.lineID}");
+                    Snackbar.Add(Language.Project +" "+ savedLine.lineName + Language.HasBeenCreated, Severity.Success);
+                }
+            }
+
+            lineExists = false;
+            MudDialog.Close(DialogResult.Ok(_inputValue));
+        }
+        catch (Exception ex)
+        {
+            lineExists = true;
+            errorText = Language.ErrorOccured + ex.Message;
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            // Kurze Verzögerung um sicherzustellen, dass @bind-Value aktualisiert wurde
+            await Task.Delay(1);
+            await HandleValidSubmit();
+        }
+    }
+}
