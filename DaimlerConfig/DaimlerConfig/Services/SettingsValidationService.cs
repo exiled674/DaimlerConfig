@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 using System.Net.Sockets;
 
 
-namespace DaimlerConfig.Services
+namespace DConfig.Services
 {
     public class SettingsValidationService
     {

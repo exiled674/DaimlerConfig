@@ -1,4 +1,4 @@
-﻿namespace DaimlerConfig
+﻿namespace DConfig
 {
     public partial class MainPage : ContentPage
     {

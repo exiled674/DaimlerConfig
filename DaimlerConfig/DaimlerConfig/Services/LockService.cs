@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DaimlerConfig.Services
+namespace DConfig.Services
 {
     internal class LockService
     {

@@ -1,9 +1,9 @@
-﻿using DaimlerConfig.Components.Repositories;
+﻿using DConfig.Components.Repositories;
 using System;
 using System.Data;
 using System.Threading.Tasks;
 
-namespace DaimlerConfig.Components.Infrastructure
+namespace DConfig.Components.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {

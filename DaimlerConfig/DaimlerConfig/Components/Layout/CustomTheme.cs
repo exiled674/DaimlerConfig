@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Office.Word;
 using MudBlazor;
 
-namespace DaimlerConfig.Components.Layout
+namespace DConfig.Components.Layout
 {
     public class CustomTheme
     {

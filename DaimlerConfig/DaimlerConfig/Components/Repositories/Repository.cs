@@ -5,10 +5,10 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-using DaimlerConfig.Components.Infrastructure;
+using DConfig.Components.Infrastructure;
 using Dapper;
 
-namespace DaimlerConfig.Components.Repositories
+namespace DConfig.Components.Repositories
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {

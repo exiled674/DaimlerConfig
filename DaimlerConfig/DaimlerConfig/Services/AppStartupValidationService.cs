@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.SignalR.Client;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using DaimlerConfig.Security;
+using DConfig.Security;
 using Microsoft.Data.SqlClient;
 
-namespace DaimlerConfig.Services
+namespace DConfig.Services
 {
     public class AppStartupValidationService
     {

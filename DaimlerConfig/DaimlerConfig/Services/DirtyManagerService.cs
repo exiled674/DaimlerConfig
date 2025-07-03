@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace DaimlerConfig.Services
+namespace DConfig.Services
 {
     public class DirtyManagerService
     {

@@ -1,13 +1,13 @@
 ﻿using Xunit;
 using Dapper;
-using DaimlerConfig.Components.Repositories;
-using DaimlerConfig.Components.Models;
-using DaimlerConfig.Components.Infrastructure;
+using DConfig.Components.Repositories;
+using DConfig.Components.Models;
+using DConfig.Components.Infrastructure;
 using Microsoft.Data.Sqlite;
 using System.Data;
 using System.Security.Cryptography;
 
-namespace DaimlerConfigTest
+namespace DConfigTest
 {
     public class ToolRepositoryTest : IDisposable
     {

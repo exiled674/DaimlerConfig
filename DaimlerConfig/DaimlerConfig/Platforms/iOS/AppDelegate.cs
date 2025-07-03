@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace DaimlerConfig
+namespace DConfig
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

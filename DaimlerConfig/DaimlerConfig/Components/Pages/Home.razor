@@ -1,8 +1,8 @@
 ﻿@page "/"
 
-@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+@inject DConfig.Components.Fassade.Fassade Fassade
 
-@using DaimlerConfig.Services
+@using DConfig.Services
 @inject SignalRService SignalRService
 @inject NavigationManager Navigation
 @inject NavigationStateService NavState
@@ -12,10 +12,10 @@
 @using System.IO
 @using System.Text
 @using ClosedXML.Excel
-@using DaimlerConfig.Components.Export
+@using DConfig.Components.Export
 @using Microsoft.Maui.Storage
 @inject DirtyManagerService DirtyManagerService
-@using DaimlerConfig.Components.Models
+@using DConfig.Components.Models
 @inject UsernameService usernameService
 @inject SelectionStateService SelectionState
 @inject IJSRuntime JS;

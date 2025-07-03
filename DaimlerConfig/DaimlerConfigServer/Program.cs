@@ -1,5 +1,5 @@
-using DaimlerConfigServer.Hubs;
-using DaimlerConfigServer.ServerComponents;
+using DConfigServer.Hubs;
+using DConfigServer.ServerComponents;
 using Microsoft.Azure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);

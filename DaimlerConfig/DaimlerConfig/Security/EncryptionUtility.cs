@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace DaimlerConfig.Security
+namespace DConfig.Security
 {
     /// <summary>
     /// Console Utility zum Verschlüsseln von Connection Strings

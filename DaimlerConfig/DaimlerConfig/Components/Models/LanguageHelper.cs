@@ -1,4 +1,4 @@
-﻿namespace DaimlerConfig.Components.Models;
+﻿namespace DConfig.Components.Models;
 
 public class LanguageHelper
 {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
-using DaimlerConfig.Components;
-using DaimlerConfig.Components.Components;
-using DaimlerConfig.Components.Export;
+using DConfig.Components;
+using DConfig.Components.Components;
+using DConfig.Components.Export;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,13 +12,13 @@ using Microsoft.Maui.Hosting;
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.SignalR.Client;
 
-using DaimlerConfig.Components.Infrastructure;
-using DaimlerConfig.Components.Models;
-using DaimlerConfig.Components.Repositories;
-using DaimlerConfig.Components.Fassade;
-using DaimlerConfig.Services;
+using DConfig.Components.Infrastructure;
+using DConfig.Components.Models;
+using DConfig.Components.Repositories;
+using DConfig.Components.Fassade;
+using DConfig.Services;
 using Microsoft.Maui.LifecycleEvents;
-using DaimlerConfig.Security;
+using DConfig.Security;
 using MudBlazor.Services;
 using MudBlazor;
 
@@ -28,7 +28,7 @@ using MudBlazor;
 using Microsoft.UI.Xaml;
 #endif
 
-namespace DaimlerConfig
+namespace DConfig
 {
     public static class MauiProgram
     {

@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace DaimlerConfig.Components.JsonHandler;
+namespace DConfig.Components.JsonHandler;
 
 public class WriteJson
 {

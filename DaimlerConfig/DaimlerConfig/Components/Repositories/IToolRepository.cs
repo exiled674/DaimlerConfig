@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DaimlerConfig.Components.Models;
+using DConfig.Components.Models;
 
-namespace DaimlerConfig.Components.Repositories
+namespace DConfig.Components.Repositories
 {
     public interface IToolRepository : IRepository<Tool>
     {

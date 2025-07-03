@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DaimlerConfig.Components.Repositories;
+using DConfig.Components.Repositories;
 
-namespace DaimlerConfig.Components.Infrastructure
+namespace DConfig.Components.Infrastructure
 {
     public interface IUnitOfWork : IDisposable
     {

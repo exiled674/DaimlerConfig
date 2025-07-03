@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
-using DaimlerConfig.Components.Models;
+using DConfig.Components.Models;
 using System.IO;
 using ClosedXML.Excel;
 
 
-namespace DaimlerConfig.Components.Export;
+namespace DConfig.Components.Export;
 
 
 public class ExcelExport

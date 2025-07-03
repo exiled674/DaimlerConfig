@@ -23,7 +23,7 @@ public class UsernameService : INotifyPropertyChanged
 
         if (string.IsNullOrWhiteSpace(_username))
         {
-            _username = DaimlerConfig.MauiProgram.Username;
+            _username = DConfig.MauiProgram.Username;
             Preferences.Default.Set(UsernameKey, _username);
         }
     }
@@ -56,7 +56,7 @@ public class UsernameService : INotifyPropertyChanged
 
     public void ResetToWindowsUsername()
     {
-        var windowsUsername = DaimlerConfig.MauiProgram.Username;
+        var windowsUsername = DConfig.MauiProgram.Username;
         Preferences.Default.Set(UsernameKey, windowsUsername);
         Username = windowsUsername;
     }

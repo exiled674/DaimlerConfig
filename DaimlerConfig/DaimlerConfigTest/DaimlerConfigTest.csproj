@@ -21,7 +21,7 @@
 
 	<ItemGroup>
 		<!-- Verweis auf dein Konfigurations-Projekt -->
-		<ProjectReference Include="..\DaimlerConfig\DaimlerConfig.csproj" />
+		<ProjectReference Include="..\DConfig\DConfig.csproj" />
 	</ItemGroup>
 
 </Project>

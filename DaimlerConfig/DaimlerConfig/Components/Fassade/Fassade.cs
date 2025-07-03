@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
-using DaimlerConfig.Components.Repositories;
-using DaimlerConfig.Components.Models;
-using DaimlerConfig.Components.JsonHandler;
-using DaimlerConfig.Components.Export;
+using DConfig.Components.Repositories;
+using DConfig.Components.Models;
+using DConfig.Components.JsonHandler;
+using DConfig.Components.Export;
 
-namespace DaimlerConfig.Components.Fassade
+namespace DConfig.Components.Fassade
 {
     public class Fassade
     {

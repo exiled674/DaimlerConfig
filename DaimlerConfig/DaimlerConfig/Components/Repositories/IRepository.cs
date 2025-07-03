@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DaimlerConfig.Components.Repositories
+namespace DConfig.Components.Repositories
 {
     public interface IRepository<TEntity> where TEntity : class
     {

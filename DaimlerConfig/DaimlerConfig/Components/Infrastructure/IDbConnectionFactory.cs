@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DaimlerConfig.Components.Infrastructure
+namespace DConfig.Components.Infrastructure
 {
     public interface IDbConnectionFactory
     {

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace DaimlerConfig.Components.Models
+namespace DConfig.Components.Models
 {
     public class Tool : ICopyable<Tool>, IEquatable<Tool>
     {

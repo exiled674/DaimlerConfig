@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-namespace DaimlerConfig.Security
+namespace DConfig.Security
 {
     public class EncryptedConfigurationProvider : FileConfigurationProvider
     {

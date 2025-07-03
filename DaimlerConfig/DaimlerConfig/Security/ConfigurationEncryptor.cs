@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace DaimlerConfig.Security
+namespace DConfig.Security
 {
     public static class ConfigurationEncryptor
     {

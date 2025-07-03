@@ -1,13 +1,13 @@
 @page "/line/{lineName}"
 
-@using DaimlerConfig.Services
+@using DConfig.Services
 @inject SignalRService SignalRService
 @inject DirtyManagerService DirtyManagerService
 @inject AppLifecycleService LifecycleService
 
-@inject DaimlerConfig.Components.Fassade.Fassade Fassade
+@inject DConfig.Components.Fassade.Fassade Fassade
 
-@using DaimlerConfig.Components.Models
+@using DConfig.Components.Models
 @inject NavigationManager Navigation
 @inject NavigationStateService NavState
 @inject SelectionStateService SelectionState
@@ -1450,7 +1450,7 @@
 @code {
     private bool ShowSettings = false;
 
-    //private readonly string currentUser = DaimlerConfig.MauiProgram.Username;
+    //private readonly string currentUser = DConfig.MauiProgram.Username;
 
 
     protected override void OnParametersSet()
@@ -2584,13 +2584,13 @@
                 // Call appropriate Blazor method based on element type
                 switch(elementType) {
                     case 'station':
-                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleStationReorder', newOrder);
+                        DotNet.invokeMethodAsync('DConfig', 'HandleStationReorder', newOrder);
                         break;
                     case 'tool':
-                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleToolReorder', newOrder);
+                        DotNet.invokeMethodAsync('DConfig', 'HandleToolReorder', newOrder);
                         break;
                     case 'operation':
-                        DotNet.invokeMethodAsync('DaimlerConfig', 'HandleOperationReorder', newOrder);
+                        DotNet.invokeMethodAsync('DConfig', 'HandleOperationReorder', newOrder);
                         break;
                 }
             };

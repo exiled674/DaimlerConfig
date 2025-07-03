@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.SignalR;
-namespace DaimlerConfigServer.Hubs
+namespace DConfigServer.Hubs
 {
     public class SignalHub : Hub
     {

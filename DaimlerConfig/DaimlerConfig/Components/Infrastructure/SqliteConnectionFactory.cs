@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Data;
 using Microsoft.Data.SqlClient;
 
-namespace DaimlerConfig.Components.Infrastructure
+namespace DConfig.Components.Infrastructure
 {
     public class SqlServerConnectionFactory : IDbConnectionFactory
     {

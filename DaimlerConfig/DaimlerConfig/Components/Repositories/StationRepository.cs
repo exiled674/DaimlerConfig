@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DaimlerConfig.Components.Infrastructure;
-using DaimlerConfig.Components.Models;
+using DConfig.Components.Infrastructure;
+using DConfig.Components.Models;
 using Dapper;
 
 
 
-namespace DaimlerConfig.Components.Repositories
+namespace DConfig.Components.Repositories
 {
     public class StationRepository : Repository<Station>, IStationRepository
     {

@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace DaimlerConfig
+namespace DConfig
 {
     public class Program
     {

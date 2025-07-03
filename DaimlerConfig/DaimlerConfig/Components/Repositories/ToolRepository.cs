@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using Dapper;
-using DaimlerConfig.Components.Infrastructure;
-using DaimlerConfig.Components.Models;
+using DConfig.Components.Infrastructure;
+using DConfig.Components.Models;
 
-namespace DaimlerConfig.Components.Repositories
+namespace DConfig.Components.Repositories
 {
     public class ToolRepository : Repository<Tool>, IToolRepository
     {

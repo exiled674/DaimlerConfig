@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 
-namespace DaimlerConfig.Security
+namespace DConfig.Security
 {
     public static class ConfigurationExtensions
     {

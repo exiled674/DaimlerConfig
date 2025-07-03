@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using DaimlerConfigServer.Hubs;
+using DConfigServer.Hubs;
 using System.Runtime.CompilerServices;
 
-namespace DaimlerConfigServer.Controllers
+namespace DConfigServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

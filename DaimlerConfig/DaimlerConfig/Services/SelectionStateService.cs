@@ -1,6 +1,6 @@
 ﻿using Microsoft.Maui.Storage;
 
-namespace DaimlerConfig.Services
+namespace DConfig.Services
 {
     public class SelectionStateService
     {
