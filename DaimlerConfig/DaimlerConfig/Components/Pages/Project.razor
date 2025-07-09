@@ -21,7 +21,8 @@
 @inject IDialogService DialogService
 
 
-<div id="screenshot-target">
+
+
     <!-- Optimierte Navbar mit ECHTER Zentrierung -->
     <MudAppBar Elevation="2" Color="Color.Primary" Style="height: 64px;">
         <div class="d-flex align-center w-100 px-4 position-relative">
@@ -79,7 +80,7 @@
             <!-- Rechts: Aktionen & User (absolute positioning) -->
             <div class="d-flex align-center position-absolute" style="gap: 12px; right: 16px;">
 
-                <button @onclick="SaveScreenshot">.</button>
+                
 
                 <!-- Share Link Button -->
                 <MudButton Variant="Variant.Text"
@@ -780,51 +781,7 @@
         </MudMainContent>
     </MudLayout>
 
-</div>
-
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
-<script>
-    async function captureAndDownload() {
-    const target = document.getElementById('screenshot-target');
-
-    // Skalierung für höhere Auflösung (4× für ca. 4K bei FullHD-Content)
-    const scale = 6;
-
-    // Rendern
-    const canvas = await html2canvas(target, {
-    scale: scale,
-    useCORS: true
-    });
-
-    // Canvas in einen Blob umwandeln und herunterladen
-    canvas.toBlob(blob => {
-    if (!blob) {
-    console.error("Blob-Erstellung fehlgeschlagen");
-    return;
-    }
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'screenshot-highres.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    }, 'image/png');
-    }
-</script>
-
-@code {
-    private async Task SaveScreenshot()
-    {
-        await JS.InvokeVoidAsync("captureAndDownload");
-    }
-}
-
 <style>
-
-
 
 /* Status Selector - Vertikale Options */
 .status-selector-container:hover .status-options-vertical {
@@ -2566,6 +2523,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+
         if (firstRender && !_initialized)
         {
             _initialized = true;

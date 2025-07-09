@@ -22,11 +22,52 @@
 }
 else
 {
-    <div class="page" style=" @(isMainPage ? "" : "overflow: hidden; height: 100vh;")">
-        <main>
-            <article class="content">
-                @Body
-            </article>
-        </main>
+    <div id="screenshot-target">
+
+        <div class="page" style=" @(isMainPage ? "" : "overflow: hidden; height: 100vh;")">
+            <main>
+                <article class="content">
+                    @Body
+                </article>
+            </main>
+        </div>
     </div>
 }
+
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<script>
+    async function captureAndDownload() {
+        const target = document.getElementById('screenshot-target');
+        const scale = 6;
+
+        const canvas = await html2canvas(target, {
+            scale: scale,
+            useCORS: true
+        });
+
+        canvas.toBlob(blob => {
+            if (!blob) {
+                console.error("Blob-Erstellung fehlgeschlagen");
+                return;
+            }
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'screenshot-highres.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 'image/png');
+    }
+
+    // Shortcut direkt registrieren
+    window.addEventListener("keydown", function (e) {
+        if (e.ctrlKey && e.shiftKey && e.code === "KeyS") {
+            e.preventDefault();
+            captureAndDownload();
+        }
+    });
+</script>
